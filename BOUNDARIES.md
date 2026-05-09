@@ -236,7 +236,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 ### Phase J — Second reference domain (scaffold shipped)
 
-**Status:** `world/resource_cascade.py` — **`ResourceCascadeWorld`** + **`runner.rollout_resource_cascade`** (schedule encoding matches aggregate/network; physics is capacity + overload cascade, not a peg). GA smoke CLI: **`scripts/run_resource_cascade_ga_demo.py`**.
+**Status:** `world/resource_cascade.py` — **`ResourceCascadeWorld`** + **`runner.rollout_resource_cascade`** (schedule encoding matches aggregate/network; physics is capacity + overload cascade, not a peg). GA smoke CLI: **`scripts/run_resource_cascade_ga_demo.py`**. Co-evolution + Pareto: **`alternating_coevolution_resource_cascade`**, **`scripts/run_coevolution.py --mode resource_cascade`**, **`scripts/export_pareto_front.py --mode resource_cascade`** (defender genome uses the same four-knob decoding as aggregate/network; **`reserve_boost`** damps effective initial overload at reset).
 
 **Purpose:** architecture transfer demo without relaxing stablecoin CI oracles.
 

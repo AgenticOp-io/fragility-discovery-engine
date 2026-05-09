@@ -40,10 +40,13 @@ class ResourceCascadeWorld:
 
         return float(self.recovery_headroom)
 
-    def reset(self, *, initial_overload: float = 0.05) -> None:
+    def reset(self, *, initial_overload: float = 0.05, capacity_scale: float = 1.0) -> None:
+        """``capacity_scale`` (defender reserve boost ≥ 1) damps initial overload without raising headroom above 1."""
+
         self._h0 = 1.0
         self._h1 = 1.0
-        self._overload = float(np.clip(initial_overload, 0.0, 1.0))
+        boost = float(np.clip(capacity_scale, 1.0, 1.5))
+        self._overload = float(np.clip(float(initial_overload) / boost, 0.0, 1.0))
         self._timestep = 0
 
     def state_vector(self) -> np.ndarray:

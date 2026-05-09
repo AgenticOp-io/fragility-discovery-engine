@@ -5,7 +5,11 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.adversary.encoding import decode_schedule, schedule_attack_cost
-from fragility_engine.coevolution.defender import build_defended_aggregate_world, build_defended_network_world
+from fragility_engine.coevolution.defender import (
+    build_defended_aggregate_world,
+    build_defended_network_world,
+    build_defended_resource_cascade_world,
+)
 from fragility_engine.types import RolloutResult, TrajectoryStep
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
@@ -160,22 +164,12 @@ def rollout_resource_cascade(
     seed: int,
     initial_overload: float = 0.05,
     continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
 ) -> RolloutResult:
     """Phase J reference rollout — same schedule decoding as aggregate/network (``decode_schedule``)."""
 
-    world = ResourceCascadeWorld(
-        population=world_template.population,
-        cascade_coupling=world_template.cascade_coupling,
-        overload_decay=world_template.overload_decay,
-        rumor_gain=world_template.rumor_gain,
-        reserve_hit_primary=world_template.reserve_hit_primary,
-        reserve_hit_secondary=world_template.reserve_hit_secondary,
-        redeem_damage_primary=world_template.redeem_damage_primary,
-        collapse_headroom=world_template.collapse_headroom,
-        recovery_headroom=world_template.recovery_headroom,
-        max_steps=world_template.max_steps,
-    )
-    world.reset(initial_overload=float(initial_overload))
+    world, reserve_boost = build_defended_resource_cascade_world(world_template, defender_genome)
+    world.reset(initial_overload=float(initial_overload), capacity_scale=float(reserve_boost))
     world.population.reset(initial_supply=1_000_000.0, rng=np.random.default_rng(seed ^ 0x9E3779B9))
 
     schedule = decode_schedule(genome)

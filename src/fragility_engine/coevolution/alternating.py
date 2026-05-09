@@ -8,8 +8,9 @@ import numpy as np
 
 from fragility_engine.adversary.fitness import severity_score
 from fragility_engine.adversary.search import genetic_search, genetic_vector_search
-from fragility_engine.runner import rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult, SearchResult
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -206,5 +207,49 @@ def alternating_coevolution_network(
         seed=seed,
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="network",
+        collect_attacker_pareto=collect_attacker_pareto,
+    )
+
+
+def alternating_coevolution_resource_cascade(
+    template: ResourceCascadeWorld,
+    *,
+    initial_overload: float = 0.05,
+    continue_after_collapse: bool = False,
+    collect_attacker_pareto: bool = False,
+    attacker_horizon: int = 20,
+    defender_genome_size: int = 4,
+    rounds: int = 3,
+    attacker_generations: int = 8,
+    attacker_population: int = 18,
+    defender_generations: int = 8,
+    defender_population: int = 16,
+    seed: int = 4242,
+    baseline_seed_offset: int = 50_000,
+) -> CoevolutionSummary:
+    """Alternating attacker/defender loop on :class:`~fragility_engine.world.resource_cascade.ResourceCascadeWorld`."""
+
+    def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
+        return rollout_resource_cascade(
+            template,
+            g,
+            seed=s,
+            initial_overload=float(initial_overload),
+            continue_after_collapse=continue_after_collapse,
+            defender_genome=d,
+        )
+
+    return alternating_coevolution_rollout(
+        rollout_fn,
+        attacker_horizon=attacker_horizon,
+        defender_genome_size=defender_genome_size,
+        rounds=rounds,
+        attacker_generations=attacker_generations,
+        attacker_population=attacker_population,
+        defender_generations=defender_generations,
+        defender_population=defender_population,
+        seed=seed,
+        baseline_seed_offset=baseline_seed_offset,
+        simulation_mode="resource_cascade",
         collect_attacker_pareto=collect_attacker_pareto,
     )

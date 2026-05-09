@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -127,6 +128,51 @@ def build_defended_network_world(
         depeg_threshold=float(overrides["depeg_threshold"]),
         panic_decay=float(overrides["panic_decay"]),
         rumor_panic_gain=float(overrides["rumor_panic_gain"]),
+    )
+    return world, reserve_boost
+
+
+def clone_resource_cascade(template: ResourceCascadeWorld, **phys: Any) -> ResourceCascadeWorld:
+    """Clone cascade parameters with optional physics overrides (counterfactuals, defenders)."""
+
+    return ResourceCascadeWorld(
+        population=template.population,
+        cascade_coupling=float(phys.get("cascade_coupling", template.cascade_coupling)),
+        overload_decay=float(phys.get("overload_decay", template.overload_decay)),
+        rumor_gain=float(phys.get("rumor_gain", template.rumor_gain)),
+        reserve_hit_primary=float(phys.get("reserve_hit_primary", template.reserve_hit_primary)),
+        reserve_hit_secondary=float(phys.get("reserve_hit_secondary", template.reserve_hit_secondary)),
+        redeem_damage_primary=float(phys.get("redeem_damage_primary", template.redeem_damage_primary)),
+        collapse_headroom=float(phys.get("collapse_headroom", template.collapse_headroom)),
+        recovery_headroom=float(phys.get("recovery_headroom", template.recovery_headroom)),
+        max_steps=int(phys.get("max_steps", template.max_steps)),
+    )
+
+
+def build_defended_resource_cascade_world(
+    template: ResourceCascadeWorld,
+    defender_genome: np.ndarray | None,
+) -> tuple[ResourceCascadeWorld, float]:
+    """
+    Apply the same four-knob defender decoding as aggregate/network:
+
+    - Slots map to ``overload_decay``, ``rumor_gain``, ``recovery_headroom``; ``reserve_boost`` damps initial overload.
+    """
+
+    if defender_genome is None:
+        return clone_resource_cascade(template), 1.0
+
+    overrides, reserve_boost = decode_defender_genome_params(
+        defender_genome,
+        panic_decay=float(template.overload_decay),
+        rumor_panic_gain=float(template.rumor_gain),
+        depeg_threshold=float(template.recovery_headroom),
+    )
+    world = clone_resource_cascade(
+        template,
+        overload_decay=float(overrides["panic_decay"]),
+        rumor_gain=float(overrides["rumor_panic_gain"]),
+        recovery_headroom=float(overrides["depeg_threshold"]),
     )
     return world, reserve_boost
 

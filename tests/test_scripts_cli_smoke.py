@@ -676,6 +676,75 @@ def test_export_pareto_front_network_smoke(py_exe: str, tmp_path: Path) -> None:
     assert data["topology"]["kind"] == "erdos_renyi"
 
 
+def test_run_coevolution_resource_cascade_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "coev_rc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "resource_cascade",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "30",
+            "--initial-overload",
+            "0.06",
+            "--attacker-horizon",
+            "10",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "707707",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "resource_cascade"
+    assert data["meta"]["coevolution_mode"] == "resource_cascade"
+
+
+def test_export_pareto_front_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_rc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "resource_cascade",
+            "--out",
+            str(out),
+            "--initial-overload",
+            "0.07",
+            "--horizon",
+            "10",
+            "--generations",
+            "2",
+            "--population-size",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "616616",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert data["domain"] == "resource_cascade"
+    assert data["initial_overload"] == pytest.approx(0.07)
+
+
 def test_export_pareto_front_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
     nb = tmp_path / "ring.json"
     nb.write_text("[[1],[0]]", encoding="utf-8")

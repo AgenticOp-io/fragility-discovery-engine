@@ -107,13 +107,15 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] New `world/` module + replay schema compatibility table — [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md).
 - [x] GA smoke + determinism tests — `scripts/run_resource_cascade_ga_demo.py`, `tests/test_resource_cascade_rollout.py`, `tests/test_replay_contract_resource_cascade.py`.
 - [x] README “Why this domain” ≤ 1 page — [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) (+ root README pointer).
-- [ ] Co-evolution / Pareto on `ResourceCascadeWorld` optional backlog.
+- [x] Co-evolution / Pareto on `ResourceCascadeWorld` — `alternating_coevolution_resource_cascade`, `scripts/run_coevolution.py --mode resource_cascade`, `scripts/export_pareto_front.py --mode resource_cascade`.
 
 ---
 
 ### Phase K — Honest performance & optional accelerated backends
 
 **Purpose:** Grow **n** and budgets without lying about complexity.
+
+**Scaffold:** [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md) — hook points, non-goals, optional env-flag pattern.
 
 **In scope:**
 
