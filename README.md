@@ -63,7 +63,7 @@ python scripts/run_ga_demo.py
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate / network / **`resource_cascade`** (`--json`, sizing flags, **`--initial-overload`** for cascade, optional `--neighbor-json` for list-topology network) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
-| `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network`**; axes **`initial_panic`** / **`base_panic`** / **`contagion_beta`** / **`edge_weight`**; **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |
+| `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** (aggregate), **`initial_overload`** (cascade), **`base_panic`** / **`contagion_beta`** / **`edge_weight`** (network); **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 

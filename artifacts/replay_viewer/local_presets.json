@@ -11,6 +11,7 @@
     { "label": "Export: network ER", "path": "../test_exports/replay_network_er.json" },
     { "label": "Export: network Watts–Strogatz", "path": "../test_exports/replay_network_ws.json" },
     { "label": "Export: network continue-after-collapse", "path": "../test_exports/replay_network_continue.json" },
+    { "label": "Export: resource_cascade replay", "path": "../test_exports/replay_resource_cascade.json" },
     { "label": "Export: GA best", "path": "../test_exports/ga_best.json" },
     { "label": "Export: GA minimized", "path": "../test_exports/ga_minimized.json" },
     { "label": "Export: Monte Carlo best", "path": "../test_exports/mc_best.json" },

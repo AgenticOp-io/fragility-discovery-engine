@@ -28,6 +28,7 @@ from fragility_engine.explain.sweep import (
     sweep_aggregate_initial_panic,
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
+    sweep_resource_cascade_initial_overload,
 )
 from fragility_engine.explain.trace import CHAIN_PATH_TRACE_SCHEMA as EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA
 from fragility_engine.explain.trace import TRACE_SCHEMA as EXPLANATION_TRACE_SCHEMA
@@ -58,6 +59,7 @@ __all__ = [
     "sweep_network_scalar_axis",
     "sweep_network_edge_weight",
     "sweep_aggregate_initial_panic",
+    "sweep_resource_cascade_initial_overload",
     "linear_epsilon_sweep_to_trace",
     "mutation_chain_path_to_trace",
     "COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA",

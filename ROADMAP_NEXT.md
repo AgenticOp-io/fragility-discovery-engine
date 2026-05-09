@@ -80,7 +80,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] CLI `export_counterfactual --intervention …` + `BOUNDARIES.md` Phase I.
 - [x] Worked example: [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md).
 - [x] Scalar ε-sweeps (`explain/sweep.py`, `counterfactual_epsilon_sweep.py`).
-- [x] Linear explanation trace from sweeps (`explain/trace.py`, `--emit-trace`); aggregate `initial_panic` sweep.
+- [x] Linear explanation trace from sweeps (`explain/trace.py`, `--emit-trace`); aggregate `initial_panic` sweep; resource_cascade `initial_overload` sweep (`sweep_resource_cascade_initial_overload`).
 
 **Phase I partial adoption** — star-merge, single-edge weights, cumulative mutation chains, and **path traces** over intermediate chain rollouts (`explanation-mutation-chain-path-v1`) are shipped.
 

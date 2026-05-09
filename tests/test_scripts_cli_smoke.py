@@ -1419,6 +1419,37 @@ def test_counterfactual_epsilon_sweep_edge_weight_cli(py_exe: str, tmp_path: Pat
     assert data["summary"]["count"] == 3
 
 
+def test_counterfactual_epsilon_sweep_resource_cascade_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps_rc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "resource_cascade",
+            "--axis",
+            "initial_overload",
+            "--values",
+            "0.05,0.09,0.13",
+            "--horizon",
+            "10",
+            "--rollout-seed",
+            "99331",
+            "--genome-seed",
+            "99332",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "counterfactual-epsilon-sweep-v1"
+    assert data["mode"] == "resource_cascade"
+    assert data["axis"] == "initial_overload"
+    assert data["summary"]["count"] == 3
+
+
 def test_counterfactual_epsilon_sweep_aggregate_and_trace_cli(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "eps_agg.json"
     subprocess.run(

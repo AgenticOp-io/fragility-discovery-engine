@@ -9,7 +9,8 @@ import numpy as np
 
 from fragility_engine.coevolution.defender import clone_stablecoin_network
 from fragility_engine.explain.counterfactual import neighbor_lists_explicit_weights, out_edge_index, rollout_snapshot
-from fragility_engine.runner import rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -214,6 +215,55 @@ def sweep_aggregate_initial_panic(
         "schema": SCHEMA,
         "axis": "initial_panic",
         "mode": "aggregate",
+        "rollout_seed": int(rollout_seed),
+        "runs": runs,
+        "summary": summary,
+    }
+
+
+def sweep_resource_cascade_initial_overload(
+    genome: np.ndarray,
+    template: ResourceCascadeWorld,
+    *,
+    values: list[float],
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+) -> dict[str, Any]:
+    """Phase J: vary ``initial_overload`` at reset; same genome and rollout seed."""
+
+    if not values:
+        raise ValueError("values must be non-empty")
+
+    runs: list[dict[str, Any]] = []
+    integrals: list[float] = []
+
+    for v in values:
+        io = float(np.clip(v, 0.0, 1.0))
+        r = rollout_resource_cascade(
+            template,
+            genome,
+            seed=int(rollout_seed),
+            initial_overload=io,
+            continue_after_collapse=bool(continue_after_collapse),
+        )
+        integrals.append(float(r.integral_instability))
+        runs.append({"initial_overload": io, **rollout_snapshot(r)})
+
+    arr = np.asarray(integrals, dtype=np.float64)
+    collapses = sum(1 for row in runs if row["collapsed"])
+
+    summary = {
+        "count": len(values),
+        "collapse_count": int(collapses),
+        "integral_instability_min": float(arr.min()),
+        "integral_instability_max": float(arr.max()),
+        "integral_instability_mean": float(arr.mean()),
+    }
+
+    return {
+        "schema": SCHEMA,
+        "axis": "initial_overload",
+        "mode": "resource_cascade",
         "rollout_seed": int(rollout_seed),
         "runs": runs,
         "summary": summary,

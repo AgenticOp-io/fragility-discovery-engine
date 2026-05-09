@@ -224,7 +224,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Earlier shipped backlog slices:**
 
-- ε-sweeps — `explain/sweep.py`, `counterfactual_epsilon_sweep.py` (**network** `base_panic` / `contagion_beta`, **aggregate** `initial_panic`).
+- ε-sweeps — `explain/sweep.py`, `counterfactual_epsilon_sweep.py` (**network** `base_panic` / `contagion_beta`, **aggregate** `initial_panic`, **resource_cascade** `initial_overload`).
 - Linear trace — `explain/trace.py` (`explanation-trace-v1`, `--emit-trace` on epsilon sweep CLI).
 
 **Exit criteria:**
@@ -232,7 +232,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] ≥2 network-only intervention families beyond timestep deletion (`counterfactual_network_*_with_rollouts`, `tests/test_counterfactual_network_interventions.py`).
 - [x] CLI semantics documented in `--help` and this section; subprocess smoke (`tests/test_scripts_cli_smoke.py`).
 - [x] Worked example with commands (`docs/network_counterfactual_example.md`).
-- [x] Deterministic ε-sweeps (**network** `base_panic` / `contagion_beta`, **aggregate** `initial_panic`) + optional linear trace (`explain/trace.py`, `tests/test_explain_trace.py`, `tests/test_scripts_cli_smoke.py`).
+- [x] Deterministic ε-sweeps (**network** `base_panic` / `contagion_beta`, **aggregate** `initial_panic`, **resource_cascade** `initial_overload`) + optional linear trace (`explain/trace.py`, `tests/test_explain_trace.py`, `tests/test_scripts_cli_smoke.py`).
 
 ### Phase J — Second reference domain (scaffold shipped)
 

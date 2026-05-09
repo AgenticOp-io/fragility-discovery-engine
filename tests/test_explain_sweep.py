@@ -11,8 +11,10 @@ from fragility_engine.explain.sweep import (
     sweep_aggregate_initial_panic,
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
+    sweep_resource_cascade_initial_overload,
 )
 from fragility_engine.network.contagion_graph import ContagionGraph
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -77,6 +79,22 @@ def test_sweep_contagion_beta_requires_fixed_panic():
     )
     assert len(out["runs"]) == 2
     assert "contagion_beta" in out["runs"][0]
+
+
+def test_sweep_resource_cascade_initial_overload():
+    template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=22)
+    genome = np.random.default_rng(90).uniform(size=(9, 2))
+    out = sweep_resource_cascade_initial_overload(
+        genome,
+        template,
+        values=[0.04, 0.09, 0.14],
+        rollout_seed=880880,
+    )
+    assert out["schema"] == SCHEMA
+    assert out["axis"] == "initial_overload"
+    assert out["mode"] == "resource_cascade"
+    assert len(out["runs"]) == 3
+    assert "initial_overload" in out["runs"][0]
 
 
 def test_sweep_aggregate_initial_panic():

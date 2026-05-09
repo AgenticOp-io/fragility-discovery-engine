@@ -38,8 +38,9 @@ Static **`replay_viewer`** treats unknown modes like aggregate for plotting (pri
 - **`remove_steps`:** same semantics as aggregate/network — zero selected shock rows; evaluator pins **`initial_overload`** via CLI (`export_counterfactual.py --mode resource_cascade --initial-overload …`).
 - **`initial_overload_shift`:** same genome + rollout seed; variant changes **`--variant-initial-overload`** (`counterfactual_resource_cascade_initial_overload_shift_with_rollouts`).
 - **Joint star-merge:** `scripts/export_resource_cascade_joint_attribution.py` merges **remove_steps** + **initial_overload_shift** branches that share one baseline (`attribution-merge-v1` → `artifacts/attribution_viewer/index.html`).
+- **Scalar ε-sweep:** `counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload --values …` (+ optional `--emit-trace` → `explanation-trace-v1`).
 
 ## Limits / non-goals
 
 - Not calibrated to any real infrastructure dataset.
-- No ε-sweeps or multi-step mutation **chains** on this domain yet (stablecoin + network remain the reference for those Phase I surfaces).
+- No multi-step mutation **chains** on this domain yet (stablecoin + network remain the reference for chain path traces).

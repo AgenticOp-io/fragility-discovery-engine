@@ -1,4 +1,4 @@
-"""Deterministic ε-sweep: network base_panic / β, or aggregate initial_panic (+ optional linear trace)."""
+"""Deterministic ε-sweep: aggregate/cascade/network scalar axes (+ optional linear trace)."""
 
 from __future__ import annotations
 
@@ -14,9 +14,11 @@ from fragility_engine.explain.sweep import (
     sweep_aggregate_initial_panic,
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
+    sweep_resource_cascade_initial_overload,
 )
 from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
@@ -32,15 +34,15 @@ def _parse_float_list(raw: str) -> list[float]:
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
-            "Sweep one scalar: aggregate initial_panic, or network base_panic / contagion_beta / "
-            "edge_weight on neighbor-list topology (fixed genome + rollout_seed). "
-            "Optional linear explanation trace JSON."
+            "Sweep one scalar: aggregate initial_panic, resource_cascade initial_overload, or network "
+            "base_panic / contagion_beta / edge_weight on neighbor-list topology "
+            "(fixed genome + rollout_seed). Optional linear explanation trace JSON."
         ),
     )
-    ap.add_argument("--mode", choices=("aggregate", "network"), default="network")
+    ap.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="network")
     ap.add_argument(
         "--axis",
-        choices=("initial_panic", "base_panic", "contagion_beta", "edge_weight"),
+        choices=("initial_panic", "initial_overload", "base_panic", "contagion_beta", "edge_weight"),
         required=True,
     )
     ap.add_argument(
@@ -96,8 +98,13 @@ def main() -> None:
     if args.mode == "aggregate":
         if args.axis != "initial_panic":
             raise SystemExit("--mode aggregate requires --axis initial_panic.")
+    elif args.mode == "resource_cascade":
+        if args.axis != "initial_overload":
+            raise SystemExit("--mode resource_cascade requires --axis initial_overload.")
     elif args.axis == "initial_panic":
         raise SystemExit("--axis initial_panic requires --mode aggregate.")
+    elif args.axis == "initial_overload":
+        raise SystemExit("--axis initial_overload requires --mode resource_cascade.")
     elif args.axis == "edge_weight":
         if args.mode != "network":
             raise SystemExit("--axis edge_weight requires --mode network.")
@@ -121,6 +128,18 @@ def main() -> None:
             max_steps=max(int(args.horizon), 32),
         )
         payload = sweep_aggregate_initial_panic(
+            genome,
+            template,
+            values=vals,
+            rollout_seed=int(args.rollout_seed),
+            continue_after_collapse=cont,
+        )
+    elif args.mode == "resource_cascade":
+        template = ResourceCascadeWorld(
+            population=default_stablecoin_population(),
+            max_steps=max(int(args.horizon), 32),
+        )
+        payload = sweep_resource_cascade_initial_overload(
             genome,
             template,
             values=vals,

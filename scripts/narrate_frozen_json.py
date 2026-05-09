@@ -43,6 +43,19 @@ def narrate(data: dict[str, Any], *, source: str) -> str:
             lines.append(f"meta.cli: {meta.get('cli')}")
         return "\n".join(lines)
 
+    if schema == "counterfactual-epsilon-sweep-v1":
+        lines.append("kind: epsilon sweep")
+        lines.append(f"mode: {data.get('mode')}  axis: {data.get('axis')}")
+        runs = data.get("runs") or []
+        lines.append(f"runs: {len(runs)}")
+        summ = data.get("summary") or {}
+        if isinstance(summ, dict):
+            lines.append(
+                f"summary: collapse_count={summ.get('collapse_count')} "
+                f"integral [{summ.get('integral_instability_min')}, {summ.get('integral_instability_max')}]"
+            )
+        return "\n".join(lines)
+
     if schema == "pareto-front-v1":
         lines.append("kind: Pareto archive dump")
         lines.append(f"best_fitness: {data.get('best_fitness')}")

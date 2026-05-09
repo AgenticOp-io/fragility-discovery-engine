@@ -27,7 +27,7 @@ If search, replay export, benchmarks, and GA demos run **without forking** the e
 - One-shot rollout tests: `tests/test_resource_cascade_rollout.py`, `tests/test_replay_contract_resource_cascade.py`.
 - GA + minimization demo: `python scripts/run_resource_cascade_ga_demo.py --export-replay artifacts/tmp_rc.json`
 - Plain replay export: `python scripts/export_replay.py --mode resource_cascade --out artifacts/tmp_rc_rep.json`
-- Counterfactuals: `scripts/export_counterfactual.py --mode resource_cascade` (`remove_steps`, `initial_overload_shift`); joint merge `scripts/export_resource_cascade_joint_attribution.py`.
+- Counterfactuals: `scripts/export_counterfactual.py --mode resource_cascade` (`remove_steps`, `initial_overload_shift`); joint merge `scripts/export_resource_cascade_joint_attribution.py`; ε-sweep `counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload`.
 - Co-evolution / Pareto: `scripts/run_coevolution.py` / `scripts/export_pareto_front.py` with `--mode resource_cascade`.
 - Benchmark row: `python scripts/run_benchmark_suite.py --validate` (includes `resource_cascade_rollout_v1`).
 
