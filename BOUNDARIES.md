@@ -171,6 +171,27 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - Reduce **`max_steps`**, GA generations/population, or **horizon** before adding defender parameters; new knobs belong in `coevolution/defender.py` with explicit tests.
 - For institution-scale models, supply **`alternating_coevolution_rollout`** with your own deterministic `rollout_fn`; keep **seed discipline** documented at the call site.
 
+### Phase H — Fragility certificates & benchmark harness
+
+**Status:** `fragility_engine.benchmarks` + `scripts/run_benchmark_suite.py` + `benchmarks/README.md`.
+
+**Purpose:** portable, regression-tested **golden bundles** so fragility claims stay reproducible across time and machines.
+
+**In scope:**
+
+- Deterministic bundle runners (aggregate + network dense + network neighbor-list) with pinned genome/rollout seeds.
+- Golden scalar checks (`GOLDEN_METRICS`) with relaxed tolerances in CI.
+- Optional CLI validation (`run_benchmark_suite.py --validate`).
+
+**Moonshot (ensemble dispersion):** `fragility_engine.benchmarks.ensemble` + `scripts/fragility_robustness_sweep.py` — same genome and rollout seed; sweep **`graph_seed`**; emit quantiles (**not** within-rollout stochasticity).
+
+**Exit criteria:**
+
+- [x] Three frozen bundles + golden expectations (`fragility_engine/benchmarks/suite.py`, `tests/test_benchmark_suite.py`).
+- [x] CLI + subprocess smoke (`scripts/run_benchmark_suite.py`, `tests/test_scripts_cli_smoke.py`).
+- [x] README-style reproduction / citation notes (`benchmarks/README.md`).
+- [x] Ensemble robustness sweep + tests (`fragility_engine/benchmarks/ensemble.py`, `tests/test_fragility_robustness_ensemble.py`, `scripts/fragility_robustness_sweep.py`).
+
 ## Fitness function discipline
 
 Current scalar fitness is **acceptable for Phase A**.

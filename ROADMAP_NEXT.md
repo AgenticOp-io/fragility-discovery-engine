@@ -34,6 +34,8 @@ If a feature weakens determinism, blurs world/adversary separation, or ships wit
 
 Work **does not start** on a phase until prior phases are green in CI **and** `BOUNDARIES.md` is updated to adopt that phase’s gates.
 
+**Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (manifest JSON, hypervolume proxies, scheduled workflows) remains optional backlog.
+
 ### Phase H — Fragility certificates & benchmark harness
 
 **Purpose:** Turn ad hoc scripts into a **portable, auditable benchmark layer**: comparable runs across machines and time.
@@ -50,9 +52,9 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Exit criteria (candidate):**
 
-- [ ] At least **three** frozen benchmark bundles runnable via one documented command (Make/ps1/target).
-- [ ] CI job (or scheduled workflow) runs bundles with **tight numeric tolerances** on summary stats.
-- [ ] README section: “How to cite / reproduce run XYZ.”
+- [x] At least **three** frozen benchmark bundles runnable via one documented command (`python scripts/run_benchmark_suite.py`, `benchmarks/README.md`).
+- [x] CI runs bundles via **`pytest`** (`tests/test_benchmark_suite.py`) with numeric golden tolerances.
+- [x] Reproduction / citation notes (`benchmarks/README.md`; link from root `README.md`).
 
 ---
 
@@ -144,7 +146,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 These are **not** commitments—ideas worth protecting from premature implementation:
 
-- **Fragility robustness**: distributions over topologies; report **quantiles** of collapse metrics under fixed search budgets (careful with stochasticity vs ensemble-of-deterministic-seeds).
+- **Fragility robustness** (**partial / shipped slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. Still to explore: GA budget sweeps, WS ensembles, neighbor-list priors, collapse-rate sensitivity grids.
 - **Mechanism design loop**: outer search over **policy rules** (discrete or low-dimensional) with inner adversary—only if Phase H benchmarks exist.
 - **Synthetic institutional scenarios**: composite worlds built from **composed** kernels with explicit interfaces—never as a single monolithic “mega-model.”
 

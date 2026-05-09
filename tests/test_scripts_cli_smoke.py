@@ -752,3 +752,32 @@ def test_export_counterfactual_network_writes_replays(py_exe: str, tmp_path: Pat
     b = json.loads((repdir / "baseline.json").read_text(encoding="utf-8"))
     assert b["meta"]["variant"] == "baseline"
     assert b["simulation_mode"] == "network"
+
+
+def test_run_benchmark_suite_validate_cli(py_exe: str) -> None:
+    subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "run_benchmark_suite.py"), "--validate"],
+        check=True,
+        cwd=str(ROOT),
+    )
+
+
+def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--graph-seeds",
+            "101,102",
+            "--nodes",
+            "12",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-robustness-ensemble-v1"
+    assert data["summary"]["count"] == 2

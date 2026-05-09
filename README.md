@@ -19,7 +19,9 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Scope creep guardrail:** read [`BOUNDARIES.md`](BOUNDARIES.md) before adding agents, graph models, multi-objective fitness, UI, or defender loops.
 
-**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — proposed phases H–L (certificates, network explanation grammar, second domain, scale, publication layer); promote into `BOUNDARIES.md` only when gated.
+**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — phases I–L plus moonshots; **Phase H** (benchmark harness + ensemble robustness slice) is **normative** in [`BOUNDARIES.md`](BOUNDARIES.md).
+
+**Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
 ## Quick start
 
@@ -52,6 +54,8 @@ python scripts/run_ga_demo.py
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |
+| `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`) — see [`benchmarks/README.md`](benchmarks/README.md) |
+| `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 
