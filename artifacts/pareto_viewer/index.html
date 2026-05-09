@@ -24,9 +24,18 @@
     Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code>.
     Axes: <strong>x = attack_cost</strong> (minimize), <strong>y = severity</strong> (maximize). Non-dominated points only (merged archive).
     Bundled sample: <code>sample_pareto_front.json</code> in this folder.
+    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled + <code>artifacts/test_exports/pareto_front.json</code> after regenerate).
+    Replay trajectories: <code>artifacts/replay_viewer/index.html</code>.
   </div>
-  <div style="margin-bottom:10px">
+  <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
     <button type="button" class="btn" id="btnPick">Choose pareto_front.json…</button>
+    <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <label for="presetSelect" style="font-size:13px;opacity:0.9">Presets (HTTP)</label>
+      <select id="presetSelect" aria-label="Load preset Pareto JSON" style="font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #8886;background:#252528;color:#eee;min-width:min(320px,100%)">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus" style="font-size:12px;opacity:0.8"></span>
+    </span>
     <input id="file" type="file" accept="application/json,.json" hidden />
   </div>
   <canvas id="cv" width="920" height="420" aria-label="Pareto scatter"></canvas>
@@ -37,6 +46,9 @@
     const ctx = cv.getContext('2d');
     const meta = document.getElementById('meta');
     const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
     document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', () => {
@@ -114,12 +126,68 @@
         `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]`;
     }
 
-    fetch('sample_pareto_front.json')
-      .then(r => (r.ok ? r.json() : null))
-      .then(d => {
-        if (d) drawPareto(d);
-      })
-      .catch(() => {});
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) {
+        presetStatus.textContent = '';
+        return;
+      }
+      presetStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(new URL(path, document.location));
+        if (!res.ok) {
+          presetStatus.textContent = `Missing (${res.status}) — run scripts/regenerate_test_exports`;
+          return;
+        }
+        drawPareto(await res.json());
+        presetStatus.textContent = 'Loaded';
+      } catch (_) {
+        presetStatus.textContent = 'Fetch failed — serve repo root over HTTP or use file picker';
+      }
+    });
+
+    async function boot() {
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (res.ok) {
+          const cfg = await res.json();
+          const list = cfg.presets || [];
+          if (list.length) {
+            for (const p of list) {
+              if (!p.path || !p.label) continue;
+              const opt = document.createElement('option');
+              opt.value = p.path;
+              opt.textContent = p.label;
+              presetSelect.appendChild(opt);
+            }
+            presetRow.hidden = false;
+            presetRow.style.display = 'inline-flex';
+            for (let i = 0; i < list.length; i++) {
+              const path = list[i].path;
+              if (!path) continue;
+              try {
+                const r = await fetch(new URL(path, document.location));
+                if (r.ok) {
+                  drawPareto(await r.json());
+                  presetSelect.selectedIndex = i + 1;
+                  presetStatus.textContent = 'Loaded';
+                  return;
+                }
+              } catch (_) { /* try next */ }
+            }
+          }
+        }
+      } catch (_) { /* file:// */ }
+      presetStatus.textContent = '';
+      fetch(new URL('sample_pareto_front.json', document.location))
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => {
+          if (d) drawPareto(d);
+        })
+        .catch(() => {});
+    }
+
+    void boot();
   </script>
 </body>
 </html>

@@ -53,7 +53,7 @@ Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, k
 
 Local **bulk exports** for trying many scenarios in the browser: run `pwsh -File scripts/regenerate_test_exports.ps1` → writes under `artifacts/test_exports/` (gitignored). See `artifacts/README_test_exports.txt`.
 
-Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_front.json` (from `scripts/export_pareto_front.py`); bundled `artifacts/pareto_viewer/sample_pareto_front.json`.
+Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_front.json` (from `scripts/export_pareto_front.py`); bundled `sample_pareto_front.json`; HTTP **Presets** via `local_presets.json` (includes `artifacts/test_exports/pareto_front.json` after regenerate).
 
 ## Week roadmap (suggested)
 

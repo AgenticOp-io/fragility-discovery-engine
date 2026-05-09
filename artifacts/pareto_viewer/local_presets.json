@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "note": "Paths relative to this folder. Serve repo root (python -m http.server). Regenerate scripts/regenerate_test_exports.* for ../test_exports/pareto_front.json.",
+  "presets": [
+    { "label": "Bundled: sample Pareto front", "path": "sample_pareto_front.json" },
+    { "label": "Export: test_exports Pareto front", "path": "../test_exports/pareto_front.json" }
+  ]
+}

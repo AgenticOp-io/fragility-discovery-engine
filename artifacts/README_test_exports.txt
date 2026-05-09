@@ -9,4 +9,5 @@ artifacts/test_exports/
   Viewer:
     Serve repo root (e.g. python -m http.server 8765), open artifacts/replay_viewer/index.html —
     Presets dropdown loads local_presets.json (bundled samples + ../test_exports/*).
+  Pareto scatter: artifacts/pareto_viewer/index.html — presets include ../test_exports/pareto_front.json.
     Or use file / folder pickers; copy JSON beside the viewer if you prefer file://.
