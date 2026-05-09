@@ -17,7 +17,7 @@
     #scrubHelp { font-size: 12px; opacity: 0.8; margin-top: 6px; }
     #drop {
       border: 2px dashed #8886; border-radius: 10px; padding: 18px; text-align: center;
-      margin-bottom: 12px; cursor: pointer;
+      margin-bottom: 12px;
     }
     #hint { font-size: 12px; opacity: 0.75; margin-top: 8px; }
     .path-hint { font-size: 12px; opacity: 0.82; margin-bottom: 10px; line-height: 1.45; }
@@ -57,10 +57,10 @@
   </header>
 
   <div class="btn-row">
-    <button type="button" class="btn primary" id="btnFolder" title="Opens a system folder picker; then pick a JSON file from the list">
-      Open folder (list JSON replays)…
+    <button type="button" class="btn primary" id="btnFolder" title="Uses your browser’s folder picker (not the same as picking one file)">
+      Choose folder (show JSON files inside)…
     </button>
-    <button type="button" class="btn" id="btnFile" title="Pick a single replay.json file">
+    <button type="button" class="btn" id="btnFile" title="Pick one replay.json">
       Choose replay file…
     </button>
   </div>
@@ -68,6 +68,8 @@
   <div id="drop">
     <span class="drop-label">Or drag-and-drop a <code>.json</code> file here</span>
     <input id="file" type="file" accept="application/json,.json" hidden />
+    <!-- Folder picker: separate from single-file input so OS dialog is “folder” vs “file”. -->
+    <input id="folderPick" type="file" webkitdirectory directory multiple hidden />
   </div>
   <canvas id="cv" width="1100" height="440" tabindex="0" aria-label="Replay timeline, mouse scrubs"></canvas>
   <pre id="meta"></pre>
@@ -81,6 +83,7 @@
     const btnFolder = document.getElementById('btnFolder');
     const btnFile = document.getElementById('btnFile');
     const folderList = document.getElementById('folderList');
+    const folderPick = document.getElementById('folderPick');
 
     /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean } | null} */
     let bundle = null;
@@ -320,69 +323,61 @@
       cv.focus({ preventScroll: true });
     }
 
-    async function pickReplayFile() {
-      if (window.showOpenFilePicker) {
-        try {
-          const [handle] = await window.showOpenFilePicker({
-            id: 'fragility-replay-json',
-            types: [
-              { description: 'Replay JSON', accept: { 'application/json': ['.json'], 'text/json': ['.json'] } },
-            ],
-          });
-          const file = await handle.getFile();
-          handleText(await file.text());
-          folderList.hidden = true;
-        } catch (e) {
-          if (e.name === 'AbortError') return;
-          fileInput.click();
-        }
-      } else {
-        fileInput.click();
-      }
+    function pickReplayFile() {
+      fileInput.click();
     }
 
-    async function pickReplayFolder() {
-      if (!window.showDirectoryPicker) {
-        window.alert(
-          'Folder picker needs Chrome or Edge (File System Access API). Use “Choose replay file…” or drag-drop.'
-        );
+    function renderJsonPickList(jsonFiles) {
+      folderList.innerHTML = '';
+      if (!jsonFiles.length) {
+        folderList.innerHTML =
+          '<p style="margin:0;opacity:0.85">No .json files under that folder (search includes subfolders).</p>';
+        folderList.hidden = false;
         return;
       }
-      try {
-        const dir = await window.showDirectoryPicker({ id: 'fragility-replay-folder' });
-        const handles = [];
-        for await (const ent of dir.values()) {
-          if (ent.kind === 'file' && ent.name.toLowerCase().endsWith('.json')) handles.push(ent);
-        }
-        handles.sort((a, b) => a.name.localeCompare(b.name));
-        folderList.innerHTML = '';
-        if (!handles.length) {
-          folderList.innerHTML = '<p style="margin:0;opacity:0.85">No .json files in this folder.</p>';
-          folderList.hidden = false;
-          return;
-        }
-        const h = document.createElement('h3');
-        h.textContent = `JSON files — click to load (${handles.length})`;
-        folderList.appendChild(h);
-        handles.forEach(hnd => {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'json-pick';
-          b.textContent = hnd.name;
-          b.addEventListener('click', async () => {
-            const file = await hnd.getFile();
-            handleText(await file.text());
-          });
-          folderList.appendChild(b);
+      const cap = 200;
+      const slice = jsonFiles.length > cap ? jsonFiles.slice(0, cap) : jsonFiles;
+      const h = document.createElement('h3');
+      h.textContent =
+        jsonFiles.length > cap
+          ? `JSON files — click to load (showing first ${cap} of ${jsonFiles.length})`
+          : `JSON files — click to load (${jsonFiles.length})`;
+      folderList.appendChild(h);
+      slice.forEach(f => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'json-pick';
+        const rel = f.webkitRelativePath || f.name;
+        b.textContent = rel;
+        b.title = rel;
+        b.addEventListener('click', () => {
+          f.text().then(handleText);
         });
-        folderList.hidden = false;
-      } catch (e) {
-        if (e.name !== 'AbortError') console.warn(e);
-      }
+        folderList.appendChild(b);
+      });
+      folderList.hidden = false;
     }
 
-    btnFolder.addEventListener('click', () => { pickReplayFolder(); });
-    btnFile.addEventListener('click', () => { pickReplayFile(); });
+    folderPick.addEventListener('change', () => {
+      const files = folderPick.files;
+      if (!files?.length) return;
+      const jsonFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.json'));
+      jsonFiles.sort((a, b) => (a.webkitRelativePath || '').localeCompare(b.webkitRelativePath || ''));
+      renderJsonPickList(jsonFiles);
+      folderPick.value = '';
+    });
+
+    function pickReplayFolder() {
+      folderPick.click();
+    }
+
+    btnFolder.addEventListener('click', () => {
+      pickReplayFolder();
+    });
+    btnFile.addEventListener('click', () => {
+      folderList.hidden = true;
+      pickReplayFile();
+    });
 
     function handleText(text) {
       try {
@@ -437,11 +432,13 @@
       ev.preventDefault();
       const f = ev.dataTransfer.files?.[0];
       if (!f) return;
+      folderList.hidden = true;
       f.text().then(handleText);
     });
     fileInput.addEventListener('change', ev => {
       const f = ev.target.files?.[0];
       if (!f) return;
+      folderList.hidden = true;
       f.text().then(handleText);
     });
 
