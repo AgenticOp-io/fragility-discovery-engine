@@ -77,7 +77,7 @@ def main() -> None:
         replay["meta"] = {
             "replay_schema": REPLAY_SCHEMA_VERSION,
             "cli": "run_network_demo",
-            "topology": topo_meta,
+            "topology": {**topo_meta, "undirected_edges": graph.undirected_edge_count()},
             "generations": int(args.generations),
             "population_size": int(args.population_size),
         }

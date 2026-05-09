@@ -110,6 +110,8 @@ def test_export_replay_network_watts_strogatz(py_exe: str, tmp_path: Path) -> No
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["meta"]["topology"]["kind"] == "watts_strogatz"
     assert data["meta"]["topology"]["k"] == 4
+    assert "undirected_edges" in data["meta"]["topology"]
+    assert data["meta"]["topology"]["undirected_edges"] >= 1
 
 
 def test_export_replay_network_continue_after_collapse_runs(py_exe: str, tmp_path: Path) -> None:
@@ -217,8 +219,16 @@ def test_compare_replays_cli(py_exe: str, tmp_path: Path) -> None:
         check=True,
         cwd=str(ROOT),
     )
+    diff_path = tmp_path / "cmp.json"
     proc = subprocess.run(
-        [py_exe, str(ROOT / "scripts" / "compare_replays.py"), str(left), str(right)],
+        [
+            py_exe,
+            str(ROOT / "scripts" / "compare_replays.py"),
+            str(left),
+            str(right),
+            "--out",
+            str(diff_path),
+        ],
         check=True,
         cwd=str(ROOT),
         capture_output=True,
@@ -226,6 +236,8 @@ def test_compare_replays_cli(py_exe: str, tmp_path: Path) -> None:
     )
     out = json.loads(proc.stdout)
     assert len(out["diff_keys"]) >= 1
+    assert diff_path.is_file()
+    assert json.loads(diff_path.read_text(encoding="utf-8"))["diff_keys"] == out["diff_keys"]
 
 
 def test_export_minimized_replay_smoke(py_exe: str, tmp_path: Path) -> None:
@@ -410,3 +422,4 @@ def test_run_coevolution_network_exports_replay(py_exe: str, tmp_path: Path) -> 
     assert data["meta"]["cli"] == "run_coevolution"
     assert data["meta"]["coevolution_mode"] == "network"
     assert data["meta"]["topology"]["kind"] == "erdos_renyi"
+    assert "undirected_edges" in data["meta"]["topology"]

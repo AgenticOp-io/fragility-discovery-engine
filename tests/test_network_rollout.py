@@ -8,6 +8,21 @@ from fragility_engine.runner import rollout_stablecoin_network, rollout_to_repla
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 
 
+def test_network_rollout_neighbor_list_graph_factory():
+    ring = ContagionGraph.from_neighbor_lists([[1, 4], [0, 2], [1, 3], [2, 4], [3, 0]], symmetrize=True)
+    n = ring.n_nodes
+    template = StablecoinNetworkWorld(
+        population=default_stablecoin_population(),
+        adjacency=ring,
+        node_weights=default_whale_weights(n),
+        max_steps=18,
+    )
+    genome = np.random.default_rng(21).uniform(size=(12, 2))
+    r = rollout_stablecoin_network(template, genome, seed=88)
+    assert r.simulation_mode == "network"
+    assert len(r.trajectory) >= 1
+
+
 def test_network_rollout_deterministic():
     n = 16
     adj = ContagionGraph.erdos_renyi(n, p=0.25, seed=11)

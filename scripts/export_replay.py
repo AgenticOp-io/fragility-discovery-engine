@@ -123,7 +123,7 @@ def main() -> None:
     else:
         meta["base_panic"] = float(args.base_panic)
     if args.mode == "network":
-        meta["topology"] = topo_meta
+        meta["topology"] = {**topo_meta, "undirected_edges": graph.undirected_edge_count()}
     payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

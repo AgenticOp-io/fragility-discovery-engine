@@ -2,7 +2,21 @@ from __future__ import annotations
 
 import pytest
 
+from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
+
+
+def test_contagion_graph_from_neighbor_lists_ring_symmetrized():
+    neighbors = [[1, 4], [0, 2], [1, 3], [2, 4], [3, 0]]
+    g = ContagionGraph.from_neighbor_lists(neighbors, symmetrize=True)
+    assert g.n_nodes == 5
+    assert g.adjacency.shape == (5, 5)
+    assert g.undirected_edge_count() == 5
+
+
+def test_contagion_graph_undirected_edge_count_complete():
+    g = ContagionGraph.complete(4)
+    assert g.undirected_edge_count() == 6
 
 
 def test_cli_erdos_renyi_shape():

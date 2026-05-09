@@ -62,6 +62,7 @@ def main() -> None:
     args = p.parse_args()
 
     topo_meta: dict | None = None
+    network_graph = None
 
     if args.mode == "aggregate":
         template = StablecoinPegWorld(
@@ -81,7 +82,7 @@ def main() -> None:
         )
     else:
         try:
-            graph, topo_meta = contagion_graph_from_cli(
+            network_graph, topo_meta = contagion_graph_from_cli(
                 graph_kind=str(args.graph_kind),
                 nodes=int(args.nodes),
                 graph_seed=int(args.graph_seed),
@@ -97,7 +98,7 @@ def main() -> None:
         weights = default_whale_weights(n, whale_index=0, whale_frac=float(args.whale_frac))
         template = StablecoinNetworkWorld(
             population=default_stablecoin_population(),
-            adjacency=graph,
+            adjacency=network_graph,
             node_weights=weights,
             contagion_beta=float(args.beta),
             max_steps=int(args.max_steps),
@@ -115,14 +116,18 @@ def main() -> None:
             seed=int(args.seed),
         )
 
+    enriched_topo: dict | None = None
+    if topo_meta is not None and network_graph is not None:
+        enriched_topo = {**topo_meta, "undirected_edges": network_graph.undirected_edge_count()}
+
     payload: dict = {
         "mode": summary.simulation_mode,
         "rounds": summary.rounds,
         "best_attacker": summary.best_attacker.tolist() if summary.best_attacker is not None else None,
         "best_defender": summary.best_defender.tolist() if summary.best_defender is not None else None,
     }
-    if topo_meta is not None:
-        payload["topology"] = topo_meta
+    if enriched_topo is not None:
+        payload["topology"] = enriched_topo
 
     print(json.dumps(payload, indent=2))
 
@@ -140,8 +145,8 @@ def main() -> None:
             "coevolution_mode": summary.simulation_mode,
             "continue_after_collapse": bool(args.continue_after_collapse),
         }
-        if topo_meta is not None:
-            meta["topology"] = topo_meta
+        if enriched_topo is not None:
+            meta["topology"] = enriched_topo
         replay["meta"] = meta
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 

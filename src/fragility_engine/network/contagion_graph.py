@@ -49,3 +49,29 @@ class ContagionGraph:
         """Single node with a self-edge so neighbor-average equals self-state."""
 
         return cls(adjacency=np.ones((1, 1), dtype=np.int8))
+
+    @classmethod
+    def from_neighbor_lists(
+        cls,
+        neighbors: list[list[int]],
+        *,
+        symmetrize: bool = True,
+    ) -> ContagionGraph:
+        """Build from per-node neighbor indices (optionally symmetrize for undirected diffusion)."""
+
+        n = len(neighbors)
+        adj = np.zeros((n, n), dtype=np.int8)
+        for i, nb in enumerate(neighbors):
+            for j in nb:
+                jj = int(j)
+                if 0 <= jj < n:
+                    adj[i, jj] = 1
+        if symmetrize:
+            adj = np.bitwise_or(adj, adj.T).astype(np.int8, copy=False)
+        return cls(adjacency=adj)
+
+    def undirected_edge_count(self) -> int:
+        """Edges in the upper triangle (expects symmetric simple adjacency)."""
+
+        a = self.adjacency
+        return int(np.triu(a, k=1).sum())

@@ -26,6 +26,7 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Diff top-level replay metrics between two JSON artifacts.")
     p.add_argument("left", type=Path)
     p.add_argument("right", type=Path)
+    p.add_argument("--out", type=Path, default=None, help="Write JSON diff to this path (stdout still prints).")
     args = p.parse_args()
 
     a = json.loads(args.left.read_text(encoding="utf-8"))
@@ -45,7 +46,10 @@ def main() -> None:
         "trajectory_lengths": (len(a.get("trajectory") or []), len(b.get("trajectory") or [])),
         "diff_keys": diff_keys,
     }
-    print(json.dumps(out, indent=2))
+    text = json.dumps(out, indent=2)
+    print(text)
+    if args.out is not None:
+        args.out.write_text(text + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

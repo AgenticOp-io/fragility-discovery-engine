@@ -46,7 +46,7 @@ python scripts/run_ga_demo.py
 | `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
-| `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files |
+| `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags) |
 
@@ -55,6 +55,11 @@ Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, k
 Local **bulk exports** for trying many scenarios in the browser: run `pwsh -File scripts/regenerate_test_exports.ps1` → writes under `artifacts/test_exports/` (gitignored). See `artifacts/README_test_exports.txt`.
 
 Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_front.json` (from `scripts/export_pareto_front.py`); bundled `sample_pareto_front.json`; HTTP **Presets** via `local_presets.json`; hover / click / arrows; optional hash `#src=…&archive=N`. Archive JSON includes `integral_instability` per point.
+
+## Extending
+
+- **Custom co-evolution:** implement a deterministic ``rollout_fn(schedule, seed, defender)`` and pass it to ``fragility_engine.coevolution.alternating_coevolution_rollout`` (see [`BOUNDARIES.md`](BOUNDARIES.md) Phase G).
+- **Custom topology:** ``ContagionGraph.from_neighbor_lists([[...], ...])`` builds from adjacency lists (symmetrized by default). Network replay metadata includes ``topology.undirected_edges`` where scripts attach topology.
 
 ## Week roadmap (suggested)
 

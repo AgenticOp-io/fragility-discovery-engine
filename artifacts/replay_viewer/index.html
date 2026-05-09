@@ -773,6 +773,13 @@
     }
 
     window.addEventListener('hashchange', () => {
+      const q = new URLSearchParams(location.hash.replace(/^#/, ''));
+      if (!q.get('compare')) {
+        bundleB = null;
+        compareFile.value = '';
+        btnClearCompare.hidden = true;
+        if (bundle) draw();
+      }
       void applyReplayHashLoads();
     });
 
