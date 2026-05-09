@@ -30,3 +30,4 @@ def test_bundled_pareto_sample_has_archive() -> None:
     assert isinstance(arch, list) and len(arch) >= 1
     row = arch[0]
     assert "severity" in row and "attack_cost" in row
+    assert "integral_instability" in row

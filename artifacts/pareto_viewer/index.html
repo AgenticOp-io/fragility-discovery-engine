@@ -27,6 +27,7 @@
     Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code>.
     Axes: <strong>x = attack_cost</strong> (minimize), <strong>y = severity</strong> (maximize). Non-dominated points only (merged archive).
     Bundled sample: <code>sample_pareto_front.json</code> in this folder. <strong>Hover</strong> a point for archive index and metrics; click to pin, <kbd>←</kbd><kbd>→</kbd> to step.
+    Optional URL hash (HTTP): <code>#src=sample_pareto_front.json&amp;archive=2</code> — path relative to this page; <code>archive</code> pins that index after load.
     Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled + <code>artifacts/test_exports/pareto_front.json</code> after regenerate).
     Replay trajectories: <code>artifacts/replay_viewer/index.html</code>.
   </div>
@@ -73,6 +74,27 @@
     let hoverIndex = null;
     /** @type {number | null} pinned archive index for keyboard */
     let pinnedIndex = null;
+
+    function hashParams() {
+      const raw = location.hash.replace(/^#/, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    function applyHashArchivePin() {
+      if (!paretoBundle) return;
+      const arc = hashParams().get('archive');
+      if (arc === null || arc === '') return;
+      const i = Number.parseInt(arc, 10);
+      if (!Number.isFinite(i)) return;
+      const n = paretoBundle.arch.length;
+      pinnedIndex = Math.max(0, Math.min(n - 1, i));
+      redrawPareto();
+    }
+
+    window.addEventListener('hashchange', () => {
+      applyHashArchivePin();
+    });
 
     function clientToCanvasXY(clientX, clientY) {
       const rect = cv.getBoundingClientRect();
@@ -223,6 +245,7 @@
         spanS,
       };
       redrawPareto();
+      applyHashArchivePin();
       cv.focus({ preventScroll: true });
     }
 
@@ -284,6 +307,20 @@
     });
 
     async function boot() {
+      const hp = hashParams();
+      const src = hp.get('src');
+      if (src) {
+        presetStatus.textContent = 'Loading…';
+        try {
+          const res = await fetch(new URL(src, document.location));
+          if (res.ok) {
+            drawPareto(await res.json());
+            presetStatus.textContent = 'Loaded (hash)';
+            return;
+          }
+        } catch (_) { /* fall through */ }
+        presetStatus.textContent = 'hash src missing';
+      }
       try {
         const res = await fetch(new URL('local_presets.json', document.location));
         if (res.ok) {

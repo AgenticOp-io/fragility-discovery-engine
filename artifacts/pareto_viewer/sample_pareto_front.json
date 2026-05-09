@@ -6,6 +6,7 @@
       "severity": 5.314429049109433,
       "attack_cost": 5.48945544015692,
       "collapsed": true,
+      "integral_instability": 3.204208225225195,
       "genome": [
         [
           0.955064744396262,
@@ -85,6 +86,7 @@
       "severity": 12.9225,
       "attack_cost": 7.013462059160661,
       "collapsed": true,
+      "integral_instability": 2.9225,
       "genome": [
         [
           0.44031990095865237,
@@ -164,6 +166,7 @@
       "severity": 4.843357185799168,
       "attack_cost": 3.942116764734752,
       "collapsed": true,
+      "integral_instability": 4.268671871411426,
       "genome": [
         [
           0.18642951106316008,

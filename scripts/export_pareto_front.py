@@ -49,6 +49,7 @@ def main() -> None:
                 "severity": p.severity,
                 "attack_cost": p.attack_cost,
                 "collapsed": p.collapsed,
+                "integral_instability": p.integral_instability,
                 "genome": p.genome.tolist(),
             }
             for p in search.pareto_archive

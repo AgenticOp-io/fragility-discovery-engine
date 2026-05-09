@@ -23,3 +23,6 @@ def test_genetic_search_collect_pareto_populates_archive():
         collect_pareto=True,
     )
     assert len(search.pareto_archive) >= 1
+    pt0 = search.pareto_archive[0]
+    assert hasattr(pt0, "integral_instability")
+    assert isinstance(pt0.integral_instability, float)

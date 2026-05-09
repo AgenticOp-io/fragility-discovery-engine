@@ -14,6 +14,7 @@ class ParetoPoint:
     severity: float
     attack_cost: float
     collapsed: bool
+    integral_instability: float = 0.0
 
 
 def pareto_indices(severity: np.ndarray, attack_cost: np.ndarray) -> list[int]:
@@ -42,6 +43,7 @@ def pareto_point_from_rollout(genome: np.ndarray, rollout: RolloutResult) -> Par
         severity=float(severity_score(rollout)),
         attack_cost=float(rollout.attack_cost),
         collapsed=bool(rollout.collapsed),
+        integral_instability=float(rollout.integral_instability),
     )
 
 
@@ -66,6 +68,7 @@ def rollout_cloud_to_pareto(genomes: list[np.ndarray], rollouts: list[RolloutRes
                 severity=float(sev[i]),
                 attack_cost=float(cost[i]),
                 collapsed=rollouts[i].collapsed,
+                integral_instability=float(rollouts[i].integral_instability),
             )
         )
     return out
