@@ -8,7 +8,7 @@
     :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
     body { margin: 0; padding: 16px; max-width: 1100px; margin-inline: auto; }
     header { margin-bottom: 12px; }
-    canvas { width: 100%; height: 320px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
+    canvas { width: 100%; height: 360px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
     #meta { font-size: 13px; opacity: 0.85; white-space: pre-wrap; }
     #drop {
       border: 2px dashed #8886; border-radius: 10px; padding: 18px; text-align: center;
@@ -20,11 +20,11 @@
 <body>
   <header>
     <strong>Fragility replay viewer</strong>
-    <div id="hint">Drag-and-drop a <code>replay.json</code> (no server needed). Shows price + instability traces.</div>
+    <div id="hint">Drag-and-drop <code>replay.json</code>. Blue = price, orange = instability. Magenta = collapse step; green ticks = shocks.</div>
   </header>
 
   <div id="drop">Drop replay JSON here or click to pick a file<input id="file" type="file" accept="application/json" hidden /></div>
-  <canvas id="cv" width="1100" height="320"></canvas>
+  <canvas id="cv" width="1100" height="360"></canvas>
   <pre id="meta"></pre>
 
   <script>
@@ -48,6 +48,7 @@
       const prices = traj.map(s => Number(s.metrics?.price ?? s.state_vector?.[2] ?? NaN));
       const instab = traj.map(s => Number(s.metrics?.instability ?? NaN));
       const tmax = traj.length - 1;
+      const collapseT = data.collapse_timestep;
 
       const valid = xs => xs.every(v => Number.isFinite(v));
       if (!valid(prices)) {
@@ -57,7 +58,7 @@
 
       const minP = Math.min(...prices.filter(Number.isFinite));
       const maxP = Math.max(...prices.filter(Number.isFinite));
-      const pad = 24;
+      const pad = 28;
 
       function xScale(i) { return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad); }
       function yPrice(p) {
@@ -71,13 +72,43 @@
         return H - pad - u * (H - 2 * pad);
       }
 
-      // axes
       ctx.strokeStyle = '#8886';
       ctx.beginPath();
       ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
       ctx.stroke();
 
-      // price polyline
+      // collapse marker (vertical)
+      if (Number.isFinite(collapseT) && collapseT >= 0 && collapseT <= tmax) {
+        const xc = xScale(collapseT);
+        ctx.save();
+        ctx.strokeStyle = '#e4e';
+        ctx.setLineDash([6, 6]);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(xc, pad);
+        ctx.lineTo(xc, H - pad);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // shock markers (steps with events)
+      traj.forEach((step, i) => {
+        const evs = step.events || [];
+        if (!evs.length) return;
+        const xc = xScale(i);
+        const yb = H - pad + 4;
+        evs.forEach((ev, j) => {
+          const kind = ev.kind || '';
+          ctx.fillStyle = kind === 'reserve_loss' ? '#6f6' : kind === 'rumor' ? '#fc6' : '#ccc';
+          ctx.beginPath();
+          ctx.moveTo(xc + j * 5 - 4, yb);
+          ctx.lineTo(xc + j * 5 + 4, yb);
+          ctx.lineTo(xc + j * 5, yb - 7);
+          ctx.closePath();
+          ctx.fill();
+        });
+      });
+
       ctx.strokeStyle = '#5cf';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -87,7 +118,6 @@
       });
       ctx.stroke();
 
-      // instability polyline
       if (valid(instab)) {
         ctx.strokeStyle = '#f84';
         ctx.lineWidth = 1.5;
@@ -101,8 +131,10 @@
 
       ctx.fillStyle = '#ddd';
       ctx.font = '12px system-ui';
-      ctx.fillText('price (blue)', pad, 14);
-      ctx.fillText('instability (orange)', pad + 110, 14);
+      ctx.fillText('price (blue)', pad, 16);
+      ctx.fillText('instability (orange)', pad + 110, 16);
+      ctx.fillText('collapse (magenta)', pad + 260, 16);
+      ctx.fillText('shocks (triangles)', pad + 410, 16);
 
       meta.textContent =
         `schema_version: ${data.schema_version}\n` +

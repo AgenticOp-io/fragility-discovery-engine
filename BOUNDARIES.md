@@ -44,7 +44,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 ### Phase B — Topology contagion (“Week 2.5” suggestion)
 
-**Status:** implementation landed early as `fragility_engine.network` + `StablecoinNetworkWorld` (ER + Watts–Strogatz helpers). A dedicated `ContagionGraph` façade class is still optional polish.
+**Status:** `fragility_engine.network` + `StablecoinNetworkWorld` + **`ContagionGraph`** façade (`contagion_graph.py`).
 
 **Purpose:** replace “statistics-only” collapse with **propagation structure** when justified.
 
@@ -61,8 +61,9 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Exit criteria:**
 
-- [ ] Topology toggled off ⇒ reproduces aggregate baseline within tolerance OR documented why not.
-- [ ] Tests: contagion speed bounded; deterministic seeds; no Python grab-bag of magic constants without names.
+- [x] Topology toggled off ⇒ reproduces aggregate baseline within tolerance OR documented why not  
+      (**single-node self-loop** equivalence test: `tests/test_network_single_node_matches_aggregate.py`; general graphs differ by design).
+- [x] Tests: contagion bounded / deterministic (`tests/test_contagion_bounded.py`, graph factory seeds).
 
 **Gate:** ship Phase B only if Phase A replay/tests are frozen — otherwise topology becomes undebuggable.
 
@@ -82,8 +83,8 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Exit criteria:**
 
-- [ ] Cost model maps 1:1 to genome / schedule (auditable).
-- [ ] Demonstrate **one** “cheap stealthy collapse” schedule found by search (scripted demo).
+- [x] Cost model maps 1:1 to genome / schedule (auditable — see `encoding.schedule_attack_cost` + genome decode).
+- [x] Demonstrate **one** “cheap stealthy collapse” schedule found by search — `scripts/find_cheap_collapse.py` (cost-penalized GA).
 
 ### Phase D — Counterfactual explainability
 

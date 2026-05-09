@@ -4,7 +4,6 @@ import numpy as np
 
 from fragility_engine.types import ExogenousEvent, ShockKind
 
-
 SHOCK_KINDS: tuple[ShockKind, ...] = ("none", "reserve_loss", "rumor")
 
 # Abstract attacker budget units (not calibrated currency); tunable for search behavior.

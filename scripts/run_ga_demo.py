@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 
-from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.adversary.search import genetic_search
+from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.minimal_collapse import minimize_schedule
 from fragility_engine.runner import rollout_stablecoin, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld

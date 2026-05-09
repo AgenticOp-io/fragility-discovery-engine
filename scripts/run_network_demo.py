@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import json
 
+import numpy as np
+
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.network.topology import adjacency_erdos_renyi
+from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.runner import rollout_stablecoin_network, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 
 
 def main() -> None:
     n = 48
-    adj = adjacency_erdos_renyi(n, p=0.12, seed=2026)
+    adj = ContagionGraph.erdos_renyi(n, p=0.12, seed=2026).adjacency
     weights = default_whale_weights(n, whale_index=0, whale_frac=0.24)
     template = StablecoinNetworkWorld(
         population=default_stablecoin_population(),

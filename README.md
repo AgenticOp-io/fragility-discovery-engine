@@ -12,7 +12,7 @@ Autonomous **coverage-guided-style** search over a modular simulation: mutate sh
 | `fragility_engine.agents` | Behavior archetypes — `observe → decide → act`. |
 | `fragility_engine.adversary` | Deterministic search (Monte Carlo + GA) over shock schedules. |
 | `fragility_engine.explain` | Ablation / minimization / attribution helpers. |
-| `fragility_engine.network` | Graph topology + contagion diffusion (Phase B). |
+| `fragility_engine.network` | ``ContagionGraph`` + topology + contagion diffusion (Phase B). |
 | `fragility_engine.coevolution` | Alternating attacker/defender search scaffold. |
 
 Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out until the core loop is proven.
@@ -42,6 +42,7 @@ python scripts/run_ga_demo.py
 | `scripts/fragility_surface.py` | CSV grid scan (parameter fragility map, shocks off) |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA |
 | `scripts/export_pareto_front.py` | Dump `pareto_front.json` (2-objective archive) |
+| `scripts/find_cheap_collapse.py` | GA with attack-cost penalty (Phase C demo) |
 
 Static replay UI (drag-and-drop JSON): `artifacts/replay_viewer/index.html`.
 

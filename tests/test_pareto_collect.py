@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.adversary.search import genetic_search
+from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.runner import rollout_stablecoin
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 

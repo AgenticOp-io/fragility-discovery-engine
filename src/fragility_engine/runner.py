@@ -180,7 +180,8 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
 
     - ``schema_version`` (`str`) — bump when fields change; viewers should branch on this.
     - ``simulation_mode`` (`str`) — ``aggregate`` or ``network``.
-    - ``attack_cost`` (`float`) — abstract schedule cost from :func:`fragility_engine.adversary.encoding.schedule_attack_cost`.
+    - ``attack_cost`` (`float`) — abstract schedule cost from ``schedule_attack_cost``
+      (:mod:`fragility_engine.adversary.encoding`).
     - ``integral_instability`` (`float`) — sum of per-step ``metrics["instability"]``.
     - ``recovery_timestep`` (`int` or ``null``) — first step after collapse where price recovers past depeg threshold;
       only when rollout used ``continue_after_collapse=True``.

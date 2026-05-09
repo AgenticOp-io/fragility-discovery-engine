@@ -58,7 +58,14 @@ def rollout_cloud_to_pareto(genomes: list[np.ndarray], rollouts: list[RolloutRes
     sev = np.array([severity_score(r) for r in rollouts], dtype=np.float64)
     cost = np.array([r.attack_cost for r in rollouts], dtype=np.float64)
     idx = pareto_indices(sev, cost)
-    return [
-        ParetoPoint(genome=genomes[i].copy(), severity=float(sev[i]), attack_cost=float(cost[i]), collapsed=rollouts[i].collapsed)
-        for i in idx
-    ]
+    out: list[ParetoPoint] = []
+    for i in idx:
+        out.append(
+            ParetoPoint(
+                genome=genomes[i].copy(),
+                severity=float(sev[i]),
+                attack_cost=float(cost[i]),
+                collapsed=rollouts[i].collapsed,
+            )
+        )
+    return out
