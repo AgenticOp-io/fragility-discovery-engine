@@ -8,3 +8,6 @@ venv/
 dist/
 build/
 *.egg-info/
+
+# Local QA bundles (regenerate: pwsh -File scripts/regenerate_test_exports.ps1)
+artifacts/test_exports/
