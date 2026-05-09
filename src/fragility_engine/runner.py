@@ -182,9 +182,9 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
     - ``simulation_mode`` (`str`) — ``aggregate`` or ``network``.
     - ``attack_cost`` (`float`) — abstract schedule cost from :func:`fragility_engine.adversary.encoding.schedule_attack_cost`.
     - ``integral_instability`` (`float`) — sum of per-step ``metrics["instability"]``.
-    - ``recovery_timestep`` (`int` \| ``null``) — first step after collapse where price recovers past depeg threshold;
+    - ``recovery_timestep`` (`int` or ``null``) — first step after collapse where price recovers past depeg threshold;
       only when rollout used ``continue_after_collapse=True``.
-    - ``collapsed`` (`bool`), ``collapse_timestep`` (`int` \| ``null``).
+    - ``collapsed`` (`bool`), ``collapse_timestep`` (`int` or ``null``).
     - ``final_instability`` (`float`) — peak instability observed.
     - ``seed`` (`int`) — RNG anchor for this rollout.
     - ``trajectory`` (`list[dict]`) — ordered steps.
