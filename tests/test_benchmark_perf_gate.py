@@ -1,4 +1,7 @@
-"""Optional wall-clock ceiling on benchmark_rollout (enable with FRAGILITY_PERF_GATE=1)."""
+"""Wall-clock ceiling on benchmark_rollout.
+
+Skipped locally unless ``FRAGILITY_PERF_GATE=1``. CI enables this via ``.github/workflows/ci.yml``.
+"""
 
 from __future__ import annotations
 

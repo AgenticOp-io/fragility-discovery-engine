@@ -531,3 +531,124 @@ def test_run_coevolution_network_exports_replay(py_exe: str, tmp_path: Path) -> 
     assert data["meta"]["coevolution_mode"] == "network"
     assert data["meta"]["topology"]["kind"] == "erdos_renyi"
     assert "undirected_edges" in data["meta"]["topology"]
+
+
+def test_run_coevolution_export_pareto_json(py_exe: str, tmp_path: Path) -> None:
+    pf = tmp_path / "front.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "aggregate",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "28",
+            "--attacker-horizon",
+            "8",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "10",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "6",
+            "--seed",
+            "910911",
+            "--export-pareto-json",
+            str(pf),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(pf.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert len(data["archive"]) >= 1
+    assert data["source"] == "run_coevolution"
+
+
+def test_export_coevolution_pareto_script(py_exe: str, tmp_path: Path) -> None:
+    summary_path = tmp_path / "sum.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "aggregate",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "26",
+            "--attacker-horizon",
+            "7",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "9",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "6",
+            "--seed",
+            "606606",
+            "--collect-attacker-pareto",
+            "--json-summary",
+            str(summary_path),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    out = tmp_path / "from_script.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_coevolution_pareto.py"),
+            "--from-summary",
+            str(summary_path),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert data["source"] == "export_coevolution_pareto"
+
+
+def test_export_counterfactual_network_writes_replays(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "cf_net.json"
+    repdir = tmp_path / "replays_net"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "network",
+            "--out",
+            str(out_json),
+            "--export-replay-dir",
+            str(repdir),
+            "--nodes",
+            "14",
+            "--horizon",
+            "12",
+            "--remove",
+            "0",
+            "--seed",
+            "31",
+            "--genome-seed",
+            "32",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["meta"]["mode"] == "network"
+    assert payload["baseline"]["mode"] == "network"
+    assert "topology" in payload["meta"]
+    b = json.loads((repdir / "baseline.json").read_text(encoding="utf-8"))
+    assert b["meta"]["variant"] == "baseline"
+    assert b["simulation_mode"] == "network"

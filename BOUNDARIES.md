@@ -103,12 +103,13 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 **Exit criteria:**
 
 - [x] Minimum viable counterfactual API + tests on synthetic schedules (`explain/counterfactual.py`, `tests/test_counterfactual_*.py`, `scripts/export_counterfactual.py`).
+- [x] Same remove-timestep counterfactual on **network** rollouts (`tests/test_counterfactual_network.py`, `export_counterfactual.py --mode network`).
 
 ### Phase E — Visualization (“Week 5” suggestion)
 
 **Purpose:** cinematic replay, not decoration.
 
-**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge). Optional **A/B**: second replay file for per-step **price / instability deltas** in the meta panel (same scrub index). **Pareto:** `artifacts/pareto_viewer/index.html` plots **`pareto_front.json`** (`severity` vs `attack_cost`).
+**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge). Optional **A/B**: second replay file for per-step **price / instability deltas** in the meta panel (same scrub index). **Pareto:** `artifacts/pareto_viewer/index.html` plots **`pareto_front.json`** (`severity` vs `attack_cost`), including exports from **`run_coevolution --export-pareto-json`** / **`export_coevolution_pareto.py`** (merged `pareto-front-v1`).
 
 **In scope:**
 
@@ -153,7 +154,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - **Aggregate:** `alternating_coevolution` → `rollout_stablecoin(..., defender_genome=…)`.
 - **Network:** `alternating_coevolution_network` → `rollout_stablecoin_network(..., defender_genome=…)` using the **same** four defender knobs (`coevolution.defender.decode_defender_genome_params`).
 - **Custom / heavy worlds:** `alternating_coevolution_rollout(rollout_fn)` with `rollout_fn(schedule_genome, seed, defender_genome) -> RolloutResult` — attach alternate physics or compiled steppers without forking the alternating loop.
-- **CLI:** `scripts/run_coevolution.py --mode aggregate|network` (topology flags mirror `run_network_demo.py`), optional **`--neighbor-json`** / **`--neighbor-weights-json`** for list-only directed graphs, **`--collect-attacker-pareto`** (severity vs attack-cost archive per round), `--json-summary`, `--export-replay`; replay `meta` includes `coevolution_mode` and optional `topology`.
+- **CLI:** `scripts/run_coevolution.py --mode aggregate|network` (topology flags mirror `run_network_demo.py`), optional **`--neighbor-json`** / **`--neighbor-weights-json`** for list-only directed graphs, **`--collect-attacker-pareto`** / **`--export-pareto-json`** (merged `pareto-front-v1` for the static viewer), `--json-summary`, `--export-replay`; replay `meta` includes `coevolution_mode` and optional `topology`.
 
 **Exit criteria:**
 
@@ -166,7 +167,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 **Scale / complexity (large systems):**
 
 - Cost per **round** scales roughly as **O(G_att·P_att·H·step + G_def·P_def·H·step)** where **step** is one simulated timestep and **H** is attacker schedule horizon.
-- **Network:** dense **`int8` adjacency** remains the default synthetic-graph path (**Θ(n²)** RAM). **List-only** **`neighbor_lists`** (+ optional positive **row weights** aligned with out-edges) avoids storing a dense matrix; diffusion stays **O(out-edges)** per step via `contagion_step_lists`. Optional perf smoke: set **`FRAGILITY_PERF_GATE=1`** (see `tests/test_benchmark_perf_gate.py`; optional ceiling **`FRAGILITY_PERF_GATE_MS`**).
+- **Network:** dense **`int8` adjacency** remains the default synthetic-graph path (**Θ(n²)** RAM). **List-only** **`neighbor_lists`** (+ optional positive **row weights** aligned with out-edges) avoids storing a dense matrix; diffusion stays **O(out-edges)** per step via `contagion_step_lists`. CI enables **`FRAGILITY_PERF_GATE=1`** (`.github/workflows/ci.yml`; ceiling **`FRAGILITY_PERF_GATE_MS`**, default **240000** ms). Locally, omit the env var to skip `tests/test_benchmark_perf_gate.py`.
 - Reduce **`max_steps`**, GA generations/population, or **horizon** before adding defender parameters; new knobs belong in `coevolution/defender.py` with explicit tests.
 - For institution-scale models, supply **`alternating_coevolution_rollout`** with your own deterministic `rollout_fn`; keep **seed discipline** documented at the call site.
 

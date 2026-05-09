@@ -9,6 +9,10 @@ from pathlib import Path
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution import alternating_coevolution, alternating_coevolution_network
+from fragility_engine.coevolution.pareto_export import (
+    flatten_coevolution_attacker_pareto,
+    pareto_front_payload_from_archive_dicts,
+)
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
@@ -76,7 +80,15 @@ def main() -> None:
         action="store_true",
         help="Each round: attach attacker GA Pareto points (severity vs attack_cost) under rounds[].attacker_pareto.",
     )
+    p.add_argument(
+        "--export-pareto-json",
+        type=Path,
+        default=None,
+        help="Write merged pareto-front-v1 JSON (implies --collect-attacker-pareto) for artifacts/pareto_viewer.",
+    )
     args = p.parse_args()
+
+    collect_pareto = bool(args.collect_attacker_pareto or args.export_pareto_json)
 
     enriched_topo: dict | None = None
     network_graph = None
@@ -89,7 +101,7 @@ def main() -> None:
         summary = alternating_coevolution(
             template,
             continue_after_collapse=bool(args.continue_after_collapse),
-            collect_attacker_pareto=bool(args.collect_attacker_pareto),
+            collect_attacker_pareto=collect_pareto,
             attacker_horizon=int(args.attacker_horizon),
             rounds=int(args.rounds),
             attacker_generations=int(args.attacker_generations),
@@ -154,7 +166,7 @@ def main() -> None:
             template,
             base_panic=float(args.base_panic),
             continue_after_collapse=bool(args.continue_after_collapse),
-            collect_attacker_pareto=bool(args.collect_attacker_pareto),
+            collect_attacker_pareto=collect_pareto,
             attacker_horizon=int(args.attacker_horizon),
             rounds=int(args.rounds),
             attacker_generations=int(args.attacker_generations),
@@ -193,6 +205,15 @@ def main() -> None:
             meta["topology"] = enriched_topo
         replay["meta"] = meta
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
+
+    if args.export_pareto_json is not None:
+        entries = flatten_coevolution_attacker_pareto(summary.rounds)
+        if not entries:
+            raise SystemExit(
+                "No attacker Pareto points to export (try rounds >= 1, or check GA produced a non-empty archive)."
+            )
+        pf = pareto_front_payload_from_archive_dicts(entries, source="run_coevolution")
+        args.export_pareto_json.write_text(json.dumps(pf, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":

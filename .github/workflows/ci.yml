@@ -28,5 +28,8 @@ jobs:
       - name: Ruff check
         run: ruff check .
 
-      - name: Run tests
+      - name: Run tests (includes perf gate — see FRAGILITY_PERF_GATE_MS)
+        env:
+          FRAGILITY_PERF_GATE: "1"
+          FRAGILITY_PERF_GATE_MS: "240000"
         run: pytest -q

@@ -42,10 +42,11 @@ python scripts/run_ga_demo.py
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--neighbor-json` / `--neighbor-weights-json`, `--export-replay`, sizing flags) |
 | `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`) or network (`--base-panic`, synthetic topology flags **or** `--neighbor-json`, `--continue-after-collapse`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
-| `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network`, `--continue-after-collapse`, topology flags or `--neighbor-json`, `--collect-attacker-pareto`, `--json-summary`, `--export-replay` |
+| `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network`, `--continue-after-collapse`, topology flags or `--neighbor-json`, `--collect-attacker-pareto`, **`--export-pareto-json`** (viewer-ready `pareto-front-v1`), `--json-summary`, `--export-replay` |
+| `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
-| `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
+| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network`** (topology flags or `--neighbor-json`); `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |
@@ -60,7 +61,7 @@ Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_fron
 
 - **Custom co-evolution:** implement a deterministic ``rollout_fn(schedule, seed, defender)`` and pass it to ``fragility_engine.coevolution.alternating_coevolution_rollout`` (see [`BOUNDARIES.md`](BOUNDARIES.md) Phase G).
 - **Custom topology:** ``ContagionGraph.from_neighbor_lists([[...], ...])`` builds from adjacency lists (symmetrized by default). For **directed out-neighbor lists** without a dense matrix, pass JSON via ``--neighbor-json`` (optional ``--neighbor-weights-json``); replay metadata uses ``neighbor_lists_topology_meta`` (`storage: neighbor_lists`). Synthetic graphs still attach ``undirected_edges`` + ``storage: dense_adjacency``.
-- **Perf gate (optional):** ``FRAGILITY_PERF_GATE=1 pytest tests/test_benchmark_perf_gate.py`` — loose ceiling via ``FRAGILITY_PERF_GATE_MS`` (default 120000 ms).
+- **Perf gate:** CI sets ``FRAGILITY_PERF_GATE=1`` and ``FRAGILITY_PERF_GATE_MS`` (240s default in `.github/workflows/ci.yml`). Locally, default ``pytest`` skips that test unless you set the env vars.
 
 ## Week roadmap (suggested)
 
