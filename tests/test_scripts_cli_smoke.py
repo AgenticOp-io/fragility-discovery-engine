@@ -112,6 +112,30 @@ def test_export_replay_network_watts_strogatz(py_exe: str, tmp_path: Path) -> No
     assert data["meta"]["topology"]["k"] == 4
 
 
+def test_export_replay_network_continue_after_collapse_runs(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "nw.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "network",
+            "--out",
+            str(out),
+            "--nodes",
+            "12",
+            "--horizon",
+            "10",
+            "--continue-after-collapse",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "network"
+    assert data["meta"].get("continue_after_collapse") is True
+
+
 def test_export_replay_aggregate_continue_after_collapse_runs(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "cont.json"
     subprocess.run(
@@ -130,6 +154,51 @@ def test_export_replay_aggregate_continue_after_collapse_runs(py_exe: str, tmp_p
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["meta"].get("continue_after_collapse") is True
     assert "recovery_timestep" in data
+
+
+def test_run_mc_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "mc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_mc_demo.py"),
+            "--samples",
+            "12",
+            "--horizon",
+            "12",
+            "--seed",
+            "404",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["cli"] == "run_mc_demo"
+
+
+def test_export_minimized_replay_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "min.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_minimized_replay.py"),
+            "--out",
+            str(out),
+            "--horizon",
+            "26",
+            "--max-tries",
+            "180",
+            "--genome-search-seed",
+            "99",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["cli"] == "export_minimized_replay"
+    assert data["trajectory"]
 
 
 def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> None:

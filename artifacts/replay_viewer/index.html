@@ -52,7 +52,8 @@
     </div>
     <div class="path-hint" id="pathHint">
       Bundled samples: <code>sample_replay.json</code> (aggregate) and <code>sample_network_replay.json</code> (contagion — extra dashed lines).
-      Replay exports: <code>export_replay.py</code>, <code>week1_smoke.py</code>, <code>run_ga_demo.py</code> (best vs <strong>greedy minimized</strong>), <code>run_network_demo.py</code>,
+      Replay exports: <code>export_replay.py</code>, <code>week1_smoke.py</code>, <code>run_mc_demo.py</code>, <code>export_minimized_replay.py</code>,
+      <code>run_ga_demo.py</code> (best vs <strong>greedy minimized</strong>), <code>run_network_demo.py</code>,
       <code>find_cheap_collapse.py</code>, <code>export_pareto_front.py</code>, <code>run_coevolution.py</code>, and <code>export_counterfactual.py --export-replay-dir</code>
       (each sets <code>meta.cli</code> for the panel below).
       Windows pickers often start in <strong>Documents</strong> — navigate once or drag JSON onto the dashed box.
@@ -383,6 +384,12 @@
       const qb = Number(mb.instability);
       const dp = pa - pb;
       const di = qa - qb;
+      const da = bundle.data;
+      let aSum = '';
+      if (da && da.mean_instability !== undefined) {
+        aSum =
+          `A summary: mean_instability=${da.mean_instability}  recovery_latency_steps=${da.recovery_latency_steps ?? 'null'}\n`;
+      }
       const db = bundleB.data;
       let bSum = '';
       if (db && db.mean_instability !== undefined) {
@@ -391,6 +398,7 @@
       }
       return (
         `\n--- compare B (scrub ${scrubI}; B clamped to index ${ib}) ---\n` +
+        aSum +
         bSum +
         `A: price=${ma.price ?? '—'}  instability=${ma.instability ?? '—'}\n` +
         `B: price=${mb.price ?? '—'}  instability=${mb.instability ?? '—'}\n` +

@@ -36,6 +36,8 @@ python scripts/run_ga_demo.py
 | Script | Purpose |
 |--------|---------|
 | `scripts/week1_smoke.py` | Deterministic rollout smoke (`--export-replay`) |
+| `scripts/run_mc_demo.py` | Monte Carlo random schedules (`--export-replay`, `--continue-after-collapse`) |
+| `scripts/export_minimized_replay.py` | Random collapsing schedule → greedy minimization → replay JSON |
 | `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--export-replay`, sizing flags) |
 | `scripts/export_replay.py` | `replay.json`: aggregate (`--continue-after-collapse`) or network (`--graph-kind erdos_renyi \| watts_strogatz`, `--ws-k`, `--ws-p`) |

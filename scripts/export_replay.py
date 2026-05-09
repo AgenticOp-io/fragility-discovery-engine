@@ -35,7 +35,7 @@ def main() -> None:
     p.add_argument(
         "--continue-after-collapse",
         action="store_true",
-        help="[aggregate] keep stepping after collapse to populate recovery_timestep / latency when re-peg occurs.",
+        help="Keep stepping after collapse (aggregate or network) for recovery metrics when re-peg occurs.",
     )
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
     p.add_argument(
@@ -56,13 +56,14 @@ def main() -> None:
     rng = np.random.default_rng(args.genome_seed)
     genome = rng.uniform(size=(args.horizon, 2))
 
+    cont = bool(args.continue_after_collapse)
     if args.mode == "aggregate":
         template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=max(args.horizon, 48))
         result = rollout_stablecoin(
             template,
             genome,
             seed=args.seed,
-            continue_after_collapse=bool(args.continue_after_collapse),
+            continue_after_collapse=cont,
         )
     else:
         try:
@@ -88,7 +89,7 @@ def main() -> None:
             contagion_beta=float(args.beta),
             max_steps=max(args.horizon, 48),
         )
-        result = rollout_stablecoin_network(template, genome, seed=args.seed)
+        result = rollout_stablecoin_network(template, genome, seed=args.seed, continue_after_collapse=cont)
 
     payload = rollout_to_replay_dict(result)
     meta = {
@@ -96,7 +97,7 @@ def main() -> None:
         "cli": "export_replay",
         "mode": args.mode,
     }
-    if args.mode == "aggregate" and args.continue_after_collapse:
+    if cont:
         meta["continue_after_collapse"] = True
     if args.mode == "network":
         meta["topology"] = topo_meta
