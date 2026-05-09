@@ -36,10 +36,10 @@ python scripts/run_ga_demo.py
 | Script | Purpose |
 |--------|---------|
 | `scripts/week1_smoke.py` | Deterministic rollout smoke test |
-| `scripts/run_ga_demo.py` | GA + greedy minimization + replay stats |
+| `scripts/run_ga_demo.py` | GA + greedy minimization + replay stats (optional `--export-replay`) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** world |
 | `scripts/export_replay.py` | Write versioned `replay.json` (`--mode aggregate` or `--mode network`) |
-| `scripts/fragility_surface.py` | CSV grid scan (parameter fragility map, shocks off) |
+| `scripts/fragility_surface.py` | CSV grid scan (parameter fragility map, shocks off); axis flags `--panic-*`, `--depeg-*` |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA (optional `--export-replay path.json`) |
 | `scripts/export_pareto_front.py` | Dump `pareto_front.json` (2-objective archive) |
 | `scripts/find_cheap_collapse.py` | GA with attack-cost penalty (Phase C demo) |

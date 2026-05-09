@@ -44,6 +44,7 @@ def run_fragility_surface_grid(
                     "collapsed": int(rr.collapsed),
                     "collapse_t": int(rr.collapse_timestep if rr.collapse_timestep is not None else -1),
                     "peak_instability": float(rr.final_instability),
+                    "integral_instability": float(rr.integral_instability),
                 }
             )
     return rows
@@ -54,10 +55,21 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("fragility_surface.csv"))
     ap.add_argument("--seed", type=int, default=777)
     ap.add_argument("--steps", type=int, default=64)
+    ap.add_argument("--panic-min", type=float, default=0.02)
+    ap.add_argument("--panic-max", type=float, default=0.55)
+    ap.add_argument("--panic-points", type=int, default=14, help="Linspace resolution for initial panic axis.")
+    ap.add_argument("--depeg-min", type=float, default=0.88)
+    ap.add_argument("--depeg-max", type=float, default=0.98)
+    ap.add_argument("--depeg-points", type=int, default=14, help="Linspace resolution for depeg threshold axis.")
     args = ap.parse_args()
 
-    panic_axis = np.linspace(0.02, 0.55, 14)
-    depeg_axis = np.linspace(0.88, 0.98, 14)
+    if args.panic_points < 2 or args.depeg_points < 2:
+        raise SystemExit("--panic-points and --depeg-points must be >= 2.")
+    if args.panic_min >= args.panic_max or args.depeg_min >= args.depeg_max:
+        raise SystemExit("Axis min must be < max for both panic and depeg ranges.")
+
+    panic_axis = np.linspace(float(args.panic_min), float(args.panic_max), int(args.panic_points))
+    depeg_axis = np.linspace(float(args.depeg_min), float(args.depeg_max), int(args.depeg_points))
     rows = run_fragility_surface_grid(seed=args.seed, steps=args.steps, panic_axis=panic_axis, depeg_axis=depeg_axis)
 
     with args.out.open("w", newline="", encoding="utf-8") as f:

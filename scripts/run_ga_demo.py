@@ -2,16 +2,27 @@
 
 from __future__ import annotations
 
+import argparse
 import json
+from pathlib import Path
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.minimal_collapse import minimize_schedule
-from fragility_engine.runner import rollout_stablecoin, rollout_to_replay_dict
+from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_stablecoin, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
+    p = argparse.ArgumentParser(description="GA adversary demo + optional replay export.")
+    p.add_argument(
+        "--export-replay",
+        type=Path,
+        default=None,
+        help="Write best-rollout replay JSON for the static viewer.",
+    )
+    args = p.parse_args()
+
     template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=48)
     horizon = 24
 
@@ -35,6 +46,16 @@ def main() -> None:
 
     replay = rollout_to_replay_dict(search.best_rollout)
     print("replay_steps=", len(replay["trajectory"]))
+
+    if args.export_replay is not None:
+        replay["meta"] = {
+            "replay_schema": REPLAY_SCHEMA_VERSION,
+            "cli": "run_ga_demo",
+            "generations": 12,
+            "population_size": 24,
+            "horizon": horizon,
+        }
+        args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":
