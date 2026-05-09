@@ -56,6 +56,7 @@ python scripts/run_ga_demo.py
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
+| `scripts/counterfactual_epsilon_sweep.py` | Phase I: sweep **`base_panic`** or **`contagion_beta`** (`--values`, topology flags); see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4 |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 

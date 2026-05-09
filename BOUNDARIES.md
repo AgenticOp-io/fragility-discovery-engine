@@ -204,13 +204,16 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - **`network_contagion_beta_shift`** — topology-preserving clones with different `contagion_beta` (`clone_stablecoin_network`).
 - CLI: `--intervention remove_steps|base_panic_shift|contagion_beta_shift` (network-only for the latter two).
 
-**Backlog (not gates yet):** mechanical explanation DAG JSON, automated ε-sweeps, aggregate `initial_panic` pairing, edge-weight counterfactuals on neighbor JSON.
+**Backlog (not gates yet):** mechanical explanation DAG JSON, aggregate `initial_panic` pairing, edge-weight counterfactuals on neighbor JSON.
+
+**Shipped backlog slice:** deterministic ε-sweeps — `fragility_engine.explain.sweep`, `scripts/counterfactual_epsilon_sweep.py`, `tests/test_explain_sweep.py`.
 
 **Exit criteria:**
 
 - [x] ≥2 network-only intervention families beyond timestep deletion (`counterfactual_network_*_with_rollouts`, `tests/test_counterfactual_network_interventions.py`).
 - [x] CLI semantics documented in `--help` and this section; subprocess smoke (`tests/test_scripts_cli_smoke.py`).
 - [x] Worked example with commands (`docs/network_counterfactual_example.md`).
+- [x] Deterministic ε-sweeps over **base_panic** / **contagion_beta** (`explain/sweep.py`, `scripts/counterfactual_epsilon_sweep.py`, `tests/test_explain_sweep.py`, `tests/test_scripts_cli_smoke.py`).
 
 ## Fitness function discipline
 

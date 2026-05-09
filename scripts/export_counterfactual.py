@@ -16,17 +16,12 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_network_contagion_beta_with_rollouts,
     counterfactual_remove_steps_with_rollouts,
 )
-from fragility_engine.network.graph_cli import contagion_graph_from_cli
+from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
-)
-from fragility_engine.world.stablecoin_network import (
-    StablecoinNetworkWorld,
-    default_whale_weights,
-    neighbor_lists_topology_meta,
 )
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -139,56 +134,24 @@ def main() -> None:
             genome, evaluator, remove_timesteps=remove_ts, base_seed=args.seed
         )
     else:
-        template: StablecoinNetworkWorld
-        if args.neighbor_json is not None:
-            from fragility_engine.network.neighbor_io import load_neighbor_topology
-
-            try:
-                nl, nw = load_neighbor_topology(
-                    Path(args.neighbor_json),
-                    Path(args.neighbor_weights_json) if args.neighbor_weights_json else None,
-                )
-            except (ValueError, OSError, json.JSONDecodeError) as e:
-                print(str(e), file=sys.stderr)
-                raise SystemExit(2) from e
-            n = len(nl)
-            weights = default_whale_weights(n, whale_index=0, whale_frac=float(args.whale_frac))
-            template = StablecoinNetworkWorld(
-                population=default_stablecoin_population(),
-                neighbor_lists=nl,
-                neighbor_weights=nw,
-                node_weights=weights,
-                contagion_beta=float(args.beta),
-                max_steps=max(args.horizon, 32),
+        ms = max(args.horizon, 32)
+        try:
+            template, topo_meta = build_stablecoin_network_world_cli(
+                neighbor_json=args.neighbor_json,
+                neighbor_weights_json=args.neighbor_weights_json,
+                nodes=int(args.nodes),
+                graph_kind=str(args.graph_kind),
+                graph_seed=int(args.graph_seed),
+                er_p=float(args.er_p),
+                ws_k=int(args.ws_k),
+                ws_p=float(args.ws_p),
+                beta=float(args.beta),
+                whale_frac=float(args.whale_frac),
+                max_steps=ms,
             )
-            topo_meta = neighbor_lists_topology_meta(nl, weighted=nw is not None)
-        else:
-            try:
-                graph, gen_meta = contagion_graph_from_cli(
-                    graph_kind=str(args.graph_kind),
-                    nodes=int(args.nodes),
-                    graph_seed=int(args.graph_seed),
-                    er_p=float(args.er_p),
-                    ws_k=int(args.ws_k),
-                    ws_p=float(args.ws_p),
-                )
-            except ValueError as e:
-                print(str(e), file=sys.stderr)
-                raise SystemExit(2) from e
-            n = int(args.nodes)
-            weights = default_whale_weights(n, whale_index=0, whale_frac=float(args.whale_frac))
-            template = StablecoinNetworkWorld(
-                population=default_stablecoin_population(),
-                adjacency=graph,
-                node_weights=weights,
-                contagion_beta=float(args.beta),
-                max_steps=max(args.horizon, 32),
-            )
-            topo_meta = {
-                **gen_meta,
-                "undirected_edges": graph.undirected_edge_count(),
-                "storage": "dense_adjacency",
-            }
+        except (ValueError, OSError, json.JSONDecodeError) as e:
+            print(str(e), file=sys.stderr)
+            raise SystemExit(2) from e
 
         if args.intervention == "remove_steps":
 

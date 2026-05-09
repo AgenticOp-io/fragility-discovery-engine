@@ -829,6 +829,35 @@ def test_export_counterfactual_beta_shift_cli(py_exe: str, tmp_path: Path) -> No
     assert payload["intervention"] == "network_contagion_beta_shift"
 
 
+def test_counterfactual_epsilon_sweep_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--axis",
+            "base_panic",
+            "--values",
+            "0.05,0.11",
+            "--nodes",
+            "13",
+            "--horizon",
+            "10",
+            "--rollout-seed",
+            "9901",
+            "--genome-seed",
+            "42",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "counterfactual-epsilon-sweep-v1"
+    assert data["summary"]["count"] == 2
+
+
 def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:
     proc = subprocess.run(
         [

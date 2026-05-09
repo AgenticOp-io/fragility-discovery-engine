@@ -39,3 +39,27 @@ python scripts/export_counterfactual.py `
 ```
 
 `artifacts/tmp_*.json` paths are suggestions; create folders as needed or omit `--export-replay-dir`.
+
+## 4. ε-sweep (many panic or β values, one genome + seed)
+
+```powershell
+python scripts/counterfactual_epsilon_sweep.py `
+  --axis base_panic `
+  --values "0.05,0.1,0.15,0.2" `
+  --nodes 14 --horizon 12 `
+  --rollout-seed 6001 --genome-seed 77 `
+  --out artifacts/tmp_sweep_panic.json
+```
+
+Contagion β sweep (fixed reset panic):
+
+```powershell
+python scripts/counterfactual_epsilon_sweep.py `
+  --axis contagion_beta `
+  --values "0.08,0.22,0.4" `
+  --base-panic 0.06 `
+  --nodes 14 --horizon 12 `
+  --out artifacts/tmp_sweep_beta.json
+```
+
+Schema: `counterfactual-epsilon-sweep-v1` (`fragility_engine.explain.sweep`).

@@ -8,6 +8,8 @@ from fragility_engine.explain.counterfactual import (
     rollout_snapshot,
 )
 from fragility_engine.explain.minimal_collapse import minimize_schedule, minimize_schedule_with_rollout
+from fragility_engine.explain.sweep import SCHEMA as COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA
+from fragility_engine.explain.sweep import sweep_network_scalar_axis
 
 __all__ = [
     "minimize_schedule",
@@ -19,4 +21,6 @@ __all__ = [
     "compare_rollouts",
     "rollout_snapshot",
     "counterfactual_bundle_to_jsonable",
+    "sweep_network_scalar_axis",
+    "COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA",
 ]

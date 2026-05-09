@@ -79,8 +79,9 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] `explain/` APIs + tests — **base_panic** + **contagion_beta** shifts (`tests/test_counterfactual_network_interventions.py`).
 - [x] CLI `export_counterfactual --intervention …` + `BOUNDARIES.md` Phase I.
 - [x] Worked example: [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md).
+- [x] Scalar ε-sweeps (`explain/sweep.py`, `counterfactual_epsilon_sweep.py`).
 
-**Phase I partial adoption** — explanation DAG / ε-sweeps remain roadmap backlog.
+**Phase I partial adoption** — explanation DAG remains backlog.
 
 ---
 
