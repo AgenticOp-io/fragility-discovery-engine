@@ -57,6 +57,7 @@
       (each sets <code>meta.cli</code> for the panel below).
       Windows pickers often start in <strong>Documents</strong> — navigate once or drag JSON onto the dashed box.
       Chrome/Edge: <strong>Choose folder</strong> remembers the path for <strong>Choose replay file</strong>.
+      <strong>Compare second replay</strong> adds Δprice / Δinstability in the panel (e.g. baseline vs counterfactual). For cost vs severity scatter see <code>artifacts/pareto_viewer/</code>.
     </div>
   </header>
 
@@ -67,6 +68,10 @@
     <button type="button" class="btn" id="btnFile" title="Opens where you last granted via Choose folder (Chrome/Edge), otherwise the system default">
       Choose replay file…
     </button>
+    <button type="button" class="btn" id="btnCompare" title="Load a second replay; meta panel shows deltas at the scrub index">
+      Compare second replay…
+    </button>
+    <button type="button" class="btn" id="btnClearCompare" hidden>Clear comparison</button>
   </div>
   <div id="folderList" class="folder-list" hidden></div>
   <div id="drop">
@@ -74,6 +79,7 @@
     <input id="file" type="file" accept="application/json,.json" hidden />
     <!-- Folder picker: separate from single-file input so OS dialog is “folder” vs “file”. -->
     <input id="folderPick" type="file" webkitdirectory directory multiple hidden />
+    <input id="compareFile" type="file" accept="application/json,.json" hidden />
   </div>
   <canvas id="cv" width="1100" height="440" tabindex="0" aria-label="Replay timeline, mouse scrubs"></canvas>
   <pre id="meta"></pre>
@@ -88,9 +94,14 @@
     const btnFile = document.getElementById('btnFile');
     const folderList = document.getElementById('folderList');
     const folderPick = document.getElementById('folderPick');
+    const compareFile = document.getElementById('compareFile');
+    const btnCompare = document.getElementById('btnCompare');
+    const btnClearCompare = document.getElementById('btnClearCompare');
 
-    /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean } | null} */
+    /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean, mode: string, maxPanic: number[], panicStd: number[], validNetworkPanic: boolean, yPanicAux: function } | null} */
     let bundle = null;
+    /** @type {typeof bundle} */
+    let bundleB = null;
     let scrubIndex = 0;
     let pointerDown = false;
 
@@ -357,6 +368,29 @@
       updateMeta(si);
     }
 
+    function compareBlock(scrubI) {
+      if (!bundle || !bundleB) return '';
+      const ta = bundle.traj;
+      const tb = bundleB.traj;
+      if (!tb.length) return '\n--- compare B ---\n(empty trajectory)\n';
+      const ia = Math.max(0, Math.min(scrubI, ta.length - 1));
+      const ib = Math.max(0, Math.min(scrubI, tb.length - 1));
+      const ma = ta[ia]?.metrics || {};
+      const mb = tb[ib]?.metrics || {};
+      const pa = Number(ma.price);
+      const pb = Number(mb.price);
+      const qa = Number(ma.instability);
+      const qb = Number(mb.instability);
+      const dp = pa - pb;
+      const di = qa - qb;
+      return (
+        `\n--- compare B (scrub ${scrubI}; B clamped to index ${ib}) ---\n` +
+        `A: price=${ma.price ?? '—'}  instability=${ma.instability ?? '—'}\n` +
+        `B: price=${mb.price ?? '—'}  instability=${mb.instability ?? '—'}\n` +
+        `Δprice=${Number.isFinite(dp) ? dp.toFixed(6) : '—'}  Δinstability=${Number.isFinite(di) ? di.toFixed(6) : '—'}\n`
+      );
+    }
+
     function formatArtifactMeta(d) {
       const m = d.meta;
       if (!m || typeof m !== 'object') return '';
@@ -402,10 +436,14 @@
         `collapsed: ${d.collapsed} @ ${d.collapse_timestep}\n` +
         `attack_cost: ${d.attack_cost}\n` +
         `integral_instability: ${d.integral_instability}\n` +
+        `mean_instability: ${d.mean_instability ?? '—'}\n` +
+        `steps_recorded: ${d.steps_recorded ?? traj.length}\n` +
         `recovery_timestep: ${d.recovery_timestep}\n` +
+        `recovery_latency_steps: ${d.recovery_latency_steps ?? 'null'}\n` +
         `events_lane: ${Array.isArray(d.events_lane) ? d.events_lane.length : '(derived)'}\n` +
         `steps: ${traj.length}` +
-        scrubBlock;
+        scrubBlock +
+        compareBlock(scrubI);
     }
 
     function loadReplay(data) {
@@ -583,6 +621,36 @@
     });
     btnFile.addEventListener('click', () => {
       void pickReplayFile();
+    });
+
+    btnCompare.addEventListener('click', () => {
+      compareFile.click();
+    });
+    btnClearCompare.addEventListener('click', () => {
+      bundleB = null;
+      compareFile.value = '';
+      btnClearCompare.hidden = true;
+      draw();
+      updateMeta(scrubIndex);
+    });
+    compareFile.addEventListener('change', ev => {
+      const f = ev.target.files?.[0];
+      if (!f) return;
+      f.text().then(text => {
+        try {
+          const data = JSON.parse(text);
+          bundleB = buildBundle(data);
+          btnClearCompare.hidden = false;
+          draw();
+          updateMeta(scrubIndex);
+        } catch (e) {
+          bundleB = null;
+          btnClearCompare.hidden = true;
+          draw();
+          updateMeta(scrubIndex);
+          window.alert('Compare file invalid JSON: ' + e);
+        }
+      });
     });
 
     function handleText(text) {

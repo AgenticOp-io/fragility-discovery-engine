@@ -25,6 +25,9 @@ def test_replay_schema_version_and_events_lane():
     assert len(d["events_lane"]) == len(d["trajectory"])
     lane = build_events_lane(r.trajectory)
     assert lane == d["events_lane"]
+    assert d["steps_recorded"] == len(d["trajectory"])
+    assert "mean_instability" in d and d["mean_instability"] >= 0
+    assert d["recovery_latency_steps"] is None
 
 
 def test_replay_schema_network_state_vector_layout():

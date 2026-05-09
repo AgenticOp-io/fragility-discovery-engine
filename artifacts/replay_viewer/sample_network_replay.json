@@ -236,6 +236,9 @@
       }
     }
   ],
+  "steps_recorded": 6,
+  "mean_instability": 0.7603206294090464,
+  "recovery_latency_steps": null,
   "meta": {
     "replay_schema": "0.4.0",
     "cli": "export_replay",

@@ -170,6 +170,25 @@ def _recovery_timestep(
     return None
 
 
+def _replay_recoverability_fields(result: RolloutResult) -> dict[str, Any]:
+    """Operational recoverability / stress summaries (additive replay keys, schema 0.4.x)."""
+
+    n = len(result.trajectory)
+    mean_inst = float(result.integral_instability / n) if n else 0.0
+    latency: int | None = None
+    if (
+        result.collapsed
+        and result.collapse_timestep is not None
+        and result.recovery_timestep is not None
+    ):
+        latency = int(result.recovery_timestep - result.collapse_timestep)
+    return {
+        "steps_recorded": n,
+        "mean_instability": mean_inst,
+        "recovery_latency_steps": latency,
+    }
+
+
 def build_events_lane(trajectory: list[TrajectoryStep]) -> list[dict[str, Any]]:
     """Per-step shock intensities for replay UI (parallel to ``trajectory`` indices)."""
 
@@ -207,6 +226,9 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
     - ``attack_cost`` (`float`) — abstract schedule cost from ``schedule_attack_cost``
       (:mod:`fragility_engine.adversary.encoding`).
     - ``integral_instability`` (`float`) — sum of per-step ``metrics["instability"]``.
+    - ``mean_instability`` (`float`) — ``integral_instability / steps_recorded`` (0 if empty).
+    - ``steps_recorded`` (`int`) — ``len(trajectory)``.
+    - ``recovery_latency_steps`` (`int` or ``null``) — ``recovery_timestep - collapse_timestep`` when both exist.
     - ``recovery_timestep`` (`int` or ``null``) — first step after collapse where price recovers past depeg threshold;
       only when rollout used ``continue_after_collapse=True``.
     - ``collapsed`` (`bool`), ``collapse_timestep`` (`int` or ``null``).
@@ -234,6 +256,7 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
         }
 
     traj_dicts = [_step_dict(s) for s in result.trajectory]
+    recovery_extras = _replay_recoverability_fields(result)
     return {
         "schema_version": REPLAY_SCHEMA_VERSION,
         "simulation_mode": result.simulation_mode,
@@ -246,15 +269,19 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
         "seed": result.seed,
         "events_lane": build_events_lane(result.trajectory),
         "trajectory": traj_dicts,
+        **recovery_extras,
     }
 
 
 def summarize_findings(result: RolloutResult) -> str:
+    rx = _replay_recoverability_fields(result)
     lines = [
         f"mode={result.simulation_mode}",
         f"attack_cost={result.attack_cost:.4f}",
         f"integral_instability={result.integral_instability:.4f}",
+        f"mean_instability={rx['mean_instability']:.6f}",
         f"recovery_timestep={result.recovery_timestep}",
+        f"recovery_latency_steps={rx['recovery_latency_steps']}",
         f"collapsed={result.collapsed}",
         f"collapse_timestep={result.collapse_timestep}",
         f"peak_instability={result.final_instability:.4f}",

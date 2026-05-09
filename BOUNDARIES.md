@@ -107,12 +107,19 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Purpose:** cinematic replay, not decoration.
 
-**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge).
+**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge). Optional **A/B**: second replay file for per-step **price / instability deltas** in the meta panel (same scrub index). **Pareto:** `artifacts/pareto_viewer/index.html` plots **`pareto_front.json`** (`severity` vs `attack_cost`).
 
 **In scope:**
 
 - Timeline scrubber consuming **only** replay JSON.
 - Contagion-linked traces derived from frozen **`state_vector`** layout for network rollouts (no live graph geometry in v0.4 viewer).
+
+**Exit criteria:**
+
+- [x] Timeline + shock lane + collapse marker + scrub playhead on **`events_lane`** / trajectory contract.
+- [x] **`artifact_meta`** surfaced when `meta` is present; bundled aggregate + network samples in repo.
+- [x] Network mode auxiliary panic traces when `state_vector` layout matches Phase B.
+- [x] Optional second-file comparison (meta-only deltas) for counterfactual / minimized pairs.
 
 **Out of scope for E:**
 
@@ -156,7 +163,8 @@ Escalation order:
 
 Measure collapse **and eventually recoverability** — but:
 
-- **Recoverability** enters only when Phase B/C basics exist; define operational metrics (time-to-re-peg, area under instability curve) in code, not prose.
+- **Recoverability** enters only when Phase B/C basics exist; define operational metrics in code, not prose.
+- **Shipped (replay JSON):** `integral_instability` (sum), `mean_instability` (per-step average), `recovery_timestep` / `recovery_latency_steps` when ``continue_after_collapse=True`` yields re-peg (see `runner._replay_recoverability_fields`).
 
 ## How we use external advice (including other AIs)
 

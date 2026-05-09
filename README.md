@@ -45,7 +45,9 @@ python scripts/run_ga_demo.py
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
 
-Static replay UI (drag-and-drop JSON): `artifacts/replay_viewer/index.html` — hover / drag timeline scrub, keyboard arrows.
+Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas.
+
+Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_front.json` (from `scripts/export_pareto_front.py`); bundled `artifacts/pareto_viewer/sample_pareto_front.json`.
 
 ## Week roadmap (suggested)
 
