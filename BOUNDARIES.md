@@ -143,11 +143,30 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 ### Phase G — Defender co-evolution
 
-**Purpose:** attacker vs defender loops.
+**Purpose:** attacker vs defender loops on shared deterministic rollouts.
 
 **Gate:** only after Phase C + D exist — otherwise co-evolution masks attribution bugs.
 
-**Implementation notes:** `alternating_coevolution` carries `last_rollout` (final probe). `scripts/run_coevolution.py --export-replay` emits replay JSON for the static viewer without changing the core schema.
+**Implementation:**
+
+- **Aggregate:** `alternating_coevolution` → `rollout_stablecoin(..., defender_genome=…)`.
+- **Network:** `alternating_coevolution_network` → `rollout_stablecoin_network(..., defender_genome=…)` using the **same** four defender knobs (`coevolution.defender.decode_defender_genome_params`).
+- **Custom / heavy worlds:** `alternating_coevolution_rollout(rollout_fn)` with `rollout_fn(schedule_genome, seed, defender_genome) -> RolloutResult` — attach alternate physics or compiled steppers without forking the alternating loop.
+- **CLI:** `scripts/run_coevolution.py --mode aggregate|network` (topology flags mirror `run_network_demo.py`), `--json-summary`, `--export-replay`; replay `meta` includes `coevolution_mode` and optional `topology`.
+
+**Exit criteria:**
+
+- [x] Alternating search reproducible on aggregate (`tests/test_coevolution_smoke.py`).
+- [x] Network rollouts honor defender genome and diverge from undefended baseline (`tests/test_runner_network_defender.py`).
+- [x] Network co-evolution smoke + extensibility hook (`tests/test_coevolution_network.py`).
+- [x] CLI exports network replay + topology meta (`tests/test_scripts_cli_smoke.py`).
+
+**Scale / complexity (large systems):**
+
+- Cost per **round** scales roughly as **O(G_att·P_att·H·step + G_def·P_def·H·step)** where **step** is one simulated timestep and **H** is attacker schedule horizon.
+- **Network:** current contagion stores a **dense** `int8` adjacency → **Θ(n²)** RAM and **Θ(n²)** neighbor mixing per step; large **n** demand smaller GA budgets or future sparse backends—do not pretend **n≈10⁶** fits this reference kernel.
+- Reduce **`max_steps`**, GA generations/population, or **horizon** before adding defender parameters; new knobs belong in `coevolution/defender.py` with explicit tests.
+- For institution-scale models, supply **`alternating_coevolution_rollout`** with your own deterministic `rollout_fn`; keep **seed discipline** documented at the call site.
 
 ## Fitness function discipline
 

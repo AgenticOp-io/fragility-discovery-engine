@@ -283,3 +283,40 @@ def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> Non
         assert m["meta"]["variant"] == "greedy_minimized_schedule"
     else:
         assert "Skipping --export-minimized-replay" in proc.stderr
+
+
+def test_run_coevolution_network_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "coev_net.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "network",
+            "--nodes",
+            "14",
+            "--rounds",
+            "1",
+            "--attacker-horizon",
+            "10",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "424242",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "network"
+    assert data["meta"]["cli"] == "run_coevolution"
+    assert data["meta"]["coevolution_mode"] == "network"
+    assert data["meta"]["topology"]["kind"] == "erdos_renyi"

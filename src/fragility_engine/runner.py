@@ -5,7 +5,7 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.adversary.encoding import decode_schedule, schedule_attack_cost
-from fragility_engine.coevolution.defender import build_defended_aggregate_world
+from fragility_engine.coevolution.defender import build_defended_aggregate_world, build_defended_network_world
 from fragility_engine.types import RolloutResult, TrajectoryStep
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -92,20 +92,18 @@ def rollout_stablecoin_network(
     initial_supply: float = 1_000_000.0,
     base_panic: float = 0.05,
     continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
 ) -> RolloutResult:
-    """Graph contagion variant — panic vector diffuses before redemption aggregation."""
+    """Graph contagion variant — panic vector diffuses before redemption aggregation.
 
-    world = StablecoinNetworkWorld(
-        population=world_template.population,
-        adjacency=world_template.adjacency,
-        node_weights=world_template.node_weights,
-        contagion_beta=world_template.contagion_beta,
-        depeg_threshold=world_template.depeg_threshold,
-        panic_decay=world_template.panic_decay,
-        rumor_panic_gain=world_template.rumor_panic_gain,
-        max_steps=world_template.max_steps,
-    )
-    world.reset(initial_reserves=initial_reserves, initial_supply=initial_supply, base_panic=base_panic)
+    ``defender_genome`` applies the same resilience decoding as aggregate rollouts
+    (:mod:`fragility_engine.coevolution.defender`); reserve headroom scales ``initial_reserves``.
+    """
+
+    world, reserve_boost = build_defended_network_world(world_template, defender_genome)
+    eff_reserves = float(initial_reserves * reserve_boost)
+
+    world.reset(initial_reserves=eff_reserves, initial_supply=initial_supply, base_panic=base_panic)
     world.population.reset(initial_supply=initial_supply, rng=np.random.default_rng(seed ^ 0x9E3779B9))
 
     schedule = decode_schedule(genome)

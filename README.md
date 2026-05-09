@@ -13,7 +13,7 @@ Autonomous **coverage-guided-style** search over a modular simulation: mutate sh
 | `fragility_engine.adversary` | Deterministic search (Monte Carlo + GA) over shock schedules. |
 | `fragility_engine.explain` | Ablation / minimization / **counterfactual** bundles. |
 | `fragility_engine.network` | ``ContagionGraph`` + topology + contagion diffusion (Phase B). |
-| `fragility_engine.coevolution` | Alternating attacker/defender search scaffold. |
+| `fragility_engine.coevolution` | Alternating attacker/defender search; aggregate + network + `alternating_coevolution_rollout` hook for custom worlds. |
 
 Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out until the core loop is proven.
 
@@ -42,7 +42,7 @@ python scripts/run_ga_demo.py
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--export-replay`, sizing flags) |
 | `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`) or network (`--base-panic`, topology flags, `--continue-after-collapse`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
-| `scripts/run_coevolution.py` | Alternating attacker/defender GA (`--export-replay`) |
+| `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network`, topology flags, `--json-summary`, `--export-replay` |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
@@ -61,4 +61,4 @@ Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_fron
 2. Evolutionary adversary — `scripts/run_ga_demo.py`
 3. Network contagion — `fragility_engine.network` + `StablecoinNetworkWorld`
 4. Replay JSON — `runner.rollout_to_replay_dict` (`schema_version` **0.4.0**, includes `events_lane`)
-5. Web UI — later; consume replay artifact only after engine stabilizes.
+5. Static replay / Pareto viewers (`artifacts/*/viewer`) consume frozen JSON; richer web UI remains optional.

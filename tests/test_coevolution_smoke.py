@@ -26,6 +26,7 @@ def test_alternating_coevolution_smoke():
     assert summary.last_rollout is not None
     assert len(summary.last_rollout.trajectory) >= 1
     assert summary.last_rollout.simulation_mode == "aggregate"
+    assert summary.simulation_mode == "aggregate"
 
 
 def test_alternating_coevolution_two_rounds_reproducible():
