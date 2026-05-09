@@ -21,7 +21,8 @@ def test_rollout_is_deterministic():
 
 def test_extreme_shocks_tend_to_force_failure():
     world = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=24)
-    genome = np.ones((24, 2))  # always strongest shocks (bucket maps to rumor / high mag)
-    genome[:, 0] = 0.95  # bias toward non-none kinds
+    genome = np.zeros((24, 2))
+    genome[:, 0] = 0.5  # bucket → reserve_loss (directly drains backing)
+    genome[:, 1] = 1.0  # maximum per-step magnitude
     result = rollout_stablecoin(world, genome, seed=1)
     assert result.collapsed is True
