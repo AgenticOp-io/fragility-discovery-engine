@@ -52,15 +52,16 @@
     </div>
     <div class="path-hint" id="pathHint">
       Replays usually live in your <strong>repo root</strong>: run <code>python scripts/export_replay.py</code> → writes <code>replay.json</code>
-      (same folder as <code>pyproject.toml</code>). Use the folder button and select that directory.
+      (same folder as <code>pyproject.toml</code>). In Chrome/Edge, pick that folder with <strong>Choose folder</strong> once — after that,
+      <strong>Choose replay file</strong> opens in the same place (the plain file dialog cannot jump to a path by itself).
     </div>
   </header>
 
   <div class="btn-row">
-    <button type="button" class="btn primary" id="btnFolder" title="Uses your browser’s folder picker (not the same as picking one file)">
+    <button type="button" class="btn primary" id="btnFolder" title="Chrome/Edge: remembers this folder for “Choose replay file”. Fallback: folder upload dialog lists JSON in subfolders too.">
       Choose folder (show JSON files inside)…
     </button>
-    <button type="button" class="btn" id="btnFile" title="Pick one replay.json">
+    <button type="button" class="btn" id="btnFile" title="Opens where you last granted via Choose folder (Chrome/Edge), otherwise the system default">
       Choose replay file…
     </button>
   </div>
@@ -323,7 +324,85 @@
       cv.focus({ preventScroll: true });
     }
 
-    function pickReplayFile() {
+    const IDB_NAME = 'fragility-replay-viewer';
+    const IDB_STORE = 'handles';
+    const IDB_KEY_REPLAY_DIR = 'replayDir';
+
+    function openHandlesDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onerror = () => reject(req.error);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(IDB_STORE)) req.result.createObjectStore(IDB_STORE);
+        };
+        req.onsuccess = () => resolve(req.result);
+      });
+    }
+
+    async function saveReplayDirHandle(dirHandle) {
+      try {
+        const db = await openHandlesDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+          tx.objectStore(IDB_STORE).put(dirHandle, IDB_KEY_REPLAY_DIR);
+        });
+      } catch (_) {
+        /* private mode / blocked IDB */
+      }
+    }
+
+    async function loadReplayDirHandle() {
+      try {
+        const db = await openHandlesDb();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(IDB_STORE, 'readonly');
+          const g = tx.objectStore(IDB_STORE).get(IDB_KEY_REPLAY_DIR);
+          g.onsuccess = () => resolve(g.result ?? null);
+          g.onerror = () => reject(g.error);
+        });
+      } catch (_) {
+        return null;
+      }
+    }
+
+    /** Directory handle saved after “Choose folder” (FSA); used as showOpenFilePicker startIn. */
+    async function usableReplayDirHandleForStartIn() {
+      const h = await loadReplayDirHandle();
+      if (!h || typeof h.queryPermission !== 'function') return null;
+      let perm = await h.queryPermission({ mode: 'read' });
+      if (perm === 'prompt') {
+        try {
+          perm = await h.requestPermission({ mode: 'read' });
+        } catch (_) {
+          return null;
+        }
+      }
+      return perm === 'granted' ? h : null;
+    }
+
+    async function pickReplayFile() {
+      const startIn = await usableReplayDirHandleForStartIn();
+      if (window.showOpenFilePicker) {
+        try {
+          const opts = {
+            id: 'fragility-replay-json',
+            types: [
+              { description: 'Replay JSON', accept: { 'application/json': ['.json'], 'text/json': ['.json'] } },
+            ],
+          };
+          if (startIn) opts.startIn = startIn;
+          const [fh] = await window.showOpenFilePicker(opts);
+          const file = await fh.getFile();
+          folderList.hidden = true;
+          handleText(await file.text());
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+        }
+      }
+      folderList.hidden = true;
       fileInput.click();
     }
 
@@ -367,16 +446,52 @@
       folderPick.value = '';
     });
 
-    function pickReplayFolder() {
+    async function pickReplayFolder() {
+      if (window.showDirectoryPicker) {
+        try {
+          const dir = await window.showDirectoryPicker({ id: 'fragility-replay-folder' });
+          await saveReplayDirHandle(dir);
+          const handles = [];
+          for await (const ent of dir.values()) {
+            if (ent.kind === 'file' && ent.name.toLowerCase().endsWith('.json')) handles.push(ent);
+          }
+          handles.sort((a, b) => a.name.localeCompare(b.name));
+          folderList.innerHTML = '';
+          if (!handles.length) {
+            folderList.innerHTML =
+              '<p style="margin:0;opacity:0.85">No .json files in this folder (top level only — use fallback folder picker for subfolders).</p>';
+            folderList.hidden = false;
+            return;
+          }
+          const h = document.createElement('h3');
+          h.textContent = `JSON in folder (top level) — click to load (${handles.length})`;
+          folderList.appendChild(h);
+          handles.forEach(hnd => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'json-pick';
+            b.textContent = hnd.name;
+            b.title = hnd.name;
+            b.addEventListener('click', async () => {
+              const file = await hnd.getFile();
+              handleText(await file.text());
+            });
+            folderList.appendChild(b);
+          });
+          folderList.hidden = false;
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+        }
+      }
       folderPick.click();
     }
 
     btnFolder.addEventListener('click', () => {
-      pickReplayFolder();
+      void pickReplayFolder();
     });
     btnFile.addEventListener('click', () => {
-      folderList.hidden = true;
-      pickReplayFile();
+      void pickReplayFile();
     });
 
     function handleText(text) {
