@@ -51,7 +51,7 @@
       With the chart focused: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd> ends.
     </div>
     <div class="path-hint" id="pathHint">
-      Bundled sample: <code>artifacts/replay_viewer/sample_replay.json</code> (same folder as this page when served from the repo).
+      Bundled samples: <code>sample_replay.json</code> (aggregate) and <code>sample_network_replay.json</code> (contagion — extra dashed lines).
       Your own export: <code>python scripts/export_replay.py</code> → <code>replay.json</code> in the cwd (often repo root).
       Windows often opens pickers in <strong>Documents</strong> first — navigate to the repo once, or drag the sample onto the dashed box.
       In Chrome/Edge, <strong>Choose folder</strong> (native picker) saves that location for <strong>Choose replay file</strong>.
@@ -121,9 +121,31 @@
       const instab = traj.map(s => Number(s.metrics?.instability ?? NaN));
       const validInst = instab.every(v => Number.isFinite(v));
       const collapseT = Number.isFinite(data.collapse_timestep) ? data.collapse_timestep : null;
+      const mode = data.simulation_mode || 'aggregate';
+
+      let maxPanic = [];
+      let panicStd = [];
+      let validNetworkPanic = false;
+      if (mode === 'network' && traj.length && (traj[0].state_vector || []).length >= 7) {
+        maxPanic = traj.map(s => Number(s.state_vector[4]));
+        panicStd = traj.map(s => Number(s.state_vector[5]));
+        validNetworkPanic =
+          maxPanic.length === traj.length &&
+          panicStd.length === traj.length &&
+          maxPanic.every(Number.isFinite) &&
+          panicStd.every(Number.isFinite);
+      }
 
       const minP = traj.length ? Math.min(...prices.filter(Number.isFinite)) : 1;
       const maxP = traj.length ? Math.max(...prices.filter(Number.isFinite)) : 1;
+
+      const hiPanicAux = validNetworkPanic
+        ? Math.max(
+            ...maxPanic.filter(Number.isFinite),
+            ...panicStd.filter(Number.isFinite),
+            1e-9,
+          )
+        : 1;
 
       function xScale(i) {
         return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad);
@@ -138,10 +160,15 @@
         const u = q / (hi + 1e-9);
         return mainBottom - pad - u * (mainBottom - 2 * pad);
       }
+      function yPanicAux(q) {
+        const u = q / (hiPanicAux + 1e-9);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
+      }
 
       return {
         data, traj, lane, tmax, pad, W, H, mainBottom, laneTop, laneBot, laneH,
         prices, instab, collapseT, xScale, yPrice, yInst, validInst,
+        mode, maxPanic, panicStd, validNetworkPanic, yPanicAux,
       };
     }
 
@@ -230,6 +257,28 @@
         ctx.stroke();
       }
 
+      if (b.validNetworkPanic) {
+        ctx.save();
+        ctx.strokeStyle = '#daf';
+        ctx.lineWidth = 1.25;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        b.maxPanic.forEach((q, i) => {
+          const x = b.xScale(i), y = b.yPanicAux(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.strokeStyle = '#9d8';
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath();
+        b.panicStd.forEach((q, i) => {
+          const x = b.xScale(i), y = b.yPanicAux(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
       ctx.fillStyle = '#1a1a1e';
       ctx.fillRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
 
@@ -277,13 +326,31 @@
         ctx.arc(xp, b.yInst(instab[si]), 5, 0, Math.PI * 2);
         ctx.stroke();
       }
+      if (b.validNetworkPanic) {
+        ctx.fillStyle = '#daf';
+        ctx.beginPath();
+        ctx.arc(xp, b.yPanicAux(b.maxPanic[si]), 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#9d8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xp, b.yPanicAux(b.panicStd[si]), 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
 
       ctx.fillStyle = '#ddd';
       ctx.font = '12px system-ui';
       ctx.fillText('price (blue)', pad, 16);
       ctx.fillText('instability (orange)', pad + 110, 16);
       ctx.fillText('collapse (magenta)', pad + 260, 16);
-      ctx.fillText(`scrub: step ${si} / ${tmax}`, pad + 410, 16);
+      let lx = pad + 410;
+      ctx.fillText(`scrub: step ${si} / ${tmax}`, lx, 16);
+      if (b.validNetworkPanic) {
+        ctx.fillStyle = '#daf';
+        ctx.fillText('max panic', lx + 118, 16);
+        ctx.fillStyle = '#9d8';
+        ctx.fillText('σ panic', lx + 190, 16);
+      }
 
       updateMeta(si);
     }
@@ -300,10 +367,19 @@
         const step = traj[scrubI];
         const m = step.metrics || {};
         const evs = step.events || [];
+        const sv = step.state_vector || [];
+        let svNote = '';
+        if ((d.simulation_mode || '') === 'network' && sv.length >= 7) {
+          svNote =
+            `state_vector: mean_p=${sv[3]?.toFixed?.(4) ?? sv[3]} max_p=${sv[4]?.toFixed?.(4) ?? sv[4]} std_p=${sv[5]?.toFixed?.(4) ?? sv[5]}\n`;
+        } else if (sv.length >= 5) {
+          svNote = `state_vector: panic=${sv[3]?.toFixed?.(4) ?? sv[3]} (aggregate layout)\n`;
+        }
         scrubBlock =
           `\n--- scrub (index ${scrubI}) ---\n` +
           `timestep: ${step.timestep}\n` +
           `price: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}\n` +
+          svNote +
           `events: ${evs.length ? JSON.stringify(evs) : '(none)'}\n`;
       }
       meta.textContent =

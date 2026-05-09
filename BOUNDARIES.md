@@ -107,12 +107,12 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Purpose:** cinematic replay, not decoration.
 
-**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`.
+**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge).
 
 **In scope:**
 
 - Timeline scrubber consuming **only** replay JSON.
-- Contagion highlighting **after** Phase B.
+- Contagion-linked traces derived from frozen **`state_vector`** layout for network rollouts (no live graph geometry in v0.4 viewer).
 
 **Out of scope for E:**
 

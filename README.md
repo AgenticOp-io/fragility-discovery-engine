@@ -38,7 +38,7 @@ python scripts/run_ga_demo.py
 | `scripts/week1_smoke.py` | Deterministic rollout smoke test |
 | `scripts/run_ga_demo.py` | GA + greedy minimization + replay stats |
 | `scripts/run_network_demo.py` | GA on **graph contagion** world |
-| `scripts/export_replay.py` | Write versioned `replay.json` |
+| `scripts/export_replay.py` | Write versioned `replay.json` (`--mode aggregate` or `--mode network`) |
 | `scripts/fragility_surface.py` | CSV grid scan (parameter fragility map, shocks off) |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA |
 | `scripts/export_pareto_front.py` | Dump `pareto_front.json` (2-objective archive) |
