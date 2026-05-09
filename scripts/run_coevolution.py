@@ -41,6 +41,11 @@ def main() -> None:
     p.add_argument("--defender-generations", type=int, default=6)
     p.add_argument("--defender-population", type=int, default=12)
     p.add_argument("--seed", type=int, default=131)
+    p.add_argument(
+        "--continue-after-collapse",
+        action="store_true",
+        help="Keep rolling after collapse for recovery metrics (passed through to rollouts).",
+    )
 
     p.add_argument(
         "--json-summary",
@@ -65,6 +70,7 @@ def main() -> None:
         )
         summary = alternating_coevolution(
             template,
+            continue_after_collapse=bool(args.continue_after_collapse),
             attacker_horizon=int(args.attacker_horizon),
             rounds=int(args.rounds),
             attacker_generations=int(args.attacker_generations),
@@ -99,6 +105,7 @@ def main() -> None:
         summary = alternating_coevolution_network(
             template,
             base_panic=float(args.base_panic),
+            continue_after_collapse=bool(args.continue_after_collapse),
             attacker_horizon=int(args.attacker_horizon),
             rounds=int(args.rounds),
             attacker_generations=int(args.attacker_generations),
@@ -131,6 +138,7 @@ def main() -> None:
             "cli": "run_coevolution",
             "coevolution_rounds": len(summary.rounds),
             "coevolution_mode": summary.simulation_mode,
+            "continue_after_collapse": bool(args.continue_after_collapse),
         }
         if topo_meta is not None:
             meta["topology"] = topo_meta

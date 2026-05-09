@@ -17,7 +17,8 @@
     { "label": "Export: minimized standalone", "path": "../test_exports/minimized_standalone.json" },
     { "label": "Export: counterfactual baseline", "path": "../test_exports/counterfactual_replays/baseline.json" },
     { "label": "Export: counterfactual perturbed", "path": "../test_exports/counterfactual_replays/counterfactual.json" },
-    { "label": "Export: coevolution final", "path": "../test_exports/coevolution_final.json" },
+    { "label": "Export: coevolution final (aggregate)", "path": "../test_exports/coevolution_final.json" },
+    { "label": "Export: coevolution network", "path": "../test_exports/coevolution_network.json" },
     { "label": "Export: cheap collapse best", "path": "../test_exports/cheap_collapse_best.json" },
     { "label": "Export: network GA best", "path": "../test_exports/network_ga_best.json" }
   ]

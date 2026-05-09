@@ -285,6 +285,43 @@ def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> Non
         assert "Skipping --export-minimized-replay" in proc.stderr
 
 
+def test_run_coevolution_aggregate_continue_after_collapse(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "coev_cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "aggregate",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "36",
+            "--attacker-horizon",
+            "12",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "515151",
+            "--continue-after-collapse",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "aggregate"
+    assert data["meta"]["continue_after_collapse"] is True
+    assert "recovery_timestep" in data
+
+
 def test_run_coevolution_network_exports_replay(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "coev_net.json"
     subprocess.run(

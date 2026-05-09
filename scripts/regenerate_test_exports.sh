@@ -21,6 +21,7 @@ python scripts/export_minimized_replay.py --out "$out/minimized_standalone.json"
 python scripts/export_pareto_front.py --out "$out/pareto_front.json" --seed 606
 python scripts/export_counterfactual.py --out "$out/counterfactual_report.json" --export-replay-dir "$out/counterfactual_replays" --horizon 16 --remove "0,1,2" --seed 424242 --genome-seed 7
 python scripts/run_coevolution.py --export-replay "$out/coevolution_final.json"
+python scripts/run_coevolution.py --mode network --nodes 14 --rounds 1 --attacker-horizon 10 --attacker-generations 2 --attacker-population 8 --defender-generations 2 --defender-population 7 --seed 424242 --export-replay "$out/coevolution_network.json"
 python scripts/find_cheap_collapse.py --export-replay "$out/cheap_collapse_best.json"
 python scripts/run_network_demo.py --nodes 32 --generations 5 --population-size 14 --ga-seed 131 --export-replay "$out/network_ga_best.json"
 

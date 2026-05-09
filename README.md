@@ -42,7 +42,7 @@ python scripts/run_ga_demo.py
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--export-replay`, sizing flags) |
 | `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`) or network (`--base-panic`, topology flags, `--continue-after-collapse`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
-| `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network`, topology flags, `--json-summary`, `--export-replay` |
+| `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network`, `--continue-after-collapse`, topology flags, `--json-summary`, `--export-replay` |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |

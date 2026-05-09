@@ -107,6 +107,7 @@ def alternating_coevolution_rollout(
 def alternating_coevolution(
     template: StablecoinPegWorld,
     *,
+    continue_after_collapse: bool = False,
     attacker_horizon: int = 20,
     defender_genome_size: int = 4,
     rounds: int = 3,
@@ -125,7 +126,13 @@ def alternating_coevolution(
     """
 
     def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
-        return rollout_stablecoin(template, g, seed=s, defender_genome=d)
+        return rollout_stablecoin(
+            template,
+            g,
+            seed=s,
+            defender_genome=d,
+            continue_after_collapse=continue_after_collapse,
+        )
 
     return alternating_coevolution_rollout(
         rollout_fn,

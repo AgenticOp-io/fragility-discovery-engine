@@ -10,4 +10,5 @@ artifacts/test_exports/
     Serve repo root (e.g. python -m http.server 8765), open artifacts/replay_viewer/index.html —
     Presets dropdown loads local_presets.json (bundled samples + ../test_exports/*).
   Pareto scatter: artifacts/pareto_viewer/index.html — presets include ../test_exports/pareto_front.json.
+  Regenerate also writes coevolution_network.json (Phase G network alternating GA).
     Or use file / folder pickers; copy JSON beside the viewer if you prefer file://.
