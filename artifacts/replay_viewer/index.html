@@ -20,6 +20,23 @@
       margin-bottom: 12px; cursor: pointer;
     }
     #hint { font-size: 12px; opacity: 0.75; margin-top: 8px; }
+    .path-hint { font-size: 12px; opacity: 0.82; margin-bottom: 10px; line-height: 1.45; }
+    .path-hint code { font-size: 11px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; align-items: center; }
+    .btn {
+      font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #8886;
+      background: #2a2a30; color: #eee; cursor: pointer;
+    }
+    .btn:hover { background: #3a3a44; }
+    .btn.primary { border-color: #66aacc88; background: #253045; }
+    .folder-list { margin: 8px 0 12px; padding: 12px; border: 1px solid #5558; border-radius: 8px; background: #1a1a1e; }
+    .folder-list h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; opacity: 0.95; }
+    .folder-list .json-pick {
+      display: block; width: 100%; text-align: left; margin: 6px 0; padding: 8px 12px;
+      font: inherit; border-radius: 6px; border: 1px solid #5556; background: #252528; color: #ddd; cursor: pointer;
+    }
+    .folder-list .json-pick:hover { background: #323238; }
+    .drop-label { font-size: 13px; opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -33,9 +50,25 @@
       <strong>Timeline:</strong> move the mouse over the chart to scrub, or click-drag.
       With the chart focused: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd> ends.
     </div>
+    <div class="path-hint" id="pathHint">
+      Replays usually live in your <strong>repo root</strong>: run <code>python scripts/export_replay.py</code> → writes <code>replay.json</code>
+      (same folder as <code>pyproject.toml</code>). Use the folder button and select that directory.
+    </div>
   </header>
 
-  <div id="drop">Drop replay JSON here or click to pick a file<input id="file" type="file" accept="application/json" hidden /></div>
+  <div class="btn-row">
+    <button type="button" class="btn primary" id="btnFolder" title="Opens a system folder picker; then pick a JSON file from the list">
+      Open folder (list JSON replays)…
+    </button>
+    <button type="button" class="btn" id="btnFile" title="Pick a single replay.json file">
+      Choose replay file…
+    </button>
+  </div>
+  <div id="folderList" class="folder-list" hidden></div>
+  <div id="drop">
+    <span class="drop-label">Or drag-and-drop a <code>.json</code> file here</span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
   <canvas id="cv" width="1100" height="440" tabindex="0" aria-label="Replay timeline, mouse scrubs"></canvas>
   <pre id="meta"></pre>
 
@@ -45,6 +78,9 @@
     const meta = document.getElementById('meta');
     const drop = document.getElementById('drop');
     const fileInput = document.getElementById('file');
+    const btnFolder = document.getElementById('btnFolder');
+    const btnFile = document.getElementById('btnFile');
+    const folderList = document.getElementById('folderList');
 
     /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean } | null} */
     let bundle = null;
@@ -284,6 +320,70 @@
       cv.focus({ preventScroll: true });
     }
 
+    async function pickReplayFile() {
+      if (window.showOpenFilePicker) {
+        try {
+          const [handle] = await window.showOpenFilePicker({
+            id: 'fragility-replay-json',
+            types: [
+              { description: 'Replay JSON', accept: { 'application/json': ['.json'], 'text/json': ['.json'] } },
+            ],
+          });
+          const file = await handle.getFile();
+          handleText(await file.text());
+          folderList.hidden = true;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+          fileInput.click();
+        }
+      } else {
+        fileInput.click();
+      }
+    }
+
+    async function pickReplayFolder() {
+      if (!window.showDirectoryPicker) {
+        window.alert(
+          'Folder picker needs Chrome or Edge (File System Access API). Use “Choose replay file…” or drag-drop.'
+        );
+        return;
+      }
+      try {
+        const dir = await window.showDirectoryPicker({ id: 'fragility-replay-folder' });
+        const handles = [];
+        for await (const ent of dir.values()) {
+          if (ent.kind === 'file' && ent.name.toLowerCase().endsWith('.json')) handles.push(ent);
+        }
+        handles.sort((a, b) => a.name.localeCompare(b.name));
+        folderList.innerHTML = '';
+        if (!handles.length) {
+          folderList.innerHTML = '<p style="margin:0;opacity:0.85">No .json files in this folder.</p>';
+          folderList.hidden = false;
+          return;
+        }
+        const h = document.createElement('h3');
+        h.textContent = `JSON files — click to load (${handles.length})`;
+        folderList.appendChild(h);
+        handles.forEach(hnd => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'json-pick';
+          b.textContent = hnd.name;
+          b.addEventListener('click', async () => {
+            const file = await hnd.getFile();
+            handleText(await file.text());
+          });
+          folderList.appendChild(b);
+        });
+        folderList.hidden = false;
+      } catch (e) {
+        if (e.name !== 'AbortError') console.warn(e);
+      }
+    }
+
+    btnFolder.addEventListener('click', () => { pickReplayFolder(); });
+    btnFile.addEventListener('click', () => { pickReplayFile(); });
+
     function handleText(text) {
       try {
         const data = JSON.parse(text);
@@ -332,7 +432,6 @@
       draw();
     });
 
-    drop.addEventListener('click', () => fileInput.click());
     drop.addEventListener('dragover', ev => { ev.preventDefault(); });
     drop.addEventListener('drop', ev => {
       ev.preventDefault();
