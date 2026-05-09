@@ -1,5 +1,7 @@
 # Fragility Discovery Engine
 
+[![CI](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml)
+
 Autonomous **coverage-guided-style** search over a modular simulation: mutate shock schedules, maximize instability metrics, then extract **minimal collapse sequences** and causal replay artifacts.
 
 ## Layout (four engines)
@@ -10,6 +12,8 @@ Autonomous **coverage-guided-style** search over a modular simulation: mutate sh
 | `fragility_engine.agents` | Behavior archetypes — `observe → decide → act`. |
 | `fragility_engine.adversary` | Deterministic search (Monte Carlo + GA) over shock schedules. |
 | `fragility_engine.explain` | Ablation / minimization / attribution helpers. |
+| `fragility_engine.network` | Graph topology + contagion diffusion (Phase B). |
+| `fragility_engine.coevolution` | Alternating attacker/defender search scaffold. |
 
 Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out until the core loop is proven.
 

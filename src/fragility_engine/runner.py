@@ -171,7 +171,32 @@ def _recovery_timestep(
 
 
 def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
-    """Serializable artifact for a future timeline UI."""
+    """
+    Serialize a rollout for replay / tooling (timeline UI, viewer, CI fixtures).
+
+    **Contract** (``schema_version`` = :data:`REPLAY_SCHEMA_VERSION`):
+
+    Top-level keys:
+
+    - ``schema_version`` (`str`) — bump when fields change; viewers should branch on this.
+    - ``simulation_mode`` (`str`) — ``aggregate`` or ``network``.
+    - ``attack_cost`` (`float`) — abstract schedule cost from :func:`fragility_engine.adversary.encoding.schedule_attack_cost`.
+    - ``integral_instability`` (`float`) — sum of per-step ``metrics["instability"]``.
+    - ``recovery_timestep`` (`int` \| ``null``) — first step after collapse where price recovers past depeg threshold;
+      only when rollout used ``continue_after_collapse=True``.
+    - ``collapsed`` (`bool`), ``collapse_timestep`` (`int` \| ``null``).
+    - ``final_instability`` (`float`) — peak instability observed.
+    - ``seed`` (`int`) — RNG anchor for this rollout.
+    - ``trajectory`` (`list[dict]`) — ordered steps.
+
+    Each trajectory element:
+
+    - ``timestep`` (`int`)
+    - ``state_vector`` (`list[float]`) — domain-specific layout (aggregate: reserves, supply, price, panic, t…).
+    - ``events`` (`list[{"kind","magnitude"}]`)
+    - ``agent_actions_summary`` (`dict`)
+    - ``metrics`` (`dict`) — includes at least ``price``, ``backing_ratio``, ``instability``, …
+    """
 
     def _step_dict(s: TrajectoryStep) -> dict[str, Any]:
         return {

@@ -36,19 +36,21 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Exit criteria:**
 
-- [ ] Replay artifact schema documented in code (`runner.rollout_to_replay_dict`) + version field.
-- [ ] CI-green tests on determinism + search smoke.
-- [ ] One documented fitness scalar (even if naive) with explicit formula in docstring.
+- [x] Replay artifact schema documented in code (`runner.rollout_to_replay_dict`) + version field.
+- [x] CI-green tests on determinism + search smoke (GitHub Actions: `.github/workflows/ci.yml`).
+- [x] One documented fitness scalar (even if naive) with explicit formula in docstring (`adversary.fitness.severity_score` / ``fitness_phase_a``).
 
 **Do not start Phase B until:** exit criteria above are checked.
 
 ### Phase B — Topology contagion (“Week 2.5” suggestion)
 
+**Status:** implementation landed early as `fragility_engine.network` + `StablecoinNetworkWorld` (ER + Watts–Strogatz helpers). A dedicated `ContagionGraph` façade class is still optional polish.
+
 **Purpose:** replace “statistics-only” collapse with **propagation structure** when justified.
 
 **In scope:**
 
-- New package: `fragility_engine/network/` with a thin `ContagionGraph` façade.
+- New package: `fragility_engine/network/` with a thin `ContagionGraph` façade (adjacency helpers exist; named façade optional).
 - Start with **one** generator family (pick **either** ER **or** small-world — not both at first).
 - Panic/rumor as **local neighbor rules** + optional whale-as-hub; keep rules dumb.
 
