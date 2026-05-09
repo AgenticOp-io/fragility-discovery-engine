@@ -32,6 +32,25 @@ def rollout_snapshot(r: RolloutResult) -> dict[str, Any]:
     }
 
 
+def counterfactual_remove_steps_with_rollouts(
+    genome: np.ndarray,
+    rollout_fn: Callable[[np.ndarray, int], RolloutResult],
+    *,
+    remove_timesteps: list[int],
+    base_seed: int,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Like :func:`counterfactual_remove_steps` but returns rollout objects for replay export."""
+
+    baseline = rollout_fn(genome, base_seed)
+    variant_genome = genome_zero_timesteps(genome, remove_timesteps)
+    variant = rollout_fn(variant_genome, base_seed)
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["removed_timesteps"] = sorted(set(remove_timesteps))
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
 def counterfactual_remove_steps(
     genome: np.ndarray,
     rollout_fn: Callable[[np.ndarray, int], RolloutResult],
@@ -41,13 +60,9 @@ def counterfactual_remove_steps(
 ) -> dict[str, Any]:
     """Structured before/after when dropping shock slots (pinned RNG seeds)."""
 
-    baseline = rollout_fn(genome, base_seed)
-    variant_genome = genome_zero_timesteps(genome, remove_timesteps)
-    variant = rollout_fn(variant_genome, base_seed)
-    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
-    merged["removed_timesteps"] = sorted(set(remove_timesteps))
-    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
-    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    merged, _, _ = counterfactual_remove_steps_with_rollouts(
+        genome, rollout_fn, remove_timesteps=remove_timesteps, base_seed=base_seed
+    )
     return merged
 
 

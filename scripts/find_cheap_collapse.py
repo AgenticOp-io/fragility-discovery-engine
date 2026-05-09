@@ -2,18 +2,24 @@
 
 from __future__ import annotations
 
+import argparse
 import json
+from pathlib import Path
 
 import numpy as np
 
 from fragility_engine.adversary.fitness import fitness_severity_minus_cost
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.runner import rollout_stablecoin
+from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_stablecoin, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
+    p = argparse.ArgumentParser(description="GA with severity − λ·cost fitness + optional replay export.")
+    p.add_argument("--export-replay", type=Path, default=None, help="Write best-rollout replay JSON.")
+    args = p.parse_args()
+
     template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=40)
 
     def evaluator(genome: np.ndarray, seed: int):
@@ -39,6 +45,16 @@ def main() -> None:
         "pareto_archive_size": len(search.pareto_archive),
     }
     print(json.dumps(payload, indent=2))
+
+    if args.export_replay is not None:
+        replay = rollout_to_replay_dict(search.best_rollout)
+        replay["meta"] = {
+            "replay_schema": REPLAY_SCHEMA_VERSION,
+            "cli": "find_cheap_collapse",
+            "attack_cost_weight": weight,
+            "pareto_archive_size": len(search.pareto_archive),
+        }
+        args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":

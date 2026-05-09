@@ -2,14 +2,27 @@
 
 from __future__ import annotations
 
+import argparse
+import json
+from pathlib import Path
+
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.runner import rollout_stablecoin, summarize_findings
+from fragility_engine.runner import (
+    REPLAY_SCHEMA_VERSION,
+    rollout_stablecoin,
+    rollout_to_replay_dict,
+    summarize_findings,
+)
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
+    p = argparse.ArgumentParser(description="Deterministic rollout smoke.")
+    p.add_argument("--export-replay", type=Path, default=None, help="Write this rollout as replay JSON.")
+    args = p.parse_args()
+
     world = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=48)
     horizon = 48
     rng = np.random.default_rng(42)
@@ -20,6 +33,11 @@ def main() -> None:
     if result.trajectory:
         last = result.trajectory[-1]
         print("last_price=", round(last.metrics["price"], 6))
+
+    if args.export_replay is not None:
+        replay = rollout_to_replay_dict(result)
+        replay["meta"] = {"replay_schema": REPLAY_SCHEMA_VERSION, "cli": "week1_smoke"}
+        args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":
