@@ -51,9 +51,10 @@
       With the chart focused: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd> ends.
     </div>
     <div class="path-hint" id="pathHint">
-      Replays usually live in your <strong>repo root</strong>: run <code>python scripts/export_replay.py</code> → writes <code>replay.json</code>
-      (same folder as <code>pyproject.toml</code>). In Chrome/Edge, pick that folder with <strong>Choose folder</strong> once — after that,
-      <strong>Choose replay file</strong> opens in the same place (the plain file dialog cannot jump to a path by itself).
+      Bundled sample: <code>artifacts/replay_viewer/sample_replay.json</code> (same folder as this page when served from the repo).
+      Your own export: <code>python scripts/export_replay.py</code> → <code>replay.json</code> in the cwd (often repo root).
+      Windows often opens pickers in <strong>Documents</strong> first — navigate to the repo once, or drag the sample onto the dashed box.
+      In Chrome/Edge, <strong>Choose folder</strong> (native picker) saves that location for <strong>Choose replay file</strong>.
     </div>
   </header>
 
