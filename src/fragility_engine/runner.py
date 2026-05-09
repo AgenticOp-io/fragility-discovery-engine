@@ -10,7 +10,7 @@ from fragility_engine.types import RolloutResult, TrajectoryStep
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
-REPLAY_SCHEMA_VERSION = "0.3.0"
+REPLAY_SCHEMA_VERSION = "0.4.0"
 
 
 def rollout_stablecoin(
@@ -170,6 +170,30 @@ def _recovery_timestep(
     return None
 
 
+def build_events_lane(trajectory: list[TrajectoryStep]) -> list[dict[str, Any]]:
+    """Per-step shock intensities for replay UI (parallel to ``trajectory`` indices)."""
+
+    lane: list[dict[str, Any]] = []
+    for s in trajectory:
+        rl = 0.0
+        rum = 0.0
+        for e in s.events:
+            mag = float(np.clip(e.magnitude, 0.0, 1.0))
+            if e.kind == "reserve_loss":
+                rl = max(rl, mag)
+            elif e.kind == "rumor":
+                rum = max(rum, mag)
+        lane.append(
+            {
+                "timestep": int(s.timestep),
+                "reserve_loss": rl,
+                "rumor": rum,
+                "event_count": len(s.events),
+            }
+        )
+    return lane
+
+
 def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
     """
     Serialize a rollout for replay / tooling (timeline UI, viewer, CI fixtures).
@@ -188,6 +212,7 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
     - ``collapsed`` (`bool`), ``collapse_timestep`` (`int` or ``null``).
     - ``final_instability`` (`float`) — peak instability observed.
     - ``seed`` (`int`) — RNG anchor for this rollout.
+    - ``events_lane`` (`list[dict]`) — parallel shock intensities (``reserve_loss``, ``rumor``, counts).
     - ``trajectory`` (`list[dict]`) — ordered steps.
 
     Each trajectory element:
@@ -208,6 +233,7 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
             "metrics": dict(s.metrics),
         }
 
+    traj_dicts = [_step_dict(s) for s in result.trajectory]
     return {
         "schema_version": REPLAY_SCHEMA_VERSION,
         "simulation_mode": result.simulation_mode,
@@ -218,7 +244,8 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
         "collapse_timestep": result.collapse_timestep,
         "final_instability": result.final_instability,
         "seed": result.seed,
-        "trajectory": [_step_dict(s) for s in result.trajectory],
+        "events_lane": build_events_lane(result.trajectory),
+        "trajectory": traj_dicts,
     }
 
 

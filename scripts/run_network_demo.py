@@ -15,11 +15,11 @@ from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, de
 
 def main() -> None:
     n = 48
-    adj = ContagionGraph.erdos_renyi(n, p=0.12, seed=2026).adjacency
+    graph = ContagionGraph.erdos_renyi(n, p=0.12, seed=2026)
     weights = default_whale_weights(n, whale_index=0, whale_frac=0.24)
     template = StablecoinNetworkWorld(
         population=default_stablecoin_population(),
-        adjacency=adj,
+        adjacency=graph,
         node_weights=weights,
         contagion_beta=0.38,
         max_steps=40,

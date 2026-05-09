@@ -101,11 +101,13 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Exit criteria:**
 
-- [ ] Minimum viable counterfactual API + 2 tests on synthetic schedules.
+- [x] Minimum viable counterfactual API + tests on synthetic schedules (`explain/counterfactual.py`, `tests/test_counterfactual_*.py`, `scripts/export_counterfactual.py`).
 
 ### Phase E — Visualization (“Week 5” suggestion)
 
 **Purpose:** cinematic replay, not decoration.
+
+**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); timeline scrubber still optional.
 
 **In scope:**
 

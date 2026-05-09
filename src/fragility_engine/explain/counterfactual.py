@@ -16,6 +16,22 @@ def genome_zero_timesteps(genome: np.ndarray, timesteps: list[int]) -> np.ndarra
     return g
 
 
+def rollout_snapshot(r: RolloutResult) -> dict[str, Any]:
+    """JSON-friendly summary for attribution panels."""
+
+    return {
+        "collapsed": r.collapsed,
+        "collapse_timestep": r.collapse_timestep,
+        "peak_instability": r.final_instability,
+        "integral_instability": r.integral_instability,
+        "recovery_timestep": r.recovery_timestep,
+        "attack_cost": r.attack_cost,
+        "mode": r.simulation_mode,
+        "horizon_steps": len(r.trajectory),
+        "seed": r.seed,
+    }
+
+
 def counterfactual_remove_steps(
     genome: np.ndarray,
     rollout_fn: Callable[[np.ndarray, int], RolloutResult],
@@ -23,12 +39,16 @@ def counterfactual_remove_steps(
     remove_timesteps: list[int],
     base_seed: int,
 ) -> dict[str, Any]:
-    """Structured before/after when dropping shock slots (Pinned RNG seeds)."""
+    """Structured before/after when dropping shock slots (pinned RNG seeds)."""
 
     baseline = rollout_fn(genome, base_seed)
     variant_genome = genome_zero_timesteps(genome, remove_timesteps)
     variant = rollout_fn(variant_genome, base_seed)
-    return compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["removed_timesteps"] = sorted(set(remove_timesteps))
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged
 
 
 def compare_rollouts(
@@ -39,22 +59,16 @@ def compare_rollouts(
     label_variant: str = "variant",
 ) -> dict[str, Any]:
     return {
-        label_base: {
-            "collapsed": base.collapsed,
-            "collapse_timestep": base.collapse_timestep,
-            "peak_instability": base.final_instability,
-            "attack_cost": base.attack_cost,
-            "mode": base.simulation_mode,
-        },
-        label_variant: {
-            "collapsed": variant.collapsed,
-            "collapse_timestep": variant.collapse_timestep,
-            "peak_instability": variant.final_instability,
-            "attack_cost": variant.attack_cost,
-            "mode": variant.simulation_mode,
-        },
+        label_base: rollout_snapshot(base),
+        label_variant: rollout_snapshot(variant),
         "interpretation_hint": _hint(base, variant),
     }
+
+
+def counterfactual_bundle_to_jsonable(report: dict[str, Any]) -> dict[str, Any]:
+    """Already JSON-serializable; placeholder hook for future compression / refs."""
+
+    return dict(report)
 
 
 def _hint(base: RolloutResult, variant: RolloutResult) -> str:

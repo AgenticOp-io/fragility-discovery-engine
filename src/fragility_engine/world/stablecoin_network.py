@@ -6,7 +6,10 @@ import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import AgentPopulation
 from fragility_engine.network.contagion import contagion_step
+from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.types import ExogenousEvent, TrajectoryStep
+
+AdjacencyLike = np.ndarray | ContagionGraph
 
 
 @dataclass
@@ -16,10 +19,13 @@ class StablecoinNetworkWorld:
 
     Redemption demand is a weighted average of per-node demands; each node observes the
     same global price but **local panic**. Optional whale concentrates weights on early indices.
+
+    ``adjacency`` may be a dense ``numpy`` matrix or a
+    :class:`~fragility_engine.network.contagion_graph.ContagionGraph`.
     """
 
     population: AgentPopulation
-    adjacency: np.ndarray
+    adjacency: AdjacencyLike
     node_weights: np.ndarray
     contagion_beta: float = 0.35
     depeg_threshold: float = 0.94
@@ -32,7 +38,10 @@ class StablecoinNetworkWorld:
     _timestep: int = 0
 
     def __post_init__(self) -> None:
-        self.adjacency = np.asarray(self.adjacency, dtype=np.int8)
+        raw = self.adjacency
+        if isinstance(raw, ContagionGraph):
+            raw = raw.adjacency
+        self.adjacency = np.asarray(raw, dtype=np.int8)
         nw = np.asarray(self.node_weights, dtype=np.float64)
         self.node_weights = nw / np.maximum(nw.sum(), 1e-12)
 

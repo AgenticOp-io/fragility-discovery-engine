@@ -19,3 +19,5 @@ def test_counterfactual_structured_output():
     report = counterfactual_remove_steps(genome, evaluator, remove_timesteps=[0, 1], base_seed=9090)
     assert "baseline" in report and "counterfactual" in report
     assert "interpretation_hint" in report
+    assert "removed_timesteps" in report and "delta_attack_cost" in report
+    assert "integral_instability" in report["baseline"]

@@ -3,14 +3,14 @@ from __future__ import annotations
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.network.topology import adjacency_erdos_renyi
+from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.runner import rollout_stablecoin_network
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 
 
 def test_network_rollout_deterministic():
     n = 16
-    adj = adjacency_erdos_renyi(n, p=0.25, seed=11)
+    adj = ContagionGraph.erdos_renyi(n, p=0.25, seed=11)
     w = default_whale_weights(n)
     template = StablecoinNetworkWorld(
         population=default_stablecoin_population(),
@@ -29,7 +29,7 @@ def test_network_rollout_deterministic():
 
 def test_attack_cost_positive_with_shocks():
     n = 12
-    adj = adjacency_erdos_renyi(n, p=0.3, seed=3)
+    adj = ContagionGraph.erdos_renyi(n, p=0.3, seed=3)
     template = StablecoinNetworkWorld(
         population=default_stablecoin_population(),
         adjacency=adj,

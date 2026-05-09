@@ -11,7 +11,7 @@ Autonomous **coverage-guided-style** search over a modular simulation: mutate sh
 | `fragility_engine.world` | Domain physics only — no attacker concepts. |
 | `fragility_engine.agents` | Behavior archetypes — `observe → decide → act`. |
 | `fragility_engine.adversary` | Deterministic search (Monte Carlo + GA) over shock schedules. |
-| `fragility_engine.explain` | Ablation / minimization / attribution helpers. |
+| `fragility_engine.explain` | Ablation / minimization / **counterfactual** bundles. |
 | `fragility_engine.network` | ``ContagionGraph`` + topology + contagion diffusion (Phase B). |
 | `fragility_engine.coevolution` | Alternating attacker/defender search scaffold. |
 
@@ -43,6 +43,7 @@ python scripts/run_ga_demo.py
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA |
 | `scripts/export_pareto_front.py` | Dump `pareto_front.json` (2-objective archive) |
 | `scripts/find_cheap_collapse.py` | GA with attack-cost penalty (Phase C demo) |
+| `scripts/export_counterfactual.py` | Write counterfactual attribution JSON |
 
 Static replay UI (drag-and-drop JSON): `artifacts/replay_viewer/index.html`.
 
@@ -51,5 +52,5 @@ Static replay UI (drag-and-drop JSON): `artifacts/replay_viewer/index.html`.
 1. CLI smoke + collapse metric — `scripts/week1_smoke.py`
 2. Evolutionary adversary — `scripts/run_ga_demo.py`
 3. Network contagion — `fragility_engine.network` + `StablecoinNetworkWorld`
-4. Replay JSON — `runner.rollout_to_replay_dict` (`schema_version` **0.3.0**)
+4. Replay JSON — `runner.rollout_to_replay_dict` (`schema_version` **0.4.0**, includes `events_lane`)
 5. Web UI — later; consume replay artifact only after engine stabilizes.

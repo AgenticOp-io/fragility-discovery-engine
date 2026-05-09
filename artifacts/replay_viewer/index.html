@@ -8,7 +8,7 @@
     :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
     body { margin: 0; padding: 16px; max-width: 1100px; margin-inline: auto; }
     header { margin-bottom: 12px; }
-    canvas { width: 100%; height: 360px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
+    canvas { width: 100%; height: 440px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
     #meta { font-size: 13px; opacity: 0.85; white-space: pre-wrap; }
     #drop {
       border: 2px dashed #8886; border-radius: 10px; padding: 18px; text-align: center;
@@ -20,11 +20,15 @@
 <body>
   <header>
     <strong>Fragility replay viewer</strong>
-    <div id="hint">Drag-and-drop <code>replay.json</code>. Blue = price, orange = instability. Magenta = collapse step; green ticks = shocks.</div>
+    <div id="hint">
+      Drag-and-drop <code>replay.json</code> (<strong>schema ≥ 0.4</strong> adds <code>events_lane</code>).
+      Blue = price, orange = instability. Bottom strip = shock intensities (green reserve loss, amber rumor).
+      Magenta = collapse step; triangles = legacy shock markers on chart.
+    </div>
   </header>
 
   <div id="drop">Drop replay JSON here or click to pick a file<input id="file" type="file" accept="application/json" hidden /></div>
-  <canvas id="cv" width="1100" height="360"></canvas>
+  <canvas id="cv" width="1100" height="440"></canvas>
   <pre id="meta"></pre>
 
   <script>
@@ -34,10 +38,29 @@
     const drop = document.getElementById('drop');
     const fileInput = document.getElementById('file');
 
+    function normalizeLane(traj, rawLane) {
+      if (Array.isArray(rawLane) && rawLane.length === traj.length) return rawLane;
+      return traj.map(s => {
+        const evs = s.events || [];
+        let rl = 0, rum = 0;
+        evs.forEach(ev => {
+          const m = Number(ev.magnitude) || 0;
+          if (ev.kind === 'reserve_loss') rl = Math.max(rl, m);
+          if (ev.kind === 'rumor') rum = Math.max(rum, m);
+        });
+        return { timestep: s.timestep, reserve_loss: rl, rumor: rum, event_count: evs.length };
+      });
+    }
+
     function drawReplay(data) {
       const traj = data.trajectory || [];
+      const lane = normalizeLane(traj, data.events_lane);
       const W = cv.width, H = cv.height;
       ctx.clearRect(0, 0, W, H);
+
+      const laneH = 52;
+      const pad = 28;
+      const mainBottom = H - pad - laneH;
 
       if (!traj.length) {
         ctx.fillStyle = '#888';
@@ -58,26 +81,24 @@
 
       const minP = Math.min(...prices.filter(Number.isFinite));
       const maxP = Math.max(...prices.filter(Number.isFinite));
-      const pad = 28;
 
       function xScale(i) { return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad); }
       function yPrice(p) {
         const lo = Math.min(minP, 0.85), hi = Math.max(maxP, 1.05);
         const u = (p - lo) / (hi - lo + 1e-9);
-        return H - pad - u * (H - 2 * pad);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
       }
       function yInst(q) {
         const hi = Math.max(...instab.filter(Number.isFinite).concat([1]));
         const u = q / (hi + 1e-9);
-        return H - pad - u * (H - 2 * pad);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
       }
 
       ctx.strokeStyle = '#8886';
       ctx.beginPath();
-      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, mainBottom); ctx.lineTo(W - pad, mainBottom);
       ctx.stroke();
 
-      // collapse marker (vertical)
       if (Number.isFinite(collapseT) && collapseT >= 0 && collapseT <= tmax) {
         const xc = xScale(collapseT);
         ctx.save();
@@ -86,17 +107,16 @@
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(xc, pad);
-        ctx.lineTo(xc, H - pad);
+        ctx.lineTo(xc, mainBottom);
         ctx.stroke();
         ctx.restore();
       }
 
-      // shock markers (steps with events)
       traj.forEach((step, i) => {
         const evs = step.events || [];
         if (!evs.length) return;
         const xc = xScale(i);
-        const yb = H - pad + 4;
+        const yb = mainBottom + 6;
         evs.forEach((ev, j) => {
           const kind = ev.kind || '';
           ctx.fillStyle = kind === 'reserve_loss' ? '#6f6' : kind === 'rumor' ? '#fc6' : '#ccc';
@@ -129,12 +149,35 @@
         ctx.stroke();
       }
 
+      // ---- events lane (schema 0.4+) ----
+      const laneTop = mainBottom + 8;
+      const laneBot = H - 10;
+      ctx.fillStyle = '#1a1a1e';
+      ctx.fillRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
+
+      lane.forEach((cell, i) => {
+        const x0 = xScale(i);
+        const x1 = xScale(i + 1);
+        const bw = Math.max(x1 - x0 - 1, 1);
+        const rl = Number(cell.reserve_loss) || 0;
+        const rum = Number(cell.rumor) || 0;
+        const hRl = (laneBot - laneTop) * 0.45 * rl;
+        const hRu = (laneBot - laneTop) * 0.45 * rum;
+        ctx.fillStyle = '#393';
+        ctx.fillRect(x0, laneBot - hRl, bw, hRl);
+        ctx.fillStyle = '#a61';
+        ctx.fillRect(x0, laneBot - hRl - hRu - 2, bw, hRu);
+      });
+
+      ctx.strokeStyle = '#555';
+      ctx.strokeRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
+
       ctx.fillStyle = '#ddd';
       ctx.font = '12px system-ui';
       ctx.fillText('price (blue)', pad, 16);
       ctx.fillText('instability (orange)', pad + 110, 16);
       ctx.fillText('collapse (magenta)', pad + 260, 16);
-      ctx.fillText('shocks (triangles)', pad + 410, 16);
+      ctx.fillText('events lane below', pad + 410, 16);
 
       meta.textContent =
         `schema_version: ${data.schema_version}\n` +
@@ -143,6 +186,7 @@
         `attack_cost: ${data.attack_cost}\n` +
         `integral_instability: ${data.integral_instability}\n` +
         `recovery_timestep: ${data.recovery_timestep}\n` +
+        `events_lane: ${Array.isArray(data.events_lane) ? data.events_lane.length : '(derived)'}\n` +
         `steps: ${traj.length}`;
     }
 
