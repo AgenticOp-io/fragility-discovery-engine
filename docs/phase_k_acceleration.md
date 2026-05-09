@@ -33,3 +33,16 @@ Libraries often use an explicit toggle (examples: `FRAGILITY_BACKEND=numpy|numba
 ## Exit criteria (reminder)
 
 Promote Phase K in `BOUNDARIES.md` only when named bundles show documented speedups **and** CI remains on the reference path with frozen goldens (or documented relaxed tolerances per bundle ID).
+
+## Reference timing snapshot (informative, not a gate)
+
+Wall-clock from `scripts/benchmark_rollout.py` (**NumPy** reference path, `--repeat 5 --warmup 1`, `horizon=24`, `max_steps=48`). Numbers vary by CPU/OS; use the same command to reproduce locally.
+
+Example run (developer machine, 2026):
+
+```json
+{"mode": "aggregate", "mean_ms_per_rollout": 0.381, "wall_clock_s": 0.00191}
+{"mode": "resource_cascade", "mean_ms_per_rollout": 0.484, "wall_clock_s": 0.00242, "initial_overload": 0.05}
+```
+
+Purpose: establish that **`resource_cascade`** rollouts stay in the same ballpark as aggregate at modest horizons before investing in optional backends.

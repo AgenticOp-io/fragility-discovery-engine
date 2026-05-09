@@ -7,8 +7,9 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.coevolution.defender import clone_stablecoin_network
-from fragility_engine.runner import rollout_stablecoin_network
+from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 
 
@@ -310,6 +311,43 @@ def counterfactual_network_contagion_beta_with_rollouts(
     merged["intervention"] = "network_contagion_beta_shift"
     merged["baseline_beta"] = float(baseline_beta)
     merged["variant_beta"] = float(variant_beta)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_resource_cascade_initial_overload_shift_with_rollouts(
+    genome: np.ndarray,
+    template: ResourceCascadeWorld,
+    *,
+    baseline_initial_overload: float,
+    variant_initial_overload: float,
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome and RNG seed; counterfactual changes **initial_overload** at cascade reset."""
+
+    baseline = rollout_resource_cascade(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_overload=float(baseline_initial_overload),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    variant = rollout_resource_cascade(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_overload=float(variant_initial_overload),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "resource_cascade_initial_overload_shift"
+    merged["baseline_initial_overload"] = float(baseline_initial_overload)
+    merged["variant_initial_overload"] = float(variant_initial_overload)
     merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
     merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
     return merged, baseline, variant

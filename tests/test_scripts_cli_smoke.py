@@ -53,6 +53,116 @@ def test_fragility_surface_cli_minimal_grid(py_exe: str, tmp_path: Path) -> None
     assert "integral_instability" in lines[0]
 
 
+def test_export_counterfactual_resource_cascade_remove_steps_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "cf_rc_rm.json"
+    repdir = tmp_path / "rep_rc"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "resource_cascade",
+            "--out",
+            str(out_json),
+            "--export-replay-dir",
+            str(repdir),
+            "--horizon",
+            "11",
+            "--remove",
+            "0",
+            "--seed",
+            "66001",
+            "--genome-seed",
+            "66002",
+            "--initial-overload",
+            "0.065",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["meta"]["mode"] == "resource_cascade"
+    assert payload["meta"]["domain"] == "resource_cascade"
+    b = json.loads((repdir / "baseline.json").read_text(encoding="utf-8"))
+    assert b["simulation_mode"] == "resource_cascade"
+
+
+def test_export_counterfactual_resource_cascade_overload_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "cf_rc_io.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "resource_cascade",
+            "--intervention",
+            "initial_overload_shift",
+            "--out",
+            str(out_json),
+            "--horizon",
+            "10",
+            "--seed",
+            "66101",
+            "--genome-seed",
+            "66102",
+            "--initial-overload",
+            "0.06",
+            "--variant-initial-overload",
+            "0.13",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "resource_cascade_initial_overload_shift"
+    assert payload["delta_integral_instability"] is not None
+
+
+def test_export_resource_cascade_joint_attribution_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "joint_rc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_resource_cascade_joint_attribution.py"),
+            "--out",
+            str(out_json),
+            "--horizon",
+            "10",
+            "--seed",
+            "66201",
+            "--genome-seed",
+            "66202",
+            "--initial-overload",
+            "0.07",
+            "--variant-initial-overload",
+            "0.11",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    merged = json.loads(out_json.read_text(encoding="utf-8"))
+    assert merged["schema"] == "attribution-merge-v1"
+    assert merged["branch_count"] == 2
+
+
+def test_narrate_frozen_json_replay_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_resource_cascade_replay.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert "resource_cascade" in proc.stdout
+    assert "replay rollout" in proc.stdout
+
+
 def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "cf.json"
     repdir = tmp_path / "replays"

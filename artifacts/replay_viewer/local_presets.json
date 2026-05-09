@@ -4,6 +4,7 @@
   "presets": [
     { "label": "Bundled: aggregate sample", "path": "sample_replay.json" },
     { "label": "Bundled: network sample", "path": "sample_network_replay.json" },
+    { "label": "Bundled: resource_cascade sample", "path": "sample_resource_cascade_replay.json" },
     { "label": "Export: aggregate baseline", "path": "../test_exports/replay_aggregate.json" },
     { "label": "Export: aggregate high initial panic", "path": "../test_exports/replay_aggregate_high_panic.json" },
     { "label": "Export: aggregate continue-after-collapse", "path": "../test_exports/replay_aggregate_continue.json" },

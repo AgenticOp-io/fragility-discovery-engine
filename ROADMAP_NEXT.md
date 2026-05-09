@@ -151,6 +151,8 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [ ] Summaries carry **citations** to artifact paths / hashes.
 - [ ] Visual outputs reproducible from CLI with pinned style configs.
 
+**Scaffold (partial):** deterministic text summaries via [`scripts/narrate_frozen_json.py`](scripts/narrate_frozen_json.py) (`replay` / `pareto-front-v1` / `attribution-merge-v1`) — no LLM; output schema **`narration-summary-v1`** when using `--json-out`.
+
 ---
 
 ## Moonshots (explicitly post–Phase L or fork)

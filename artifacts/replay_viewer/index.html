@@ -43,7 +43,7 @@
   <header>
     <strong>Fragility replay viewer</strong>
     <div id="hint">
-      Drag-and-drop <code>replay.json</code>. Blue = price, orange = instability. Bottom = shock lane.
+      Drag-and-drop <code>replay.json</code>. Blue = peg ratio or <strong>min layer headroom</strong> (resource cascade); orange = instability. Bottom = shock lane.
       Magenta = collapse; cyan = <strong>scrub playhead</strong>.
     </div>
     <div id="scrubHelp">
@@ -51,15 +51,17 @@
       With the chart focused: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd> ends.
     </div>
     <div class="path-hint" id="pathHint">
-      Bundled samples: <code>sample_replay.json</code> (aggregate) and <code>sample_network_replay.json</code> (contagion — extra dashed lines).
+      Bundled samples: <code>sample_replay.json</code> (aggregate), <code>sample_network_replay.json</code> (contagion — extra dashed lines),
+      <code>sample_resource_cascade_replay.json</code> (Phase J — blue trace = headroom, not a peg).
       Replay exports: <code>export_replay.py</code>, <code>week1_smoke.py</code>, <code>run_mc_demo.py</code>, <code>export_minimized_replay.py</code>,
       <code>run_ga_demo.py</code> (best vs <strong>greedy minimized</strong>), <code>run_network_demo.py</code>,
-      <code>find_cheap_collapse.py</code>, <code>export_pareto_front.py</code>, <code>run_coevolution.py</code>, <code>export_counterfactual.py --export-replay-dir</code>,
+      <code>find_cheap_collapse.py</code>, <code>export_pareto_front.py</code>, <code>run_coevolution.py</code>,
+      <code>export_counterfactual.py --export-replay-dir</code> (<code>--mode resource_cascade</code> for overload / shock-removal),
       <code>compare_replays.py</code> for quick metric diffs
       (each sets <code>meta.cli</code> for the panel below).
       Windows pickers often start in <strong>Documents</strong> — navigate once or drag JSON onto the dashed box.
       Chrome/Edge: <strong>Choose folder</strong> remembers the path for <strong>Choose replay file</strong>.
-      <strong>Compare second replay</strong> adds Δprice / Δinstability in the panel (e.g. baseline vs counterfactual). For cost vs severity scatter see <code>artifacts/pareto_viewer/</code>.
+      <strong>Compare second replay</strong> adds Δprice (or Δheadroom for cascade) / Δinstability in the panel (e.g. baseline vs counterfactual). For cost vs severity scatter see <code>artifacts/pareto_viewer/</code>.
       With a local HTTP server, the <strong>Presets</strong> dropdown loads <code>local_presets.json</code> (bundled samples + <code>artifacts/test_exports/</code> after <code>regenerate_test_exports</code>). Cost vs severity scatter: <code>artifacts/pareto_viewer/index.html</code>.
       <code>artifacts/attribution_viewer/index.html</code> — merged branches (<code>attribution-merge-v1</code>) and mutation-chain path traces.
       Optional URL hash: <code>#src=sample_replay.json&amp;compare=sample_network_replay.json</code> — paths relative to this page; <code>compare</code> loads the second replay for Δ metrics.
@@ -368,10 +370,12 @@
 
       ctx.fillStyle = '#ddd';
       ctx.font = '12px system-ui';
-      ctx.fillText('price (blue)', pad, 16);
-      ctx.fillText('instability (orange)', pad + 110, 16);
-      ctx.fillText('collapse (magenta)', pad + 260, 16);
-      let lx = pad + 410;
+      const blueLabel =
+        b.mode === 'resource_cascade' ? 'min headroom (blue)' : 'price (blue)';
+      ctx.fillText(blueLabel, pad, 16);
+      ctx.fillText('instability (orange)', pad + (b.mode === 'resource_cascade' ? 168 : 110), 16);
+      ctx.fillText('collapse (magenta)', pad + (b.mode === 'resource_cascade' ? 352 : 260), 16);
+      let lx = pad + (b.mode === 'resource_cascade' ? 530 : 410);
       ctx.fillText(`scrub: step ${si} / ${tmax}`, lx, 16);
       if (b.validNetworkPanic) {
         ctx.fillStyle = '#daf';
@@ -398,6 +402,8 @@
       const qb = Number(mb.instability);
       const dp = pa - pb;
       const di = qa - qb;
+      const la = bundle.mode === 'resource_cascade' ? 'headroom' : 'price';
+      const lb = bundleB.mode === 'resource_cascade' ? 'headroom' : 'price';
       const da = bundle.data;
       let aSum = '';
       if (da && da.mean_instability !== undefined) {
@@ -414,9 +420,9 @@
         `\n--- compare B (scrub ${scrubI}; B clamped to index ${ib}) ---\n` +
         aSum +
         bSum +
-        `A: price=${ma.price ?? '—'}  instability=${ma.instability ?? '—'}\n` +
-        `B: price=${mb.price ?? '—'}  instability=${mb.instability ?? '—'}\n` +
-        `Δprice=${Number.isFinite(dp) ? dp.toFixed(6) : '—'}  Δinstability=${Number.isFinite(di) ? di.toFixed(6) : '—'}\n`
+        `A: ${la}=${ma.price ?? '—'}  instability=${ma.instability ?? '—'}\n` +
+        `B: ${lb}=${mb.price ?? '—'}  instability=${mb.instability ?? '—'}\n` +
+        `Δ(${la} A−${lb} B)=${Number.isFinite(dp) ? dp.toFixed(6) : '—'}  Δinstability=${Number.isFinite(di) ? di.toFixed(6) : '—'}\n`
       );
     }
 
@@ -448,13 +454,17 @@
         if ((d.simulation_mode || '') === 'network' && sv.length >= 7) {
           svNote =
             `state_vector: mean_p=${sv[3]?.toFixed?.(4) ?? sv[3]} max_p=${sv[4]?.toFixed?.(4) ?? sv[4]} std_p=${sv[5]?.toFixed?.(4) ?? sv[5]}\n`;
+        } else if ((d.simulation_mode || '') === 'resource_cascade' && sv.length >= 4) {
+          svNote =
+            `state_vector: h0=${sv[0]?.toFixed?.(4) ?? sv[0]} h1=${sv[1]?.toFixed?.(4) ?? sv[1]} overload=${sv[2]?.toFixed?.(4) ?? sv[2]} t=${sv[3]}\n`;
         } else if (sv.length >= 5) {
           svNote = `state_vector: panic=${sv[3]?.toFixed?.(4) ?? sv[3]} (aggregate layout)\n`;
         }
+        const blueScrub = (d.simulation_mode || '') === 'resource_cascade' ? 'headroom (min layer)' : 'price';
         scrubBlock =
           `\n--- scrub (index ${scrubI}) ---\n` +
           `timestep: ${step.timestep}\n` +
-          `price: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}\n` +
+          `${blueScrub}: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}\n` +
           svNote +
           `events: ${evs.length ? JSON.stringify(evs) : '(none)'}\n`;
       }

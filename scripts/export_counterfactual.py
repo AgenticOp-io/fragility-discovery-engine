@@ -17,14 +17,17 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_network_edge_weight_with_rollouts,
     counterfactual_network_neighbor_edges_weight_patch_with_rollouts,
     counterfactual_remove_steps_with_rollouts,
+    counterfactual_resource_cascade_initial_overload_shift_with_rollouts,
 )
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
+    rollout_resource_cascade,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
@@ -54,6 +57,7 @@ def main() -> None:
         "--intervention",
         choices=(
             "remove_steps",
+            "initial_overload_shift",
             "base_panic_shift",
             "contagion_beta_shift",
             "edge_weight_shift",
@@ -61,9 +65,9 @@ def main() -> None:
         ),
         default="remove_steps",
         help=(
-            "remove_steps: zero shock rows; network-only: shift base_panic, contagion_beta, or "
-            "one neighbor-list edge weight (--neighbor-json required for edge_weight_shift); "
-            "edge_weights_shift applies --edges-patch-json."
+            "remove_steps: zero shock rows; resource_cascade+initial_overload_shift: reset overload A vs B; "
+            "network-only: shift base_panic, contagion_beta, or one neighbor-list edge weight "
+            "(--neighbor-json required for edge_weight_shift); edge_weights_shift applies --edges-patch-json."
         ),
     )
     ap.add_argument(
@@ -98,11 +102,23 @@ def main() -> None:
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network"),
+        choices=("aggregate", "network", "resource_cascade"),
         default="aggregate",
-        help="aggregate = peg world; network = StablecoinNetworkWorld.",
+        help="aggregate = peg world; network = StablecoinNetworkWorld; resource_cascade = Phase J scaffold.",
     )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
+    ap.add_argument(
+        "--initial-overload",
+        type=float,
+        default=0.06,
+        help="[resource_cascade] baseline reset overload [0,1] (also overload for remove_steps evaluator).",
+    )
+    ap.add_argument(
+        "--variant-initial-overload",
+        type=float,
+        default=None,
+        help="[resource_cascade, initial_overload_shift] counterfactual reset overload [0,1].",
+    )
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
         "--continue-after-collapse",
@@ -138,11 +154,16 @@ def main() -> None:
     )
     args = ap.parse_args()
 
-    if args.intervention != "remove_steps" and args.mode != "network":
+    _network_only = frozenset(
+        {"base_panic_shift", "contagion_beta_shift", "edge_weight_shift", "edge_weights_shift"}
+    )
+    if args.intervention in _network_only and args.mode != "network":
         raise SystemExit(
             "--intervention base_panic_shift, contagion_beta_shift, edge_weight_shift, and edge_weights_shift "
             "require --mode network."
         )
+    if args.intervention == "initial_overload_shift" and args.mode != "resource_cascade":
+        raise SystemExit("--intervention initial_overload_shift requires --mode resource_cascade.")
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
@@ -159,6 +180,11 @@ def main() -> None:
             raise SystemExit("--intervention edge_weights_shift requires --neighbor-json (list topology).")
         if args.edges_patch_json is None:
             raise SystemExit("--edges-patch-json required for --intervention edge_weights_shift.")
+    if args.mode == "resource_cascade":
+        if args.intervention not in ("remove_steps", "initial_overload_shift"):
+            raise SystemExit("resource_cascade mode supports only remove_steps or initial_overload_shift.")
+        if args.intervention == "initial_overload_shift" and args.variant_initial_overload is None:
+            raise SystemExit("--variant-initial-overload required for --intervention initial_overload_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -184,6 +210,32 @@ def main() -> None:
         report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
             genome, evaluator, remove_timesteps=remove_ts, base_seed=args.seed
         )
+    elif args.mode == "resource_cascade":
+        ms = max(args.horizon, 32)
+        template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=ms)
+        if args.intervention == "remove_steps":
+
+            def evaluator_rc(g: np.ndarray, s: int):
+                return rollout_resource_cascade(
+                    template,
+                    g,
+                    seed=s,
+                    initial_overload=float(args.initial_overload),
+                    continue_after_collapse=cont,
+                )
+
+            report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
+                genome, evaluator_rc, remove_timesteps=remove_ts, base_seed=args.seed
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_resource_cascade_initial_overload_shift_with_rollouts(
+                genome,
+                template,
+                baseline_initial_overload=float(args.initial_overload),
+                variant_initial_overload=float(args.variant_initial_overload),
+                rollout_seed=int(args.seed),
+                continue_after_collapse=cont,
+            )
     else:
         ms = max(args.horizon, 32)
         try:
@@ -275,6 +327,9 @@ def main() -> None:
     }
     if topo_meta is not None:
         payload["meta"]["topology"] = topo_meta
+    if args.mode == "resource_cascade":
+        payload["meta"]["domain"] = "resource_cascade"
+        payload["meta"]["initial_overload"] = float(args.initial_overload)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay_dir is not None:
@@ -299,10 +354,16 @@ def main() -> None:
             common_meta["edge_from"] = int(args.edge_from)
             common_meta["edge_to"] = int(args.edge_to)
             common_meta["variant_edge_weight"] = float(args.variant_edge_weight)
+        elif args.intervention == "initial_overload_shift":
+            common_meta["baseline_initial_overload"] = float(args.initial_overload)
+            common_meta["variant_initial_overload"] = float(args.variant_initial_overload)
         else:
             common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:
             common_meta["topology"] = topo_meta
+        if args.mode == "resource_cascade":
+            common_meta["domain"] = "resource_cascade"
+            common_meta["initial_overload"] = float(args.initial_overload)
         br = rollout_to_replay_dict(baseline_rr)
         br["meta"] = {**common_meta, "variant": "baseline"}
         vr = rollout_to_replay_dict(variant_rr)

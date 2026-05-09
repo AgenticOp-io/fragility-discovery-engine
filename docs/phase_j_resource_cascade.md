@@ -33,7 +33,13 @@ Static **`replay_viewer`** treats unknown modes like aggregate for plotting (pri
 - **CLI:** `scripts/run_coevolution.py --mode resource_cascade --initial-overload …`; `scripts/export_pareto_front.py --mode resource_cascade`.
 - **API:** `fragility_engine.coevolution.alternating_coevolution_resource_cascade`.
 
+## Counterfactuals (thin slice)
+
+- **`remove_steps`:** same semantics as aggregate/network — zero selected shock rows; evaluator pins **`initial_overload`** via CLI (`export_counterfactual.py --mode resource_cascade --initial-overload …`).
+- **`initial_overload_shift`:** same genome + rollout seed; variant changes **`--variant-initial-overload`** (`counterfactual_resource_cascade_initial_overload_shift_with_rollouts`).
+- **Joint star-merge:** `scripts/export_resource_cascade_joint_attribution.py` merges **remove_steps** + **initial_overload_shift** branches that share one baseline (`attribution-merge-v1` → `artifacts/attribution_viewer/index.html`).
+
 ## Limits / non-goals
 
 - Not calibrated to any real infrastructure dataset.
-- No dedicated counterfactual / attribution vocabulary for this domain yet (stablecoin + network grammars remain the reference for Phase I-style merges).
+- No ε-sweeps or multi-step mutation **chains** on this domain yet (stablecoin + network remain the reference for those Phase I surfaces).
