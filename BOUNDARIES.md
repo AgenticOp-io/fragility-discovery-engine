@@ -51,7 +51,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 **In scope:**
 
 - New package: `fragility_engine/network/` with a thin `ContagionGraph` façade (adjacency helpers exist; named façade optional).
-- Start with **one** generator family (pick **either** ER **or** small-world — not both at first).
+- Start with **one** generator family per experiment (ER **or** Watts–Strogatz — CLI exposes both; default ER).
 - Panic/rumor as **local neighbor rules** + optional whale-as-hub; keep rules dumb.
 
 **Out of scope for B:**

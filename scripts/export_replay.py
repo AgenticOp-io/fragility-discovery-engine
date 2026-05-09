@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.network.contagion_graph import ContagionGraph
+from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_stablecoin,
@@ -32,8 +32,21 @@ def main() -> None:
         default="aggregate",
         help="aggregate = StablecoinPegWorld; network = contagion graph world (Phase B).",
     )
-    p.add_argument("--nodes", type=int, default=32, help="[network] graph order (ER model).")
-    p.add_argument("--er-p", type=float, default=0.14, help="[network] Erdős–Rényi edge probability.")
+    p.add_argument(
+        "--continue-after-collapse",
+        action="store_true",
+        help="[aggregate] keep stepping after collapse to populate recovery_timestep / latency when re-peg occurs.",
+    )
+    p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
+    p.add_argument(
+        "--graph-kind",
+        choices=("erdos_renyi", "watts_strogatz"),
+        default="erdos_renyi",
+        help="[network] topology generator.",
+    )
+    p.add_argument("--er-p", type=float, default=0.14, help="[network] ER edge probability.")
+    p.add_argument("--ws-k", type=int, default=6, help="[network] Watts–Strogatz ring degree (even, < nodes).")
+    p.add_argument("--ws-p", type=float, default=0.12, help="[network] Watts–Strogatz rewire probability.")
     p.add_argument("--graph-seed", type=int, default=2026, help="[network] topology RNG seed.")
     p.add_argument("--beta", type=float, default=0.38, help="[network] contagion_step mixing.")
     p.add_argument("--whale-frac", type=float, default=0.22, help="[network] weight on whale_index.")
@@ -45,9 +58,24 @@ def main() -> None:
 
     if args.mode == "aggregate":
         template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=max(args.horizon, 48))
-        result = rollout_stablecoin(template, genome, seed=args.seed)
+        result = rollout_stablecoin(
+            template,
+            genome,
+            seed=args.seed,
+            continue_after_collapse=bool(args.continue_after_collapse),
+        )
     else:
-        graph = ContagionGraph.erdos_renyi(args.nodes, p=float(args.er_p), seed=int(args.graph_seed))
+        try:
+            graph, topo_meta = contagion_graph_from_cli(
+                graph_kind=str(args.graph_kind),
+                nodes=int(args.nodes),
+                graph_seed=int(args.graph_seed),
+                er_p=float(args.er_p),
+                ws_k=int(args.ws_k),
+                ws_p=float(args.ws_p),
+            )
+        except ValueError as e:
+            raise SystemExit(str(e)) from e
         weights = default_whale_weights(
             args.nodes,
             whale_index=int(args.whale_index),
@@ -68,13 +96,10 @@ def main() -> None:
         "cli": "export_replay",
         "mode": args.mode,
     }
+    if args.mode == "aggregate" and args.continue_after_collapse:
+        meta["continue_after_collapse"] = True
     if args.mode == "network":
-        meta["topology"] = {
-            "kind": "erdos_renyi",
-            "nodes": int(args.nodes),
-            "p": float(args.er_p),
-            "seed": int(args.graph_seed),
-        }
+        meta["topology"] = topo_meta
     payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

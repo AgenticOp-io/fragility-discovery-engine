@@ -83,6 +83,55 @@ def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -
     assert c["meta"]["variant"] == "counterfactual"
 
 
+def test_export_replay_network_watts_strogatz(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "ws.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "network",
+            "--out",
+            str(out),
+            "--nodes",
+            "14",
+            "--graph-kind",
+            "watts_strogatz",
+            "--ws-k",
+            "4",
+            "--ws-p",
+            "0.15",
+            "--horizon",
+            "12",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["topology"]["kind"] == "watts_strogatz"
+    assert data["meta"]["topology"]["k"] == 4
+
+
+def test_export_replay_aggregate_continue_after_collapse_runs(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--out",
+            str(out),
+            "--horizon",
+            "14",
+            "--continue-after-collapse",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"].get("continue_after_collapse") is True
+    assert "recovery_timestep" in data
+
+
 def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> None:
     best = tmp_path / "best.json"
     mini = tmp_path / "mini.json"

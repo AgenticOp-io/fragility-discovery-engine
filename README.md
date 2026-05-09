@@ -37,8 +37,8 @@ python scripts/run_ga_demo.py
 |--------|---------|
 | `scripts/week1_smoke.py` | Deterministic rollout smoke (`--export-replay`) |
 | `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
-| `scripts/run_network_demo.py` | GA on **graph contagion** (`--export-replay`, sizing flags) |
-| `scripts/export_replay.py` | Write versioned `replay.json` (`--mode aggregate` \| `network`) |
+| `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--export-replay`, sizing flags) |
+| `scripts/export_replay.py` | `replay.json`: aggregate (`--continue-after-collapse`) or network (`--graph-kind erdos_renyi \| watts_strogatz`, `--ws-k`, `--ws-p`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA (`--export-replay`) |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |

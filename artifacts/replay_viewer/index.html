@@ -383,8 +383,15 @@
       const qb = Number(mb.instability);
       const dp = pa - pb;
       const di = qa - qb;
+      const db = bundleB.data;
+      let bSum = '';
+      if (db && db.mean_instability !== undefined) {
+        bSum =
+          `B summary: mean_instability=${db.mean_instability}  recovery_latency_steps=${db.recovery_latency_steps ?? 'null'}\n`;
+      }
       return (
         `\n--- compare B (scrub ${scrubI}; B clamped to index ${ib}) ---\n` +
+        bSum +
         `A: price=${ma.price ?? '—'}  instability=${ma.instability ?? '—'}\n` +
         `B: price=${mb.price ?? '—'}  instability=${mb.instability ?? '—'}\n` +
         `Δprice=${Number.isFinite(dp) ? dp.toFixed(6) : '—'}  Δinstability=${Number.isFinite(di) ? di.toFixed(6) : '—'}\n`
