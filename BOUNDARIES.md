@@ -1,0 +1,166 @@
+# Project boundaries (anti-weeds charter)
+
+This document is **normative**: if an idea is not justified against these gates, default answer is **no** or **later**.
+
+## North star (what we are building)
+
+One sentence: **a deterministic engine that searches for shock schedules that maximize measurable fragility in a modular simulation, then explains collapse with replay + minimization + (later) counterfactuals.**
+
+We are **not** building: a generic “digital twin platform,” a blockchain product, an LLM roleplay sandbox, or a pretty dashboard without a frozen replay artifact contract.
+
+## Immutable principles (do not violate)
+
+1. **Deterministic core first** — same seed ⇒ same rollout; search is reproducible.
+2. **World/adversary separation** — worlds interpret physics only; “attacks” enter as explicit exogenous schedules or budgets, never as hidden hooks inside `World.step`.
+3. **Evidence before chrome** — no web UI until replay JSON schema + tests are stable.
+4. **Few agent knobs** — archetypes stay thin (response functions + thresholds). No personalities, memory, language, or beliefs until topology + metrics are done.
+5. **One primary domain in flight** — stablecoin peg toy stays the reference until Phase B explicitly replaces it.
+
+## Explicit non-goals (reject without guilt)
+
+- LLM-driven agents or “GPT personas” as policy (until Phase E and only as an optional wrapper).
+- Blockchain / mainnet coupling, real-time market feeds, production custody models.
+- Multiplayer / MMO-style simulation, arbitrary plugin marketplaces, NL world builders.
+- “Governance-grade” legal/compliance claims or calibrated forecasts of real institutions.
+- Sprawling agent taxonomies (many archetypes) — **max 3–5** archetypes per domain unless a written benchmark proves need.
+
+## Phased roadmap — hard gates
+
+Work **does not start** on a phase until **all exit criteria** for the prior phase are true.
+
+### Phase A — Aggregate kernel (current baseline)
+
+**Purpose:** prove search + collapse + explain minimization on a fast toy.
+
+**In scope:** aggregate redemption pressure, simple shocks, GA/MC, greedy minimal schedule, tests, replay dict export.
+
+**Exit criteria:**
+
+- [ ] Replay artifact schema documented in code (`runner.rollout_to_replay_dict`) + version field.
+- [ ] CI-green tests on determinism + search smoke.
+- [ ] One documented fitness scalar (even if naive) with explicit formula in docstring.
+
+**Do not start Phase B until:** exit criteria above are checked.
+
+### Phase B — Topology contagion (“Week 2.5” suggestion)
+
+**Purpose:** replace “statistics-only” collapse with **propagation structure** when justified.
+
+**In scope:**
+
+- New package: `fragility_engine/network/` with a thin `ContagionGraph` façade.
+- Start with **one** generator family (pick **either** ER **or** small-world — not both at first).
+- Panic/rumor as **local neighbor rules** + optional whale-as-hub; keep rules dumb.
+
+**Out of scope for B:**
+
+- Multiple graph ensembles in product UI.
+- Rich influencer semantics, belief heterogeneity, weighted cognition.
+
+**Exit criteria:**
+
+- [ ] Topology toggled off ⇒ reproduces aggregate baseline within tolerance OR documented why not.
+- [ ] Tests: contagion speed bounded; deterministic seeds; no Python grab-bag of magic constants without names.
+
+**Gate:** ship Phase B only if Phase A replay/tests are frozen — otherwise topology becomes undebuggable.
+
+### Phase C — Attack economics + richer objectives
+
+**Purpose:** stop “maximize violence” trivial optima.
+
+**In scope:**
+
+- **Attack budget / cost** subtracted from fitness (document units: abstract cost, not USD claims).
+- **Two-objective** frontier at most: e.g. `(collapse severity, −attack_cost)` with Pareto archive — not a seven-axis monster.
+
+**Out of scope for C:**
+
+- Full multi-objective UX polish.
+- Calibrated dollar carbon accounting.
+
+**Exit criteria:**
+
+- [ ] Cost model maps 1:1 to genome / schedule (auditable).
+- [ ] Demonstrate **one** “cheap stealthy collapse” schedule found by search (scripted demo).
+
+### Phase D — Counterfactual explainability
+
+**Purpose:** “WITHOUT whale at t=7 ⇒ survives” class insights.
+
+**In scope:**
+
+- Structured counterfactual trials on **pinned seeds**: remove event, remove agent class, snap threshold ±ε.
+- Output as machine-readable diff attached to replay (`explain/`).
+
+**Out of scope for D:**
+
+- General causal identification theory; claims of Pearl-grade ID without assumptions stated.
+
+**Exit criteria:**
+
+- [ ] Minimum viable counterfactual API + 2 tests on synthetic schedules.
+
+### Phase E — Visualization (“Week 5” suggestion)
+
+**Purpose:** cinematic replay, not decoration.
+
+**In scope:**
+
+- Timeline scrubber consuming **only** replay JSON.
+- Contagion highlighting **after** Phase B.
+
+**Out of scope for E:**
+
+- Real-time GPU graphs, D3 art projects without replay contract.
+
+### Phase F — Fragility surfaces & phase transitions (research flavor)
+
+**Purpose:** 2D parameter maps (e.g. reserve ratio × panic sensitivity) showing metastability.
+
+**Gate:** run only **after** Phase C (otherwise maps optimize nonsense).
+
+**Cap:** ≤2 parameter dimensions per figure unless publishing a methods note.
+
+### Phase G — Defender co-evolution
+
+**Purpose:** attacker vs defender loops.
+
+**Gate:** only after Phase C + D exist — otherwise co-evolution masks attribution bugs.
+
+## Fitness function discipline
+
+Current scalar fitness is **acceptable for Phase A**.
+
+Escalation order:
+
+1. Add **attack cost penalty** (Phase C).
+2. Then **Pareto pair** (severity vs cost), not a laundry list.
+3. Multi-objective laundry lists (**fast / cheap / stealth / delayed / max contagion / volatility / governance paralysis**) are **NOT** adopted wholesale — pick **two** dimensions per experiment and archive the rest as future ideas.
+
+## Metrics discipline
+
+Measure collapse **and eventually recoverability** — but:
+
+- **Recoverability** enters only when Phase B/C basics exist; define operational metrics (time-to-re-peg, area under instability curve) in code, not prose.
+
+## How we use external advice (including other AIs)
+
+Allowed pattern:
+
+1. File issue under “idea backlog” with **phase tag**.
+2. Require **one acceptance test** idea before coding.
+3. If it skips phases, **reject**.
+
+Forbidden pattern:
+
+- “Quickly add NetworkX + six graph models + new fitness axes + UI” in one sprint.
+
+## Definition of done for any PR touching simulation
+
+- Updates tests or adds a **conscious** `pytest.skip` with reason (temporary only).
+- Documents any new genome dimension or fitness term in `BOUNDARIES.md` **or** module docstring linked from README.
+- Keeps **determinism** unless explicitly labeled stochastic experiment behind a flag.
+
+## Project motto
+
+**Engine first, topology second, economics third, cinema last, co-evolution last-er.**
