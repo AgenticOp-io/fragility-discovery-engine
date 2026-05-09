@@ -97,6 +97,7 @@ class StablecoinPegWorld:
             "backing_ratio": float(s.reserves / max(s.supply, 1e-9)),
             "redeem_fraction": redeem_fraction,
             "paid_out": float(paid),
+            "instability": float(self.instability_score()),
         }
 
         s.timestep += 1

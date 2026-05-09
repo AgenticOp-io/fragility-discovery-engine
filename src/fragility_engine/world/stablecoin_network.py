@@ -119,6 +119,7 @@ class StablecoinNetworkWorld:
             "panic_mean": float(np.mean(p)),
             "panic_max": float(np.max(p)),
             "panic_std": float(np.std(p)),
+            "instability": float(self.instability_score()),
         }
 
         self._timestep += 1

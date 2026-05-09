@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragility replay viewer</title>
+  <style>
+    :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
+    body { margin: 0; padding: 16px; max-width: 1100px; margin-inline: auto; }
+    header { margin-bottom: 12px; }
+    canvas { width: 100%; height: 320px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
+    #meta { font-size: 13px; opacity: 0.85; white-space: pre-wrap; }
+    #drop {
+      border: 2px dashed #8886; border-radius: 10px; padding: 18px; text-align: center;
+      margin-bottom: 12px; cursor: pointer;
+    }
+    #hint { font-size: 12px; opacity: 0.75; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Fragility replay viewer</strong>
+    <div id="hint">Drag-and-drop a <code>replay.json</code> (no server needed). Shows price + instability traces.</div>
+  </header>
+
+  <div id="drop">Drop replay JSON here or click to pick a file<input id="file" type="file" accept="application/json" hidden /></div>
+  <canvas id="cv" width="1100" height="320"></canvas>
+  <pre id="meta"></pre>
+
+  <script>
+    const cv = document.getElementById('cv');
+    const ctx = cv.getContext('2d');
+    const meta = document.getElementById('meta');
+    const drop = document.getElementById('drop');
+    const fileInput = document.getElementById('file');
+
+    function drawReplay(data) {
+      const traj = data.trajectory || [];
+      const W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+
+      if (!traj.length) {
+        ctx.fillStyle = '#888';
+        ctx.fillText('Empty trajectory', 12, 24);
+        return;
+      }
+
+      const prices = traj.map(s => Number(s.metrics?.price ?? s.state_vector?.[2] ?? NaN));
+      const instab = traj.map(s => Number(s.metrics?.instability ?? NaN));
+      const tmax = traj.length - 1;
+
+      const valid = xs => xs.every(v => Number.isFinite(v));
+      if (!valid(prices)) {
+        ctx.fillStyle = '#f66';
+        ctx.fillText('Missing price metrics — regenerate replay with engine ≥ 0.3.0', 12, 24);
+      }
+
+      const minP = Math.min(...prices.filter(Number.isFinite));
+      const maxP = Math.max(...prices.filter(Number.isFinite));
+      const pad = 24;
+
+      function xScale(i) { return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad); }
+      function yPrice(p) {
+        const lo = Math.min(minP, 0.85), hi = Math.max(maxP, 1.05);
+        const u = (p - lo) / (hi - lo + 1e-9);
+        return H - pad - u * (H - 2 * pad);
+      }
+      function yInst(q) {
+        const hi = Math.max(...instab.filter(Number.isFinite).concat([1]));
+        const u = q / (hi + 1e-9);
+        return H - pad - u * (H - 2 * pad);
+      }
+
+      // axes
+      ctx.strokeStyle = '#8886';
+      ctx.beginPath();
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+      ctx.stroke();
+
+      // price polyline
+      ctx.strokeStyle = '#5cf';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      prices.forEach((p, i) => {
+        const x = xScale(i), y = yPrice(p);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // instability polyline
+      if (valid(instab)) {
+        ctx.strokeStyle = '#f84';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        instab.forEach((q, i) => {
+          const x = xScale(i), y = yInst(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#ddd';
+      ctx.font = '12px system-ui';
+      ctx.fillText('price (blue)', pad, 14);
+      ctx.fillText('instability (orange)', pad + 110, 14);
+
+      meta.textContent =
+        `schema_version: ${data.schema_version}\n` +
+        `mode: ${data.simulation_mode}\n` +
+        `collapsed: ${data.collapsed} @ ${data.collapse_timestep}\n` +
+        `attack_cost: ${data.attack_cost}\n` +
+        `integral_instability: ${data.integral_instability}\n` +
+        `recovery_timestep: ${data.recovery_timestep}\n` +
+        `steps: ${traj.length}`;
+    }
+
+    function handleText(text) {
+      try {
+        const data = JSON.parse(text);
+        drawReplay(data);
+      } catch (e) {
+        meta.textContent = 'Invalid JSON: ' + e;
+      }
+    }
+
+    drop.addEventListener('click', () => fileInput.click());
+    drop.addEventListener('dragover', ev => { ev.preventDefault(); });
+    drop.addEventListener('drop', ev => {
+      ev.preventDefault();
+      const f = ev.dataTransfer.files?.[0];
+      if (!f) return;
+      f.text().then(handleText);
+    });
+    fileInput.addEventListener('change', ev => {
+      const f = ev.target.files?.[0];
+      if (!f) return;
+      f.text().then(handleText);
+    });
+  </script>
+</body>
+</html>

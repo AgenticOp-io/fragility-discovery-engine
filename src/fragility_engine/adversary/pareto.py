@@ -36,6 +36,24 @@ def pareto_indices(severity: np.ndarray, attack_cost: np.ndarray) -> list[int]:
     return keep
 
 
+def pareto_point_from_rollout(genome: np.ndarray, rollout: RolloutResult) -> ParetoPoint:
+    return ParetoPoint(
+        genome=genome.copy(),
+        severity=float(severity_score(rollout)),
+        attack_cost=float(rollout.attack_cost),
+        collapsed=bool(rollout.collapsed),
+    )
+
+
+def merge_pareto_points(points: list[ParetoPoint]) -> list[ParetoPoint]:
+    if not points:
+        return []
+    sev = np.array([p.severity for p in points], dtype=np.float64)
+    cost = np.array([p.attack_cost for p in points], dtype=np.float64)
+    idx = pareto_indices(sev, cost)
+    return [points[i] for i in idx]
+
+
 def rollout_cloud_to_pareto(genomes: list[np.ndarray], rollouts: list[RolloutResult]) -> list[ParetoPoint]:
     sev = np.array([severity_score(r) for r in rollouts], dtype=np.float64)
     cost = np.array([r.attack_cost for r in rollouts], dtype=np.float64)

@@ -36,6 +36,8 @@ class RolloutResult:
     seed: int
     attack_cost: float = 0.0
     simulation_mode: str = "aggregate"
+    integral_instability: float = 0.0
+    recovery_timestep: int | None = None
 
 
 @dataclass
@@ -46,4 +48,5 @@ class SearchResult:
     best_fitness: float
     best_rollout: RolloutResult
     history: list[dict[str, Any]] = field(default_factory=list)
+    pareto_archive: list[Any] = field(default_factory=list)
 
