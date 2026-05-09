@@ -4,7 +4,7 @@ import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.network.contagion_graph import ContagionGraph
-from fragility_engine.runner import rollout_stablecoin_network
+from fragility_engine.runner import rollout_stablecoin_network, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 
 
@@ -39,3 +39,21 @@ def test_attack_cost_positive_with_shocks():
     genome = np.array([[0.9, 1.0]] + [[0.0, 0.0]] * 15)  # strong non-none shock at t=0
     r = rollout_stablecoin_network(template, genome, seed=1)
     assert r.attack_cost > 0.0
+
+
+def test_network_recovery_latency_replay_matches_rollout():
+    n = 14
+    adj = ContagionGraph.erdos_renyi(n, p=0.22, seed=90)
+    template = StablecoinNetworkWorld(
+        population=default_stablecoin_population(),
+        adjacency=adj,
+        node_weights=default_whale_weights(n),
+        max_steps=40,
+    )
+    genome = np.random.default_rng(33).uniform(size=(28, 2))
+    r = rollout_stablecoin_network(template, genome, seed=120, continue_after_collapse=True)
+    d = rollout_to_replay_dict(r)
+    if r.recovery_timestep is not None and r.collapse_timestep is not None:
+        assert d["recovery_latency_steps"] == r.recovery_timestep - r.collapse_timestep
+    else:
+        assert d["recovery_latency_steps"] is None

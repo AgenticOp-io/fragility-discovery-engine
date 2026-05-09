@@ -178,6 +178,56 @@ def test_run_mc_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
     assert data["meta"]["cli"] == "run_mc_demo"
 
 
+def test_compare_replays_cli(py_exe: str, tmp_path: Path) -> None:
+    left = tmp_path / "a.json"
+    right = tmp_path / "b.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--out",
+            str(left),
+            "--horizon",
+            "14",
+            "--seed",
+            "7",
+            "--genome-seed",
+            "8",
+            "--initial-panic",
+            "0.06",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--out",
+            str(right),
+            "--horizon",
+            "14",
+            "--seed",
+            "7",
+            "--genome-seed",
+            "8",
+            "--initial-panic",
+            "0.42",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    proc = subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "compare_replays.py"), str(left), str(right)],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    out = json.loads(proc.stdout)
+    assert len(out["diff_keys"]) >= 1
+
+
 def test_export_minimized_replay_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "min.json"
     subprocess.run(

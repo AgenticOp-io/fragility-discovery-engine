@@ -21,6 +21,8 @@ from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 def main() -> None:
     p = argparse.ArgumentParser(description="Deterministic rollout smoke.")
     p.add_argument("--export-replay", type=Path, default=None, help="Write this rollout as replay JSON.")
+    p.add_argument("--initial-panic", type=float, default=0.05)
+    p.add_argument("--continue-after-collapse", action="store_true")
     args = p.parse_args()
 
     world = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=48)
@@ -28,7 +30,13 @@ def main() -> None:
     rng = np.random.default_rng(42)
     genome = rng.uniform(size=(horizon, 2))
 
-    result = rollout_stablecoin(world, genome, seed=12345)
+    result = rollout_stablecoin(
+        world,
+        genome,
+        seed=12345,
+        initial_panic=float(args.initial_panic),
+        continue_after_collapse=bool(args.continue_after_collapse),
+    )
     print(summarize_findings(result))
     if result.trajectory:
         last = result.trajectory[-1]
@@ -36,7 +44,13 @@ def main() -> None:
 
     if args.export_replay is not None:
         replay = rollout_to_replay_dict(result)
-        replay["meta"] = {"replay_schema": REPLAY_SCHEMA_VERSION, "cli": "week1_smoke"}
+        replay["meta"] = {
+            "replay_schema": REPLAY_SCHEMA_VERSION,
+            "cli": "week1_smoke",
+            "initial_panic": float(args.initial_panic),
+        }
+        if args.continue_after_collapse:
+            replay["meta"]["continue_after_collapse"] = True
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 

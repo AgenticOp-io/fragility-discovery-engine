@@ -35,17 +35,18 @@ python scripts/run_ga_demo.py
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/week1_smoke.py` | Deterministic rollout smoke (`--export-replay`) |
+| `scripts/week1_smoke.py` | Deterministic rollout smoke (`--export-replay`, `--initial-panic`, `--continue-after-collapse`) |
 | `scripts/run_mc_demo.py` | Monte Carlo random schedules (`--export-replay`, `--continue-after-collapse`) |
 | `scripts/export_minimized_replay.py` | Random collapsing schedule → greedy minimization → replay JSON |
 | `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--export-replay`, sizing flags) |
-| `scripts/export_replay.py` | `replay.json`: aggregate (`--continue-after-collapse`) or network (`--graph-kind erdos_renyi \| watts_strogatz`, `--ws-k`, `--ws-p`) |
+| `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`) or network (`--base-panic`, topology flags, `--continue-after-collapse`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA (`--export-replay`) |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
+| `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas.
 

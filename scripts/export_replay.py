@@ -37,6 +37,18 @@ def main() -> None:
         action="store_true",
         help="Keep stepping after collapse (aggregate or network) for recovery metrics when re-peg occurs.",
     )
+    p.add_argument(
+        "--initial-panic",
+        type=float,
+        default=0.05,
+        help="[aggregate] initial panic passed to world.reset (stablecoin peg).",
+    )
+    p.add_argument(
+        "--base-panic",
+        type=float,
+        default=0.05,
+        help="[network] uniform panic at reset on every node.",
+    )
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
     p.add_argument(
         "--graph-kind",
@@ -63,6 +75,7 @@ def main() -> None:
             template,
             genome,
             seed=args.seed,
+            initial_panic=float(args.initial_panic),
             continue_after_collapse=cont,
         )
     else:
@@ -89,7 +102,13 @@ def main() -> None:
             contagion_beta=float(args.beta),
             max_steps=max(args.horizon, 48),
         )
-        result = rollout_stablecoin_network(template, genome, seed=args.seed, continue_after_collapse=cont)
+        result = rollout_stablecoin_network(
+            template,
+            genome,
+            seed=args.seed,
+            base_panic=float(args.base_panic),
+            continue_after_collapse=cont,
+        )
 
     payload = rollout_to_replay_dict(result)
     meta = {
@@ -99,6 +118,10 @@ def main() -> None:
     }
     if cont:
         meta["continue_after_collapse"] = True
+    if args.mode == "aggregate":
+        meta["initial_panic"] = float(args.initial_panic)
+    else:
+        meta["base_panic"] = float(args.base_panic)
     if args.mode == "network":
         meta["topology"] = topo_meta
     payload["meta"] = meta

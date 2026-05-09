@@ -243,6 +243,7 @@
     "replay_schema": "0.4.0",
     "cli": "export_replay",
     "mode": "network",
+    "base_panic": 0.05,
     "topology": {
       "kind": "erdos_renyi",
       "nodes": 28,
