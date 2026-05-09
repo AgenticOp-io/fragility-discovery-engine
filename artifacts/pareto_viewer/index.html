@@ -7,7 +7,10 @@
   <style>
     :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
     body { margin: 0; padding: 16px; max-width: 960px; margin-inline: auto; }
-    canvas { width: 100%; height: 420px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
+    canvas {
+      width: 100%; height: 420px; border: 1px solid #8884; border-radius: 8px; background: #1112;
+      cursor: crosshair;
+    }
     #meta { font-size: 13px; opacity: 0.85; white-space: pre-wrap; margin-top: 10px; }
     .btn {
       font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #8886;
@@ -23,7 +26,7 @@
   <div id="hint">
     Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code>.
     Axes: <strong>x = attack_cost</strong> (minimize), <strong>y = severity</strong> (maximize). Non-dominated points only (merged archive).
-    Bundled sample: <code>sample_pareto_front.json</code> in this folder.
+    Bundled sample: <code>sample_pareto_front.json</code> in this folder. <strong>Hover</strong> a point for archive index and metrics; click to pin, <kbd>←</kbd><kbd>→</kbd> to step.
     Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled + <code>artifacts/test_exports/pareto_front.json</code> after regenerate).
     Replay trajectories: <code>artifacts/replay_viewer/index.html</code>.
   </div>
@@ -38,7 +41,7 @@
     </span>
     <input id="file" type="file" accept="application/json,.json" hidden />
   </div>
-  <canvas id="cv" width="920" height="420" aria-label="Pareto scatter"></canvas>
+  <canvas id="cv" width="920" height="420" tabindex="0" aria-label="Pareto scatter, hover or keyboard explore"></canvas>
   <pre id="meta">Load JSON to begin.</pre>
 
   <script>
@@ -65,32 +68,83 @@
       fileInput.value = '';
     });
 
-    function drawPareto(data) {
-      const arch = data.archive;
-      if (!Array.isArray(arch) || !arch.length) {
-        meta.textContent = 'Expected { archive: [ { severity, attack_cost, collapsed }, … ] }';
-        ctx.clearRect(0, 0, cv.width, cv.height);
-        return;
-      }
+    /** @type {{ data: object, arch: object[], pad: number, W: number, H: number, pw: number, ph: number, minC: number, maxC: number, minS: number, maxS: number, spanC: number, spanS: number } | null} */
+    let paretoBundle = null;
+    let hoverIndex = null;
+    /** @type {number | null} pinned archive index for keyboard */
+    let pinnedIndex = null;
+
+    function clientToCanvasXY(clientX, clientY) {
+      const rect = cv.getBoundingClientRect();
+      const scale = cv.width / rect.width;
+      return {
+        x: (clientX - rect.left) * scale,
+        y: (clientY - rect.top) * scale,
+      };
+    }
+
+    function nearestArchiveIndex(px, py) {
+      if (!paretoBundle) return null;
+      const { arch, pad, pw, ph, minC, maxC, minS, maxS, spanC, spanS } = paretoBundle;
+      const hitR = 22;
+      let best = null;
+      let bestD = Infinity;
+      arch.forEach((p, i) => {
+        const c = Number(p.attack_cost);
+        const s = Number(p.severity);
+        const x = pad + ((c - minC) / spanC) * pw;
+        const y = pad + (1 - (s - minS) / spanS) * ph;
+        const d = (px - x) ** 2 + (py - y) ** 2;
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      });
+      return bestD <= hitR * hitR ? best : null;
+    }
+
+    function formatMeta(data, arch, highlightIdx) {
       const costs = arch.map(p => Number(p.attack_cost));
       const sevs = arch.map(p => Number(p.severity));
       const minC = Math.min(...costs);
       const maxC = Math.max(...costs);
       const minS = Math.min(...sevs);
       const maxS = Math.max(...sevs);
-      const pad = 48;
-      const W = cv.width;
-      const H = cv.height;
-      const pw = W - 2 * pad;
-      const ph = H - 2 * pad;
-      const spanC = maxC - minC || 1;
-      const spanS = maxS - minS || 1;
+      let block =
+        `schema: ${data.schema ?? '?'}\n` +
+        `best_fitness: ${data.best_fitness ?? '—'}\n` +
+        `archive points: ${arch.length}\n` +
+        `cost [${minC.toFixed(4)}, ${maxC.toFixed(4)}]\n` +
+        `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]`;
+      const hi = highlightIdx;
+      if (hi !== null && hi !== undefined && arch[hi]) {
+        const p = arch[hi];
+        const extra = [];
+        if (p.integral_instability !== undefined) extra.push(`integral_instability=${p.integral_instability}`);
+        block +=
+          `\n\n--- focus archive[${hi}] ---\n` +
+          `severity=${p.severity}\nattack_cost=${p.attack_cost}\ncollapsed=${p.collapsed}\n` +
+          (extra.length ? `${extra.join('\n')}\n` : '') +
+          `genome_horizon=${Array.isArray(p.genome) ? p.genome.length : '—'}`;
+      }
+      return block;
+    }
+
+    function redrawPareto() {
+      if (!paretoBundle) return;
+      const { data, arch, pad, W, H, pw, ph, minC, maxC, minS, maxS, spanC, spanS } = paretoBundle;
+
       function xc(c) {
         return pad + ((c - minC) / spanC) * pw;
       }
       function yc(s) {
         return pad + (1 - (s - minS) / spanS) * ph;
       }
+
+      const focus =
+        pinnedIndex !== null && pinnedIndex >= 0 && pinnedIndex < arch.length
+          ? pinnedIndex
+          : hoverIndex;
 
       ctx.fillStyle = '#1118';
       ctx.fillRect(0, 0, W, H);
@@ -109,22 +163,105 @@
       arch.forEach((p, i) => {
         const x = xc(Number(p.attack_cost));
         const y = yc(Number(p.severity));
+        const r = i === focus ? 7 : 5;
+        if (i === focus) {
+          ctx.strokeStyle = pinnedIndex === i ? '#fc4' : '#ee8';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, r + 3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
         ctx.fillStyle = p.collapsed ? '#f84' : '#8af';
         ctx.beginPath();
-        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#888';
         ctx.font = '10px system-ui';
-        ctx.fillText(String(i), x + 7, y + 3);
+        ctx.fillText(String(i), x + 7 + (i === focus ? 2 : 0), y + 3);
       });
 
-      meta.textContent =
-        `schema: ${data.schema ?? '?'}\n` +
-        `best_fitness: ${data.best_fitness ?? '—'}\n` +
-        `archive points: ${arch.length}\n` +
-        `cost [${minC.toFixed(4)}, ${maxC.toFixed(4)}]\n` +
-        `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]`;
+      meta.textContent = formatMeta(data, arch, focus);
     }
+
+    function drawPareto(data) {
+      const arch = data.archive;
+      hoverIndex = null;
+      pinnedIndex = null;
+      if (!Array.isArray(arch) || !arch.length) {
+        paretoBundle = null;
+        meta.textContent = 'Expected { archive: [ { severity, attack_cost, collapsed }, … ] }';
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        return;
+      }
+      const costs = arch.map(p => Number(p.attack_cost));
+      const sevs = arch.map(p => Number(p.severity));
+      const minC = Math.min(...costs);
+      const maxC = Math.max(...costs);
+      const minS = Math.min(...sevs);
+      const maxS = Math.max(...sevs);
+      const pad = 48;
+      const W = cv.width;
+      const H = cv.height;
+      const pw = W - 2 * pad;
+      const ph = H - 2 * pad;
+      const spanC = maxC - minC || 1;
+      const spanS = maxS - minS || 1;
+
+      paretoBundle = {
+        data,
+        arch,
+        pad,
+        W,
+        H,
+        pw,
+        ph,
+        minC,
+        maxC,
+        minS,
+        maxS,
+        spanC,
+        spanS,
+      };
+      redrawPareto();
+      cv.focus({ preventScroll: true });
+    }
+
+    cv.addEventListener('mousemove', e => {
+      if (!paretoBundle) return;
+      const { x, y } = clientToCanvasXY(e.clientX, e.clientY);
+      hoverIndex = nearestArchiveIndex(x, y);
+      redrawPareto();
+    });
+
+    cv.addEventListener('mouseleave', () => {
+      if (!paretoBundle) return;
+      hoverIndex = null;
+      redrawPareto();
+    });
+
+    cv.addEventListener('click', e => {
+      if (!paretoBundle) return;
+      const { x, y } = clientToCanvasXY(e.clientX, e.clientY);
+      const idx = nearestArchiveIndex(x, y);
+      pinnedIndex = idx;
+      redrawPareto();
+    });
+
+    cv.addEventListener('keydown', e => {
+      if (!paretoBundle || !paretoBundle.arch.length) return;
+      const n = paretoBundle.arch.length - 1;
+      if (pinnedIndex === null) pinnedIndex = hoverIndex ?? 0;
+      if (e.key === 'ArrowLeft') pinnedIndex = Math.max(0, pinnedIndex - 1);
+      else if (e.key === 'ArrowRight') pinnedIndex = Math.min(n, pinnedIndex + 1);
+      else if (e.key === 'Escape') {
+        pinnedIndex = null;
+        redrawPareto();
+        return;
+      }
+      else return;
+      e.preventDefault();
+      redrawPareto();
+    });
 
     presetSelect.addEventListener('change', async () => {
       const path = presetSelect.value;
