@@ -322,6 +322,59 @@ def test_run_coevolution_aggregate_continue_after_collapse(py_exe: str, tmp_path
     assert "recovery_timestep" in data
 
 
+def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--mode",
+            "aggregate",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--max-steps",
+            "12",
+            "--horizon",
+            "10",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["mode"] == "aggregate"
+    assert data["repeat"] == 1
+    proc2 = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--mode",
+            "network",
+            "--nodes",
+            "16",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--max-steps",
+            "10",
+            "--horizon",
+            "8",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    net = json.loads(proc2.stdout)
+    assert net["mode"] == "network"
+    assert net["nodes"] == 16
+
+
 def test_run_coevolution_network_exports_replay(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "coev_net.json"
     subprocess.run(

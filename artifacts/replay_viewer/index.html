@@ -61,6 +61,7 @@
       Chrome/Edge: <strong>Choose folder</strong> remembers the path for <strong>Choose replay file</strong>.
       <strong>Compare second replay</strong> adds Δprice / Δinstability in the panel (e.g. baseline vs counterfactual). For cost vs severity scatter see <code>artifacts/pareto_viewer/</code>.
       With a local HTTP server, the <strong>Presets</strong> dropdown loads <code>local_presets.json</code> (bundled samples + <code>artifacts/test_exports/</code> after <code>regenerate_test_exports</code>). Cost vs severity scatter: <code>artifacts/pareto_viewer/index.html</code>.
+      Optional URL hash: <code>#src=sample_replay.json&amp;compare=sample_network_replay.json</code> — paths relative to this page; <code>compare</code> loads the second replay for Δ metrics.
     </div>
   </header>
 
@@ -743,6 +744,38 @@
       f.text().then(handleText);
     });
 
+    async function applyReplayHashLoads() {
+      const raw = location.hash.replace(/^#/, '');
+      if (!raw) return;
+      const q = new URLSearchParams(raw);
+      const src = q.get('src');
+      const cmp = q.get('compare');
+      if (src) {
+        try {
+          const res = await fetch(new URL(src, document.location));
+          if (res.ok) {
+            handleText(await res.text());
+            presetStatus.textContent = 'Loaded (hash)';
+          }
+        } catch (_) { /* ignore */ }
+      }
+      if (cmp) {
+        try {
+          const res = await fetch(new URL(cmp, document.location));
+          if (res.ok) {
+            const data = JSON.parse(await res.text());
+            bundleB = buildBundle(data);
+            btnClearCompare.hidden = false;
+            draw();
+          }
+        } catch (_) { /* ignore */ }
+      }
+    }
+
+    window.addEventListener('hashchange', () => {
+      void applyReplayHashLoads();
+    });
+
     async function initPresets() {
       try {
         const res = await fetch(new URL('local_presets.json', document.location));
@@ -784,7 +817,10 @@
       }
     });
 
-    void initPresets();
+    (async () => {
+      await applyReplayHashLoads();
+      await initPresets();
+    })();
 
     meta.textContent = 'Load a replay JSON to begin.';
     ctx.fillStyle = '#888';

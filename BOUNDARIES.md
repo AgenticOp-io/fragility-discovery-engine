@@ -64,6 +64,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] Topology toggled off ⇒ reproduces aggregate baseline within tolerance OR documented why not  
       (**single-node self-loop** equivalence test: `tests/test_network_single_node_matches_aggregate.py`; general graphs differ by design).
 - [x] Tests: contagion bounded / deterministic (`tests/test_contagion_bounded.py`, graph factory seeds).
+- [x] Network diffusion uses **precomputed neighbor lists** (`contagion_step_lists`) so each timestep is **O(edges)** mixing vs dense **adj @ panic** (dense adjacency storage unchanged).
 
 **Gate:** ship Phase B only if Phase A replay/tests are frozen — otherwise topology becomes undebuggable.
 

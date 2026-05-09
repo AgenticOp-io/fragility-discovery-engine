@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import AgentPopulation
-from fragility_engine.network.contagion import contagion_step
+from fragility_engine.network.contagion import contagion_step_lists, neighbor_lists_from_adjacency
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.types import ExogenousEvent, TrajectoryStep
 
@@ -36,12 +36,14 @@ class StablecoinNetworkWorld:
     _reserves: float = 0.0
     _supply: float = 0.0
     _timestep: int = 0
+    _neighbor_lists: list[list[int]] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         raw = self.adjacency
         if isinstance(raw, ContagionGraph):
             raw = raw.adjacency
         self.adjacency = np.asarray(raw, dtype=np.int8)
+        self._neighbor_lists = neighbor_lists_from_adjacency(self.adjacency)
         nw = np.asarray(self.node_weights, dtype=np.float64)
         self.node_weights = nw / np.maximum(nw.sum(), 1e-12)
 
@@ -94,7 +96,7 @@ class StablecoinNetworkWorld:
                 targeted = np.arange(min(k, n))
                 p[targeted] = np.clip(p[targeted] + bump, 0.0, 1.0)
 
-        p[:] = contagion_step(p, self.adjacency, self.contagion_beta)
+        p[:] = contagion_step_lists(p, self._neighbor_lists, self.contagion_beta)
 
         price = self._price()
         global_obs = {

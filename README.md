@@ -12,7 +12,7 @@ Autonomous **coverage-guided-style** search over a modular simulation: mutate sh
 | `fragility_engine.agents` | Behavior archetypes — `observe → decide → act`. |
 | `fragility_engine.adversary` | Deterministic search (Monte Carlo + GA) over shock schedules. |
 | `fragility_engine.explain` | Ablation / minimization / **counterfactual** bundles. |
-| `fragility_engine.network` | ``ContagionGraph`` + topology + contagion diffusion (Phase B). |
+| `fragility_engine.network` | ``ContagionGraph`` + topology; contagion uses **neighbor lists** (**O(edges)** per step, dense adjacency storage unchanged). |
 | `fragility_engine.coevolution` | Alternating attacker/defender search; aggregate + network + `alternating_coevolution_rollout` hook for custom worlds. |
 
 Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out until the core loop is proven.
@@ -48,8 +48,9 @@ python scripts/run_ga_demo.py
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
+| `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags) |
 
-Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas.
+Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 
 Local **bulk exports** for trying many scenarios in the browser: run `pwsh -File scripts/regenerate_test_exports.ps1` → writes under `artifacts/test_exports/` (gitignored). See `artifacts/README_test_exports.txt`.
 
