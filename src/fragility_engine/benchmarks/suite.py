@@ -8,8 +8,9 @@ import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
-from fragility_engine.runner import rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -81,10 +82,18 @@ def run_network_neighbor_list_rollout_v1() -> dict[str, Any]:
     return _rollout_snapshot("network_neighbor_list_rollout_v1", r)
 
 
+def run_resource_cascade_rollout_v1() -> dict[str, Any]:
+    genome = _pinned_genome()
+    template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
+    r = rollout_resource_cascade(template, genome, seed=_ROLLOUT_SEED, initial_overload=0.05)
+    return _rollout_snapshot("resource_cascade_rollout_v1", r)
+
+
 BUNDLE_RUNNERS: dict[str, Any] = {
     "aggregate_rollout_v1": run_aggregate_rollout_v1,
     "network_er_rollout_v1": run_network_er_rollout_v1,
     "network_neighbor_list_rollout_v1": run_network_neighbor_list_rollout_v1,
+    "resource_cascade_rollout_v1": run_resource_cascade_rollout_v1,
 }
 
 BUNDLE_IDS: tuple[str, ...] = tuple(sorted(BUNDLE_RUNNERS.keys()))
@@ -103,6 +112,11 @@ GOLDEN_METRICS: dict[str, dict[str, float | bool]] = {
     },
     "network_neighbor_list_rollout_v1": {
         "integral_instability": 2.9225,
+        "attack_cost": 6.544042877815768,
+        "collapsed": True,
+    },
+    "resource_cascade_rollout_v1": {
+        "integral_instability": 6.129501695143888,
         "attack_cost": 6.544042877815768,
         "collapsed": True,
     },

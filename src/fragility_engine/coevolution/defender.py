@@ -99,7 +99,11 @@ def _clone_stablecoin_network(template: StablecoinNetworkWorld, **phys: Any) -> 
     if template.adjacency is not None:
         return StablecoinNetworkWorld(adjacency=template.adjacency, **common)
     nl = [list(row) for row in template._neighbor_lists]
-    nw = [list(row) for row in template._neighbor_weights] if template._neighbor_weights else None
+    nw_override = phys.get("neighbor_weights", None)
+    if nw_override is not None:
+        nw = [list(row) for row in nw_override]
+    else:
+        nw = [list(row) for row in template._neighbor_weights] if template._neighbor_weights else None
     return StablecoinNetworkWorld(neighbor_lists=nl, neighbor_weights=nw, **common)
 
 

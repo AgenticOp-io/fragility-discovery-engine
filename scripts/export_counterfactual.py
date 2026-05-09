@@ -14,6 +14,8 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_bundle_to_jsonable,
     counterfactual_network_base_panic_with_rollouts,
     counterfactual_network_contagion_beta_with_rollouts,
+    counterfactual_network_edge_weight_with_rollouts,
+    counterfactual_network_neighbor_edges_weight_patch_with_rollouts,
     counterfactual_remove_steps_with_rollouts,
 )
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
@@ -50,9 +52,19 @@ def main() -> None:
     ap.add_argument("--genome-seed", type=int, default=7, help="RNG seed for random attacker genome.")
     ap.add_argument(
         "--intervention",
-        choices=("remove_steps", "base_panic_shift", "contagion_beta_shift"),
+        choices=(
+            "remove_steps",
+            "base_panic_shift",
+            "contagion_beta_shift",
+            "edge_weight_shift",
+            "edge_weights_shift",
+        ),
         default="remove_steps",
-        help="remove_steps: zero shock rows; network-only: shift base_panic or contagion_beta clone.",
+        help=(
+            "remove_steps: zero shock rows; network-only: shift base_panic, contagion_beta, or "
+            "one neighbor-list edge weight (--neighbor-json required for edge_weight_shift); "
+            "edge_weights_shift applies --edges-patch-json."
+        ),
     )
     ap.add_argument(
         "--variant-base-panic",
@@ -65,6 +77,24 @@ def main() -> None:
         type=float,
         default=None,
         help="[network, contagion_beta_shift] counterfactual contagion beta.",
+    )
+    ap.add_argument(
+        "--edge-from",
+        type=int,
+        default=None,
+        help="[network, edge_weight_shift] tail node index (directed out-edge).",
+    )
+    ap.add_argument(
+        "--edge-to",
+        type=int,
+        default=None,
+        help="[network, edge_weight_shift] head node index.",
+    )
+    ap.add_argument(
+        "--variant-edge-weight",
+        type=float,
+        default=None,
+        help="[network, edge_weight_shift] positive weight on that out-edge in the counterfactual clone.",
     )
     ap.add_argument(
         "--mode",
@@ -95,6 +125,12 @@ def main() -> None:
     ap.add_argument("--neighbor-json", type=Path, default=None, help="[network] list-only topology JSON.")
     ap.add_argument("--neighbor-weights-json", type=Path, default=None)
     ap.add_argument(
+        "--edges-patch-json",
+        type=Path,
+        default=None,
+        help='[network, edge_weights_shift] JSON array of {"from","to","weight"} objects.',
+    )
+    ap.add_argument(
         "--export-replay-dir",
         type=Path,
         default=None,
@@ -103,11 +139,26 @@ def main() -> None:
     args = ap.parse_args()
 
     if args.intervention != "remove_steps" and args.mode != "network":
-        raise SystemExit("--intervention base_panic_shift and contagion_beta_shift require --mode network.")
+        raise SystemExit(
+            "--intervention base_panic_shift, contagion_beta_shift, edge_weight_shift, and edge_weights_shift "
+            "require --mode network."
+        )
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
         raise SystemExit("--variant-beta required for --intervention contagion_beta_shift.")
+    if args.intervention == "edge_weight_shift":
+        if args.neighbor_json is None:
+            raise SystemExit("--intervention edge_weight_shift requires --neighbor-json (list topology).")
+        if args.edge_from is None or args.edge_to is None:
+            raise SystemExit("--edge-from and --edge-to required for --intervention edge_weight_shift.")
+        if args.variant_edge_weight is None:
+            raise SystemExit("--variant-edge-weight required for --intervention edge_weight_shift.")
+    if args.intervention == "edge_weights_shift":
+        if args.neighbor_json is None:
+            raise SystemExit("--intervention edge_weights_shift requires --neighbor-json (list topology).")
+        if args.edges_patch_json is None:
+            raise SystemExit("--edges-patch-json required for --intervention edge_weights_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -176,12 +227,39 @@ def main() -> None:
                 rollout_seed=int(args.seed),
                 continue_after_collapse=cont,
             )
-        else:
+        elif args.intervention == "contagion_beta_shift":
             report, baseline_rr, variant_rr = counterfactual_network_contagion_beta_with_rollouts(
                 genome,
                 template,
                 baseline_beta=float(args.beta),
                 variant_beta=float(args.variant_beta),
+                rollout_seed=int(args.seed),
+                base_panic=float(args.base_panic),
+                continue_after_collapse=cont,
+            )
+        elif args.intervention == "edge_weight_shift":
+            report, baseline_rr, variant_rr = counterfactual_network_edge_weight_with_rollouts(
+                genome,
+                template,
+                edge_from=int(args.edge_from),
+                edge_to=int(args.edge_to),
+                variant_edge_weight=float(args.variant_edge_weight),
+                rollout_seed=int(args.seed),
+                base_panic=float(args.base_panic),
+                continue_after_collapse=cont,
+            )
+        else:
+            try:
+                patch_raw = json.loads(args.edges_patch_json.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as e:
+                print(str(e), file=sys.stderr)
+                raise SystemExit(2) from e
+            if not isinstance(patch_raw, list):
+                raise SystemExit("--edges-patch-json must be a JSON array")
+            report, baseline_rr, variant_rr = counterfactual_network_neighbor_edges_weight_patch_with_rollouts(
+                genome,
+                template,
+                edges_patch=patch_raw,
                 rollout_seed=int(args.seed),
                 base_panic=float(args.base_panic),
                 continue_after_collapse=cont,
@@ -214,9 +292,15 @@ def main() -> None:
         elif args.intervention == "base_panic_shift":
             common_meta["baseline_base_panic"] = float(args.base_panic)
             common_meta["variant_base_panic"] = float(args.variant_base_panic)
-        else:
+        elif args.intervention == "contagion_beta_shift":
             common_meta["baseline_beta"] = float(args.beta)
             common_meta["variant_beta"] = float(args.variant_beta)
+        elif args.intervention == "edge_weight_shift":
+            common_meta["edge_from"] = int(args.edge_from)
+            common_meta["edge_to"] = int(args.edge_to)
+            common_meta["variant_edge_weight"] = float(args.variant_edge_weight)
+        else:
+            common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:
             common_meta["topology"] = topo_meta
         br = rollout_to_replay_dict(baseline_rr)

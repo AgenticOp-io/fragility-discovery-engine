@@ -36,7 +36,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (manifest JSON, hypervolume proxies, scheduled workflows) remains optional backlog.
 
-**Phase I (network explanation grammar) is partially adopted** — base-panic and contagion-β counterfactuals + docs; see **`BOUNDARIES.md` (Phase I)**. DAG / ε-sweep backlog remains.
+**Phase I (network explanation grammar)** — see **`BOUNDARIES.md` (Phase I)** for shipped counterfactuals, ε-sweeps, merges, chains, and path traces.
 
 ### Phase H — Fragility certificates & benchmark harness
 
@@ -80,8 +80,9 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] CLI `export_counterfactual --intervention …` + `BOUNDARIES.md` Phase I.
 - [x] Worked example: [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md).
 - [x] Scalar ε-sweeps (`explain/sweep.py`, `counterfactual_epsilon_sweep.py`).
+- [x] Linear explanation trace from sweeps (`explain/trace.py`, `--emit-trace`); aggregate `initial_panic` sweep.
 
-**Phase I partial adoption** — explanation DAG remains backlog.
+**Phase I partial adoption** — star-merge, single-edge weights, cumulative mutation chains, and **path traces** over intermediate chain rollouts (`explanation-mutation-chain-path-v1`) are shipped.
 
 ---
 
@@ -89,7 +90,9 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Purpose:** Demonstrate that the **architecture** is the product—not only the stablecoin toy.
 
-**Candidates (pick one when gate opens):**
+**Scaffold shipped:** `ResourceCascadeWorld` + `rollout_resource_cascade` — see [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md).
+
+**Candidates (pick one when gate opens — canonical narrative still open):**
 
 - Contagion + resource allocation on a **different** liability structure (not crypto-themed).
 - Infrastructure-style **cascade** with overload + recovery (still discrete-time, still thin agents).
@@ -101,9 +104,10 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Exit criteria (candidate):**
 
-- [ ] New `world/` module + replay schema compatibility table (what transfers unchanged).
-- [ ] GA + (optional) co-evolution smoke + **determinism tests**.
-- [ ] README “Why this domain” ≤ 1 page; link to limits / non-goals.
+- [x] New `world/` module + replay schema compatibility table — [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md).
+- [x] GA smoke + determinism tests — `scripts/run_resource_cascade_ga_demo.py`, `tests/test_resource_cascade_rollout.py`, `tests/test_replay_contract_resource_cascade.py`.
+- [x] README “Why this domain” ≤ 1 page — [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) (+ root README pointer).
+- [ ] Co-evolution / Pareto on `ResourceCascadeWorld` optional backlog.
 
 ---
 

@@ -2,7 +2,7 @@
 
 This folder documents **frozen deterministic bundles** implemented in code:
 
-- `fragility_engine.benchmarks.suite` — three bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`).
+- `fragility_engine.benchmarks.suite` — four bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, **`resource_cascade_rollout_v1`** — Phase J scaffold).
 - Golden scalars live beside the runners (`GOLDEN_METRICS`); CI asserts relaxed numerical agreement.
 
 ## Reproduce locally
@@ -17,6 +17,12 @@ JSON output (no validation):
 
 ```powershell
 python scripts/run_benchmark_suite.py --json
+```
+
+Portable inventory (`benchmark-manifest-v1`):
+
+```powershell
+python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifest.json
 ```
 
 ## Cite a bundle

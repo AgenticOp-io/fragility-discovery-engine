@@ -3,13 +3,34 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_bundle_to_jsonable,
     counterfactual_network_base_panic_with_rollouts,
     counterfactual_network_contagion_beta_with_rollouts,
+    counterfactual_network_edge_weight_with_rollouts,
+    counterfactual_network_neighbor_edges_weight_patch_with_rollouts,
     counterfactual_remove_steps,
     counterfactual_remove_steps_with_rollouts,
+    neighbor_lists_explicit_weights,
+    out_edge_index,
+    parse_neighbor_edges_patch,
     rollout_snapshot,
 )
+from fragility_engine.explain.counterfactual_chain import (
+    CHAIN_SPEC_SCHEMA,
+    counterfactual_network_mutation_chain_with_rollouts,
+    mutation_chain_path_rollouts,
+    parse_chain_spec_payload,
+)
+from fragility_engine.explain.interaction_summary import INTERACTION_SUMMARY_SCHEMA, summarize_attribution_merge
+from fragility_engine.explain.merge_attribution import SCHEMA as ATTRIBUTION_MERGE_SCHEMA
+from fragility_engine.explain.merge_attribution import merge_heterogeneous_counterfactuals
 from fragility_engine.explain.minimal_collapse import minimize_schedule, minimize_schedule_with_rollout
 from fragility_engine.explain.sweep import SCHEMA as COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA
-from fragility_engine.explain.sweep import sweep_network_scalar_axis
+from fragility_engine.explain.sweep import (
+    sweep_aggregate_initial_panic,
+    sweep_network_edge_weight,
+    sweep_network_scalar_axis,
+)
+from fragility_engine.explain.trace import CHAIN_PATH_TRACE_SCHEMA as EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA
+from fragility_engine.explain.trace import TRACE_SCHEMA as EXPLANATION_TRACE_SCHEMA
+from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace, mutation_chain_path_to_trace
 
 __all__ = [
     "minimize_schedule",
@@ -18,9 +39,28 @@ __all__ = [
     "counterfactual_remove_steps_with_rollouts",
     "counterfactual_network_base_panic_with_rollouts",
     "counterfactual_network_contagion_beta_with_rollouts",
+    "counterfactual_network_edge_weight_with_rollouts",
+    "counterfactual_network_neighbor_edges_weight_patch_with_rollouts",
+    "parse_neighbor_edges_patch",
+    "neighbor_lists_explicit_weights",
+    "out_edge_index",
+    "merge_heterogeneous_counterfactuals",
+    "summarize_attribution_merge",
+    "counterfactual_network_mutation_chain_with_rollouts",
+    "mutation_chain_path_rollouts",
+    "parse_chain_spec_payload",
+    "CHAIN_SPEC_SCHEMA",
     "compare_rollouts",
     "rollout_snapshot",
     "counterfactual_bundle_to_jsonable",
     "sweep_network_scalar_axis",
+    "sweep_network_edge_weight",
+    "sweep_aggregate_initial_panic",
+    "linear_epsilon_sweep_to_trace",
+    "mutation_chain_path_to_trace",
     "COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA",
+    "ATTRIBUTION_MERGE_SCHEMA",
+    "INTERACTION_SUMMARY_SCHEMA",
+    "EXPLANATION_TRACE_SCHEMA",
+    "EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA",
 ]

@@ -7,6 +7,7 @@ import numpy as np
 from fragility_engine.adversary.encoding import decode_schedule, schedule_attack_cost
 from fragility_engine.coevolution.defender import build_defended_aggregate_world, build_defended_network_world
 from fragility_engine.types import RolloutResult, TrajectoryStep
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -152,6 +153,77 @@ def rollout_stablecoin_network(
     )
 
 
+def rollout_resource_cascade(
+    world_template: ResourceCascadeWorld,
+    genome: np.ndarray,
+    *,
+    seed: int,
+    initial_overload: float = 0.05,
+    continue_after_collapse: bool = False,
+) -> RolloutResult:
+    """Phase J reference rollout — same schedule decoding as aggregate/network (``decode_schedule``)."""
+
+    world = ResourceCascadeWorld(
+        population=world_template.population,
+        cascade_coupling=world_template.cascade_coupling,
+        overload_decay=world_template.overload_decay,
+        rumor_gain=world_template.rumor_gain,
+        reserve_hit_primary=world_template.reserve_hit_primary,
+        reserve_hit_secondary=world_template.reserve_hit_secondary,
+        redeem_damage_primary=world_template.redeem_damage_primary,
+        collapse_headroom=world_template.collapse_headroom,
+        recovery_headroom=world_template.recovery_headroom,
+        max_steps=world_template.max_steps,
+    )
+    world.reset(initial_overload=float(initial_overload))
+    world.population.reset(initial_supply=1_000_000.0, rng=np.random.default_rng(seed ^ 0x9E3779B9))
+
+    schedule = decode_schedule(genome)
+    attack_cost = schedule_attack_cost(schedule)
+
+    trajectory: list[TrajectoryStep] = []
+    collapsed = False
+    collapse_timestep: int | None = None
+    peak_instability = 0.0
+    integral_instability = 0.0
+
+    for t in range(world.max_steps):
+        events = schedule.get(t, ())
+        step_rng = np.random.default_rng(seed + 17 * (t + 1))
+        step = world.step(events, step_rng)
+        trajectory.append(step)
+        inst = float(step.metrics["instability"])
+        peak_instability = max(peak_instability, inst)
+        integral_instability += inst
+
+        if world.is_collapsed():
+            if collapse_timestep is None:
+                collapse_timestep = t
+                collapsed = True
+            if not continue_after_collapse:
+                break
+
+    recovery_timestep = _recovery_timestep(
+        trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        continue_after_collapse=continue_after_collapse,
+        depeg_threshold=world.depeg_threshold,
+    )
+
+    return RolloutResult(
+        trajectory=trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        final_instability=peak_instability,
+        seed=seed,
+        attack_cost=attack_cost,
+        simulation_mode="resource_cascade",
+        integral_instability=float(integral_instability),
+        recovery_timestep=recovery_timestep,
+    )
+
+
 def _recovery_timestep(
     trajectory: list[TrajectoryStep],
     *,
@@ -220,7 +292,7 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
     Top-level keys:
 
     - ``schema_version`` (`str`) — bump when fields change; viewers should branch on this.
-    - ``simulation_mode`` (`str`) — ``aggregate`` or ``network``.
+    - ``simulation_mode`` (`str`) — ``aggregate``, ``network``, or ``resource_cascade`` (Phase J scaffold).
     - ``attack_cost`` (`float`) — abstract schedule cost from ``schedule_attack_cost``
       (:mod:`fragility_engine.adversary.encoding`).
     - ``integral_instability`` (`float`) — sum of per-step ``metrics["instability"]``.

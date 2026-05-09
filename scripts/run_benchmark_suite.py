@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from fragility_engine.benchmarks import BUNDLE_IDS, run_benchmark_suite, validate_benchmark_suite
 
@@ -17,7 +18,18 @@ def main() -> None:
         help="Exit non-zero if any bundle deviates from golden metrics.",
     )
     ap.add_argument("--json", action="store_true", help="Print results as JSON array.")
+    ap.add_argument(
+        "--manifest-out",
+        type=Path,
+        default=None,
+        help="Write benchmark-manifest-v1 JSON (bundle inventory + schema fingerprints).",
+    )
     args = ap.parse_args()
+
+    if args.manifest_out is not None:
+        from fragility_engine.benchmarks.manifest import build_benchmark_manifest
+
+        args.manifest_out.write_text(json.dumps(build_benchmark_manifest(), indent=2), encoding="utf-8")
 
     if args.validate:
         try:

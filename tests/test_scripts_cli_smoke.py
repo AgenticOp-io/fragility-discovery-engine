@@ -298,6 +298,31 @@ def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> Non
         assert "Skipping --export-minimized-replay" in proc.stderr
 
 
+def test_run_resource_cascade_ga_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "rc_ga.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_resource_cascade_ga_demo.py"),
+            "--generations",
+            "2",
+            "--population-size",
+            "8",
+            "--seed",
+            "919",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "resource_cascade"
+    assert data["meta"]["cli"] == "run_resource_cascade_ga_demo"
+    assert data["meta"]["domain"] == "resource_cascade"
+    assert data["trajectory"]
+
+
 def test_run_coevolution_aggregate_continue_after_collapse(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "coev_cont.json"
     subprocess.run(
@@ -829,12 +854,275 @@ def test_export_counterfactual_beta_shift_cli(py_exe: str, tmp_path: Path) -> No
     assert payload["intervention"] == "network_contagion_beta_shift"
 
 
+def test_export_counterfactual_edge_weight_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl_ew.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    out = tmp_path / "cf_ew.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "network",
+            "--neighbor-json",
+            str(nb),
+            "--horizon",
+            "9",
+            "--intervention",
+            "edge_weight_shift",
+            "--edge-from",
+            "0",
+            "--edge-to",
+            "1",
+            "--variant-edge-weight",
+            "3.5",
+            "--seed",
+            "8805",
+            "--genome-seed",
+            "29",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["meta"]["intervention"] == "edge_weight_shift"
+    assert payload["intervention"] == "network_neighbor_edge_weight_shift"
+
+
+def test_export_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl_chain.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    spec = tmp_path / "chain.json"
+    spec.write_text(
+        '{"schema": "network-mutation-chain-spec-v1", "steps": ['
+        '{"kind": "contagion_beta", "value": 0.15}, '
+        '{"kind": "edge_weight", "from": 0, "to": 1, "weight": 3.0}'
+        "]}",
+        encoding="utf-8",
+    )
+    out = tmp_path / "cf_chain.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--neighbor-json",
+            str(nb),
+            "--horizon",
+            "9",
+            "--seed",
+            "9101",
+            "--genome-seed",
+            "51",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "network_mutation_chain"
+    assert len(payload["mutation_steps"]) == 2
+    assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-v1"
+    assert len(payload["path_trace"]["edges"]) == 2
+
+
+def test_merge_counterfactual_attribution_cli(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl_merge.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    common = [
+        py_exe,
+        str(ROOT / "scripts" / "export_counterfactual.py"),
+        "--mode",
+        "network",
+        "--neighbor-json",
+        str(nb),
+        "--horizon",
+        "8",
+        "--base-panic",
+        "0.06",
+        "--seed",
+        "7701",
+        "--genome-seed",
+        "31",
+    ]
+    a = tmp_path / "cf_a.json"
+    subprocess.run(
+        [
+            *common,
+            "--intervention",
+            "base_panic_shift",
+            "--base-panic",
+            "0.06",
+            "--variant-base-panic",
+            "0.14",
+            "--out",
+            str(a),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    b = tmp_path / "cf_b.json"
+    subprocess.run(
+        [
+            *common,
+            "--intervention",
+            "edge_weight_shift",
+            "--edge-from",
+            "0",
+            "--edge-to",
+            "1",
+            "--variant-edge-weight",
+            "2.0",
+            "--out",
+            str(b),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    merged_path = tmp_path / "merged.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "merge_counterfactual_attribution.py"),
+            "--inputs",
+            str(a),
+            str(b),
+            "--out",
+            str(merged_path),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    merged = json.loads(merged_path.read_text(encoding="utf-8"))
+    assert merged["schema"] == "attribution-merge-v1"
+    assert merged["branch_count"] == 2
+    assert len(merged["edges"]) == 2
+
+
+def test_summarize_attribution_merge_cli(py_exe: str, tmp_path: Path) -> None:
+    merged_path = tmp_path / "merge_min.json"
+    merged_path.write_text(
+        json.dumps(
+            {
+                "schema": "attribution-merge-v1",
+                "strict_baseline": True,
+                "branch_count": 1,
+                "nodes": [],
+                "edges": [
+                    {
+                        "from": "baseline",
+                        "to": "branch_0",
+                        "intervention": "t",
+                        "delta_integral_instability": -0.5,
+                        "delta_attack_cost": 0.25,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    out = tmp_path / "inter_summary.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "summarize_attribution_merge.py"),
+            "--input",
+            str(merged_path),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    s = json.loads(out.read_text(encoding="utf-8"))
+    assert s["schema"] == "attribution-interaction-summary-v1"
+    assert s["sum_branch_delta_integral_instability"] == -0.5
+
+
+def test_export_counterfactual_edge_weights_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl_multi.json"
+    nb.write_text("[[1,2],[0],[0]]", encoding="utf-8")
+    patch = tmp_path / "patch.json"
+    patch.write_text(
+        json.dumps(
+            [
+                {"from": 0, "to": 1, "weight": 4.0},
+                {"from": 0, "to": 2, "weight": 0.8},
+            ]
+        ),
+        encoding="utf-8",
+    )
+    out = tmp_path / "cf_multi.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "network",
+            "--neighbor-json",
+            str(nb),
+            "--horizon",
+            "9",
+            "--intervention",
+            "edge_weights_shift",
+            "--edges-patch-json",
+            str(patch),
+            "--seed",
+            "8806",
+            "--genome-seed",
+            "30",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "network_neighbor_edges_weight_patch"
+    assert len(payload["edges_patch"]) == 2
+
+
+def test_run_benchmark_manifest_out_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "manifest.json"
+    subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "run_benchmark_suite.py"), "--manifest-out", str(out)],
+        check=True,
+        cwd=str(ROOT),
+    )
+    m = json.loads(out.read_text(encoding="utf-8"))
+    assert m["schema"] == "benchmark-manifest-v1"
+    assert m["bundle_count"] >= 3
+
+
+def test_frozen_json_digest_cli(py_exe: str, tmp_path: Path) -> None:
+    j = tmp_path / "blob.json"
+    j.write_text('{"x": 1}', encoding="utf-8")
+    proc = subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "frozen_json_digest.py"), str(j), "--json-out", str(tmp_path / "dig.json")],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert len(proc.stdout.strip()) > 10
+    dig = json.loads((tmp_path / "dig.json").read_text(encoding="utf-8"))
+    assert dig["schema"] == "frozen-json-digest-v1"
+    assert len(dig["files"]) == 1
+
+
 def test_counterfactual_epsilon_sweep_cli(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "eps.json"
     subprocess.run(
         [
             py_exe,
             str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "network",
             "--axis",
             "base_panic",
             "--values",
@@ -856,6 +1144,77 @@ def test_counterfactual_epsilon_sweep_cli(py_exe: str, tmp_path: Path) -> None:
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["schema"] == "counterfactual-epsilon-sweep-v1"
     assert data["summary"]["count"] == 2
+    assert data["mode"] == "network"
+
+
+def test_counterfactual_epsilon_sweep_edge_weight_cli(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl_eps_ew.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    out = tmp_path / "eps_ew.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "network",
+            "--axis",
+            "edge_weight",
+            "--values",
+            "0.25,1.0,4.0",
+            "--neighbor-json",
+            str(nb),
+            "--edge-from",
+            "0",
+            "--edge-to",
+            "1",
+            "--horizon",
+            "9",
+            "--rollout-seed",
+            "9905",
+            "--genome-seed",
+            "44",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["axis"] == "edge_weight"
+    assert data["summary"]["count"] == 3
+
+
+def test_counterfactual_epsilon_sweep_aggregate_and_trace_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps_agg.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "aggregate",
+            "--axis",
+            "initial_panic",
+            "--values",
+            "0.05,0.08",
+            "--horizon",
+            "11",
+            "--rollout-seed",
+            "9903",
+            "--genome-seed",
+            "43",
+            "--emit-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["axis"] == "initial_panic"
+    assert data["mode"] == "aggregate"
+    assert "trace" in data
+    assert data["trace"]["schema"] == "explanation-trace-v1"
+    assert len(data["trace"]["edges"]) == 1
 
 
 def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:

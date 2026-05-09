@@ -202,18 +202,45 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 - **`network_base_panic_shift`** — baseline vs variant uniform `base_panic` at `StablecoinNetworkWorld.reset`.
 - **`network_contagion_beta_shift`** — topology-preserving clones with different `contagion_beta` (`clone_stablecoin_network`).
-- CLI: `--intervention remove_steps|base_panic_shift|contagion_beta_shift` (network-only for the latter two).
+- CLI: `--intervention remove_steps|base_panic_shift|contagion_beta_shift|edge_weight_shift` (network-only for the physics shifts; **edge_weight_shift** requires **`--neighbor-json`**).
 
-**Backlog (not gates yet):** mechanical explanation DAG JSON, aggregate `initial_panic` pairing, edge-weight counterfactuals on neighbor JSON.
+**Shipped backlog slices (Phase I extension):**
 
-**Shipped backlog slice:** deterministic ε-sweeps — `fragility_engine.explain.sweep`, `scripts/counterfactual_epsilon_sweep.py`, `tests/test_explain_sweep.py`.
+- **Neighbor edge-weight counterfactual** — single directed out-edge weight on list topology (`counterfactual_network_edge_weight_with_rollouts`, `clone_stablecoin_network(..., neighbor_weights=…)`).
+- **Merged attribution graph** — `merge_heterogeneous_counterfactuals` + schema **`attribution-merge-v1`**; CLI `scripts/merge_counterfactual_attribution.py`.
+- **ε-sweep** axis **`edge_weight`** (`sweep_network_edge_weight`, `counterfactual_epsilon_sweep.py`) when **`--neighbor-json`** + **`--edge-from` / `--edge-to`** are set.
+
+**Ordered chains (shipped):** cumulative mutations on a template clone — `counterfactual_network_mutation_chain_with_rollouts`, chain spec **`network-mutation-chain-spec-v1`**, CLI **`scripts/export_counterfactual_chain.py`** (`contagion_beta` and `edge_weight` steps).
+
+**Path trace (shipped):** `--emit-path-trace` on `export_counterfactual_chain.py` emits **`explanation-mutation-chain-path-v1`** (`mutation_chain_path_rollouts`, `mutation_chain_path_to_trace`).
+
+**Multi-edge weights (shipped):** `counterfactual_network_neighbor_edges_weight_patch_with_rollouts`, `--intervention edge_weights_shift` + **`--edges-patch-json`**; chain step **`edge_weights_patch`**.
+
+**Additive interaction summary (shipped):** `summarize_attribution_merge` → **`attribution-interaction-summary-v1`** (`explain/interaction_summary.py`, `scripts/summarize_attribution_merge.py`) — sum of branch deltas with explicit non-identification disclaimer.
+
+**Static viewer (shipped):** `artifacts/attribution_viewer/index.html` for **`attribution-merge-v1`** and mutation-chain path traces.
+
+**Backlog (not gates yet):** formal joint-intervention bundles + Shapley-style decompositions; GA/search integration on Phase J domain.
+
+**Earlier shipped backlog slices:**
+
+- ε-sweeps — `explain/sweep.py`, `counterfactual_epsilon_sweep.py` (**network** `base_panic` / `contagion_beta`, **aggregate** `initial_panic`).
+- Linear trace — `explain/trace.py` (`explanation-trace-v1`, `--emit-trace` on epsilon sweep CLI).
 
 **Exit criteria:**
 
 - [x] ≥2 network-only intervention families beyond timestep deletion (`counterfactual_network_*_with_rollouts`, `tests/test_counterfactual_network_interventions.py`).
 - [x] CLI semantics documented in `--help` and this section; subprocess smoke (`tests/test_scripts_cli_smoke.py`).
 - [x] Worked example with commands (`docs/network_counterfactual_example.md`).
-- [x] Deterministic ε-sweeps over **base_panic** / **contagion_beta** (`explain/sweep.py`, `scripts/counterfactual_epsilon_sweep.py`, `tests/test_explain_sweep.py`, `tests/test_scripts_cli_smoke.py`).
+- [x] Deterministic ε-sweeps (**network** `base_panic` / `contagion_beta`, **aggregate** `initial_panic`) + optional linear trace (`explain/trace.py`, `tests/test_explain_trace.py`, `tests/test_scripts_cli_smoke.py`).
+
+### Phase J — Second reference domain (scaffold shipped)
+
+**Status:** `world/resource_cascade.py` — **`ResourceCascadeWorld`** + **`runner.rollout_resource_cascade`** (schedule encoding matches aggregate/network; physics is capacity + overload cascade, not a peg). GA smoke CLI: **`scripts/run_resource_cascade_ga_demo.py`**.
+
+**Purpose:** architecture transfer demo without relaxing stablecoin CI oracles.
+
+**Normative exit criteria** remain in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) (e.g. optional co-evolution on this domain). Replay compatibility: [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md). Motivation ≤ 1 page: [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md). Phase **H** bundle: **`resource_cascade_rollout_v1`** (`benchmarks/suite.py`).
 
 ## Fitness function discipline
 

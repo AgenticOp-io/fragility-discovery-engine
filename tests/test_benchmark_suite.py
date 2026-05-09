@@ -6,8 +6,9 @@ from fragility_engine.benchmarks import BUNDLE_IDS, assert_bundle_matches_golden
 from fragility_engine.benchmarks.suite import run_aggregate_rollout_v1
 
 
-def test_benchmark_bundle_registry_has_three_ids():
-    assert len(BUNDLE_IDS) == 3
+def test_benchmark_bundle_registry_has_expected_ids():
+    assert len(BUNDLE_IDS) == 4
+    assert "resource_cascade_rollout_v1" in BUNDLE_IDS
 
 
 def test_validate_benchmark_suite_passes():

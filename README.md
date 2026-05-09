@@ -21,6 +21,8 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — phases I–L plus moonshots; **Phase H** (benchmark harness + ensemble robustness slice) is **normative** in [`BOUNDARIES.md`](BOUNDARIES.md).
 
+**Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim.
+
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
 ## Quick start
@@ -43,6 +45,7 @@ python scripts/run_ga_demo.py
 | `scripts/run_mc_demo.py` | Monte Carlo random schedules (`--export-replay`, `--continue-after-collapse`) |
 | `scripts/export_minimized_replay.py` | Random collapsing schedule → greedy minimization → replay JSON |
 | `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
+| `scripts/run_resource_cascade_ga_demo.py` | Phase **J** scaffold: GA + minimization on **`ResourceCascadeWorld`** (`--initial-overload`, same export flags); see [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--neighbor-json` / `--neighbor-weights-json`, `--export-replay`, sizing flags) |
 | `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`) or network (`--base-panic`, synthetic topology flags **or** `--neighbor-json`, `--continue-after-collapse`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
@@ -56,7 +59,7 @@ python scripts/run_ga_demo.py
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
-| `scripts/counterfactual_epsilon_sweep.py` | Phase I: sweep **`base_panic`** or **`contagion_beta`** (`--values`, topology flags); see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4 |
+| `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network`**; axes **`initial_panic`** / **`base_panic`** / **`contagion_beta`**; **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 

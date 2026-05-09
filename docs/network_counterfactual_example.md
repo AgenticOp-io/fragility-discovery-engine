@@ -2,6 +2,18 @@
 
 All commands assume repo root and `pip install -e ".[dev]"`.
 
+Multi-edge weights (one JSON patch file listing several directed out-edges):
+
+```powershell
+Set-Content -Path artifacts/tmp_patch.json -Value '[{"from":0,"to":1,"weight":3},{"from":1,"to":0,"weight":2}]'
+python scripts/export_counterfactual.py `
+  --mode network --neighbor-json artifacts/tmp_nl.json --horizon 10 `
+  --intervention edge_weights_shift --edges-patch-json artifacts/tmp_patch.json `
+  --seed 7203 --genome-seed 54 --out artifacts/tmp_cf_multi_edge.json
+```
+
+Chain specs may include `"kind": "edge_weights_patch", "edges": [ ... ]` alongside `contagion_beta` steps.
+
 ## 1. Baseline vs higher uniform **base panic** (same genome + rollout seed)
 
 ```powershell
@@ -63,3 +75,86 @@ python scripts/counterfactual_epsilon_sweep.py `
 ```
 
 Schema: `counterfactual-epsilon-sweep-v1` (`fragility_engine.explain.sweep`).
+
+## 5. Aggregate **initial_panic** sweep + linear trace
+
+```powershell
+python scripts/counterfactual_epsilon_sweep.py `
+  --mode aggregate --axis initial_panic `
+  --values "0.04,0.07,0.11" `
+  --horizon 14 --rollout-seed 6100 --genome-seed 88 `
+  --emit-trace `
+  --out artifacts/tmp_sweep_agg.json
+```
+
+`--emit-trace` adds **`explanation-trace-v1`**: a path graph linking consecutive runs with `delta_integral_instability` / `delta_attack_cost` (mechanical, not causal identification).
+
+## 6. Neighbor-list **edge weight** counterfactual + merged attribution
+
+Directed edge **0 → 1** on list topology `[[1],[0]]` — bump only that out-edge weight on the counterfactual clone (baseline keeps implicit uniform weights when weights JSON is omitted):
+
+```powershell
+python scripts/export_counterfactual.py `
+  --mode network --neighbor-json artifacts/tmp_nl.json --horizon 10 `
+  --intervention edge_weight_shift `
+  --edge-from 0 --edge-to 1 --variant-edge-weight 4.0 `
+  --base-panic 0.06 --seed 7201 --genome-seed 40 `
+  --out artifacts/tmp_cf_edgew.json
+```
+
+ε-sweep several weights on the same edge (still fixed genome + rollout seed):
+
+```powershell
+python scripts/counterfactual_epsilon_sweep.py `
+  --axis edge_weight --values "0.3,1.0,5.0" `
+  --neighbor-json artifacts/tmp_nl.json --edge-from 0 --edge-to 1 `
+  --horizon 10 --rollout-seed 7301 --genome-seed 41 `
+  --out artifacts/tmp_sweep_edgew.json
+```
+
+Merge two or more **`export_counterfactual`** JSON files into one star-shaped **`attribution-merge-v1`** (baseline snapshots must agree unless `--no-strict-baseline`):
+
+```powershell
+python scripts/merge_counterfactual_attribution.py `
+  --inputs artifacts/tmp_cf_panic.json artifacts/tmp_cf_edgew.json `
+  --out artifacts/tmp_merge_attr.json
+```
+
+## 7. **Ordered mutation chain** (cumulative physics on one clone)
+
+Chain spec JSON (`network-mutation-chain-spec-v1`): steps run in order on a template clone; the counterfactual rollout uses the **final** clone vs the **original** template (same genome + rollout seed). Include **`edge_weight`** steps only with **`--neighbor-json`**.
+
+Example spec file `artifacts/tmp_chain.json`:
+
+```json
+{
+  "schema": "network-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "contagion_beta", "value": 0.18},
+    {"kind": "edge_weight", "from": 0, "to": 1, "weight": 4.5}
+  ]
+}
+```
+
+```powershell
+python scripts/export_counterfactual_chain.py `
+  --chain-json artifacts/tmp_chain.json `
+  --neighbor-json artifacts/tmp_nl.json `
+  --horizon 10 --base-panic 0.06 --seed 7401 --genome-seed 52 `
+  --out artifacts/tmp_cf_chain.json
+```
+
+Optional **`--variant-base-panic`** sets reset panic for the chain rollout only.
+
+**Path trace** (one rollout per cumulative prefix; schema **`explanation-mutation-chain-path-v1`**):
+
+```powershell
+python scripts/export_counterfactual_chain.py `
+  --chain-json artifacts/tmp_chain.json `
+  --neighbor-json artifacts/tmp_nl.json `
+  --horizon 10 --seed 7402 --genome-seed 53 `
+  --emit-path-trace `
+  --out artifacts/tmp_cf_chain_trace.json
+```
+
+Intermediate nodes use **`--base-panic`**; only the **final** node uses **`--variant-base-panic`** when set (edges record `reset_panic_from` / `reset_panic_to`).
