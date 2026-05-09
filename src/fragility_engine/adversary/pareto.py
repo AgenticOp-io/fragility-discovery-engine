@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+
+from fragility_engine.adversary.fitness import severity_score
+from fragility_engine.types import RolloutResult
+
+
+@dataclass(frozen=True)
+class ParetoPoint:
+    genome: np.ndarray
+    severity: float
+    attack_cost: float
+    collapsed: bool
+
+
+def pareto_indices(severity: np.ndarray, attack_cost: np.ndarray) -> list[int]:
+    """Maximize severity, minimize attack_cost (pairwise dominance in 2D)."""
+
+    n = severity.shape[0]
+    keep: list[int] = []
+    for i in range(n):
+        dominated = False
+        for j in range(n):
+            if i == j:
+                continue
+            better_or_equal = severity[j] >= severity[i] and attack_cost[j] <= attack_cost[i]
+            strictly_better = severity[j] > severity[i] or attack_cost[j] < attack_cost[i]
+            if better_or_equal and strictly_better:
+                dominated = True
+                break
+        if not dominated:
+            keep.append(i)
+    return keep
+
+
+def rollout_cloud_to_pareto(genomes: list[np.ndarray], rollouts: list[RolloutResult]) -> list[ParetoPoint]:
+    sev = np.array([severity_score(r) for r in rollouts], dtype=np.float64)
+    cost = np.array([r.attack_cost for r in rollouts], dtype=np.float64)
+    idx = pareto_indices(sev, cost)
+    return [
+        ParetoPoint(genome=genomes[i].copy(), severity=float(sev[i]), attack_cost=float(cost[i]), collapsed=rollouts[i].collapsed)
+        for i in idx
+    ]

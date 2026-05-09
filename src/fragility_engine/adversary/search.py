@@ -6,6 +6,7 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.adversary.encoding import crossover_genome, mutate_genome, random_genome
+from fragility_engine.adversary.fitness import fitness_phase_a
 from fragility_engine.types import RolloutResult, SearchResult
 
 
@@ -15,24 +16,26 @@ def monte_carlo_search(
     horizon: int,
     samples: int,
     seed: int,
+    fitness_fn: Callable[[RolloutResult], float] | None = None,
 ) -> SearchResult:
+    score = fitness_fn or fitness_phase_a
     rng = np.random.default_rng(seed)
     best_genome = random_genome(horizon, rng)
     best_rollout = rollout_fn(best_genome, seed + 1)
-    best_fitness = _fitness_from_rollout(best_rollout)
+    best_fitness = float(score(best_rollout))
 
     history: list[dict[str, Any]] = []
     for i in range(samples):
         g = random_genome(horizon, rng)
         r = rollout_fn(g, seed + 2 + i)
-        fitness = _fitness_from_rollout(r)
+        fitness = float(score(r))
         history.append({"sample": i, "fitness": fitness, "collapsed": r.collapsed})
         if fitness > best_fitness:
             best_fitness = fitness
             best_genome = g
             best_rollout = r
 
-    return SearchResult(best_genome=best_genome, best_fitness=float(best_fitness), best_rollout=best_rollout, history=history)
+    return SearchResult(best_genome=best_genome, best_fitness=best_fitness, best_rollout=best_rollout, history=history)
 
 
 def genetic_search(
@@ -45,13 +48,16 @@ def genetic_search(
     elite_frac: float = 0.2,
     mutation_rate: float = 0.18,
     mutation_sigma: float = 0.14,
+    fitness_fn: Callable[[RolloutResult], float] | None = None,
 ) -> SearchResult:
+    score = fitness_fn or fitness_phase_a
     rng = np.random.default_rng(seed)
     population = [random_genome(horizon, rng) for _ in range(population_size)]
 
     best_fitness = -np.inf
     best_genome = population[0]
     best_rollout = rollout_fn(best_genome, seed + 7)
+    best_fitness = float(score(best_rollout))
     history: list[dict[str, Any]] = []
 
     for gen in range(generations):
@@ -59,7 +65,7 @@ def genetic_search(
         rollouts: list[RolloutResult] = []
         for idx, individual in enumerate(population):
             rr = rollout_fn(individual, seed + 1000 + gen * population_size + idx)
-            fit = _fitness_from_rollout(rr)
+            fit = float(score(rr))
             fitnesses.append(fit)
             rollouts.append(rr)
             if fit > best_fitness:
@@ -95,20 +101,4 @@ def genetic_search(
 
         population = next_pop[:population_size]
 
-    return SearchResult(best_genome=best_genome, best_fitness=float(best_fitness), best_rollout=best_rollout, history=history)
-
-
-def _fitness_from_rollout(r: RolloutResult) -> float:
-    """
-    Phase A scalar fitness (see `BOUNDARIES.md` Phase C for planned extensions):
-
-        fitness = peak_instability_along_rollout + speed_bonus
-        speed_bonus = 10 / (1 + collapse_timestep)   if collapsed else 0
-
-    `RolloutResult.final_instability` stores the peak instability observed during the rollout.
-    """
-
-    speed_bonus = 0.0
-    if r.collapsed and r.collapse_timestep is not None:
-        speed_bonus = 10.0 / (1 + r.collapse_timestep)
-    return float(r.final_instability + speed_bonus)
+    return SearchResult(best_genome=best_genome, best_fitness=best_fitness, best_rollout=best_rollout, history=history)

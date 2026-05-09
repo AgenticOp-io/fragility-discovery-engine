@@ -34,6 +34,8 @@ class RolloutResult:
     collapse_timestep: int | None
     final_instability: float
     seed: int
+    attack_cost: float = 0.0
+    simulation_mode: str = "aggregate"
 
 
 @dataclass

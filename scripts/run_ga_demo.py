@@ -27,6 +27,7 @@ def main() -> None:
     )
 
     print("best_fitness=", round(search.best_fitness, 5))
+    print("attack_cost=", round(search.best_rollout.attack_cost, 5))
     print("collapsed=", search.best_rollout.collapsed, "at", search.best_rollout.collapse_timestep)
 
     minimized = minimize_schedule(search.best_genome, evaluator, base_seed=424242)

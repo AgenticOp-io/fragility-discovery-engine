@@ -7,6 +7,13 @@ from fragility_engine.types import ExogenousEvent, ShockKind
 
 SHOCK_KINDS: tuple[ShockKind, ...] = ("none", "reserve_loss", "rumor")
 
+# Abstract attacker budget units (not calibrated currency); tunable for search behavior.
+DEFAULT_ATTACK_COST_WEIGHTS: dict[ShockKind, float] = {
+    "none": 0.0,
+    "reserve_loss": 2.5,
+    "rumor": 1.0,
+}
+
 
 def decode_kind(index: int) -> ShockKind:
     return SHOCK_KINDS[int(index) % len(SHOCK_KINDS)]
@@ -34,6 +41,21 @@ def decode_schedule(genome: np.ndarray) -> dict[int, tuple[ExogenousEvent, ...]]
             continue
         events[t] = (ExogenousEvent(kind=kind, magnitude=mag),)
     return events
+
+
+def schedule_attack_cost(
+    schedule: dict[int, tuple[ExogenousEvent, ...]],
+    *,
+    weights: dict[ShockKind, float] | None = None,
+) -> float:
+    """Sum marginal attack costs for decoded shocks (magnitude scales linearly)."""
+
+    wmap = weights or DEFAULT_ATTACK_COST_WEIGHTS
+    total = 0.0
+    for events in schedule.values():
+        for e in events:
+            total += float(wmap[e.kind]) * float(np.clip(e.magnitude, 0.0, 1.0))
+    return float(total)
 
 
 def random_genome(horizon: int, rng: np.random.Generator) -> np.ndarray:

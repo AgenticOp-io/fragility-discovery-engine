@@ -27,9 +27,20 @@ python scripts/week1_smoke.py
 python scripts/run_ga_demo.py
 ```
 
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/week1_smoke.py` | Deterministic rollout smoke test |
+| `scripts/run_ga_demo.py` | GA + greedy minimization + replay stats |
+| `scripts/run_network_demo.py` | GA on **graph contagion** world |
+| `scripts/export_replay.py` | Write versioned `replay.json` |
+| `scripts/fragility_surface.py` | CSV grid scan (parameter fragility map, shocks off) |
+
 ## Week roadmap (suggested)
 
 1. CLI smoke + collapse metric — `scripts/week1_smoke.py`
 2. Evolutionary adversary — `scripts/run_ga_demo.py`
-3. Replay JSON + timeline scaffold — `fragility_engine.runner`
-4. Web UI — later; consume replay artifact only after engine stabilizes.
+3. Network contagion — `fragility_engine.network` + `StablecoinNetworkWorld`
+4. Replay JSON — `runner.rollout_to_replay_dict` (`schema_version` **0.2.0**)
+5. Web UI — later; consume replay artifact only after engine stabilizes.
