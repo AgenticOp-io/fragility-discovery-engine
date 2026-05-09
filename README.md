@@ -19,6 +19,8 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Scope creep guardrail:** read [`BOUNDARIES.md`](BOUNDARIES.md) before adding agents, graph models, multi-objective fitness, UI, or defender loops.
 
+**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — proposed phases H–L (certificates, network explanation grammar, second domain, scale, publication layer); promote into `BOUNDARIES.md` only when gated.
+
 ## Quick start
 
 ```powershell
