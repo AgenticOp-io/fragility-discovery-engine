@@ -63,11 +63,19 @@ def main() -> None:
         result = rollout_stablecoin_network(template, genome, seed=args.seed)
 
     payload = rollout_to_replay_dict(result)
-    payload["meta"] = {
+    meta = {
         "replay_schema": REPLAY_SCHEMA_VERSION,
         "cli": "export_replay",
         "mode": args.mode,
     }
+    if args.mode == "network":
+        meta["topology"] = {
+            "kind": "erdos_renyi",
+            "nodes": int(args.nodes),
+            "p": float(args.er_p),
+            "seed": int(args.graph_seed),
+        }
+    payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 

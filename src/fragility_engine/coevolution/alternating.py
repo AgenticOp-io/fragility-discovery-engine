@@ -19,6 +19,8 @@ class CoevolutionSummary:
     best_defender: np.ndarray | None = None
     last_attacker_search: SearchResult | None = None
     last_defender_search: SearchResult | None = None
+    #: Final probe rollout from the last completed round (attacker vs defender); ``None`` if ``rounds==0``.
+    last_rollout: RolloutResult | None = None
 
 
 def alternating_coevolution(
@@ -95,6 +97,7 @@ def alternating_coevolution(
             seed=baseline_seed_offset + rd,
             defender_genome=defender,
         )
+        summary.last_rollout = probe
         summary.rounds.append(
             {
                 "round": rd,

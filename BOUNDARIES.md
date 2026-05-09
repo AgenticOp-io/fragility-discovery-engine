@@ -132,6 +132,8 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Gate:** only after Phase C + D exist — otherwise co-evolution masks attribution bugs.
 
+**Implementation notes:** `alternating_coevolution` carries `last_rollout` (final probe). `scripts/run_coevolution.py --export-replay` emits replay JSON for the static viewer without changing the core schema.
+
 ## Fitness function discipline
 
 Current scalar fitness is **acceptable for Phase A**.

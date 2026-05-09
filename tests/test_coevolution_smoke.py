@@ -21,3 +21,6 @@ def test_alternating_coevolution_smoke():
     assert summary.best_attacker is not None
     assert summary.best_defender is not None
     assert len(summary.rounds) == 1
+    assert summary.last_rollout is not None
+    assert len(summary.last_rollout.trajectory) >= 1
+    assert summary.last_rollout.simulation_mode == "aggregate"

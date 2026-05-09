@@ -40,7 +40,7 @@ python scripts/run_ga_demo.py
 | `scripts/run_network_demo.py` | GA on **graph contagion** world |
 | `scripts/export_replay.py` | Write versioned `replay.json` (`--mode aggregate` or `--mode network`) |
 | `scripts/fragility_surface.py` | CSV grid scan (parameter fragility map, shocks off) |
-| `scripts/run_coevolution.py` | Alternating attacker/defender GA |
+| `scripts/run_coevolution.py` | Alternating attacker/defender GA (optional `--export-replay path.json`) |
 | `scripts/export_pareto_front.py` | Dump `pareto_front.json` (2-objective archive) |
 | `scripts/find_cheap_collapse.py` | GA with attack-cost penalty (Phase C demo) |
 | `scripts/export_counterfactual.py` | Write counterfactual attribution JSON |

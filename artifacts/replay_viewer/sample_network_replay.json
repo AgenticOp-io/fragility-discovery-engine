@@ -239,6 +239,12 @@
   "meta": {
     "replay_schema": "0.4.0",
     "cli": "export_replay",
-    "mode": "network"
+    "mode": "network",
+    "topology": {
+      "kind": "erdos_renyi",
+      "nodes": 28,
+      "p": 0.14,
+      "seed": 2026
+    }
   }
 }
