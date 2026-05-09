@@ -24,7 +24,7 @@
 <body>
   <strong>Pareto frontier viewer</strong>
   <div id="hint">
-    Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code>
+    Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code> (<code>--mode aggregate|network|resource_cascade</code>)
     or co-evolution via <code>run_coevolution.py --export-pareto-json</code> / <code>export_coevolution_pareto.py</code>.
     Axes: <strong>x = attack_cost</strong> (minimize), <strong>y = severity</strong> (maximize). Non-dominated points only (merged archive).
     Bundled sample: <code>sample_pareto_front.json</code> in this folder. <strong>Hover</strong> a point for archive index and metrics; click to pin, <kbd>←</kbd><kbd>→</kbd> to step.
@@ -134,12 +134,23 @@
       const maxC = Math.max(...costs);
       const minS = Math.min(...sevs);
       const maxS = Math.max(...sevs);
+      let ctxLine = '';
+      if (data.domain) ctxLine += `\ndomain: ${data.domain}`;
+      if (data.initial_overload !== undefined && data.initial_overload !== null) {
+        ctxLine += `\ninitial_overload: ${data.initial_overload}`;
+      }
+      if (data.topology && typeof data.topology === 'object') {
+        const t = data.topology;
+        const tag = t.kind ?? t.storage ?? 'topology';
+        ctxLine += `\ntopology: ${tag}${t.n_nodes != null ? ` (n=${t.n_nodes})` : ''}`;
+      }
       let block =
         `schema: ${data.schema ?? '?'}\n` +
         `best_fitness: ${data.best_fitness ?? '—'}\n` +
         `archive points: ${arch.length}\n` +
         `cost [${minC.toFixed(4)}, ${maxC.toFixed(4)}]\n` +
-        `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]`;
+        `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]` +
+        ctxLine;
       const hi = highlightIdx;
       if (hi !== null && hi !== undefined && arch[hi]) {
         const p = arch[hi];

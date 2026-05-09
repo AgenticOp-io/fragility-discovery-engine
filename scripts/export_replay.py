@@ -12,10 +12,12 @@ from fragility_engine.agents.stablecoin_agents import default_stablecoin_populat
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
+    rollout_resource_cascade,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -28,9 +30,9 @@ def main() -> None:
     p.add_argument("--genome-seed", type=int, default=42, help="RNG seed constructing random genome.")
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network"),
+        choices=("aggregate", "network", "resource_cascade"),
         default="aggregate",
-        help="aggregate = StablecoinPegWorld; network = contagion graph world (Phase B).",
+        help="aggregate=StablecoinPegWorld; network=contagion graph (B); resource_cascade=Phase J scaffold.",
     )
     p.add_argument(
         "--continue-after-collapse",
@@ -48,6 +50,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[network] uniform panic at reset on every node.",
+    )
+    p.add_argument(
+        "--initial-overload",
+        type=float,
+        default=0.05,
+        help="[resource_cascade] overload at reset [0,1].",
     )
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
     p.add_argument(
@@ -81,6 +89,7 @@ def main() -> None:
     genome = rng.uniform(size=(args.horizon, 2))
 
     cont = bool(args.continue_after_collapse)
+    topo_for_meta: dict | None = None
     if args.mode == "aggregate":
         template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=max(args.horizon, 48))
         result = rollout_stablecoin(
@@ -90,7 +99,7 @@ def main() -> None:
             initial_panic=float(args.initial_panic),
             continue_after_collapse=cont,
         )
-    else:
+    elif args.mode == "network":
         from fragility_engine.network.neighbor_io import load_neighbor_topology
         from fragility_engine.world.stablecoin_network import neighbor_lists_topology_meta
 
@@ -153,6 +162,16 @@ def main() -> None:
             base_panic=float(args.base_panic),
             continue_after_collapse=cont,
         )
+    else:
+        ms = max(int(args.horizon), 48)
+        template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=ms)
+        result = rollout_resource_cascade(
+            template,
+            genome,
+            seed=int(args.seed),
+            initial_overload=float(args.initial_overload),
+            continue_after_collapse=cont,
+        )
 
     payload = rollout_to_replay_dict(result)
     meta = {
@@ -164,10 +183,13 @@ def main() -> None:
         meta["continue_after_collapse"] = True
     if args.mode == "aggregate":
         meta["initial_panic"] = float(args.initial_panic)
-    else:
+    elif args.mode == "network":
         meta["base_panic"] = float(args.base_panic)
-    if args.mode == "network":
-        meta["topology"] = topo_for_meta
+        if topo_for_meta is not None:
+            meta["topology"] = topo_for_meta
+    else:
+        meta["domain"] = "resource_cascade"
+        meta["initial_overload"] = float(args.initial_overload)
     payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

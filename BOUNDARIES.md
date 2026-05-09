@@ -240,7 +240,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Purpose:** architecture transfer demo without relaxing stablecoin CI oracles.
 
-**Normative exit criteria** remain in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) (e.g. optional co-evolution on this domain). Replay compatibility: [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md). Motivation ≤ 1 page: [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md). Phase **H** bundle: **`resource_cascade_rollout_v1`** (`benchmarks/suite.py`).
+**Normative exit criteria** remain in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). Replay compatibility: [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md). Motivation ≤ 1 page: [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md). Phase **H** bundle: **`resource_cascade_rollout_v1`** (`benchmarks/suite.py`).
 
 ## Fitness function discipline
 

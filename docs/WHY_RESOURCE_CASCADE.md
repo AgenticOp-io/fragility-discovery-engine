@@ -19,13 +19,15 @@ If search, replay export, benchmarks, and GA demos run **without forking** the e
 **Out of scope**
 
 - Any calibration to real operators, OT networks, or empirical cascades.
-- New objectives or defender knobs until explicitly gated in [`BOUNDARIES.md`](../BOUNDARIES.md).
+- Phase I-style counterfactual / merge tooling on this domain until explicitly gated (defender genome + co-evolution/Pareto CLIs are mirrored from aggregate/network).
 - “Because two worlds exist, identification is causal” — **no**. Counterfactuals remain scenario labeling, not Pearl-ID.
 
 ## How to try it
 
 - One-shot rollout tests: `tests/test_resource_cascade_rollout.py`, `tests/test_replay_contract_resource_cascade.py`.
 - GA + minimization demo: `python scripts/run_resource_cascade_ga_demo.py --export-replay artifacts/tmp_rc.json`
+- Plain replay export: `python scripts/export_replay.py --mode resource_cascade --out artifacts/tmp_rc_rep.json`
+- Co-evolution / Pareto: `scripts/run_coevolution.py` / `scripts/export_pareto_front.py` with `--mode resource_cascade`.
 - Benchmark row: `python scripts/run_benchmark_suite.py --validate` (includes `resource_cascade_rollout_v1`).
 
 ## Relationship to the stablecoin reference

@@ -13,14 +13,15 @@ import numpy as np
 from fragility_engine.adversary.encoding import random_genome
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
-from fragility_engine.runner import rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Time aggregate or network rollouts (perf_counter).")
-    p.add_argument("--mode", choices=("aggregate", "network"), default="network")
+    p = argparse.ArgumentParser(description="Time aggregate, network, or resource_cascade rollouts (perf_counter).")
+    p.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="network")
     p.add_argument("--warmup", type=int, default=1, help="Ignored iterations before timing.")
     p.add_argument("--repeat", type=int, default=8, help="Timed iterations.")
     p.add_argument("--seed", type=int, default=42)
@@ -39,6 +40,12 @@ def main() -> None:
         help="[network] list-only topology JSON (skips synthetic graph).",
     )
     p.add_argument("--neighbor-weights-json", type=Path, default=None, help="[network] optional edge weights JSON.")
+    p.add_argument(
+        "--initial-overload",
+        type=float,
+        default=0.05,
+        help="[resource_cascade] overload at reset [0,1].",
+    )
     p.add_argument("--json", action="store_true", help="Emit one JSON object on stdout.")
     args = p.parse_args()
 
@@ -56,7 +63,7 @@ def main() -> None:
         def run_once() -> None:
             rollout_stablecoin(template, genome, seed=int(args.seed))
 
-    else:
+    elif args.mode == "network":
         n_report: int
         if args.neighbor_json is not None:
             from fragility_engine.network.neighbor_io import load_neighbor_topology
@@ -103,6 +110,20 @@ def main() -> None:
         def run_once() -> None:
             rollout_stablecoin_network(template, genome, seed=int(args.seed))
 
+    else:
+        template = ResourceCascadeWorld(
+            population=default_stablecoin_population(),
+            max_steps=int(args.max_steps),
+        )
+
+        def run_once() -> None:
+            rollout_resource_cascade(
+                template,
+                genome,
+                seed=int(args.seed),
+                initial_overload=float(args.initial_overload),
+            )
+
     for _ in range(warmup):
         run_once()
 
@@ -119,6 +140,7 @@ def main() -> None:
         "wall_clock_s": elapsed,
         "mean_ms_per_rollout": mean_ms,
         "nodes": n_report if args.mode == "network" else None,
+        "initial_overload": float(args.initial_overload) if args.mode == "resource_cascade" else None,
         "max_steps": int(args.max_steps),
         "horizon": int(args.horizon),
     }

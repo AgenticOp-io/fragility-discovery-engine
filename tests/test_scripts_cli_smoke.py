@@ -411,6 +411,62 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     net = json.loads(proc2.stdout)
     assert net["mode"] == "network"
     assert net["nodes"] == 16
+    proc3 = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--mode",
+            "resource_cascade",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--max-steps",
+            "14",
+            "--horizon",
+            "9",
+            "--initial-overload",
+            "0.06",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    rc = json.loads(proc3.stdout)
+    assert rc["mode"] == "resource_cascade"
+    assert rc["initial_overload"] == pytest.approx(0.06)
+    assert rc["nodes"] is None
+
+
+def test_export_replay_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "rc_rep.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "resource_cascade",
+            "--out",
+            str(out),
+            "--horizon",
+            "11",
+            "--seed",
+            "331",
+            "--genome-seed",
+            "332",
+            "--initial-overload",
+            "0.07",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "resource_cascade"
+    assert data["meta"]["cli"] == "export_replay"
+    assert data["meta"]["domain"] == "resource_cascade"
+    assert data["meta"]["initial_overload"] == pytest.approx(0.07)
 
 
 def test_export_replay_network_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:

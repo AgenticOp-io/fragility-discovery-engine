@@ -47,7 +47,7 @@ python scripts/run_ga_demo.py
 | `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
 | `scripts/run_resource_cascade_ga_demo.py` | Phase **J** scaffold: GA + minimization on **`ResourceCascadeWorld`** (`--initial-overload`, same export flags); see [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--neighbor-json` / `--neighbor-weights-json`, `--export-replay`, sizing flags) |
-| `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`) or network (`--base-panic`, synthetic topology flags **or** `--neighbor-json`, `--continue-after-collapse`) |
+| `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`), network (`--base-panic`, synthetic topology **or** `--neighbor-json`, `--continue-after-collapse`), or **`resource_cascade`** (`--initial-overload`, `--continue-after-collapse`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network|resource_cascade`, **`--initial-overload`** (cascade mode), `--continue-after-collapse`, topology flags or `--neighbor-json`, `--collect-attacker-pareto`, **`--export-pareto-json`** (viewer-ready `pareto-front-v1`), `--json-summary`, `--export-replay` |
 | `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
@@ -60,7 +60,7 @@ python scripts/run_ga_demo.py
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
-| `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |
+| `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate / network / **`resource_cascade`** (`--json`, sizing flags, **`--initial-overload`** for cascade, optional `--neighbor-json` for list-topology network) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
 | `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network`**; axes **`initial_panic`** / **`base_panic`** / **`contagion_beta`** / **`edge_weight`**; **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |

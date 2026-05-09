@@ -27,7 +27,13 @@ This domain is a **deliberately thin** second reference: same attacker schedule 
 
 Static **`replay_viewer`** treats unknown modes like aggregate for plotting (price + instability scales).
 
+## Co-evolution, Pareto, defender
+
+- Same **four-slot defender genome** decoding as aggregate/network (`build_defended_resource_cascade_world`): knobs map to `overload_decay`, `rumor_gain`, `recovery_headroom`, and **`reserve_boost`** damps effective initial overload at `reset`.
+- **CLI:** `scripts/run_coevolution.py --mode resource_cascade --initial-overload …`; `scripts/export_pareto_front.py --mode resource_cascade`.
+- **API:** `fragility_engine.coevolution.alternating_coevolution_resource_cascade`.
+
 ## Limits / non-goals
 
 - Not calibrated to any real infrastructure dataset.
-- No co-evolution / defender hook yet — add only with explicit tests mirroring aggregate/network discipline.
+- No dedicated counterfactual / attribution vocabulary for this domain yet (stablecoin + network grammars remain the reference for Phase I-style merges).
