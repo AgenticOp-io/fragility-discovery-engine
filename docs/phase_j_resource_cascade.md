@@ -38,7 +38,7 @@ Static **`replay_viewer`** treats unknown modes like aggregate for plotting (pri
 - **`remove_steps`:** same semantics as aggregate/network — zero selected shock rows; evaluator pins **`initial_overload`** via CLI (`export_counterfactual.py --mode resource_cascade --initial-overload …`).
 - **`initial_overload_shift`:** same genome + rollout seed; variant changes **`--variant-initial-overload`** (`counterfactual_resource_cascade_initial_overload_shift_with_rollouts`).
 - **`cascade_coupling_shift`:** same genome, seed, and **`initial_overload`**; variant template clone with **`--variant-cascade-coupling`** (`counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts`).
-- **Joint star-merge:** `scripts/export_resource_cascade_joint_attribution.py` merges **remove_steps** + **initial_overload_shift** branches that share one baseline (`attribution-merge-v1` → `artifacts/attribution_viewer/index.html`).
+- **Joint star-merge:** `scripts/export_resource_cascade_joint_attribution.py` merges **remove_steps** + **`--second-branch`** **initial_overload_shift** or **cascade_coupling_shift** (`attribution-merge-v1` → `artifacts/attribution_viewer/index.html`).
 - **Scalar ε-sweep:** `counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload --values …` (+ optional `--emit-trace` → `explanation-trace-v1`).
 
 ## Limits / non-goals

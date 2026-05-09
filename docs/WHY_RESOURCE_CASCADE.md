@@ -27,7 +27,7 @@ If search, replay export, benchmarks, and GA demos run **without forking** the e
 - One-shot rollout tests: `tests/test_resource_cascade_rollout.py`, `tests/test_replay_contract_resource_cascade.py`.
 - GA + minimization demo: `python scripts/run_resource_cascade_ga_demo.py --export-replay artifacts/tmp_rc.json`
 - Plain replay export: `python scripts/export_replay.py --mode resource_cascade --out artifacts/tmp_rc_rep.json`
-- Counterfactuals: `export_counterfactual --mode resource_cascade` (`remove_steps`, `initial_overload_shift`, `cascade_coupling_shift`); joint merge `export_resource_cascade_joint_attribution.py`; ε-sweep `counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload`. Cookbook: [`docs/resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md).
+- Counterfactuals: `export_counterfactual --mode resource_cascade` (`remove_steps`, `initial_overload_shift`, `cascade_coupling_shift`); joint merge `export_resource_cascade_joint_attribution.py` (`--second-branch` overload vs coupling); ε-sweep `counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload`. Cookbook: [`docs/resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md).
 - Co-evolution / Pareto: `scripts/run_coevolution.py` / `scripts/export_pareto_front.py` with `--mode resource_cascade`.
 - Benchmark row: `python scripts/run_benchmark_suite.py --validate` (includes `resource_cascade_rollout_v1`).
 

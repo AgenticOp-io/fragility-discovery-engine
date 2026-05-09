@@ -175,6 +175,42 @@ def test_export_resource_cascade_joint_attribution_cli(py_exe: str, tmp_path: Pa
     merged = json.loads(out_json.read_text(encoding="utf-8"))
     assert merged["schema"] == "attribution-merge-v1"
     assert merged["branch_count"] == 2
+    assert merged["meta"]["second_branch"] == "initial_overload_shift"
+
+
+def test_export_resource_cascade_joint_attribution_coupling_second_branch_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "joint_rc_cc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_resource_cascade_joint_attribution.py"),
+            "--out",
+            str(out_json),
+            "--second-branch",
+            "cascade_coupling_shift",
+            "--variant-cascade-coupling",
+            "0.41",
+            "--horizon",
+            "10",
+            "--seed",
+            "66301",
+            "--genome-seed",
+            "66302",
+            "--initial-overload",
+            "0.07",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    merged = json.loads(out_json.read_text(encoding="utf-8"))
+    assert merged["schema"] == "attribution-merge-v1"
+    assert merged["branch_count"] == 2
+    assert merged["meta"]["second_branch"] == "cascade_coupling_shift"
+    ivs = {e["intervention"] for e in merged["edges"]}
+    assert "remove_steps" in ivs
+    assert "resource_cascade_cascade_coupling_shift" in ivs
 
 
 def test_narrate_frozen_json_replay_cli(py_exe: str) -> None:

@@ -36,12 +36,16 @@ python scripts/export_counterfactual.py --mode resource_cascade \
 
 ## 4. Joint star-merge (two branches, one baseline)
 
-Combines **remove_steps** + **initial_overload_shift** into `attribution-merge-v1` (open in `artifacts/attribution_viewer/index.html`).
+Combines **remove_steps** + a second branch into `attribution-merge-v1` (open in `artifacts/attribution_viewer/index.html`). Default second branch is **initial_overload_shift**; use **`--second-branch cascade_coupling_shift`** for a physics clone branch.
 
 ```bash
 python scripts/export_resource_cascade_joint_attribution.py --out merge_rc.json \
   --horizon 11 --seed 401 --genome-seed 402 --initial-overload 0.07 \
   --variant-initial-overload 0.12 --remove "0"
+
+python scripts/export_resource_cascade_joint_attribution.py --out merge_rc_cc.json \
+  --second-branch cascade_coupling_shift --variant-cascade-coupling 0.42 \
+  --horizon 11 --seed 403 --genome-seed 404 --initial-overload 0.07 --remove "0"
 ```
 
 ## 5. ε-sweep on `initial_overload`

@@ -55,7 +55,7 @@ python scripts/run_ga_demo.py
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network|resource_cascade`**; cascade: `remove_steps`, **`initial_overload_shift`**, **`cascade_coupling_shift`** (`--variant-cascade-coupling`); network shifts (`base_panic_shift`, …); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 | `scripts/export_counterfactual_chain.py` | Ordered mutation chain counterfactual + optional **`--emit-path-trace`** (`explanation-mutation-chain-path-v1`) |
-| `scripts/export_resource_cascade_joint_attribution.py` | One-shot **`attribution-merge-v1`**: shared-baseline **remove_steps** + **initial_overload_shift** on `ResourceCascadeWorld` |
+| `scripts/export_resource_cascade_joint_attribution.py` | **`attribution-merge-v1`**: shared-baseline **remove_steps** + **`--second-branch`** **initial_overload_shift** or **cascade_coupling_shift** |
 | `scripts/narrate_frozen_json.py` | Phase **L** scaffold: replay / Pareto / merge / epsilon-sweep JSON; **`--cite-digest`** (SHA-256 + path); **`--json-out`** → **`narration-summary-v1`** |
 | `scripts/merge_counterfactual_attribution.py` | Star-merge exports → **`attribution-merge-v1`** |
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
