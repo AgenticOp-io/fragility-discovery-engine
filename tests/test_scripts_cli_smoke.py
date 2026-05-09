@@ -81,3 +81,37 @@ def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -
     c = json.loads((repdir / "counterfactual.json").read_text(encoding="utf-8"))
     assert b["meta"]["variant"] == "baseline"
     assert c["meta"]["variant"] == "counterfactual"
+
+
+def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> None:
+    best = tmp_path / "best.json"
+    mini = tmp_path / "mini.json"
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_ga_demo.py"),
+            "--generations",
+            "3",
+            "--population-size",
+            "12",
+            "--seed",
+            "999",
+            "--export-replay",
+            str(best),
+            "--export-minimized-replay",
+            str(mini),
+        ],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    data = json.loads(best.read_text(encoding="utf-8"))
+    assert data["meta"]["variant"] == "best_ga"
+    assert data["meta"]["ga_seed"] == 999
+    if mini.is_file():
+        m = json.loads(mini.read_text(encoding="utf-8"))
+        assert m["meta"]["variant"] == "greedy_minimized_schedule"
+    else:
+        assert "Skipping --export-minimized-replay" in proc.stderr

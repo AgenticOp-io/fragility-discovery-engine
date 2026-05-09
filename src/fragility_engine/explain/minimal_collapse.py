@@ -9,25 +9,29 @@ from fragility_engine.adversary.encoding import decode_schedule
 from fragility_engine.types import RolloutResult
 
 
-def minimize_schedule(
+def minimize_schedule_with_rollout(
     genome: np.ndarray,
     rollout_fn: Callable[[np.ndarray, int], RolloutResult],
     *,
     base_seed: int,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], RolloutResult | None]:
     """
     Greedy event removal: drop shocks while preserving collapse (if baseline collapsed).
 
-    This is a cheap first pass at 'minimal collapse sequence' explainability.
+    Returns the usual summary dict plus the final minimized :class:`RolloutResult` when
+    the baseline collapsed (else ``None``).
     """
 
     base = rollout_fn(genome, base_seed)
     if not base.collapsed:
-        return {
-            "baseline_collapsed": False,
-            "message": "Baseline schedule did not collapse; minimization undefined.",
-            "genome": genome.tolist(),
-        }
+        return (
+            {
+                "baseline_collapsed": False,
+                "message": "Baseline schedule did not collapse; minimization undefined.",
+                "genome": genome.tolist(),
+            },
+            None,
+        )
 
     schedule = decode_schedule(genome)
     kept_steps = sorted(schedule.keys())
@@ -42,7 +46,7 @@ def minimize_schedule(
             genome = trial_genome
 
     minimized_rollout = rollout_fn(genome, base_seed + 4242)
-    return {
+    report = {
         "baseline_collapsed": True,
         "minimal_events_by_timestep": {
             str(t): [{"kind": e.kind, "magnitude": e.magnitude} for e in events]
@@ -52,6 +56,19 @@ def minimize_schedule(
         "collapsed": minimized_rollout.collapsed,
         "collapse_timestep": minimized_rollout.collapse_timestep,
     }
+    return report, minimized_rollout
+
+
+def minimize_schedule(
+    genome: np.ndarray,
+    rollout_fn: Callable[[np.ndarray, int], RolloutResult],
+    *,
+    base_seed: int,
+) -> dict[str, Any]:
+    """Greedy minimal-collapse schedule (:func:`minimize_schedule_with_rollout` without rollout handle)."""
+
+    report, _rollout = minimize_schedule_with_rollout(genome, rollout_fn, base_seed=base_seed)
+    return report
 
 
 def _genome_with_step_cleared(genome: np.ndarray, timestep: int) -> np.ndarray:

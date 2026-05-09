@@ -36,7 +36,7 @@ python scripts/run_ga_demo.py
 | Script | Purpose |
 |--------|---------|
 | `scripts/week1_smoke.py` | Deterministic rollout smoke (`--export-replay`) |
-| `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`) |
+| `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--export-replay`, sizing flags) |
 | `scripts/export_replay.py` | Write versioned `replay.json` (`--mode aggregate` \| `network`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |

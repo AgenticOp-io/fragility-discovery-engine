@@ -126,6 +126,14 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Cap:** ≤2 parameter dimensions per figure unless publishing a methods note.
 
+**Implementation:** `scripts/fragility_surface.py` scans `(panic0, depeg_threshold)` under **zero adversary shocks** (`numpy` helpers in `run_fragility_surface_grid`).
+
+**Exit criteria:**
+
+- [x] CSV artifact with axis columns **`panic0`**, **`depeg_threshold`**, outcome **`collapsed`**, **`collapse_t`**, **`peak_instability`**, **`integral_instability`** (Phase C metric alignment).
+- [x] CLI axes configurable (`--panic-min/max`, `--panic-points`, `--depeg-min/max`, `--depeg-points`) with **`points ≥ 2`** validation.
+- [x] Determinism tests (`tests/test_fragility_surface.py`) + subprocess smoke (`tests/test_scripts_cli_smoke.py`).
+
 ### Phase G — Defender co-evolution
 
 **Purpose:** attacker vs defender loops.
