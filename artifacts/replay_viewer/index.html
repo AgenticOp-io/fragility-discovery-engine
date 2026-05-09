@@ -8,8 +8,13 @@
     :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
     body { margin: 0; padding: 16px; max-width: 1100px; margin-inline: auto; }
     header { margin-bottom: 12px; }
-    canvas { width: 100%; height: 440px; border: 1px solid #8884; border-radius: 8px; background: #1112; }
+    canvas {
+      width: 100%; height: 440px; border: 1px solid #8884; border-radius: 8px; background: #1112;
+      cursor: crosshair; touch-action: none;
+    }
+    canvas:focus { outline: 2px solid #48f8; outline-offset: 2px; }
     #meta { font-size: 13px; opacity: 0.85; white-space: pre-wrap; }
+    #scrubHelp { font-size: 12px; opacity: 0.8; margin-top: 6px; }
     #drop {
       border: 2px dashed #8886; border-radius: 10px; padding: 18px; text-align: center;
       margin-bottom: 12px; cursor: pointer;
@@ -21,14 +26,17 @@
   <header>
     <strong>Fragility replay viewer</strong>
     <div id="hint">
-      Drag-and-drop <code>replay.json</code> (<strong>schema ≥ 0.4</strong> adds <code>events_lane</code>).
-      Blue = price, orange = instability. Bottom strip = shock intensities (green reserve loss, amber rumor).
-      Magenta = collapse step; triangles = legacy shock markers on chart.
+      Drag-and-drop <code>replay.json</code>. Blue = price, orange = instability. Bottom = shock lane.
+      Magenta = collapse; cyan = <strong>scrub playhead</strong>.
+    </div>
+    <div id="scrubHelp">
+      <strong>Timeline:</strong> move the mouse over the chart to scrub, or click-drag.
+      With the chart focused: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd> ends.
     </div>
   </header>
 
   <div id="drop">Drop replay JSON here or click to pick a file<input id="file" type="file" accept="application/json" hidden /></div>
-  <canvas id="cv" width="1100" height="440"></canvas>
+  <canvas id="cv" width="1100" height="440" tabindex="0" aria-label="Replay timeline, mouse scrubs"></canvas>
   <pre id="meta"></pre>
 
   <script>
@@ -37,6 +45,11 @@
     const meta = document.getElementById('meta');
     const drop = document.getElementById('drop');
     const fileInput = document.getElementById('file');
+
+    /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean } | null} */
+    let bundle = null;
+    let scrubIndex = 0;
+    let pointerDown = false;
 
     function normalizeLane(traj, rawLane) {
       if (Array.isArray(rawLane) && rawLane.length === traj.length) return rawLane;
@@ -52,37 +65,28 @@
       });
     }
 
-    function drawReplay(data) {
+    function buildBundle(data) {
       const traj = data.trajectory || [];
       const lane = normalizeLane(traj, data.events_lane);
       const W = cv.width, H = cv.height;
-      ctx.clearRect(0, 0, W, H);
-
       const laneH = 52;
       const pad = 28;
       const mainBottom = H - pad - laneH;
-
-      if (!traj.length) {
-        ctx.fillStyle = '#888';
-        ctx.fillText('Empty trajectory', 12, 24);
-        return;
-      }
+      const laneTop = mainBottom + 8;
+      const laneBot = H - 10;
+      const tmax = Math.max(traj.length - 1, 0);
 
       const prices = traj.map(s => Number(s.metrics?.price ?? s.state_vector?.[2] ?? NaN));
       const instab = traj.map(s => Number(s.metrics?.instability ?? NaN));
-      const tmax = traj.length - 1;
-      const collapseT = data.collapse_timestep;
+      const validInst = instab.every(v => Number.isFinite(v));
+      const collapseT = Number.isFinite(data.collapse_timestep) ? data.collapse_timestep : null;
 
-      const valid = xs => xs.every(v => Number.isFinite(v));
-      if (!valid(prices)) {
-        ctx.fillStyle = '#f66';
-        ctx.fillText('Missing price metrics — regenerate replay with engine ≥ 0.3.0', 12, 24);
+      const minP = traj.length ? Math.min(...prices.filter(Number.isFinite)) : 1;
+      const maxP = traj.length ? Math.max(...prices.filter(Number.isFinite)) : 1;
+
+      function xScale(i) {
+        return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad);
       }
-
-      const minP = Math.min(...prices.filter(Number.isFinite));
-      const maxP = Math.max(...prices.filter(Number.isFinite));
-
-      function xScale(i) { return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad); }
       function yPrice(p) {
         const lo = Math.min(minP, 0.85), hi = Math.max(maxP, 1.05);
         const u = (p - lo) / (hi - lo + 1e-9);
@@ -94,13 +98,49 @@
         return mainBottom - pad - u * (mainBottom - 2 * pad);
       }
 
+      return {
+        data, traj, lane, tmax, pad, W, H, mainBottom, laneTop, laneBot, laneH,
+        prices, instab, collapseT, xScale, yPrice, yInst, validInst,
+      };
+    }
+
+    function clientXToIndex(clientX) {
+      if (!bundle) return 0;
+      const rect = cv.getBoundingClientRect();
+      const scale = cv.width / rect.width;
+      const mx = (clientX - rect.left) * scale;
+      const plotW = bundle.W - 2 * bundle.pad;
+      let u = (mx - bundle.pad) / plotW;
+      u = Math.max(0, Math.min(1, u));
+      return Math.round(u * bundle.tmax);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (!bundle || !bundle.traj.length) {
+        ctx.fillStyle = '#888';
+        ctx.fillText(bundle ? 'Empty trajectory' : 'Load a replay JSON', 12, 24);
+        updateMeta();
+        return;
+      }
+
+      const b = bundle;
+      const traj = b.traj;
+      const { pad, W, H, mainBottom, laneTop, laneBot, tmax, prices, instab, collapseT } = b;
+
+      const validPrice = prices.every(v => Number.isFinite(v));
+      if (!validPrice) {
+        ctx.fillStyle = '#f66';
+        ctx.fillText('Missing price metrics — regenerate replay with engine ≥ 0.3.0', 12, 24);
+      }
+
       ctx.strokeStyle = '#8886';
       ctx.beginPath();
       ctx.moveTo(pad, pad); ctx.lineTo(pad, mainBottom); ctx.lineTo(W - pad, mainBottom);
       ctx.stroke();
 
-      if (Number.isFinite(collapseT) && collapseT >= 0 && collapseT <= tmax) {
-        const xc = xScale(collapseT);
+      if (collapseT !== null && collapseT >= 0 && collapseT <= tmax) {
+        const xc = b.xScale(collapseT);
         ctx.save();
         ctx.strokeStyle = '#e4e';
         ctx.setLineDash([6, 6]);
@@ -115,7 +155,7 @@
       traj.forEach((step, i) => {
         const evs = step.events || [];
         if (!evs.length) return;
-        const xc = xScale(i);
+        const xc = b.xScale(i);
         const yb = mainBottom + 6;
         evs.forEach((ev, j) => {
           const kind = ev.kind || '';
@@ -133,31 +173,28 @@
       ctx.lineWidth = 2;
       ctx.beginPath();
       prices.forEach((p, i) => {
-        const x = xScale(i), y = yPrice(p);
+        const x = b.xScale(i), y = b.yPrice(p);
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
       ctx.stroke();
 
-      if (valid(instab)) {
+      if (b.validInst) {
         ctx.strokeStyle = '#f84';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         instab.forEach((q, i) => {
-          const x = xScale(i), y = yInst(q);
+          const x = b.xScale(i), y = b.yInst(q);
           if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         });
         ctx.stroke();
       }
 
-      // ---- events lane (schema 0.4+) ----
-      const laneTop = mainBottom + 8;
-      const laneBot = H - 10;
       ctx.fillStyle = '#1a1a1e';
       ctx.fillRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
 
-      lane.forEach((cell, i) => {
-        const x0 = xScale(i);
-        const x1 = xScale(i + 1);
+      b.lane.forEach((cell, i) => {
+        const x0 = b.xScale(i);
+        const x1 = b.xScale(i + 1);
         const bw = Math.max(x1 - x0 - 1, 1);
         const rl = Number(cell.reserve_loss) || 0;
         const rum = Number(cell.rumor) || 0;
@@ -172,32 +209,128 @@
       ctx.strokeStyle = '#555';
       ctx.strokeRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
 
+      // scrub playhead (full height)
+      const si = Math.max(0, Math.min(scrubIndex, traj.length - 1));
+      const xp = b.xScale(si);
+      ctx.save();
+      ctx.strokeStyle = '#9ef';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(xp, pad);
+      ctx.lineTo(xp, laneBot);
+      ctx.stroke();
+      ctx.restore();
+
+      // playhead dots on series
+      if (validPrice) {
+        ctx.fillStyle = '#9ef';
+        ctx.beginPath();
+        ctx.arc(xp, b.yPrice(prices[si]), 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (b.validInst) {
+        ctx.strokeStyle = '#9ef';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xp, b.yInst(instab[si]), 5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
       ctx.fillStyle = '#ddd';
       ctx.font = '12px system-ui';
       ctx.fillText('price (blue)', pad, 16);
       ctx.fillText('instability (orange)', pad + 110, 16);
       ctx.fillText('collapse (magenta)', pad + 260, 16);
-      ctx.fillText('events lane below', pad + 410, 16);
+      ctx.fillText(`scrub: step ${si} / ${tmax}`, pad + 410, 16);
 
+      updateMeta(si);
+    }
+
+    function updateMeta(scrubI) {
+      if (!bundle) {
+        meta.textContent = 'No replay loaded.';
+        return;
+      }
+      const d = bundle.data;
+      const traj = bundle.traj;
+      let scrubBlock = '';
+      if (traj.length && scrubI !== undefined) {
+        const step = traj[scrubI];
+        const m = step.metrics || {};
+        const evs = step.events || [];
+        scrubBlock =
+          `\n--- scrub (index ${scrubI}) ---\n` +
+          `timestep: ${step.timestep}\n` +
+          `price: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}\n` +
+          `events: ${evs.length ? JSON.stringify(evs) : '(none)'}\n`;
+      }
       meta.textContent =
-        `schema_version: ${data.schema_version}\n` +
-        `mode: ${data.simulation_mode}\n` +
-        `collapsed: ${data.collapsed} @ ${data.collapse_timestep}\n` +
-        `attack_cost: ${data.attack_cost}\n` +
-        `integral_instability: ${data.integral_instability}\n` +
-        `recovery_timestep: ${data.recovery_timestep}\n` +
-        `events_lane: ${Array.isArray(data.events_lane) ? data.events_lane.length : '(derived)'}\n` +
-        `steps: ${traj.length}`;
+        `schema_version: ${d.schema_version}\n` +
+        `mode: ${d.simulation_mode}\n` +
+        `collapsed: ${d.collapsed} @ ${d.collapse_timestep}\n` +
+        `attack_cost: ${d.attack_cost}\n` +
+        `integral_instability: ${d.integral_instability}\n` +
+        `recovery_timestep: ${d.recovery_timestep}\n` +
+        `events_lane: ${Array.isArray(d.events_lane) ? d.events_lane.length : '(derived)'}\n` +
+        `steps: ${traj.length}` +
+        scrubBlock;
+    }
+
+    function loadReplay(data) {
+      bundle = buildBundle(data);
+      scrubIndex = 0;
+      draw();
+      cv.focus({ preventScroll: true });
     }
 
     function handleText(text) {
       try {
         const data = JSON.parse(text);
-        drawReplay(data);
+        loadReplay(data);
       } catch (e) {
+        bundle = null;
         meta.textContent = 'Invalid JSON: ' + e;
+        ctx.clearRect(0, 0, cv.width, cv.height);
       }
     }
+
+    cv.addEventListener('pointerdown', e => {
+      pointerDown = true;
+      scrubIndex = clientXToIndex(e.clientX);
+      draw();
+      try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    cv.addEventListener('pointermove', e => {
+      if (!bundle) return;
+      if (pointerDown || e.buttons === 1) {
+        scrubIndex = clientXToIndex(e.clientX);
+        draw();
+      }
+    });
+    cv.addEventListener('pointerup', e => {
+      pointerDown = false;
+      try { cv.releasePointerCapture(e.pointerId); } catch (_) {}
+    });
+    cv.addEventListener('pointercancel', () => { pointerDown = false; });
+
+    cv.addEventListener('mousemove', e => {
+      if (!bundle || pointerDown) return;
+      scrubIndex = clientXToIndex(e.clientX);
+      draw();
+    });
+
+    cv.addEventListener('keydown', e => {
+      if (!bundle || !bundle.traj.length) return;
+      const n = bundle.tmax;
+      if (e.key === 'ArrowLeft') scrubIndex = Math.max(0, scrubIndex - 1);
+      else if (e.key === 'ArrowRight') scrubIndex = Math.min(n, scrubIndex + 1);
+      else if (e.key === 'Home') scrubIndex = 0;
+      else if (e.key === 'End') scrubIndex = n;
+      else return;
+      e.preventDefault();
+      draw();
+    });
 
     drop.addEventListener('click', () => fileInput.click());
     drop.addEventListener('dragover', ev => { ev.preventDefault(); });
@@ -212,6 +345,11 @@
       if (!f) return;
       f.text().then(handleText);
     });
+
+    meta.textContent = 'Load a replay JSON to begin.';
+    ctx.fillStyle = '#888';
+    ctx.font = '14px system-ui';
+    ctx.fillText('Load a replay JSON…', 16, 40);
   </script>
 </body>
 </html>

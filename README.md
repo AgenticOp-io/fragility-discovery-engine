@@ -45,7 +45,7 @@ python scripts/run_ga_demo.py
 | `scripts/find_cheap_collapse.py` | GA with attack-cost penalty (Phase C demo) |
 | `scripts/export_counterfactual.py` | Write counterfactual attribution JSON |
 
-Static replay UI (drag-and-drop JSON): `artifacts/replay_viewer/index.html`.
+Static replay UI (drag-and-drop JSON): `artifacts/replay_viewer/index.html` — hover / drag timeline scrub, keyboard arrows.
 
 ## Week roadmap (suggested)
 

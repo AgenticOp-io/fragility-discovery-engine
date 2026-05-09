@@ -107,7 +107,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Purpose:** cinematic replay, not decoration.
 
-**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); timeline scrubber still optional.
+**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`.
 
 **In scope:**
 
