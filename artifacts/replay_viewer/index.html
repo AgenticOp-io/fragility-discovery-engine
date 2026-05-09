@@ -60,6 +60,7 @@
       Windows pickers often start in <strong>Documents</strong> — navigate once or drag JSON onto the dashed box.
       Chrome/Edge: <strong>Choose folder</strong> remembers the path for <strong>Choose replay file</strong>.
       <strong>Compare second replay</strong> adds Δprice / Δinstability in the panel (e.g. baseline vs counterfactual). For cost vs severity scatter see <code>artifacts/pareto_viewer/</code>.
+      With a local HTTP server, the <strong>Presets</strong> dropdown loads <code>local_presets.json</code> (bundled samples + <code>artifacts/test_exports/</code> after <code>regenerate_test_exports</code>).
     </div>
   </header>
 
@@ -74,6 +75,13 @@
       Compare second replay…
     </button>
     <button type="button" class="btn" id="btnClearCompare" hidden>Clear comparison</button>
+  </div>
+  <div class="btn-row" id="presetRow" hidden style="align-items:center">
+    <label for="presetSelect" style="font-size:13px;opacity:0.9">Presets (HTTP)</label>
+    <select id="presetSelect" aria-label="Load preset replay from server" style="font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #8886;background:#252528;color:#eee;min-width:min(420px,100%)">
+      <option value="">— select —</option>
+    </select>
+    <span id="presetStatus" style="font-size:12px;opacity:0.8"></span>
   </div>
   <div id="folderList" class="folder-list" hidden></div>
   <div id="drop">
@@ -99,6 +107,9 @@
     const compareFile = document.getElementById('compareFile');
     const btnCompare = document.getElementById('btnCompare');
     const btnClearCompare = document.getElementById('btnClearCompare');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
 
     /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean, mode: string, maxPanic: number[], panicStd: number[], validNetworkPanic: boolean, yPanicAux: function } | null} */
     let bundle = null;
@@ -731,6 +742,49 @@
       folderList.hidden = true;
       f.text().then(handleText);
     });
+
+    async function initPresets() {
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (!res.ok) return;
+        const cfg = await res.json();
+        const list = cfg.presets || [];
+        if (!list.length) return;
+        for (const p of list) {
+          if (!p.path || !p.label) continue;
+          const opt = document.createElement('option');
+          opt.value = p.path;
+          opt.textContent = p.label;
+          presetSelect.appendChild(opt);
+        }
+        presetRow.hidden = false;
+      } catch (_) {
+        /* file:// or blocked fetch */
+      }
+    }
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) {
+        presetStatus.textContent = '';
+        return;
+      }
+      presetStatus.textContent = 'Loading…';
+      try {
+        const url = new URL(path, document.location);
+        const res = await fetch(url);
+        if (!res.ok) {
+          presetStatus.textContent = `Missing (${res.status}) — run scripts/regenerate_test_exports`;
+          return;
+        }
+        handleText(await res.text());
+        presetStatus.textContent = 'Loaded';
+      } catch (_) {
+        presetStatus.textContent = 'Fetch failed — serve repo root over HTTP or use file picker';
+      }
+    });
+
+    void initPresets();
 
     meta.textContent = 'Load a replay JSON to begin.';
     ctx.fillStyle = '#888';

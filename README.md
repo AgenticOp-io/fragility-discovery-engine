@@ -47,6 +47,7 @@ python scripts/run_ga_demo.py
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files |
+| `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas.
 

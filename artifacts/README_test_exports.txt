@@ -4,7 +4,9 @@ artifacts/test_exports/
 
   Regenerate:
     pwsh -File scripts/regenerate_test_exports.ps1
+    bash scripts/regenerate_test_exports.sh
 
   Viewer:
-    Serve repo root or artifacts/replay_viewer and load files from test_exports via file picker,
-    or copy JSON into replay_viewer folder for simpler paths.
+    Serve repo root (e.g. python -m http.server 8765), open artifacts/replay_viewer/index.html —
+    Presets dropdown loads local_presets.json (bundled samples + ../test_exports/*).
+    Or use file / folder pickers; copy JSON beside the viewer if you prefer file://.
