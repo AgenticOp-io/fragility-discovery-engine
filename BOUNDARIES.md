@@ -109,7 +109,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Purpose:** cinematic replay, not decoration.
 
-**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge). Optional **A/B**: second replay file for per-step **price / instability deltas** in the meta panel (same scrub index). **Pareto:** `artifacts/pareto_viewer/index.html` plots **`pareto_front.json`** (`severity` vs `attack_cost`), including exports from **`run_coevolution --export-pareto-json`** / **`export_coevolution_pareto.py`** (merged `pareto-front-v1`).
+**Status:** static viewer consumes replay JSON including **`events_lane`** (schema **0.4**); **pointer + keyboard timeline scrubber** in `artifacts/replay_viewer/index.html`. Network replays (`simulation_mode: network`) plot **max panic** and **panic dispersion (σ)** from `state_vector[4:6]` on a shared auxiliary scale (Phase B/E bridge). Optional **A/B**: second replay file for per-step **price / instability deltas** in the meta panel (same scrub index). **Pareto:** `artifacts/pareto_viewer/index.html` plots **`pareto_front.json`** (`severity` vs `attack_cost`), including **`export_pareto_front.py`** (aggregate or **network** / list-only JSON), **`run_coevolution --export-pareto-json`**, and **`export_coevolution_pareto.py`** (merged `pareto-front-v1`).
 
 **In scope:**
 

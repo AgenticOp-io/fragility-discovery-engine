@@ -618,6 +618,106 @@ def test_export_coevolution_pareto_script(py_exe: str, tmp_path: Path) -> None:
     assert data["source"] == "export_coevolution_pareto"
 
 
+def test_export_pareto_front_network_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_net.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "network",
+            "--out",
+            str(out),
+            "--nodes",
+            "14",
+            "--horizon",
+            "10",
+            "--generations",
+            "2",
+            "--population-size",
+            "10",
+            "--max-steps",
+            "22",
+            "--seed",
+            "414141",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert "topology" in data
+    assert data["topology"]["kind"] == "erdos_renyi"
+
+
+def test_export_pareto_front_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "ring.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    out = tmp_path / "pf_nl.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "network",
+            "--neighbor-json",
+            str(nb),
+            "--out",
+            str(out),
+            "--horizon",
+            "8",
+            "--generations",
+            "2",
+            "--population-size",
+            "8",
+            "--max-steps",
+            "16",
+            "--seed",
+            "303030",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["topology"]["storage"] == "neighbor_lists"
+    assert data["topology"]["n_nodes"] == 2
+
+
+def test_export_counterfactual_neighbor_json_writes_replays(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    out_json = tmp_path / "cf_nl.json"
+    repdir = tmp_path / "rep_nl"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "network",
+            "--neighbor-json",
+            str(nb),
+            "--out",
+            str(out_json),
+            "--export-replay-dir",
+            str(repdir),
+            "--horizon",
+            "10",
+            "--remove",
+            "0",
+            "--seed",
+            "55",
+            "--genome-seed",
+            "56",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["meta"]["topology"]["storage"] == "neighbor_lists"
+    b = json.loads((repdir / "baseline.json").read_text(encoding="utf-8"))
+    assert b["simulation_mode"] == "network"
+
+
 def test_export_counterfactual_network_writes_replays(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "cf_net.json"
     repdir = tmp_path / "replays_net"

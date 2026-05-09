@@ -4,20 +4,36 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_stablecoin, rollout_to_replay_dict
+from fragility_engine.network.graph_cli import contagion_graph_from_cli
+from fragility_engine.runner import (
+    REPLAY_SCHEMA_VERSION,
+    rollout_stablecoin,
+    rollout_stablecoin_network,
+    rollout_to_replay_dict,
+)
+from fragility_engine.world.stablecoin_network import (
+    StablecoinNetworkWorld,
+    default_whale_weights,
+    neighbor_lists_topology_meta,
+)
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Pareto archive dump + optional replay export.")
     ap.add_argument("--out", type=Path, default=Path("pareto_front.json"))
-    ap.add_argument("--seed", type=int, default=606)
+    ap.add_argument("--seed", type=int, default=606, help="GA search seed.")
+    ap.add_argument("--horizon", type=int, default=18, help="Attacker schedule rows (genome).")
+    ap.add_argument("--generations", type=int, default=10)
+    ap.add_argument("--population-size", type=int, default=22)
+    ap.add_argument("--max-steps", type=int, default=36, help="World simulation horizon cap.")
     ap.add_argument("--export-replay", type=Path, default=None, help="Export one rollout as replay JSON.")
     ap.add_argument(
         "--replay-pareto-index",
@@ -25,19 +41,120 @@ def main() -> None:
         default=None,
         help="Export pareto_archive[index] rollout (re-evaluated); default is best-fitness rollout.",
     )
+    ap.add_argument("--mode", choices=("aggregate", "network"), default="aggregate")
+    ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
+    ap.add_argument("--base-panic", type=float, default=0.05, help="[network] uniform panic at reset.")
+    ap.add_argument(
+        "--continue-after-collapse",
+        action="store_true",
+        help="Forward rollouts after collapse when applicable.",
+    )
+    ap.add_argument("--nodes", type=int, default=32, help="[network] graph order (synthetic).")
+    ap.add_argument(
+        "--graph-kind",
+        choices=("erdos_renyi", "watts_strogatz"),
+        default="erdos_renyi",
+    )
+    ap.add_argument("--er-p", type=float, default=0.14)
+    ap.add_argument("--ws-k", type=int, default=6)
+    ap.add_argument("--ws-p", type=float, default=0.12)
+    ap.add_argument("--graph-seed", type=int, default=2026)
+    ap.add_argument("--beta", type=float, default=0.38)
+    ap.add_argument("--whale-frac", type=float, default=0.22)
+    ap.add_argument("--whale-index", type=int, default=0)
+    ap.add_argument("--neighbor-json", type=Path, default=None)
+    ap.add_argument("--neighbor-weights-json", type=Path, default=None)
     args = ap.parse_args()
 
-    template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=36)
+    ms = max(int(args.max_steps), int(args.horizon))
+    topo_meta: dict | None = None
 
-    def evaluator(genome: np.ndarray, seed: int):
-        return rollout_stablecoin(template, genome, seed=seed)
+    if args.mode == "aggregate":
+        template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=ms)
+
+        def evaluator(genome: np.ndarray, seed: int):
+            return rollout_stablecoin(
+                template,
+                genome,
+                seed=seed,
+                initial_panic=float(args.initial_panic),
+                continue_after_collapse=bool(args.continue_after_collapse),
+            )
+
+    else:
+        if args.neighbor_json is not None:
+            from fragility_engine.network.neighbor_io import load_neighbor_topology
+
+            try:
+                nl, nw = load_neighbor_topology(
+                    Path(args.neighbor_json),
+                    Path(args.neighbor_weights_json) if args.neighbor_weights_json else None,
+                )
+            except (ValueError, OSError, json.JSONDecodeError) as e:
+                print(str(e), file=sys.stderr)
+                raise SystemExit(2) from e
+            n = len(nl)
+            weights = default_whale_weights(
+                n,
+                whale_index=int(args.whale_index),
+                whale_frac=float(args.whale_frac),
+            )
+            template = StablecoinNetworkWorld(
+                population=default_stablecoin_population(),
+                neighbor_lists=nl,
+                neighbor_weights=nw,
+                node_weights=weights,
+                contagion_beta=float(args.beta),
+                max_steps=ms,
+            )
+            topo_meta = neighbor_lists_topology_meta(nl, weighted=nw is not None)
+        else:
+            try:
+                graph, gen_meta = contagion_graph_from_cli(
+                    graph_kind=str(args.graph_kind),
+                    nodes=int(args.nodes),
+                    graph_seed=int(args.graph_seed),
+                    er_p=float(args.er_p),
+                    ws_k=int(args.ws_k),
+                    ws_p=float(args.ws_p),
+                )
+            except ValueError as e:
+                print(str(e), file=sys.stderr)
+                raise SystemExit(2) from e
+            n = int(args.nodes)
+            weights = default_whale_weights(
+                n,
+                whale_index=int(args.whale_index),
+                whale_frac=float(args.whale_frac),
+            )
+            template = StablecoinNetworkWorld(
+                population=default_stablecoin_population(),
+                adjacency=graph,
+                node_weights=weights,
+                contagion_beta=float(args.beta),
+                max_steps=ms,
+            )
+            topo_meta = {
+                **gen_meta,
+                "undirected_edges": graph.undirected_edge_count(),
+                "storage": "dense_adjacency",
+            }
+
+        def evaluator(genome: np.ndarray, seed: int):
+            return rollout_stablecoin_network(
+                template,
+                genome,
+                seed=seed,
+                base_panic=float(args.base_panic),
+                continue_after_collapse=bool(args.continue_after_collapse),
+            )
 
     search = genetic_search(
         evaluator,
-        horizon=18,
-        generations=10,
-        population_size=22,
-        seed=args.seed,
+        horizon=int(args.horizon),
+        generations=int(args.generations),
+        population_size=int(args.population_size),
+        seed=int(args.seed),
         collect_pareto=True,
     )
 
@@ -55,6 +172,8 @@ def main() -> None:
             for p in search.pareto_archive
         ],
     }
+    if args.mode == "network" and topo_meta is not None:
+        payload["topology"] = topo_meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay is not None:
@@ -73,8 +192,11 @@ def main() -> None:
             "replay_schema": REPLAY_SCHEMA_VERSION,
             "cli": "export_pareto_front",
             "pareto_front_seed": args.seed,
+            "mode": args.mode,
             **meta_extra,
         }
+        if topo_meta is not None:
+            replay["meta"]["topology"] = topo_meta
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 

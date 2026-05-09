@@ -44,7 +44,7 @@ python scripts/run_ga_demo.py
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network`, `--continue-after-collapse`, topology flags or `--neighbor-json`, `--collect-attacker-pareto`, **`--export-pareto-json`** (viewer-ready `pareto-front-v1`), `--json-summary`, `--export-replay` |
 | `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
-| `scripts/export_pareto_front.py` | `pareto_front.json`; `--export-replay` (+ optional `--replay-pareto-index`) |
+| `scripts/export_pareto_front.py` | `pareto_front.json`; **`--mode aggregate|network`** (topology / `--neighbor-json`); GA sizing `--horizon`, `--generations`, `--population-size`; `--export-replay` (+ `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
 | `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network`** (topology flags or `--neighbor-json`); `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
