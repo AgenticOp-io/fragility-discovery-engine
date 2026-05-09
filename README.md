@@ -53,19 +53,25 @@ python scripts/run_ga_demo.py
 | `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; **`--mode aggregate|network`** (topology / `--neighbor-json`); GA sizing `--horizon`, `--generations`, `--population-size`; `--export-replay` (+ `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
-| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network`**; **`--intervention`** `remove_steps` \| `base_panic_shift` \| `contagion_beta_shift` (network); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) |
+| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network`**; **`--intervention`** `remove_steps` \| `base_panic_shift` \| `contagion_beta_shift` \| `edge_weight_shift` \| `edge_weights_shift` (list topology / **`--edges-patch-json`**); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) |
+| `scripts/export_counterfactual_chain.py` | Ordered mutation chain counterfactual + optional **`--emit-path-trace`** (`explanation-mutation-chain-path-v1`) |
+| `scripts/merge_counterfactual_attribution.py` | Star-merge exports → **`attribution-merge-v1`** |
+| `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
+| `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |
-| `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`) — see [`benchmarks/README.md`](benchmarks/README.md) |
+| `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
-| `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network`**; axes **`initial_panic`** / **`base_panic`** / **`contagion_beta`**; **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |
+| `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network`**; axes **`initial_panic`** / **`base_panic`** / **`contagion_beta`** / **`edge_weight`**; **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 
 Local **bulk exports** for trying many scenarios in the browser: run `pwsh -File scripts/regenerate_test_exports.ps1` → writes under `artifacts/test_exports/` (gitignored). See `artifacts/README_test_exports.txt`.
 
 Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_front.json` (from `scripts/export_pareto_front.py`); bundled `sample_pareto_front.json`; HTTP **Presets** via `local_presets.json`; hover / click / arrows; optional hash `#src=…&archive=N`. Archive JSON includes `integral_instability` per point.
+
+Static **attribution** UI: `artifacts/attribution_viewer/index.html` — `attribution-merge-v1` and mutation-chain path traces.
 
 ## Extending
 
