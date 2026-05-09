@@ -387,6 +387,114 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     assert net["nodes"] == 16
 
 
+def test_export_replay_network_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "neighbors.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    out = tmp_path / "ring.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "network",
+            "--out",
+            str(out),
+            "--neighbor-json",
+            str(nb),
+            "--horizon",
+            "10",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    topo = data["meta"]["topology"]
+    assert topo["storage"] == "neighbor_lists"
+    assert topo["n_nodes"] == 2
+    assert topo["directed"] is True
+
+
+def test_run_coevolution_neighbor_json_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl.json"
+    nb.write_text("[[1,2],[0,2],[0,1]]", encoding="utf-8")
+    out = tmp_path / "coev_nl.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "network",
+            "--neighbor-json",
+            str(nb),
+            "--rounds",
+            "1",
+            "--max-steps",
+            "28",
+            "--attacker-horizon",
+            "8",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "6",
+            "--seed",
+            "777001",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "network"
+    assert data["meta"]["topology"]["storage"] == "neighbor_lists"
+    assert data["meta"]["topology"]["n_nodes"] == 3
+
+
+def test_run_coevolution_collect_attacker_pareto_in_summary(py_exe: str, tmp_path: Path) -> None:
+    summary_path = tmp_path / "sum.json"
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "aggregate",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "30",
+            "--attacker-horizon",
+            "8",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "10",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "600613",
+            "--collect-attacker-pareto",
+            "--json-summary",
+            str(summary_path),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    stdout_payload = json.loads(proc.stdout)
+    file_payload = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert stdout_payload == file_payload
+    rd0 = file_payload["rounds"][0]
+    assert "attacker_pareto" in rd0
+    assert len(rd0["attacker_pareto"]) >= 1
+
+
 def test_run_coevolution_network_exports_replay(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "coev_net.json"
     subprocess.run(

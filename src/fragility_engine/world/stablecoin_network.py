@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import AgentPopulation
-from fragility_engine.network.contagion import contagion_step_lists, neighbor_lists_from_adjacency
+from fragility_engine.network.contagion import contagion_step_lists, neighbor_lists_from_adjacency, out_edge_count
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.types import ExogenousEvent, TrajectoryStep
 
@@ -17,16 +17,20 @@ class StablecoinNetworkWorld:
     """
     Global reserves/supply with **per-node panic** on a contagion graph.
 
-    Redemption demand is a weighted average of per-node demands; each node observes the
-    same global price but **local panic**. Optional whale concentrates weights on early indices.
+    Provide **either** ``adjacency`` (dense matrix or :class:`~fragility_engine.network.contagion_graph.ContagionGraph`)
+    **or** ``neighbor_lists`` (no dense matrix stored — **O(out-edges)** RAM for topology).
 
-    ``adjacency`` may be a dense ``numpy`` matrix or a
-    :class:`~fragility_engine.network.contagion_graph.ContagionGraph`.
+    Neighbors are **out-neighbors** for panic diffusion (directed semantics). Optional ``neighbor_weights``
+    supplies a positive weight per out-edge (normalized each row).
+
+    Optional whale concentrates weights on early indices.
     """
 
     population: AgentPopulation
-    adjacency: AdjacencyLike
     node_weights: np.ndarray
+    adjacency: AdjacencyLike | None = None
+    neighbor_lists: list[list[int]] | None = None
+    neighbor_weights: list[list[float]] | None = None
     contagion_beta: float = 0.35
     depeg_threshold: float = 0.94
     panic_decay: float = 0.15
@@ -37,18 +41,60 @@ class StablecoinNetworkWorld:
     _supply: float = 0.0
     _timestep: int = 0
     _neighbor_lists: list[list[int]] = field(init=False, repr=False)
+    _neighbor_weights: list[list[float]] | None = field(init=False, repr=False)
+    _n_nodes: int = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        raw = self.adjacency
-        if isinstance(raw, ContagionGraph):
-            raw = raw.adjacency
-        self.adjacency = np.asarray(raw, dtype=np.int8)
-        self._neighbor_lists = neighbor_lists_from_adjacency(self.adjacency)
+        has_adj = self.adjacency is not None
+        has_nl = self.neighbor_lists is not None
+        if has_adj == has_nl:
+            raise ValueError("Provide exactly one of adjacency or neighbor_lists")
+        if self.neighbor_weights is not None and not has_nl:
+            raise ValueError("neighbor_weights requires neighbor_lists")
+
+        if has_adj:
+            raw = self.adjacency
+            if isinstance(raw, ContagionGraph):
+                raw = raw.adjacency
+            self.adjacency = np.asarray(raw, dtype=np.int8)
+            self._neighbor_lists = neighbor_lists_from_adjacency(self.adjacency)
+            self._neighbor_weights = None
+            self._n_nodes = int(self.adjacency.shape[0])
+        else:
+            self.adjacency = None
+            assert self.neighbor_lists is not None
+            self._neighbor_lists = [list(map(int, row)) for row in self.neighbor_lists]
+            self._n_nodes = len(self._neighbor_lists)
+            if self.neighbor_weights is not None:
+                nw = self.neighbor_weights
+                if len(nw) != self._n_nodes:
+                    raise ValueError("neighbor_weights row count must match neighbor_lists")
+                self._neighbor_weights = []
+                for i, row in enumerate(nw):
+                    ws = list(map(float, row))
+                    if len(ws) != len(self._neighbor_lists[i]):
+                        raise ValueError(f"neighbor_weights[{i}] length must match neighbors[{i}]")
+                    if any(w <= 0.0 for w in ws):
+                        raise ValueError("neighbor weights must be positive")
+                    self._neighbor_weights.append(ws)
+            else:
+                self._neighbor_weights = None
+
         nw = np.asarray(self.node_weights, dtype=np.float64)
         self.node_weights = nw / np.maximum(nw.sum(), 1e-12)
+        if self.node_weights.shape[0] != self._n_nodes:
+            raise ValueError("node_weights length must equal graph order")
+
+    @property
+    def n_nodes(self) -> int:
+        return self._n_nodes
+
+    @property
+    def uses_dense_adjacency(self) -> bool:
+        return self.adjacency is not None
 
     def reset(self, initial_reserves: float, initial_supply: float, base_panic: float = 0.05) -> None:
-        n = int(self.adjacency.shape[0])
+        n = self._n_nodes
         self._reserves = float(initial_reserves)
         self._supply = float(initial_supply)
         self._timestep = 0
@@ -96,7 +142,12 @@ class StablecoinNetworkWorld:
                 targeted = np.arange(min(k, n))
                 p[targeted] = np.clip(p[targeted] + bump, 0.0, 1.0)
 
-        p[:] = contagion_step_lists(p, self._neighbor_lists, self.contagion_beta)
+        p[:] = contagion_step_lists(
+            p,
+            self._neighbor_lists,
+            self.contagion_beta,
+            neighbor_weights=self._neighbor_weights,
+        )
 
         price = self._price()
         global_obs = {
@@ -162,3 +213,19 @@ def default_whale_weights(n: int, whale_index: int = 0, whale_frac: float = 0.22
     if n == 1:
         w[...] = 1.0
     return w
+
+
+def neighbor_lists_topology_meta(
+    neighbors: list[list[int]],
+    *,
+    weighted: bool,
+) -> dict:
+    """Serializable topology summary without a dense adjacency matrix."""
+
+    return {
+        "storage": "neighbor_lists",
+        "n_nodes": len(neighbors),
+        "out_edges": out_edge_count(neighbors),
+        "weighted": weighted,
+        "directed": True,
+    }

@@ -153,7 +153,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - **Aggregate:** `alternating_coevolution` → `rollout_stablecoin(..., defender_genome=…)`.
 - **Network:** `alternating_coevolution_network` → `rollout_stablecoin_network(..., defender_genome=…)` using the **same** four defender knobs (`coevolution.defender.decode_defender_genome_params`).
 - **Custom / heavy worlds:** `alternating_coevolution_rollout(rollout_fn)` with `rollout_fn(schedule_genome, seed, defender_genome) -> RolloutResult` — attach alternate physics or compiled steppers without forking the alternating loop.
-- **CLI:** `scripts/run_coevolution.py --mode aggregate|network` (topology flags mirror `run_network_demo.py`), `--json-summary`, `--export-replay`; replay `meta` includes `coevolution_mode` and optional `topology`.
+- **CLI:** `scripts/run_coevolution.py --mode aggregate|network` (topology flags mirror `run_network_demo.py`), optional **`--neighbor-json`** / **`--neighbor-weights-json`** for list-only directed graphs, **`--collect-attacker-pareto`** (severity vs attack-cost archive per round), `--json-summary`, `--export-replay`; replay `meta` includes `coevolution_mode` and optional `topology`.
 
 **Exit criteria:**
 
@@ -161,11 +161,12 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] Network rollouts honor defender genome and diverge from undefended baseline (`tests/test_runner_network_defender.py`).
 - [x] Network co-evolution smoke + extensibility hook (`tests/test_coevolution_network.py`).
 - [x] CLI exports network replay + topology meta (`tests/test_scripts_cli_smoke.py`).
+- [x] List-only topology JSON + optional attacker Pareto surfacing (`tests/test_neighbor_list_topology.py`, `tests/test_scripts_cli_smoke.py`, `tests/test_coevolution_network.py`).
 
 **Scale / complexity (large systems):**
 
 - Cost per **round** scales roughly as **O(G_att·P_att·H·step + G_def·P_def·H·step)** where **step** is one simulated timestep and **H** is attacker schedule horizon.
-- **Network:** current contagion stores a **dense** `int8` adjacency → **Θ(n²)** RAM and **Θ(n²)** neighbor mixing per step; large **n** demand smaller GA budgets or future sparse backends—do not pretend **n≈10⁶** fits this reference kernel.
+- **Network:** dense **`int8` adjacency** remains the default synthetic-graph path (**Θ(n²)** RAM). **List-only** **`neighbor_lists`** (+ optional positive **row weights** aligned with out-edges) avoids storing a dense matrix; diffusion stays **O(out-edges)** per step via `contagion_step_lists`. Optional perf smoke: set **`FRAGILITY_PERF_GATE=1`** (see `tests/test_benchmark_perf_gate.py`; optional ceiling **`FRAGILITY_PERF_GATE_MS`**).
 - Reduce **`max_steps`**, GA generations/population, or **horizon** before adding defender parameters; new knobs belong in `coevolution/defender.py` with explicit tests.
 - For institution-scale models, supply **`alternating_coevolution_rollout`** with your own deterministic `rollout_fn`; keep **seed discipline** documented at the call site.
 

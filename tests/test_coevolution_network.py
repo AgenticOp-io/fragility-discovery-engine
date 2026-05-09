@@ -66,3 +66,31 @@ def test_alternating_coevolution_rollout_custom_injection():
     )
     assert summary.simulation_mode == "custom_probe"
     assert summary.last_rollout is not None
+
+
+def test_alternating_coevolution_network_collect_attacker_pareto():
+    graph = ContagionGraph.erdos_renyi(14, p=0.16, seed=909)
+    n = graph.n_nodes
+    weights = default_whale_weights(n, whale_index=0, whale_frac=0.22)
+    template = StablecoinNetworkWorld(
+        population=default_stablecoin_population(),
+        adjacency=graph,
+        node_weights=weights,
+        max_steps=20,
+    )
+    summary = alternating_coevolution_network(
+        template,
+        rounds=1,
+        collect_attacker_pareto=True,
+        attacker_horizon=8,
+        attacker_generations=2,
+        attacker_population=10,
+        defender_generations=2,
+        defender_population=6,
+        seed=424_424,
+    )
+    assert len(summary.rounds) == 1
+    arch = summary.rounds[0].get("attacker_pareto")
+    assert isinstance(arch, list)
+    assert len(arch) >= 1
+    assert "severity" in arch[0] and "attack_cost" in arch[0]

@@ -39,6 +39,7 @@ def alternating_coevolution_rollout(
     seed: int = 4242,
     baseline_seed_offset: int = 50_000,
     simulation_mode: str = "aggregate",
+    collect_attacker_pareto: bool = False,
 ) -> CoevolutionSummary:
     """
     Alternating attacker/defender search over an arbitrary rollout closure.
@@ -66,6 +67,7 @@ def alternating_coevolution_rollout(
             generations=attacker_generations,
             population_size=attacker_population,
             seed=seed + rd * 997 + 3,
+            collect_pareto=collect_attacker_pareto,
         )
         attacker = att_search.best_genome.copy()
         summary.best_attacker = attacker
@@ -91,15 +93,24 @@ def alternating_coevolution_rollout(
 
         probe = rollout_fn(attacker, baseline_seed_offset + rd, defender)
         summary.last_rollout = probe
-        summary.rounds.append(
-            {
-                "round": rd,
-                "severity": float(severity_score(probe)),
-                "collapsed": probe.collapsed,
-                "attack_cost": probe.attack_cost,
-                "integral_instability": probe.integral_instability,
-            }
-        )
+        rd_payload: dict[str, Any] = {
+            "round": rd,
+            "severity": float(severity_score(probe)),
+            "collapsed": probe.collapsed,
+            "attack_cost": probe.attack_cost,
+            "integral_instability": probe.integral_instability,
+        }
+        if collect_attacker_pareto:
+            rd_payload["attacker_pareto"] = [
+                {
+                    "severity": float(p.severity),
+                    "attack_cost": float(p.attack_cost),
+                    "collapsed": bool(p.collapsed),
+                    "integral_instability": float(p.integral_instability),
+                }
+                for p in att_search.pareto_archive
+            ]
+        summary.rounds.append(rd_payload)
 
     return summary
 
@@ -108,6 +119,7 @@ def alternating_coevolution(
     template: StablecoinPegWorld,
     *,
     continue_after_collapse: bool = False,
+    collect_attacker_pareto: bool = False,
     attacker_horizon: int = 20,
     defender_genome_size: int = 4,
     rounds: int = 3,
@@ -146,6 +158,7 @@ def alternating_coevolution(
         seed=seed,
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="aggregate",
+        collect_attacker_pareto=collect_attacker_pareto,
     )
 
 
@@ -156,6 +169,7 @@ def alternating_coevolution_network(
     initial_reserves: float = 1_000_000.0,
     initial_supply: float = 1_000_000.0,
     continue_after_collapse: bool = False,
+    collect_attacker_pareto: bool = False,
     attacker_horizon: int = 20,
     defender_genome_size: int = 4,
     rounds: int = 3,
@@ -192,4 +206,5 @@ def alternating_coevolution_network(
         seed=seed,
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="network",
+        collect_attacker_pareto=collect_attacker_pareto,
     )

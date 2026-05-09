@@ -78,6 +78,25 @@ def build_defended_aggregate_world(
     return world, reserve_boost
 
 
+def _clone_stablecoin_network(template: StablecoinNetworkWorld, **phys: Any) -> StablecoinNetworkWorld:
+    """Clone topology (dense or list-only) with optional overridden physics kwargs."""
+
+    common: dict[str, Any] = {
+        "population": template.population,
+        "node_weights": template.node_weights,
+        "max_steps": template.max_steps,
+        "contagion_beta": phys.get("contagion_beta", template.contagion_beta),
+        "depeg_threshold": phys.get("depeg_threshold", template.depeg_threshold),
+        "panic_decay": phys.get("panic_decay", template.panic_decay),
+        "rumor_panic_gain": phys.get("rumor_panic_gain", template.rumor_panic_gain),
+    }
+    if template.adjacency is not None:
+        return StablecoinNetworkWorld(adjacency=template.adjacency, **common)
+    nl = [list(row) for row in template._neighbor_lists]
+    nw = [list(row) for row in template._neighbor_weights] if template._neighbor_weights else None
+    return StablecoinNetworkWorld(neighbor_lists=nl, neighbor_weights=nw, **common)
+
+
 def build_defended_network_world(
     template: StablecoinNetworkWorld,
     defender_genome: np.ndarray | None,
@@ -85,17 +104,7 @@ def build_defended_network_world(
     """Clone network template with optional defender resilience knobs (same decoding as aggregate)."""
 
     if defender_genome is None:
-        world = StablecoinNetworkWorld(
-            population=template.population,
-            adjacency=template.adjacency,
-            node_weights=template.node_weights,
-            contagion_beta=template.contagion_beta,
-            depeg_threshold=template.depeg_threshold,
-            panic_decay=template.panic_decay,
-            rumor_panic_gain=template.rumor_panic_gain,
-            max_steps=template.max_steps,
-        )
-        return world, 1.0
+        return _clone_stablecoin_network(template), 1.0
 
     overrides, reserve_boost = decode_defender_genome_params(
         defender_genome,
@@ -103,15 +112,11 @@ def build_defended_network_world(
         rumor_panic_gain=float(template.rumor_panic_gain),
         depeg_threshold=float(template.depeg_threshold),
     )
-    world = StablecoinNetworkWorld(
-        population=template.population,
-        adjacency=template.adjacency,
-        node_weights=template.node_weights,
-        contagion_beta=template.contagion_beta,
+    world = _clone_stablecoin_network(
+        template,
         depeg_threshold=float(overrides["depeg_threshold"]),
         panic_decay=float(overrides["panic_decay"]),
         rumor_panic_gain=float(overrides["rumor_panic_gain"]),
-        max_steps=template.max_steps,
     )
     return world, reserve_boost
 
