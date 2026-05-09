@@ -6,7 +6,7 @@ from typing import Any
 
 import numpy as np
 
-from fragility_engine.coevolution.defender import clone_stablecoin_network
+from fragility_engine.coevolution.defender import clone_resource_cascade, clone_stablecoin_network
 from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
@@ -348,6 +348,45 @@ def counterfactual_resource_cascade_initial_overload_shift_with_rollouts(
     merged["intervention"] = "resource_cascade_initial_overload_shift"
     merged["baseline_initial_overload"] = float(baseline_initial_overload)
     merged["variant_initial_overload"] = float(variant_initial_overload)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts(
+    genome: np.ndarray,
+    template: ResourceCascadeWorld,
+    *,
+    variant_cascade_coupling: float,
+    rollout_seed: int,
+    initial_overload: float,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome, seed, and reset overload; counterfactual swaps **cascade_coupling** via template clone."""
+
+    baseline_coupling = float(template.cascade_coupling)
+    variant_tpl = clone_resource_cascade(template, cascade_coupling=float(variant_cascade_coupling))
+    baseline = rollout_resource_cascade(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_overload=float(initial_overload),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    variant = rollout_resource_cascade(
+        variant_tpl,
+        genome,
+        seed=int(rollout_seed),
+        initial_overload=float(initial_overload),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "resource_cascade_cascade_coupling_shift"
+    merged["baseline_cascade_coupling"] = baseline_coupling
+    merged["variant_cascade_coupling"] = float(variant_cascade_coupling)
     merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
     merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
     return merged, baseline, variant

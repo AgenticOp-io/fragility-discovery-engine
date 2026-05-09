@@ -17,6 +17,7 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_network_edge_weight_with_rollouts,
     counterfactual_network_neighbor_edges_weight_patch_with_rollouts,
     counterfactual_remove_steps_with_rollouts,
+    counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts,
     counterfactual_resource_cascade_initial_overload_shift_with_rollouts,
 )
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
@@ -58,6 +59,7 @@ def main() -> None:
         choices=(
             "remove_steps",
             "initial_overload_shift",
+            "cascade_coupling_shift",
             "base_panic_shift",
             "contagion_beta_shift",
             "edge_weight_shift",
@@ -65,9 +67,9 @@ def main() -> None:
         ),
         default="remove_steps",
         help=(
-            "remove_steps: zero shock rows; resource_cascade+initial_overload_shift: reset overload A vs B; "
-            "network-only: shift base_panic, contagion_beta, or one neighbor-list edge weight "
-            "(--neighbor-json required for edge_weight_shift); edge_weights_shift applies --edges-patch-json."
+            "remove_steps: zero shock rows; resource_cascade: initial_overload_shift or cascade_coupling_shift "
+            "(physics clone); network-only: base_panic / contagion_beta / edge weights "
+            "(--neighbor-json for edge shifts); edge_weights_shift uses --edges-patch-json."
         ),
     )
     ap.add_argument(
@@ -119,6 +121,12 @@ def main() -> None:
         default=None,
         help="[resource_cascade, initial_overload_shift] counterfactual reset overload [0,1].",
     )
+    ap.add_argument(
+        "--variant-cascade-coupling",
+        type=float,
+        default=None,
+        help="[resource_cascade, cascade_coupling_shift] counterfactual cascade_coupling (baseline = template).",
+    )
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
         "--continue-after-collapse",
@@ -164,6 +172,8 @@ def main() -> None:
         )
     if args.intervention == "initial_overload_shift" and args.mode != "resource_cascade":
         raise SystemExit("--intervention initial_overload_shift requires --mode resource_cascade.")
+    if args.intervention == "cascade_coupling_shift" and args.mode != "resource_cascade":
+        raise SystemExit("--intervention cascade_coupling_shift requires --mode resource_cascade.")
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
@@ -181,10 +191,14 @@ def main() -> None:
         if args.edges_patch_json is None:
             raise SystemExit("--edges-patch-json required for --intervention edge_weights_shift.")
     if args.mode == "resource_cascade":
-        if args.intervention not in ("remove_steps", "initial_overload_shift"):
-            raise SystemExit("resource_cascade mode supports only remove_steps or initial_overload_shift.")
+        if args.intervention not in ("remove_steps", "initial_overload_shift", "cascade_coupling_shift"):
+            raise SystemExit(
+                "resource_cascade mode supports remove_steps, initial_overload_shift, or cascade_coupling_shift."
+            )
         if args.intervention == "initial_overload_shift" and args.variant_initial_overload is None:
             raise SystemExit("--variant-initial-overload required for --intervention initial_overload_shift.")
+        if args.intervention == "cascade_coupling_shift" and args.variant_cascade_coupling is None:
+            raise SystemExit("--variant-cascade-coupling required for --intervention cascade_coupling_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -227,13 +241,22 @@ def main() -> None:
             report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
                 genome, evaluator_rc, remove_timesteps=remove_ts, base_seed=args.seed
             )
-        else:
+        elif args.intervention == "initial_overload_shift":
             report, baseline_rr, variant_rr = counterfactual_resource_cascade_initial_overload_shift_with_rollouts(
                 genome,
                 template,
                 baseline_initial_overload=float(args.initial_overload),
                 variant_initial_overload=float(args.variant_initial_overload),
                 rollout_seed=int(args.seed),
+                continue_after_collapse=cont,
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts(
+                genome,
+                template,
+                variant_cascade_coupling=float(args.variant_cascade_coupling),
+                rollout_seed=int(args.seed),
+                initial_overload=float(args.initial_overload),
                 continue_after_collapse=cont,
             )
     else:
@@ -357,6 +380,9 @@ def main() -> None:
         elif args.intervention == "initial_overload_shift":
             common_meta["baseline_initial_overload"] = float(args.initial_overload)
             common_meta["variant_initial_overload"] = float(args.variant_initial_overload)
+        elif args.intervention == "cascade_coupling_shift":
+            common_meta["baseline_cascade_coupling"] = float(report["baseline_cascade_coupling"])
+            common_meta["variant_cascade_coupling"] = float(report["variant_cascade_coupling"])
         else:
             common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:

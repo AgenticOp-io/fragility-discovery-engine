@@ -7,6 +7,7 @@ import numpy as np
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.counterfactual import (
     counterfactual_remove_steps_with_rollouts,
+    counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts,
     counterfactual_resource_cascade_initial_overload_shift_with_rollouts,
 )
 from fragility_engine.explain.merge_attribution import merge_heterogeneous_counterfactuals
@@ -30,6 +31,21 @@ def test_resource_cascade_initial_overload_shift_structure():
     assert "delta_integral_instability" in merged
     assert base_rr.simulation_mode == "resource_cascade"
     assert var_rr.simulation_mode == "resource_cascade"
+
+
+def test_resource_cascade_cascade_coupling_shift_structure():
+    template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=20)
+    genome = np.random.default_rng(603).uniform(size=(11, 2))
+    merged, _, _ = counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts(
+        genome,
+        template,
+        variant_cascade_coupling=0.35,
+        rollout_seed=771077,
+        initial_overload=0.06,
+    )
+    assert merged["intervention"] == "resource_cascade_cascade_coupling_shift"
+    assert merged["baseline_cascade_coupling"] == float(template.cascade_coupling)
+    assert merged["variant_cascade_coupling"] == 0.35
 
 
 def test_resource_cascade_joint_merge_strict_baseline():

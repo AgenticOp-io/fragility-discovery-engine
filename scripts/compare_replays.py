@@ -6,6 +6,17 @@ import argparse
 import json
 from pathlib import Path
 
+
+def _price_metric_note(mode: str | None) -> str:
+    """Replay ``metrics.price`` is peg ratio (aggregate) or min headroom (resource cascade); same JSON field."""
+
+    if mode == "resource_cascade":
+        return "metrics.price encodes min layer headroom [0,1] (not a peg)."
+    if mode == "network":
+        return "metrics.price encodes network summary headroom proxy (see trajectory step metrics)."
+    return "metrics.price encodes peg ratio (aggregate)."
+
+
 COMPARE_KEYS = (
     "schema_version",
     "simulation_mode",
@@ -45,6 +56,10 @@ def main() -> None:
         "right": pb,
         "trajectory_lengths": (len(a.get("trajectory") or []), len(b.get("trajectory") or [])),
         "diff_keys": diff_keys,
+        "metric_notes": {
+            "left_price_metric": _price_metric_note(pa.get("simulation_mode")),
+            "right_price_metric": _price_metric_note(pb.get("simulation_mode")),
+        },
     }
     text = json.dumps(out, indent=2)
     print(text)

@@ -6,6 +6,7 @@ Output is **not** fed back into simulation — summaries cite artifact keys only
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -23,10 +24,15 @@ def _load(path: Path) -> dict[str, Any]:
     return data
 
 
-def narrate(data: dict[str, Any], *, source: str) -> str:
+def narrate(data: dict[str, Any], *, source: str, citation_prefix: str = "") -> str:
     schema = data.get("schema")
     schema_ver = data.get("schema_version")
-    lines = [f"source: {source}", "---"]
+    lines = []
+    if citation_prefix:
+        lines.append(citation_prefix.rstrip())
+        lines.append("---")
+    lines.append(f"source: {source}")
+    lines.append("---")
 
     if schema == "attribution-merge-v1":
         lines.append("kind: attribution merge (star graph)")
@@ -95,18 +101,33 @@ def main() -> None:
         default=None,
         help="Optional path for narration-summary-v1 JSON (machine-readable).",
     )
+    ap.add_argument(
+        "--cite-digest",
+        action="store_true",
+        help="Prefix SHA-256 (raw file bytes) + resolved path for reproducible citations (Phase L hook).",
+    )
     args = ap.parse_args()
 
+    resolved = args.json_path.resolve()
+    cite_prefix = ""
+    digest_hex: str | None = None
+    if args.cite_digest:
+        raw = resolved.read_bytes()
+        digest_hex = hashlib.sha256(raw).hexdigest()
+        cite_prefix = f"citation_sha256: {digest_hex}\ncitation_path: {resolved.as_posix()}"
+
     data = _load(args.json_path)
-    text = narrate(data, source=str(args.json_path))
+    text = narrate(data, source=str(resolved), citation_prefix=cite_prefix)
     print(text)
 
     if args.json_out is not None:
-        summary = {
+        summary: dict[str, Any] = {
             "schema": "narration-summary-v1",
-            "input": str(args.json_path),
+            "input": str(resolved),
             "text": text,
         }
+        if digest_hex is not None:
+            summary["input_sha256"] = digest_hex
         args.json_out.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
 

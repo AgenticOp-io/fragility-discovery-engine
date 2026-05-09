@@ -21,7 +21,7 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — phases I–L plus moonshots; **Phase H** (benchmark harness + ensemble robustness slice) is **normative** in [`BOUNDARIES.md`](BOUNDARIES.md).
 
-**Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim.
+**Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
@@ -53,17 +53,19 @@ python scripts/run_ga_demo.py
 | `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; **`--mode aggregate|network|resource_cascade`** (**`--initial-overload`** for cascade); topology / `--neighbor-json` for network; GA sizing `--horizon`, `--generations`, `--population-size`; `--export-replay` (+ `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
-| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network|resource_cascade`**; interventions include `remove_steps`, **`initial_overload_shift`** (cascade), network-only shifts (`base_panic_shift`, `contagion_beta_shift`, `edge_weight_shift`, `edge_weights_shift` / **`--edges-patch-json`**); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) |
+| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network|resource_cascade`**; cascade: `remove_steps`, **`initial_overload_shift`**, **`cascade_coupling_shift`** (`--variant-cascade-coupling`); network shifts (`base_panic_shift`, …); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 | `scripts/export_counterfactual_chain.py` | Ordered mutation chain counterfactual + optional **`--emit-path-trace`** (`explanation-mutation-chain-path-v1`) |
+| `scripts/export_resource_cascade_joint_attribution.py` | One-shot **`attribution-merge-v1`**: shared-baseline **remove_steps** + **initial_overload_shift** on `ResourceCascadeWorld` |
+| `scripts/narrate_frozen_json.py` | Phase **L** scaffold: replay / Pareto / merge / epsilon-sweep JSON; **`--cite-digest`** (SHA-256 + path); **`--json-out`** → **`narration-summary-v1`** |
 | `scripts/merge_counterfactual_attribution.py` | Star-merge exports → **`attribution-merge-v1`** |
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
-| `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
+| `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate / network / **`resource_cascade`** (`--json`, sizing flags, **`--initial-overload`** for cascade, optional `--neighbor-json` for list-topology network) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
-| `scripts/counterfactual_epsilon_sweep.py` | Phase I: **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** (aggregate), **`initial_overload`** (cascade), **`base_panic`** / **`contagion_beta`** / **`edge_weight`** (network); **`--emit-trace`** → `explanation-trace-v1`; see [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) §4–5 |
+| `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 

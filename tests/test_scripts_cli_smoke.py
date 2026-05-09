@@ -87,6 +87,36 @@ def test_export_counterfactual_resource_cascade_remove_steps_cli(py_exe: str, tm
     assert b["simulation_mode"] == "resource_cascade"
 
 
+def test_export_counterfactual_resource_cascade_cascade_coupling_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "cf_rc_cc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "resource_cascade",
+            "--intervention",
+            "cascade_coupling_shift",
+            "--out",
+            str(out_json),
+            "--horizon",
+            "10",
+            "--seed",
+            "66301",
+            "--genome-seed",
+            "66302",
+            "--initial-overload",
+            "0.06",
+            "--variant-cascade-coupling",
+            "0.38",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "resource_cascade_cascade_coupling_shift"
+
+
 def test_export_counterfactual_resource_cascade_overload_shift_cli(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "cf_rc_io.json"
     subprocess.run(
@@ -161,6 +191,28 @@ def test_narrate_frozen_json_replay_cli(py_exe: str) -> None:
     )
     assert "resource_cascade" in proc.stdout
     assert "replay rollout" in proc.stdout
+
+
+def test_narrate_frozen_json_cite_digest_cli(py_exe: str, tmp_path: Path) -> None:
+    j = tmp_path / "x.json"
+    j.write_text('{"schema_version": "0.4.0", "simulation_mode": "aggregate", "trajectory": []}', encoding="utf-8")
+    out_j = tmp_path / "narr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(j),
+            "--cite-digest",
+            "--json-out",
+            str(out_j),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_j.read_text(encoding="utf-8"))
+    assert payload["schema"] == "narration-summary-v1"
+    assert len(payload["input_sha256"]) == 64
+    assert "citation_sha256:" in payload["text"]
 
 
 def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -> None:
@@ -347,6 +399,8 @@ def test_compare_replays_cli(py_exe: str, tmp_path: Path) -> None:
     )
     out = json.loads(proc.stdout)
     assert len(out["diff_keys"]) >= 1
+    assert "metric_notes" in out
+    assert "peg ratio" in out["metric_notes"]["left_price_metric"].lower()
     assert diff_path.is_file()
     assert json.loads(diff_path.read_text(encoding="utf-8"))["diff_keys"] == out["diff_keys"]
 
