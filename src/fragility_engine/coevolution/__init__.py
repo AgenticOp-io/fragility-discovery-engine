@@ -1,6 +1,7 @@
 from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
     build_defended_network_world,
+    clone_stablecoin_network,
     decode_defender_genome,
     decode_defender_genome_params,
     random_defender_genome,
@@ -12,6 +13,7 @@ __all__ = [
     "alternating_coevolution_rollout",
     "build_defended_aggregate_world",
     "build_defended_network_world",
+    "clone_stablecoin_network",
     "decode_defender_genome",
     "decode_defender_genome_params",
     "random_defender_genome",

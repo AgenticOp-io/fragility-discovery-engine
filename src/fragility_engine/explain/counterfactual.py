@@ -5,7 +5,9 @@ from typing import Any
 
 import numpy as np
 
+from fragility_engine.runner import rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
+from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 
 
 def genome_zero_timesteps(genome: np.ndarray, timesteps: list[int]) -> np.ndarray:
@@ -84,6 +86,79 @@ def counterfactual_bundle_to_jsonable(report: dict[str, Any]) -> dict[str, Any]:
     """Already JSON-serializable; placeholder hook for future compression / refs."""
 
     return dict(report)
+
+
+def counterfactual_network_base_panic_with_rollouts(
+    genome: np.ndarray,
+    template: StablecoinNetworkWorld,
+    *,
+    baseline_base_panic: float,
+    variant_base_panic: float,
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome and RNG seed; counterfactual changes uniform **base_panic** at network reset."""
+
+    baseline = rollout_stablecoin_network(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        base_panic=float(baseline_base_panic),
+        continue_after_collapse=bool(continue_after_collapse),
+    )
+    variant = rollout_stablecoin_network(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        base_panic=float(variant_base_panic),
+        continue_after_collapse=bool(continue_after_collapse),
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "network_base_panic_shift"
+    merged["baseline_base_panic"] = float(baseline_base_panic)
+    merged["variant_base_panic"] = float(variant_base_panic)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_network_contagion_beta_with_rollouts(
+    genome: np.ndarray,
+    template: StablecoinNetworkWorld,
+    *,
+    baseline_beta: float,
+    variant_beta: float,
+    rollout_seed: int,
+    base_panic: float,
+    continue_after_collapse: bool = False,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome, seed, and base_panic; counterfactual swaps **contagion_beta** via topology-preserving clone."""
+
+    from fragility_engine.coevolution.defender import clone_stablecoin_network
+
+    tb = clone_stablecoin_network(template, contagion_beta=float(baseline_beta))
+    tv = clone_stablecoin_network(template, contagion_beta=float(variant_beta))
+    baseline = rollout_stablecoin_network(
+        tb,
+        genome,
+        seed=int(rollout_seed),
+        base_panic=float(base_panic),
+        continue_after_collapse=bool(continue_after_collapse),
+    )
+    variant = rollout_stablecoin_network(
+        tv,
+        genome,
+        seed=int(rollout_seed),
+        base_panic=float(base_panic),
+        continue_after_collapse=bool(continue_after_collapse),
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "network_contagion_beta_shift"
+    merged["baseline_beta"] = float(baseline_beta)
+    merged["variant_beta"] = float(variant_beta)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
 
 
 def _hint(base: RolloutResult, variant: RolloutResult) -> str:

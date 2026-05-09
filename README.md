@@ -50,7 +50,7 @@ python scripts/run_ga_demo.py
 | `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
 | `scripts/export_pareto_front.py` | `pareto_front.json`; **`--mode aggregate|network`** (topology / `--neighbor-json`); GA sizing `--horizon`, `--generations`, `--population-size`; `--export-replay` (+ `--replay-pareto-index`) |
 | `scripts/find_cheap_collapse.py` | Cost-penalized GA (`--export-replay`) |
-| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network`** (topology flags or `--neighbor-json`); `--export-replay-dir` → `baseline.json` + `counterfactual.json` |
+| `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network`**; **`--intervention`** `remove_steps` \| `base_panic_shift` \| `contagion_beta_shift` (network); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level metrics for two replay files; optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock timing for aggregate vs network rollouts (`--json`, sizing flags, optional `--neighbor-json`) |

@@ -192,6 +192,26 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] README-style reproduction / citation notes (`benchmarks/README.md`).
 - [x] Ensemble robustness sweep + tests (`fragility_engine/benchmarks/ensemble.py`, `tests/test_fragility_robustness_ensemble.py`, `scripts/fragility_robustness_sweep.py`).
 
+### Phase I — Network-native explanation grammar
+
+**Status:** `explain/counterfactual.py`, `scripts/export_counterfactual.py`, `docs/network_counterfactual_example.md`.
+
+**Purpose:** structured network counterfactuals beyond **shock timestep removal** — same pinned genome + rollout seed, varying **reset physics** interpretable in replay meta.
+
+**In scope (shipped slice):**
+
+- **`network_base_panic_shift`** — baseline vs variant uniform `base_panic` at `StablecoinNetworkWorld.reset`.
+- **`network_contagion_beta_shift`** — topology-preserving clones with different `contagion_beta` (`clone_stablecoin_network`).
+- CLI: `--intervention remove_steps|base_panic_shift|contagion_beta_shift` (network-only for the latter two).
+
+**Backlog (not gates yet):** mechanical explanation DAG JSON, automated ε-sweeps, aggregate `initial_panic` pairing, edge-weight counterfactuals on neighbor JSON.
+
+**Exit criteria:**
+
+- [x] ≥2 network-only intervention families beyond timestep deletion (`counterfactual_network_*_with_rollouts`, `tests/test_counterfactual_network_interventions.py`).
+- [x] CLI semantics documented in `--help` and this section; subprocess smoke (`tests/test_scripts_cli_smoke.py`).
+- [x] Worked example with commands (`docs/network_counterfactual_example.md`).
+
 ## Fitness function discipline
 
 Current scalar fitness is **acceptable for Phase A**.

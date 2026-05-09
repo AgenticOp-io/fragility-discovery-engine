@@ -81,6 +81,7 @@ def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -
     c = json.loads((repdir / "counterfactual.json").read_text(encoding="utf-8"))
     assert b["meta"]["variant"] == "baseline"
     assert c["meta"]["variant"] == "counterfactual"
+    assert b["meta"]["intervention"] == "remove_steps"
 
 
 def test_export_replay_network_watts_strogatz(py_exe: str, tmp_path: Path) -> None:
@@ -760,6 +761,72 @@ def test_run_benchmark_suite_validate_cli(py_exe: str) -> None:
         check=True,
         cwd=str(ROOT),
     )
+
+
+def test_export_counterfactual_base_panic_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_bp.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "network",
+            "--nodes",
+            "14",
+            "--horizon",
+            "11",
+            "--intervention",
+            "base_panic_shift",
+            "--base-panic",
+            "0.06",
+            "--variant-base-panic",
+            "0.17",
+            "--seed",
+            "8801",
+            "--genome-seed",
+            "22",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["meta"]["intervention"] == "base_panic_shift"
+    assert payload["intervention"] == "network_base_panic_shift"
+
+
+def test_export_counterfactual_beta_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_b.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "network",
+            "--nodes",
+            "13",
+            "--horizon",
+            "10",
+            "--intervention",
+            "contagion_beta_shift",
+            "--beta",
+            "0.4",
+            "--variant-beta",
+            "0.1",
+            "--seed",
+            "8802",
+            "--genome-seed",
+            "23",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["meta"]["intervention"] == "contagion_beta_shift"
+    assert payload["intervention"] == "network_contagion_beta_shift"
 
 
 def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:

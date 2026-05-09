@@ -78,6 +78,12 @@ def build_defended_aggregate_world(
     return world, reserve_boost
 
 
+def clone_stablecoin_network(template: StablecoinNetworkWorld, **phys: Any) -> StablecoinNetworkWorld:
+    """Clone topology (dense or list-only) with optional overridden physics kwargs (counterfactuals, studies)."""
+
+    return _clone_stablecoin_network(template, **phys)
+
+
 def _clone_stablecoin_network(template: StablecoinNetworkWorld, **phys: Any) -> StablecoinNetworkWorld:
     """Clone topology (dense or list-only) with optional overridden physics kwargs."""
 
@@ -104,7 +110,7 @@ def build_defended_network_world(
     """Clone network template with optional defender resilience knobs (same decoding as aggregate)."""
 
     if defender_genome is None:
-        return _clone_stablecoin_network(template), 1.0
+        return clone_stablecoin_network(template), 1.0
 
     overrides, reserve_boost = decode_defender_genome_params(
         defender_genome,
@@ -112,7 +118,7 @@ def build_defended_network_world(
         rumor_panic_gain=float(template.rumor_panic_gain),
         depeg_threshold=float(template.depeg_threshold),
     )
-    world = _clone_stablecoin_network(
+    world = clone_stablecoin_network(
         template,
         depeg_threshold=float(overrides["depeg_threshold"]),
         panic_decay=float(overrides["panic_decay"]),

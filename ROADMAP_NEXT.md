@@ -36,6 +36,8 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (manifest JSON, hypervolume proxies, scheduled workflows) remains optional backlog.
 
+**Phase I (network explanation grammar) is partially adopted** — base-panic and contagion-β counterfactuals + docs; see **`BOUNDARIES.md` (Phase I)**. DAG / ε-sweep backlog remains.
+
 ### Phase H — Fragility certificates & benchmark harness
 
 **Purpose:** Turn ad hoc scripts into a **portable, auditable benchmark layer**: comparable runs across machines and time.
@@ -74,9 +76,11 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Exit criteria (candidate):**
 
-- [ ] `explain/` APIs + tests cover **≥2** network-only intervention families beyond timestep deletion.
-- [ ] CLI (`export_counterfactual` or successor) documents semantics in `--help` and in `BOUNDARIES.md`.
-- [ ] One **worked example** in docs with paired replay files.
+- [x] `explain/` APIs + tests — **base_panic** + **contagion_beta** shifts (`tests/test_counterfactual_network_interventions.py`).
+- [x] CLI `export_counterfactual --intervention …` + `BOUNDARIES.md` Phase I.
+- [x] Worked example: [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md).
+
+**Phase I partial adoption** — explanation DAG / ε-sweeps remain roadmap backlog.
 
 ---
 

@@ -12,6 +12,8 @@ import numpy as np
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.counterfactual import (
     counterfactual_bundle_to_jsonable,
+    counterfactual_network_base_panic_with_rollouts,
+    counterfactual_network_contagion_beta_with_rollouts,
     counterfactual_remove_steps_with_rollouts,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
@@ -30,12 +32,45 @@ from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Export counterfactual JSON (drop shock timesteps, same seed).")
+    ap = argparse.ArgumentParser(
+        description=(
+            "Export counterfactual JSON: remove shock timesteps (default), or network shifts to "
+            "base_panic / contagion_beta (same genome + rollout seed)."
+        ),
+    )
     ap.add_argument("--out", type=Path, default=Path("counterfactual.json"))
-    ap.add_argument("--seed", type=int, default=424242)
+    ap.add_argument(
+        "--seed",
+        type=int,
+        default=424242,
+        help="Rollout RNG seed (pinned for baseline vs counterfactual).",
+    )
     ap.add_argument("--horizon", type=int, default=28)
-    ap.add_argument("--remove", type=str, default="0,1,2", help="Comma-separated timestep indices to zero out.")
+    ap.add_argument(
+        "--remove",
+        type=str,
+        default="0,1,2",
+        help="[remove_steps] comma-separated timestep indices to zero.",
+    )
     ap.add_argument("--genome-seed", type=int, default=7, help="RNG seed for random attacker genome.")
+    ap.add_argument(
+        "--intervention",
+        choices=("remove_steps", "base_panic_shift", "contagion_beta_shift"),
+        default="remove_steps",
+        help="remove_steps: zero shock rows; network-only: shift base_panic or contagion_beta clone.",
+    )
+    ap.add_argument(
+        "--variant-base-panic",
+        type=float,
+        default=None,
+        help="[network, base_panic_shift] counterfactual uniform reset panic.",
+    )
+    ap.add_argument(
+        "--variant-beta",
+        type=float,
+        default=None,
+        help="[network, contagion_beta_shift] counterfactual contagion beta.",
+    )
     ap.add_argument(
         "--mode",
         choices=("aggregate", "network"),
@@ -43,7 +78,7 @@ def main() -> None:
         help="aggregate = peg world; network = StablecoinNetworkWorld.",
     )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
-    ap.add_argument("--base-panic", type=float, default=0.05, help="[network] uniform node panic at reset.")
+    ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
         "--continue-after-collapse",
         action="store_true",
@@ -60,7 +95,7 @@ def main() -> None:
     ap.add_argument("--ws-k", type=int, default=6)
     ap.add_argument("--ws-p", type=float, default=0.15)
     ap.add_argument("--graph-seed", type=int, default=2026)
-    ap.add_argument("--beta", type=float, default=0.38)
+    ap.add_argument("--beta", type=float, default=0.38, help="[network] baseline contagion beta.")
     ap.add_argument("--whale-frac", type=float, default=0.22)
     ap.add_argument("--neighbor-json", type=Path, default=None, help="[network] list-only topology JSON.")
     ap.add_argument("--neighbor-weights-json", type=Path, default=None)
@@ -72,13 +107,23 @@ def main() -> None:
     )
     args = ap.parse_args()
 
+    if args.intervention != "remove_steps" and args.mode != "network":
+        raise SystemExit("--intervention base_panic_shift and contagion_beta_shift require --mode network.")
+    if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
+        raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
+    if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
+        raise SystemExit("--variant-beta required for --intervention contagion_beta_shift.")
+
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
     genome = rng.uniform(size=(args.horizon, 2))
 
     topo_meta: dict | None = None
+    cont = bool(args.continue_after_collapse)
 
     if args.mode == "aggregate":
+        if args.intervention != "remove_steps":
+            raise SystemExit("Aggregate mode supports only --intervention remove_steps.")
         template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=max(args.horizon, 32))
 
         def evaluator(g: np.ndarray, s: int):
@@ -87,10 +132,14 @@ def main() -> None:
                 g,
                 seed=s,
                 initial_panic=float(args.initial_panic),
-                continue_after_collapse=bool(args.continue_after_collapse),
+                continue_after_collapse=cont,
             )
 
+        report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
+            genome, evaluator, remove_timesteps=remove_ts, base_seed=args.seed
+        )
     else:
+        template: StablecoinNetworkWorld
         if args.neighbor_json is not None:
             from fragility_engine.network.neighbor_io import load_neighbor_topology
 
@@ -141,24 +190,47 @@ def main() -> None:
                 "storage": "dense_adjacency",
             }
 
-        def evaluator(g: np.ndarray, s: int):
-            return rollout_stablecoin_network(
+        if args.intervention == "remove_steps":
+
+            def evaluator(g: np.ndarray, s: int):
+                return rollout_stablecoin_network(
+                    template,
+                    g,
+                    seed=s,
+                    base_panic=float(args.base_panic),
+                    continue_after_collapse=cont,
+                )
+
+            report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
+                genome, evaluator, remove_timesteps=remove_ts, base_seed=args.seed
+            )
+        elif args.intervention == "base_panic_shift":
+            report, baseline_rr, variant_rr = counterfactual_network_base_panic_with_rollouts(
+                genome,
                 template,
-                g,
-                seed=s,
+                baseline_base_panic=float(args.base_panic),
+                variant_base_panic=float(args.variant_base_panic),
+                rollout_seed=int(args.seed),
+                continue_after_collapse=cont,
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_network_contagion_beta_with_rollouts(
+                genome,
+                template,
+                baseline_beta=float(args.beta),
+                variant_beta=float(args.variant_beta),
+                rollout_seed=int(args.seed),
                 base_panic=float(args.base_panic),
-                continue_after_collapse=bool(args.continue_after_collapse),
+                continue_after_collapse=cont,
             )
 
-    report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
-        genome, evaluator, remove_timesteps=remove_ts, base_seed=args.seed
-    )
     payload = counterfactual_bundle_to_jsonable(report)
     payload["meta"] = {
         "cli": "export_counterfactual",
         "base_seed": args.seed,
         "mode": args.mode,
-        "continue_after_collapse": bool(args.continue_after_collapse),
+        "intervention": args.intervention,
+        "continue_after_collapse": cont,
     }
     if topo_meta is not None:
         payload["meta"]["topology"] = topo_meta
@@ -166,14 +238,22 @@ def main() -> None:
 
     if args.export_replay_dir is not None:
         args.export_replay_dir.mkdir(parents=True, exist_ok=True)
-        common_meta = {
+        common_meta: dict = {
             "replay_schema": REPLAY_SCHEMA_VERSION,
             "cli": "export_counterfactual",
             "base_seed": args.seed,
-            "removed_timesteps": remove_ts,
             "mode": args.mode,
-            "continue_after_collapse": bool(args.continue_after_collapse),
+            "intervention": args.intervention,
+            "continue_after_collapse": cont,
         }
+        if args.intervention == "remove_steps":
+            common_meta["removed_timesteps"] = remove_ts
+        elif args.intervention == "base_panic_shift":
+            common_meta["baseline_base_panic"] = float(args.base_panic)
+            common_meta["variant_base_panic"] = float(args.variant_base_panic)
+        else:
+            common_meta["baseline_beta"] = float(args.beta)
+            common_meta["variant_beta"] = float(args.variant_beta)
         if topo_meta is not None:
             common_meta["topology"] = topo_meta
         br = rollout_to_replay_dict(baseline_rr)
