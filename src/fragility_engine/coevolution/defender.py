@@ -80,7 +80,11 @@ def build_defended_aggregate_world(
 
 
 def clone_stablecoin_network(template: StablecoinNetworkWorld, **phys: Any) -> StablecoinNetworkWorld:
-    """Clone topology (dense or list-only) with optional overridden physics kwargs (counterfactuals, studies)."""
+    """Clone topology (dense or list-only) with optional overridden physics kwargs (counterfactuals, studies).
+
+    Optional ``population=`` replaces the template's ``population`` attribute
+    (thread-isolated fitness evaluation).
+    """
 
     return _clone_stablecoin_network(template, **phys)
 
@@ -89,7 +93,7 @@ def _clone_stablecoin_network(template: StablecoinNetworkWorld, **phys: Any) -> 
     """Clone topology (dense or list-only) with optional overridden physics kwargs."""
 
     common: dict[str, Any] = {
-        "population": template.population,
+        "population": phys.get("population", template.population),
         "node_weights": template.node_weights,
         "max_steps": template.max_steps,
         "contagion_beta": phys.get("contagion_beta", template.contagion_beta),
@@ -133,10 +137,13 @@ def build_defended_network_world(
 
 
 def clone_resource_cascade(template: ResourceCascadeWorld, **phys: Any) -> ResourceCascadeWorld:
-    """Clone cascade parameters with optional physics overrides (counterfactuals, defenders)."""
+    """Clone cascade parameters with optional physics overrides (counterfactuals, defenders).
+
+    Optional ``population=`` replaces the template's ``population`` for concurrent evaluation safety.
+    """
 
     return ResourceCascadeWorld(
-        population=template.population,
+        population=phys.get("population", template.population),
         cascade_coupling=float(phys.get("cascade_coupling", template.cascade_coupling)),
         overload_decay=float(phys.get("overload_decay", template.overload_decay)),
         rumor_gain=float(phys.get("rumor_gain", template.rumor_gain)),

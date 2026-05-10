@@ -38,6 +38,32 @@ def test_alternating_coevolution_network_smoke():
     assert len(summary.rounds) == 1
 
 
+def test_alternating_coevolution_network_eval_workers_matches_sequential():
+    graph = ContagionGraph.erdos_renyi(12, p=0.14, seed=909)
+    n = graph.n_nodes
+    weights = default_whale_weights(n, whale_index=0, whale_frac=0.2)
+    template = StablecoinNetworkWorld(
+        population=default_stablecoin_population(),
+        adjacency=graph,
+        node_weights=weights,
+        max_steps=22,
+    )
+    kwargs = dict(
+        rounds=1,
+        attacker_horizon=8,
+        attacker_generations=2,
+        attacker_population=8,
+        defender_generations=2,
+        defender_population=7,
+        seed=5151,
+    )
+    s1 = alternating_coevolution_network(template, eval_workers=1, **kwargs)
+    s4 = alternating_coevolution_network(template, eval_workers=4, **kwargs)
+    assert s1.rounds == s4.rounds
+    assert np.allclose(s1.best_attacker, s4.best_attacker)
+    assert np.allclose(s1.best_defender, s4.best_defender)
+
+
 def test_alternating_coevolution_rollout_custom_injection():
     """Hook accepts custom deterministic rollouts (extensibility for large / bespoke worlds)."""
 
