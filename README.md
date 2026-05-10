@@ -68,7 +68,7 @@ python scripts/run_ga_demo.py
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
-| `scripts/benchmark_rollout.py` | Wall-clock timing: **`--bundle <phase_h_id>`** (exact frozen bundles from `benchmarks/` suite) or **ad-hoc** `--mode aggregate|network|resource_cascade` (`--json`, **`workflow`** field distinguishes paths) |
+| `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <phase_h_id>`**, **`--bundle-all`** (full Phase H suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
 | `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |

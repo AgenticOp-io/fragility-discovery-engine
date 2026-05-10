@@ -53,6 +53,14 @@ python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repea
 
 Emit JSON includes `workflow`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, `mean_ms_per_rollout`.
 
+Suite sweep (every registered bundle, comparable relative timings on one machine):
+
+```bash
+python scripts/benchmark_rollout.py --bundle-all --repeat 8 --warmup 1 --json
+```
+
+JSON includes `workflow: "phase_h_bundle_suite"`, `bundles[]` per id, and `total_wall_clock_s`.
+
 ## Reference timing snapshot (informative, not a gate)
 
 **Ad-hoc** workloads: wall-clock from `scripts/benchmark_rollout.py` (**NumPy** reference path, `--repeat 5 --warmup 1`, `horizon=24`, `max_steps=48`). Numbers vary by CPU/OS; use the same command to reproduce locally.

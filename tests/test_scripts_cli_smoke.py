@@ -858,6 +858,32 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     assert bundle_payload["mean_ms_per_rollout"] >= 0.0
 
 
+def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle-all",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    suite = json.loads(proc.stdout)
+    assert suite["workflow"] == "phase_h_bundle_suite"
+    assert suite["bundle_count"] == 4
+    assert len(suite["bundles"]) == 4
+    ids = [row["bundle_id"] for row in suite["bundles"]]
+    assert ids == sorted(ids)
+    assert suite["total_wall_clock_s"] >= 0.0
+
+
 def test_export_replay_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "rc_rep.json"
     subprocess.run(

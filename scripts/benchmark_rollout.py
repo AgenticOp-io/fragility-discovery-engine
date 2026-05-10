@@ -1,6 +1,6 @@
 """Wall-clock timing for representative rollouts (local profiling; not a regression gate).
 
-Use ``--bundle <id>`` to time the exact Phase H frozen bundles from ``fragility_engine.benchmarks.suite``.
+Use ``--bundle <id>`` or ``--bundle-all`` to time Phase H frozen bundles from ``fragility_engine.benchmarks.suite``.
 """
 
 from __future__ import annotations
@@ -32,10 +32,11 @@ def main() -> None:
     p = argparse.ArgumentParser(
         description=(
             "Time aggregate, network, or resource_cascade rollouts (perf_counter). "
-            "Optional --bundle runs the exact Phase H golden workload (ignores --mode sizing)."
+            "Optional --bundle / --bundle-all run Phase H golden workloads (ignore --mode sizing)."
         ),
     )
-    p.add_argument(
+    _bundle_grp = p.add_mutually_exclusive_group()
+    _bundle_grp.add_argument(
         "--bundle",
         choices=BUNDLE_IDS,
         default=None,
@@ -43,6 +44,14 @@ def main() -> None:
             "Phase H bundle id: same genome seeds + templates as run_benchmark_suite.py "
             f"(genome_seed={PINNED_GENOME_SEED}, rollout_seed={PINNED_ROLLOUT_SEED}). "
             "When set, --mode / --horizon / --seed / topology flags are ignored."
+        ),
+    )
+    _bundle_grp.add_argument(
+        "--bundle-all",
+        action="store_true",
+        help=(
+            "Time every Phase H bundle in registry order (same warmup/repeat each); "
+            "emits aggregate JSON with per-bundle rows under --json."
         ),
     )
     p.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="network")
@@ -75,6 +84,47 @@ def main() -> None:
 
     repeat = max(0, int(args.repeat))
     warmup = max(0, int(args.warmup))
+
+    if args.bundle_all:
+        rows: list[dict[str, float | str]] = []
+        total_wall = 0.0
+        for bid in BUNDLE_IDS:
+
+            def run_once_b(bid_: str = bid) -> None:
+                run_bundle_rollout_once(bid_)
+
+            for _ in range(warmup):
+                run_once_b()
+            t0 = time.perf_counter()
+            for _ in range(repeat):
+                run_once_b()
+            elapsed = time.perf_counter() - t0
+            total_wall += elapsed
+            mean_ms = (elapsed / repeat * 1000.0) if repeat else 0.0
+            rows.append(
+                {
+                    "bundle_id": bid,
+                    "wall_clock_s": elapsed,
+                    "mean_ms_per_rollout": mean_ms,
+                }
+            )
+        payload = {
+            "workflow": "phase_h_bundle_suite",
+            "pinned_genome_seed": PINNED_GENOME_SEED,
+            "pinned_rollout_seed": PINNED_ROLLOUT_SEED,
+            "repeat": repeat,
+            "warmup": warmup,
+            "bundle_count": len(rows),
+            "bundles": rows,
+            "total_wall_clock_s": total_wall,
+        }
+        if args.json:
+            print(json.dumps(payload, indent=2))
+        else:
+            print(f"Phase H bundle suite  repeat={repeat}  warmup={warmup}  total_wall={total_wall:.4f}s")
+            for row in rows:
+                print(f"  {row['bundle_id']}: mean={row['mean_ms_per_rollout']:.3f} ms/rollout")
+        return
 
     if args.bundle is not None:
 
