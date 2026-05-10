@@ -29,12 +29,20 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 ## Quick start
 
+**Windows — install CPython with winget** (avoids the Microsoft Store `python.exe` stubs). Requires **Python ≥ 3.11** ([`pyproject.toml`](pyproject.toml)):
+
+```powershell
+winget install Python.Python.3.12 --accept-package-agreements --accept-source-agreements
+```
+
+Open a **new** terminal, then create a venv and install dev deps (use **`py -3.12`** if the launcher is on your `PATH`, or run **`python.exe`** from `%LocalAppData%\Programs\Python\` — e.g. `Python312-x64` on amd64):
+
 ```powershell
 cd C:\Users\david\projects\fragility-discovery-engine
-python -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
-# Optional Numba (`pip install -e ".[accelerate]"`): on Windows on ARM, use the normal **64-bit** python.org installer (x64 build; OS runs it under built-in x64 emulation), then e.g. `.\scripts\install_accelerate_windows.ps1` — see docs/phase_k_acceleration.md.
+# Optional Numba (`pip install -e ".[accelerate]"`): on Windows on ARM, prefer **x64** CPython under emulation (`Python312-x64`) so wheels match; see `.\scripts\install_accelerate_windows.ps1` and docs/phase_k_acceleration.md.
 pytest -q
 python scripts/week1_smoke.py
 python scripts/run_ga_demo.py
