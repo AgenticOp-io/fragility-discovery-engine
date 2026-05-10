@@ -18,6 +18,10 @@ _PRESETS: dict[str, np.ndarray] = {
     "weak": np.array([0.08, 0.08, 0.08, 0.08], dtype=np.float64),
     "mid": np.array([0.5, 0.5, 0.5, 0.5], dtype=np.float64),
     "strong": np.array([0.92, 0.92, 0.92, 0.92], dtype=np.float64),
+    "relaxed": np.array([0.05, 0.06, 0.04, 0.05], dtype=np.float64),
+    "strict": np.array([0.9, 0.88, 0.92, 0.93], dtype=np.float64),
+    "reserve_focus": np.array([0.15, 0.12, 0.25, 0.94], dtype=np.float64),
+    "panic_focus": np.array([0.93, 0.91, 0.18, 0.12], dtype=np.float64),
 }
 
 
@@ -29,7 +33,10 @@ def main() -> None:
         "--policies",
         type=str,
         default="weak,mid,strong",
-        help="Comma-separated defender presets: weak|mid|strong (decode_defender_genome layout).",
+        help=(
+            "Comma-separated defender presets (4-vector decode_defender_genome layout): "
+            "weak|mid|strong|relaxed|strict|reserve_focus|panic_focus."
+        ),
     )
     ap.add_argument("--nodes", type=int, default=12)
     ap.add_argument("--er-p", type=float, default=0.16)

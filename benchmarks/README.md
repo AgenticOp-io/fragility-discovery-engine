@@ -79,10 +79,16 @@ python scripts/fragility_robustness_sweep.py --json --neighbor-json-list path/to
 python scripts/fragility_robustness_sweep.py --json --ga-budget-sweep --ga-generations-values 2,4,8 --graph-seeds 101,102,103 --ga-population-size 16
 ```
 
+**GA budget 2D grid** (generations × population): **`fragility-robustness-ga-budget-2d-v1`** — cost scales as **|G| × |P| × inner GA cost**:
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --ga-budget-2d --ga-generations-values 2,4 --ga-population-values 12,16 --graph-seeds 101,102
+```
+
 **Mechanism design (outer discrete policies):**
 
 ```powershell
-python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,strong
+python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,strong,reserve_focus,panic_focus
 ```
 
 **Twin-domain composite (audit bundle, not coupled dynamics):**

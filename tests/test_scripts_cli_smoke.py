@@ -2226,6 +2226,34 @@ def test_fragility_robustness_sweep_2d_grid_json_cli(py_exe: str) -> None:
     assert data["summary"]["grid_cells"] == 4
 
 
+def test_fragility_robustness_sweep_ga_budget_2d_json_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--ga-budget-2d",
+            "--ga-generations-values",
+            "1,2",
+            "--ga-population-values",
+            "10,12",
+            "--graph-seeds",
+            "101,102",
+            "--nodes",
+            "10",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-robustness-ga-budget-2d-v1"
+    assert len(data["points"]) == 4
+
+
 def test_fragility_robustness_sweep_ga_budget_json_cli(py_exe: str) -> None:
     proc = subprocess.run(
         [
@@ -2261,7 +2289,7 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
             str(ROOT / "scripts" / "mechanism_design_policy_sweep.py"),
             "--json",
             "--policies",
-            "weak,mid",
+            "weak,reserve_focus",
             "--generations",
             "2",
             "--population-size",

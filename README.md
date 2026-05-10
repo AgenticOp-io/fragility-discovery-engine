@@ -131,8 +131,8 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/run_flagship_demo.py` | **Flagship bundle:** short GA + `pareto_front.json` + **`fragility-certificate-v1`** under `artifacts/flagship/output` (see [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md)) |
 | `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
-| `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble over **`graph_seed`** or **`--neighbor-json-list`**; **`--topology`**; physics **`--sweep-*`**; **`--ga-budget-sweep`** + **`--ga-generations-values`** (schema **`fragility-robustness-ga-budget-1d-v1`**) |
-| `scripts/mechanism_design_policy_sweep.py` | Moonshot: discrete defender presets (**weak/mid/strong**) + inner GA; **`fragility-mechanism-design-outer-v1`** |
+| `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble over **`graph_seed`** or **`--neighbor-json-list`**; **`--topology`**; physics **`--sweep-*`**; GA **`--ga-budget-sweep`** (1D) or **`--ga-budget-2d`** + **`--ga-population-values`** |
+| `scripts/mechanism_design_policy_sweep.py` | Moonshot: defender presets (**weak/mid/strong/relaxed/strict/reserve_focus/panic_focus**) + inner GA; **`fragility-mechanism-design-outer-v1`** |
 | `scripts/institutional_composite_demo.py` | Moonshot: same genome scored on **network** + **resource cascade** (**decoupled**); **`fragility-institutional-composite-v1`** |
 | `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 

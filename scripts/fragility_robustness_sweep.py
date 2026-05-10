@@ -11,6 +11,7 @@ import numpy as np
 from fragility_engine.benchmarks.ensemble import (
     robustness_ensemble_1d_param_sweep,
     robustness_ensemble_2d_param_grid,
+    robustness_ga_budget_2d_grid,
     robustness_ga_generations_1d_sweep,
     robustness_rollouts_neighbor_json_bundle,
     robustness_rollouts_over_graph_seeds,
@@ -112,13 +113,24 @@ def main() -> None:
     ap.add_argument(
         "--ga-budget-sweep",
         action="store_true",
-        help="Sweep GA generation budgets: train attacker on one topology, ensemble-evaluate.",
+        help="1D: sweep GA generations with fixed --ga-population-size (train / ensemble-eval).",
+    )
+    ap.add_argument(
+        "--ga-budget-2d",
+        action="store_true",
+        help="2D grid: --ga-generations-values x --ga-population-values (mutually exclusive with --ga-budget-sweep).",
     )
     ap.add_argument(
         "--ga-generations-values",
         type=str,
         default=None,
-        help="Comma-separated positive ints; requires --ga-budget-sweep.",
+        help="Comma-separated positive ints; use with --ga-budget-sweep or --ga-budget-2d.",
+    )
+    ap.add_argument(
+        "--ga-population-values",
+        type=str,
+        default=None,
+        help="Comma-separated ints >=2; requires --ga-budget-2d (population axis).",
     )
     ap.add_argument("--ga-population-size", type=int, default=16)
     ap.add_argument("--ga-seed", type=int, default=7001)
@@ -149,13 +161,28 @@ def main() -> None:
         if not seeds:
             raise SystemExit("Provide at least one --graph-seeds value (or use --neighbor-json-list).")
 
-    ga_budget = bool(args.ga_budget_sweep)
-    if ga_budget:
+    ga_budget_1d = bool(args.ga_budget_sweep)
+    ga_budget_2d = bool(args.ga_budget_2d)
+    if ga_budget_1d and ga_budget_2d:
+        raise SystemExit("Use either --ga-budget-sweep or --ga-budget-2d, not both.")
+    ga_budget = ga_budget_1d or ga_budget_2d
+    gw: list[int] | None = None
+    pw: list[int] | None = None
+    if ga_budget_1d:
         if not args.ga_generations_values:
             raise SystemExit("--ga-budget-sweep requires --ga-generations-values.")
         gw = [int(x.strip()) for x in str(args.ga_generations_values).split(",") if x.strip()]
         if not gw:
             raise SystemExit("--ga-generations-values must list at least one int.")
+    elif ga_budget_2d:
+        if not args.ga_generations_values or not args.ga_population_values:
+            raise SystemExit("--ga-budget-2d requires --ga-generations-values and --ga-population-values.")
+        gw = [int(x.strip()) for x in str(args.ga_generations_values).split(",") if x.strip()]
+        pw = [int(x.strip()) for x in str(args.ga_population_values).split(",") if x.strip()]
+        if not gw:
+            raise SystemExit("--ga-generations-values must list at least one int.")
+        if not pw:
+            raise SystemExit("--ga-population-values must list at least one int.")
 
     sweep_1 = args.sweep_param is not None or args.sweep_values is not None
     sweep_2_axis = args.sweep_param_2 is not None or args.sweep_values_2 is not None
@@ -169,7 +196,7 @@ def main() -> None:
         raise SystemExit("--sweep-param and --sweep-param-2 must differ.")
 
     if ga_budget and (sweep_1 or sweep_2_axis):
-        raise SystemExit("Use either --ga-budget-sweep or physics (--sweep-param) sweeps, not both.")
+        raise SystemExit("Use either GA budget modes or physics (--sweep-param) sweeps, not both.")
 
     topo = str(args.topology)
     common = dict(
@@ -189,10 +216,35 @@ def main() -> None:
         neighbor_weights_json_paths=nb_weights,
     )
 
-    if ga_budget:
+    if ga_budget_1d:
+        assert gw is not None
         payload = robustness_ga_generations_1d_sweep(
             ga_generations_values=gw,
             population_size=int(args.ga_population_size),
+            ga_seed=int(args.ga_seed),
+            horizon=int(args.horizon),
+            rollout_seed=int(args.rollout_seed),
+            base_panic=float(args.base_panic),
+            graph_kind=str(args.graph_kind),
+            nodes=int(args.nodes),
+            graph_seeds=seeds if nb_paths is None else None,
+            train_graph_seed=args.train_graph_seed,
+            er_p=float(args.er_p),
+            ws_k=int(args.ws_k),
+            ws_p=float(args.ws_p),
+            contagion_beta=float(args.beta),
+            whale_frac=float(args.whale_frac),
+            max_steps=int(args.max_steps),
+            topology_representation=topo,
+            neighbor_json_paths=nb_paths,
+            neighbor_weights_json_paths=nb_weights,
+            eval_workers=int(args.ga_eval_workers),
+        )
+    elif ga_budget_2d:
+        assert gw is not None and pw is not None
+        payload = robustness_ga_budget_2d_grid(
+            ga_generations_values=gw,
+            ga_population_sizes=pw,
             ga_seed=int(args.ga_seed),
             horizon=int(args.horizon),
             rollout_seed=int(args.rollout_seed),
@@ -307,6 +359,21 @@ def main() -> None:
             sp = payload["summary"]
             print(
                 f"--- GA budget steps={sp['steps']} collapse_rate in "
+                f"[{sp['collapse_rate_min']:.3f}, {sp['collapse_rate_max']:.3f}] "
+                f"spread={sp['collapse_rate_spread']:.3f}"
+            )
+        elif sch == "fragility-robustness-ga-budget-2d-v1":
+            for pt in payload["points"]:
+                s = pt["ensemble"]["summary"]
+                print(
+                    f"gen={pt['ga_generations']} pop={pt['population_size']} "
+                    f"best_fitness={pt['ga_best_fitness']:.5f} "
+                    f"collapse_rate={s['collapse_rate']:.3f} "
+                    f"integral_p50={s['integral_instability_p50']:.6f}"
+                )
+            sp = payload["summary"]
+            print(
+                f"--- GA 2D grid cells={sp['grid_cells']} collapse_rate in "
                 f"[{sp['collapse_rate_min']:.3f}, {sp['collapse_rate_max']:.3f}] "
                 f"spread={sp['collapse_rate_spread']:.3f}"
             )
