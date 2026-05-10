@@ -1,0 +1,2 @@
+# Bash deploy scripts must use LF (avoid CRLF breaking `set -o pipefail` on Linux).
+scripts/*.sh text eol=lf

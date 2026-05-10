@@ -48,6 +48,10 @@ pick_python() {
 }
 
 sync_repo() {
+  if [[ -d "${FRAGILITY_DEPLOY_DIR}" ]] && [[ ! -d "${FRAGILITY_DEPLOY_DIR}/.git" ]]; then
+    echo "==> removing non-git directory: ${FRAGILITY_DEPLOY_DIR}"
+    rm -rf "${FRAGILITY_DEPLOY_DIR}"
+  fi
   if [[ -d "${FRAGILITY_DEPLOY_DIR}/.git" ]]; then
     echo "==> git pull ${FRAGILITY_BRANCH} in ${FRAGILITY_DEPLOY_DIR}"
     git -C "${FRAGILITY_DEPLOY_DIR}" fetch origin "${FRAGILITY_BRANCH}"

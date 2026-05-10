@@ -46,7 +46,16 @@ gcloud compute ssh acs-hss-server --zone=us-central1-a --command='ssh-keyscan gi
 
 ## 4. Clone / deploy with SSH remote
 
-On the VM:
+**Private repos:** `raw.githubusercontent.com` returns **404** without auth — copy `gce_git_deploy.sh` to the VM, then run the wrapper.
+
+From your laptop (repo root; adjust instance and zone):
+
+```bash
+gcloud compute scp scripts/gce_git_deploy.sh scripts/gce_remote_git_deploy.sh acs-hss-server:/tmp/ --zone=us-central1-a
+gcloud compute ssh acs-hss-server --zone=us-central1-a --command='bash /tmp/gce_remote_git_deploy.sh'
+```
+
+**Public repos** can use curl instead:
 
 ```bash
 export FRAGILITY_REPO_URL='git@github.com:theorem6/fragility-discovery-engine.git'

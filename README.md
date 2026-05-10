@@ -59,6 +59,13 @@ sudo apt-get update && sudo apt-get install -y git curl python3.11 python3.11-ve
 curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
 ```
 
+**Private repo:** `raw.githubusercontent.com` will **404** — copy both scripts from your laptop, then SSH (see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md)):
+
+```bash
+gcloud compute scp scripts/gce_git_deploy.sh scripts/gce_remote_git_deploy.sh acs-hss-server:/tmp/ --zone=us-central1-a
+gcloud compute ssh acs-hss-server --zone=us-central1-a --command='bash /tmp/gce_remote_git_deploy.sh'
+```
+
 Run tests after install:
 
 ```bash
@@ -110,7 +117,8 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
-| `scripts/gce_git_deploy.sh` | **Linux VM / GCE:** `git clone` or `git pull`, venv, `pip install -e ".[dev]"` — curl one-liner in README **Google Compute Engine** |
+| `scripts/gce_git_deploy.sh` | **Linux VM / GCE:** `git clone` or `git pull`, venv, `pip install -e ".[dev]"` — curl (public) or `scp` + [`gce_remote_git_deploy.sh`](scripts/gce_remote_git_deploy.sh) (private) |
+| `scripts/gce_remote_git_deploy.sh` | VM-side wrapper: SSH env + apt + runs **`/tmp/gce_git_deploy.sh`** (upload both scripts for private GitHub) |
 | `scripts/generate_gce_deploy_key.ps1` | Create `.deploy/gce_github_ed25519` (+ `.pub`) for GitHub **Deploy keys** — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
