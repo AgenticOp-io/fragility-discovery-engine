@@ -12,3 +12,6 @@ build/
 # Local QA bundles (regenerate: pwsh -File scripts/regenerate_test_exports.ps1)
 artifacts/test_exports/
 artifacts/flagship/output/
+
+# GitHub deploy keys / secrets (never commit)
+.deploy/

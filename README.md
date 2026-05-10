@@ -69,14 +69,9 @@ Or after the first clone: `FRAGILITY_RUN_TESTS=1 bash ~/fragility-discovery-engi
 
 **Updates:** rerun the script from anywhere — it **`git pull`s** when `~/fragility-discovery-engine` already exists.
 
-**Private repo:** HTTPS clone on a headless VM often prompts for credentials and fails. Use either:
+**Private repo:** use a **deploy key** (recommended): [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) — generate with [`scripts/generate_gce_deploy_key.ps1`](scripts/generate_gce_deploy_key.ps1), add `.pub` on GitHub, copy private key to the VM, then set `FRAGILITY_REPO_URL` + `GIT_SSH_COMMAND` as documented.
 
-- **SSH:** install a deploy key (or agent forwarding), then  
-  `export FRAGILITY_REPO_URL='git@github.com:YOUR_ORG/fragility-discovery-engine.git'`  
-  and run `bash scripts/gce_git_deploy.sh` from a copy of the script, **or**
-- **HTTPS + token:**  
-  `export FRAGILITY_REPO_URL='https://YOUR_TOKEN@github.com/YOUR_ORG/fragility-discovery-engine.git'`  
-  (avoid logging the URL; prefer SSH.)
+Alternatives: SSH agent forwarding, or HTTPS + token (avoid logging tokens; prefer deploy keys).
 
 Optional env: `FRAGILITY_DEPLOY_DIR`, `FRAGILITY_BRANCH`, `FRAGILITY_PYTHON`, `FRAGILITY_SHALLOW=0` for full history — see header in [`scripts/gce_git_deploy.sh`](scripts/gce_git_deploy.sh).
 
@@ -116,6 +111,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
 | `scripts/gce_git_deploy.sh` | **Linux VM / GCE:** `git clone` or `git pull`, venv, `pip install -e ".[dev]"` — curl one-liner in README **Google Compute Engine** |
+| `scripts/generate_gce_deploy_key.ps1` | Create `.deploy/gce_github_ed25519` (+ `.pub`) for GitHub **Deploy keys** — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <phase_h_id>`**, **`--bundle-all`** (full Phase H suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade` (`--json`, **`workflow`** field) |
