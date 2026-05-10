@@ -91,6 +91,7 @@ Static **attribution** UI: `artifacts/attribution_viewer/index.html` — `attrib
 - **Custom co-evolution:** implement a deterministic ``rollout_fn(schedule, seed, defender)`` and pass it to ``fragility_engine.coevolution.alternating_coevolution_rollout`` (see [`BOUNDARIES.md`](BOUNDARIES.md) Phase G).
 - **Custom topology:** ``ContagionGraph.from_neighbor_lists([[...], ...])`` builds from adjacency lists (symmetrized by default). For **directed out-neighbor lists** without a dense matrix, pass JSON via ``--neighbor-json`` (optional ``--neighbor-weights-json``); replay metadata uses ``neighbor_lists_topology_meta`` (`storage: neighbor_lists`). Synthetic graphs still attach ``undirected_edges`` + ``storage: dense_adjacency``.
 - **Perf gate:** CI sets ``FRAGILITY_PERF_GATE=1`` and ``FRAGILITY_PERF_GATE_MS`` (240s default in `.github/workflows/ci.yml`). Locally, default ``pytest`` skips that test unless you set the env vars.
+- **Numba parity:** CI runs a separate Ubuntu job that installs ``.[accelerate]`` and executes ``tests/test_resource_cascade_numba_parity.py`` (matrix jobs stay NumPy-only for speed and portability).
 
 ## Week roadmap (suggested)
 
