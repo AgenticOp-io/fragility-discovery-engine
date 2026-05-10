@@ -13,6 +13,7 @@ from fragility_engine.benchmarks.ensemble import (
     robustness_ensemble_2d_param_grid,
     robustness_ga_budget_2d_grid,
     robustness_ga_generations_1d_sweep,
+    robustness_ga_population_1d_sweep,
     robustness_rollouts_neighbor_json_bundle,
     robustness_rollouts_over_graph_seeds,
 )
@@ -118,7 +119,18 @@ def main() -> None:
     ap.add_argument(
         "--ga-budget-2d",
         action="store_true",
-        help="2D grid: --ga-generations-values x --ga-population-values (mutually exclusive with --ga-budget-sweep).",
+        help="2D grid: --ga-generations-values x --ga-population-values (mutually exclusive with other GA modes).",
+    )
+    ap.add_argument(
+        "--ga-population-sweep",
+        action="store_true",
+        help="1D: sweep GA population sizes with fixed --ga-fixed-generations (train / ensemble-eval).",
+    )
+    ap.add_argument(
+        "--ga-fixed-generations",
+        type=int,
+        default=4,
+        help="With --ga-population-sweep: inner GA generation count (fixed across population sweep).",
     )
     ap.add_argument(
         "--ga-generations-values",
@@ -130,7 +142,7 @@ def main() -> None:
         "--ga-population-values",
         type=str,
         default=None,
-        help="Comma-separated ints >=2; requires --ga-budget-2d (population axis).",
+        help="Comma-separated ints >=2; requires --ga-budget-2d or --ga-population-sweep.",
     )
     ap.add_argument("--ga-population-size", type=int, default=16)
     ap.add_argument("--ga-seed", type=int, default=7001)
@@ -163,9 +175,11 @@ def main() -> None:
 
     ga_budget_1d = bool(args.ga_budget_sweep)
     ga_budget_2d = bool(args.ga_budget_2d)
-    if ga_budget_1d and ga_budget_2d:
-        raise SystemExit("Use either --ga-budget-sweep or --ga-budget-2d, not both.")
-    ga_budget = ga_budget_1d or ga_budget_2d
+    ga_budget_pop_1d = bool(args.ga_population_sweep)
+    modes = [ga_budget_1d, ga_budget_2d, ga_budget_pop_1d]
+    if sum(1 for m in modes if m) > 1:
+        raise SystemExit("Pick at most one of --ga-budget-sweep, --ga-budget-2d, --ga-population-sweep.")
+    ga_budget = ga_budget_1d or ga_budget_2d or ga_budget_pop_1d
     gw: list[int] | None = None
     pw: list[int] | None = None
     if ga_budget_1d:
@@ -183,6 +197,16 @@ def main() -> None:
             raise SystemExit("--ga-generations-values must list at least one int.")
         if not pw:
             raise SystemExit("--ga-population-values must list at least one int.")
+    elif ga_budget_pop_1d:
+        if not args.ga_population_values:
+            raise SystemExit("--ga-population-sweep requires --ga-population-values.")
+        pw = [int(x.strip()) for x in str(args.ga_population_values).split(",") if x.strip()]
+        if not pw:
+            raise SystemExit("--ga-population-values must list at least one int.")
+        if any(p < 2 for p in pw):
+            raise SystemExit("--ga-population-values entries must be >= 2.")
+        if int(args.ga_fixed_generations) < 1:
+            raise SystemExit("--ga-fixed-generations must be >= 1.")
 
     sweep_1 = args.sweep_param is not None or args.sweep_values is not None
     sweep_2_axis = args.sweep_param_2 is not None or args.sweep_values_2 is not None
@@ -221,6 +245,30 @@ def main() -> None:
         payload = robustness_ga_generations_1d_sweep(
             ga_generations_values=gw,
             population_size=int(args.ga_population_size),
+            ga_seed=int(args.ga_seed),
+            horizon=int(args.horizon),
+            rollout_seed=int(args.rollout_seed),
+            base_panic=float(args.base_panic),
+            graph_kind=str(args.graph_kind),
+            nodes=int(args.nodes),
+            graph_seeds=seeds if nb_paths is None else None,
+            train_graph_seed=args.train_graph_seed,
+            er_p=float(args.er_p),
+            ws_k=int(args.ws_k),
+            ws_p=float(args.ws_p),
+            contagion_beta=float(args.beta),
+            whale_frac=float(args.whale_frac),
+            max_steps=int(args.max_steps),
+            topology_representation=topo,
+            neighbor_json_paths=nb_paths,
+            neighbor_weights_json_paths=nb_weights,
+            eval_workers=int(args.ga_eval_workers),
+        )
+    elif ga_budget_pop_1d:
+        assert pw is not None
+        payload = robustness_ga_population_1d_sweep(
+            ga_population_sizes=pw,
+            ga_generations_fixed=int(args.ga_fixed_generations),
             ga_seed=int(args.ga_seed),
             horizon=int(args.horizon),
             rollout_seed=int(args.rollout_seed),
@@ -359,6 +407,21 @@ def main() -> None:
             sp = payload["summary"]
             print(
                 f"--- GA budget steps={sp['steps']} collapse_rate in "
+                f"[{sp['collapse_rate_min']:.3f}, {sp['collapse_rate_max']:.3f}] "
+                f"spread={sp['collapse_rate_spread']:.3f}"
+            )
+        elif sch == "fragility-robustness-ga-population-1d-v1":
+            for pt in payload["points"]:
+                s = pt["ensemble"]["summary"]
+                print(
+                    f"population_size={pt['population_size']} "
+                    f"best_fitness={pt['ga_best_fitness']:.5f} "
+                    f"collapse_rate={s['collapse_rate']:.3f} "
+                    f"integral_p50={s['integral_instability_p50']:.6f}"
+                )
+            sp = payload["summary"]
+            print(
+                f"--- GA population sweep steps={sp['steps']} collapse_rate in "
                 f"[{sp['collapse_rate_min']:.3f}, {sp['collapse_rate_max']:.3f}] "
                 f"spread={sp['collapse_rate_spread']:.3f}"
             )

@@ -34,6 +34,7 @@ This document states **what scales how** and **what breaks reproducibility** if 
 - **`neighbor_json_bundle`**: ensemble size is **number of JSON files**; each path is loaded via `load_neighbor_topology` (same format as Phase I counterfactual CLIs).
 - **GA budget sweep** (`fragility-robustness-ga-budget-1d-v1`): cost scales as **sum over generation budgets** of **(population × generations × rollout cost)** plus one ensemble evaluation per budget point — keep **`--ga-generations-values`** tiny for exploration.
 - **GA budget 2D grid** (`fragility-robustness-ga-budget-2d-v1`): **|generations| × |populations|** inner GA runs each with its own derived seed; keep both axes small.
+- **GA population 1D sweep** (`fragility-robustness-ga-population-1d-v1`): **|population_sizes|** inner GA runs at fixed **`ga_generations_fixed`**.
 
 ## “Game changing” without lying
 

@@ -2226,6 +2226,34 @@ def test_fragility_robustness_sweep_2d_grid_json_cli(py_exe: str) -> None:
     assert data["summary"]["grid_cells"] == 4
 
 
+def test_fragility_robustness_sweep_ga_population_1d_json_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--ga-population-sweep",
+            "--ga-population-values",
+            "10,12",
+            "--ga-fixed-generations",
+            "2",
+            "--graph-seeds",
+            "101,102",
+            "--nodes",
+            "10",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-robustness-ga-population-1d-v1"
+    assert len(data["points"]) == 2
+
+
 def test_fragility_robustness_sweep_ga_budget_2d_json_cli(py_exe: str) -> None:
     proc = subprocess.run(
         [
@@ -2308,6 +2336,33 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
     assert data["schema"] == "fragility-mechanism-design-outer-v1"
     assert len(data["policies"]) == 2
     assert data["eval_workers"] == 4
+    ps = data["policy_summary"]
+    assert "inner_ga_best_fitness_min" in ps
+    assert ps["policies_collapsed_count"] >= 0
+
+
+def test_institutional_composite_demo_out_cli(py_exe: str, tmp_path: Path) -> None:
+    out_j = tmp_path / "composite.json"
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--nodes",
+            "9",
+            "--horizon",
+            "8",
+            "--out",
+            str(out_j),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    disk = json.loads(out_j.read_text(encoding="utf-8"))
+    stdout = json.loads(proc.stdout)
+    assert disk == stdout
+    assert disk["schema"] == "fragility-institutional-composite-v1"
 
 
 def test_institutional_composite_demo_cli(py_exe: str) -> None:

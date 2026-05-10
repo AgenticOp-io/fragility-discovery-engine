@@ -85,6 +85,12 @@ python scripts/fragility_robustness_sweep.py --json --ga-budget-sweep --ga-gener
 python scripts/fragility_robustness_sweep.py --json --ga-budget-2d --ga-generations-values 2,4 --ga-population-values 12,16 --graph-seeds 101,102
 ```
 
+**GA population 1D sweep** (fixed generations): **`fragility-robustness-ga-population-1d-v1`**:
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --ga-population-sweep --ga-population-values 12,16,20 --ga-fixed-generations 4 --graph-seeds 101,102,103
+```
+
 **Mechanism design (outer discrete policies):**
 
 ```powershell
@@ -94,7 +100,7 @@ python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,stron
 **Twin-domain composite (audit bundle, not coupled dynamics):**
 
 ```powershell
-python scripts/institutional_composite_demo.py
+python scripts/institutional_composite_demo.py --out artifacts/tmp/composite.json
 ```
 
 ## Wall-clock timing (Phase K helper)

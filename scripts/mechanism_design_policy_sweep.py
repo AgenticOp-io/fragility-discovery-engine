@@ -107,6 +107,12 @@ def main() -> None:
             }
         )
 
+    fits: list[float] = []
+    collapsed_ct = 0
+    for row in outer:
+        fits.append(float(row["inner_ga_best_fitness"]))
+        if row["inner_ga_collapsed"]:
+            collapsed_ct += 1
     payload: dict[str, object] = {
         "schema": "fragility-mechanism-design-outer-v1",
         "graph_seed": int(args.graph_seed),
@@ -118,6 +124,12 @@ def main() -> None:
         "ga_seed_base": int(args.ga_seed),
         "eval_workers": int(ew),
         "policies": outer,
+        "policy_summary": {
+            "inner_ga_best_fitness_min": float(min(fits)) if fits else 0.0,
+            "inner_ga_best_fitness_max": float(max(fits)) if fits else 0.0,
+            "inner_ga_best_fitness_mean": float(np.mean(np.asarray(fits, dtype=np.float64))) if fits else 0.0,
+            "policies_collapsed_count": int(collapsed_ct),
+        },
     }
 
     if args.json:

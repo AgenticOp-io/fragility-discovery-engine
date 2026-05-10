@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 import numpy as np
 
@@ -25,6 +26,12 @@ def main() -> None:
     ap.add_argument("--cascade-seed", type=int, default=7002)
     ap.add_argument("--base-panic", type=float, default=0.05)
     ap.add_argument("--initial-overload", type=float, default=0.05)
+    ap.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Optional path to write JSON (UTF-8); still prints to stdout.",
+    )
     args = ap.parse_args()
 
     rng = np.random.default_rng(int(args.genome_seed))
@@ -50,7 +57,11 @@ def main() -> None:
         base_panic=float(args.base_panic),
         initial_overload=float(args.initial_overload),
     )
-    print(json.dumps(out, indent=2))
+    text = json.dumps(out, indent=2)
+    if args.out is not None:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(text, encoding="utf-8")
+    print(text)
 
 
 if __name__ == "__main__":

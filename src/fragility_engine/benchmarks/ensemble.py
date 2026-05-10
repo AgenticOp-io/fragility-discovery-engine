@@ -812,6 +812,150 @@ def robustness_ga_generations_1d_sweep(
     return out
 
 
+def robustness_ga_population_1d_sweep(
+    *,
+    ga_population_sizes: Sequence[int],
+    ga_generations_fixed: int,
+    ga_seed: int,
+    horizon: int,
+    rollout_seed: int,
+    base_panic: float = 0.05,
+    graph_kind: str = "erdos_renyi",
+    nodes: int = 14,
+    graph_seeds: list[int] | None = None,
+    train_graph_seed: int | None = None,
+    er_p: float = 0.12,
+    ws_k: int = 4,
+    ws_p: float = 0.15,
+    contagion_beta: float = 0.36,
+    whale_frac: float = 0.22,
+    max_steps: int = 26,
+    topology_representation: str = "dense",
+    neighbor_json_paths: Sequence[Path | str] | None = None,
+    neighbor_weights_json_paths: Sequence[Path | str | None] | None = None,
+    fitness_fn: Callable[[RolloutResult], float] | None = None,
+    eval_workers: int = 1,
+) -> dict[str, Any]:
+    """
+    For each population budget, train with a **fixed** GA generation count, then ensemble-evaluate
+    (same contract as :func:`robustness_ga_generations_1d_sweep`).
+    """
+
+    pw = [int(x) for x in ga_population_sizes]
+    if not pw or any(p < 2 for p in pw):
+        raise ValueError("ga_population_sizes must be non-empty ints >= 2")
+    gf = int(ga_generations_fixed)
+    if gf < 1:
+        raise ValueError("ga_generations_fixed must be >= 1")
+    ew = max(1, int(eval_workers))
+
+    template, train_meta, eval_neighbor_paths, synthetic_seeds = _ga_budget_training_setup(
+        graph_kind=graph_kind,
+        nodes=int(nodes),
+        graph_seeds=graph_seeds,
+        train_graph_seed=train_graph_seed,
+        er_p=float(er_p),
+        ws_k=int(ws_k),
+        ws_p=float(ws_p),
+        whale_frac=float(whale_frac),
+        contagion_beta=float(contagion_beta),
+        max_steps=int(max_steps),
+        topology_representation=str(topology_representation),
+        neighbor_json_paths=neighbor_json_paths,
+        neighbor_weights_json_paths=neighbor_weights_json_paths,
+    )
+
+    def rollout_train(genome: np.ndarray, seed: int) -> RolloutResult:
+        world = thread_safe_network_clone(template) if ew > 1 else template
+        return rollout_stablecoin_network(world, genome, seed=int(seed), base_panic=float(base_panic))
+
+    points: list[dict[str, Any]] = []
+    best_fits: list[float] = []
+    collapse_rates: list[float] = []
+
+    for i, p in enumerate(pw):
+        cell_seed = int(ga_seed) + i * 9973
+        sr = genetic_search(
+            rollout_train,
+            horizon=int(horizon),
+            generations=int(gf),
+            population_size=int(p),
+            seed=int(cell_seed),
+            fitness_fn=fitness_fn,
+            eval_workers=ew,
+        )
+        ens = _ensemble_eval_after_ga(
+            sr.best_genome,
+            eval_neighbor_paths=eval_neighbor_paths,
+            synthetic_seeds=synthetic_seeds,
+            graph_kind=graph_kind,
+            nodes=int(nodes),
+            rollout_seed=int(rollout_seed),
+            er_p=float(er_p),
+            ws_k=int(ws_k),
+            ws_p=float(ws_p),
+            base_panic=float(base_panic),
+            contagion_beta=float(contagion_beta),
+            whale_frac=float(whale_frac),
+            max_steps=int(max_steps),
+            topology_representation=str(topology_representation),
+            neighbor_weights_json_paths=neighbor_weights_json_paths,
+        )
+        bf = float(sr.best_fitness)
+        cr = float(ens["summary"]["collapse_rate"])
+        best_fits.append(bf)
+        collapse_rates.append(cr)
+        points.append(
+            {
+                "population_size": int(p),
+                "ga_cell_seed": int(cell_seed),
+                "ga_best_fitness": bf,
+                "ensemble": ens,
+            }
+        )
+
+    bf_arr = np.asarray(best_fits, dtype=np.float64)
+    cr_arr = np.asarray(collapse_rates, dtype=np.float64)
+    summary = {
+        "steps": len(points),
+        "ga_best_fitness_min": float(bf_arr.min()) if bf_arr.size else 0.0,
+        "ga_best_fitness_max": float(bf_arr.max()) if bf_arr.size else 0.0,
+        "collapse_rate_min": float(cr_arr.min()) if cr_arr.size else 0.0,
+        "collapse_rate_max": float(cr_arr.max()) if cr_arr.size else 0.0,
+        "collapse_rate_spread": float(cr_arr.max() - cr_arr.min()) if cr_arr.size else 0.0,
+    }
+
+    out: dict[str, Any] = {
+        "schema": "fragility-robustness-ga-population-1d-v1",
+        "sweep_axis": "population_size",
+        "ga_population_sizes": [int(x) for x in pw],
+        "ga_generations_fixed": int(gf),
+        "ga_seed_base": int(ga_seed),
+        "horizon": int(horizon),
+        "rollout_seed": int(rollout_seed),
+        "base_panic": float(base_panic),
+        "train_topology": train_meta,
+        "eval_workers": int(ew),
+        "points": points,
+        "summary": summary,
+    }
+    if eval_neighbor_paths is not None:
+        out["topology_mode"] = "neighbor_json_bundle"
+        out["neighbor_json_paths"] = [str(p.as_posix()) for p in eval_neighbor_paths]
+        out["graph_kind"] = None
+        out["nodes"] = None
+        out["topology_representation"] = "neighbor_lists"
+    else:
+        assert synthetic_seeds is not None
+        out["topology_mode"] = "synthetic_er_ws"
+        out["neighbor_json_paths"] = None
+        out["graph_kind"] = graph_kind
+        out["nodes"] = int(nodes)
+        out["topology_representation"] = str(topology_representation)
+        out["graph_seeds"] = [int(x) for x in synthetic_seeds]
+    return out
+
+
 def robustness_ga_budget_2d_grid(
     *,
     ga_generations_values: Sequence[int],

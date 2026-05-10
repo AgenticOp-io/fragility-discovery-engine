@@ -6,6 +6,7 @@ from fragility_engine.benchmarks.ensemble import (
     robustness_ensemble_2d_param_grid,
     robustness_ga_budget_2d_grid,
     robustness_ga_generations_1d_sweep,
+    robustness_ga_population_1d_sweep,
     robustness_rollouts_neighbor_json_bundle,
     robustness_rollouts_over_graph_seeds,
 )
@@ -46,6 +47,7 @@ __all__ = [
     "robustness_ensemble_2d_param_grid",
     "robustness_ga_budget_2d_grid",
     "robustness_ga_generations_1d_sweep",
+    "robustness_ga_population_1d_sweep",
     "robustness_rollouts_neighbor_json_bundle",
     "robustness_rollouts_over_graph_seeds",
     "twin_domain_rollout_artifact",

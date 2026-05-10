@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from fragility_engine.benchmarks.ensemble import robustness_ga_budget_2d_grid, robustness_ga_generations_1d_sweep
+from fragility_engine.benchmarks.ensemble import (
+    robustness_ga_budget_2d_grid,
+    robustness_ga_generations_1d_sweep,
+    robustness_ga_population_1d_sweep,
+)
 
 
 def test_robustness_ga_generations_sweep_schema():
@@ -23,6 +27,25 @@ def test_robustness_ga_generations_sweep_schema():
     assert len(out["points"]) == 2
     assert out["points"][0]["ensemble"]["schema"] == "fragility-robustness-ensemble-v1"
     assert out["summary"]["steps"] == 2
+
+
+def test_robustness_ga_population_1d_sweep_schema():
+    out = robustness_ga_population_1d_sweep(
+        ga_population_sizes=[8, 10],
+        ga_generations_fixed=2,
+        ga_seed=91919,
+        horizon=8,
+        rollout_seed=82828,
+        graph_kind="erdos_renyi",
+        nodes=10,
+        graph_seeds=[301, 302],
+        train_graph_seed=301,
+        er_p=0.14,
+        max_steps=18,
+    )
+    assert out["schema"] == "fragility-robustness-ga-population-1d-v1"
+    assert len(out["points"]) == 2
+    assert out["ga_generations_fixed"] == 2
 
 
 def test_robustness_ga_budget_2d_grid_schema():
