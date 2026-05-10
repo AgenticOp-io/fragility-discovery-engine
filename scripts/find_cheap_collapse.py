@@ -17,7 +17,9 @@ from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="GA with severity − λ·cost fitness + optional replay export.")
+    p = argparse.ArgumentParser(
+        description="GA with severity minus lambda*attack_cost fitness + optional replay export.",
+    )
     p.add_argument("--export-replay", type=Path, default=None, help="Write best-rollout replay JSON.")
     p.add_argument(
         "--eval-workers",

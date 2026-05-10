@@ -32,7 +32,7 @@ jobs:
         env:
           FRAGILITY_PERF_GATE: "1"
           FRAGILITY_PERF_GATE_MS: "240000"
-        run: pytest -q
+        run: python -m pytest -q
 
   # Numba wheels are platform-specific; Ubuntu x86_64 has stable PyPI binaries. Keeps the optional
   # resource-cascade JIT path parity-tested without slowing every matrix cell.
@@ -49,4 +49,4 @@ jobs:
         run: pip install -e ".[dev,accelerate]"
 
       - name: Resource cascade Numba vs NumPy parity
-        run: pytest -q tests/test_resource_cascade_numba_parity.py
+        run: python -m pytest -q tests/test_resource_cascade_numba_parity.py

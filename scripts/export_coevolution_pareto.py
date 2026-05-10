@@ -14,7 +14,7 @@ from fragility_engine.coevolution.pareto_export import (
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Read co-evolution summary JSON (with rounds[].attacker_pareto) → pareto_front JSON.",
+        description="Read co-evolution summary JSON (with rounds[].attacker_pareto) -> pareto_front JSON.",
     )
     ap.add_argument(
         "--from-summary",

@@ -65,8 +65,8 @@ def main() -> None:
         help="[network] topology generator.",
     )
     p.add_argument("--er-p", type=float, default=0.14, help="[network] ER edge probability.")
-    p.add_argument("--ws-k", type=int, default=6, help="[network] Watts–Strogatz ring degree (even, < nodes).")
-    p.add_argument("--ws-p", type=float, default=0.12, help="[network] Watts–Strogatz rewire probability.")
+    p.add_argument("--ws-k", type=int, default=6, help="[network] Watts-Strogatz ring degree (even, < nodes).")
+    p.add_argument("--ws-p", type=float, default=0.12, help="[network] Watts-Strogatz rewire probability.")
     p.add_argument("--graph-seed", type=int, default=2026, help="[network] topology RNG seed.")
     p.add_argument("--beta", type=float, default=0.38, help="[network] contagion_step mixing.")
     p.add_argument("--whale-frac", type=float, default=0.22, help="[network] weight on whale_index.")

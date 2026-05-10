@@ -45,7 +45,7 @@ def _parse_neighbor_weights_bundle(s: str | None, n: int) -> list[Path | None] |
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Same genome + rollout seed; vary ER/WS graph_seed — summarize dispersion.",
+        description="Same genome + rollout seed; vary ER/WS graph_seed; summarize dispersion.",
     )
     ap.add_argument("--graph-kind", choices=("erdos_renyi", "watts_strogatz"), default="erdos_renyi")
     ap.add_argument("--nodes", type=int, default=14)

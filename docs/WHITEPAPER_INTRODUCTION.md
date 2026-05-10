@@ -76,7 +76,7 @@ Product security and resilience teams sometimes need **repeatable** “find a sm
 ## 5. How to evaluate the project quickly
 
 1. **Read boundaries:** [`BOUNDARIES.md`](../BOUNDARIES.md) — non-goals and phase gates.  
-2. **Run tests:** `pytest` after `pip install -e ".[dev]"`.  
+2. **Run tests:** `python -m pytest` after `pip install -e ".[dev]"` (portable; `pytest.exe` is Windows-venv-only).  
 3. **Validate benchmarks:** `python scripts/run_benchmark_suite.py --validate` (see [`benchmarks/README.md`](../benchmarks/README.md)).  
 4. **Reviewer path:** [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md).  
 5. **Honest scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).  

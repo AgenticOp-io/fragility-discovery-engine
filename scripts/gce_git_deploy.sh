@@ -14,7 +14,7 @@
 #   FRAGILITY_DEPLOY_DIR — target directory (default: $HOME/fragility-discovery-engine)
 #   FRAGILITY_BRANCH     — branch (default: main)
 #   FRAGILITY_PYTHON     — python executable (default: first of python3.12, python3.11, python3 with version >= 3.11)
-#   FRAGILITY_RUN_TESTS  — set to 1 to run pytest after install (default: 0)
+#   FRAGILITY_RUN_TESTS  — set to 1 to run ``python -m pytest`` after install (default: 0)
 #   FRAGILITY_SHALLOW    — set to 0 for full clone history (default: 1)
 
 set -euo pipefail
@@ -82,8 +82,8 @@ pip install -U pip setuptools wheel
 pip install -e ".[dev]"
 
 if [[ "${FRAGILITY_RUN_TESTS}" == "1" ]]; then
-  echo "==> pytest"
-  pytest -q
+  echo "==> python -m pytest"
+  python -m pytest -q
 fi
 
 echo "==> done. Activate: source ${FRAGILITY_DEPLOY_DIR}/.venv/bin/activate"
