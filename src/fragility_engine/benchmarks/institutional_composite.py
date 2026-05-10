@@ -1,13 +1,24 @@
-"""Moonshot: audit artifact coupling one attacker genome to two reference kernels (decoupled worlds)."""
+"""Moonshot: audit artifacts coupling one attacker genome to two or three reference kernels (decoupled worlds)."""
 
 from __future__ import annotations
 
 import numpy as np
 
-from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin_network
+from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
+from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
+
+
+def _compact_rollout(r: RolloutResult) -> dict[str, float | bool | int | str | None]:
+    return {
+        "integral_instability": float(r.integral_instability),
+        "collapsed": bool(r.collapsed),
+        "attack_cost": float(r.attack_cost),
+        "collapse_timestep": r.collapse_timestep,
+        "simulation_mode": str(r.simulation_mode),
+    }
 
 
 def twin_domain_rollout_artifact(
@@ -44,19 +55,66 @@ def twin_domain_rollout_artifact(
         defender_genome=defender_genome_cascade,
     )
 
-    def compact(r: RolloutResult) -> dict[str, float | bool | int | str | None]:
-        return {
-            "integral_instability": float(r.integral_instability),
-            "collapsed": bool(r.collapsed),
-            "attack_cost": float(r.attack_cost),
-            "collapse_timestep": r.collapse_timestep,
-            "simulation_mode": str(r.simulation_mode),
-        }
-
     return {
         "schema": "fragility-institutional-composite-v1",
-        "network": compact(r_net),
-        "resource_cascade": compact(r_rc),
+        "network": _compact_rollout(r_net),
+        "resource_cascade": _compact_rollout(r_rc),
+        "network_seed": int(network_seed),
+        "resource_cascade_seed": int(cascade_seed),
+        "genome_shape": [int(x) for x in genome.shape],
+    }
+
+
+def triple_domain_rollout_artifact(
+    aggregate_template: StablecoinPegWorld,
+    network_template: StablecoinNetworkWorld,
+    resource_cascade_template: ResourceCascadeWorld,
+    genome: np.ndarray,
+    *,
+    aggregate_seed: int,
+    network_seed: int,
+    cascade_seed: int,
+    initial_panic: float = 0.05,
+    base_panic: float = 0.05,
+    initial_overload: float = 0.05,
+    defender_genome_aggregate: np.ndarray | None = None,
+    defender_genome_network: np.ndarray | None = None,
+    defender_genome_cascade: np.ndarray | None = None,
+) -> dict[str, object]:
+    """
+    Same schedule evaluated on **three** decoupled kernels: aggregate peg, network contagion, resource cascade.
+
+    Still **not** a coupled institutional model—no cross-world state—only a bundled audit artifact.
+    """
+
+    r_agg = rollout_stablecoin(
+        aggregate_template,
+        genome,
+        seed=int(aggregate_seed),
+        initial_panic=float(initial_panic),
+        defender_genome=defender_genome_aggregate,
+    )
+    r_net = rollout_stablecoin_network(
+        network_template,
+        genome,
+        seed=int(network_seed),
+        base_panic=float(base_panic),
+        defender_genome=defender_genome_network,
+    )
+    r_rc = rollout_resource_cascade(
+        resource_cascade_template,
+        genome,
+        seed=int(cascade_seed),
+        initial_overload=float(initial_overload),
+        defender_genome=defender_genome_cascade,
+    )
+
+    return {
+        "schema": "fragility-institutional-composite-v2",
+        "aggregate": _compact_rollout(r_agg),
+        "network": _compact_rollout(r_net),
+        "resource_cascade": _compact_rollout(r_rc),
+        "aggregate_seed": int(aggregate_seed),
         "network_seed": int(network_seed),
         "resource_cascade_seed": int(cascade_seed),
         "genome_shape": [int(x) for x in genome.shape],

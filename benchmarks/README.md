@@ -103,6 +103,8 @@ python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,stron
 python scripts/institutional_composite_demo.py --out artifacts/tmp/composite.json
 ```
 
+**Triple-domain** (adds aggregate peg, still decoupled): `--triple` → **`fragility-institutional-composite-v2`** (`--aggregate-seed`, `--aggregate-initial-panic`).
+
 ## Wall-clock timing (Phase K helper)
 
 Compare machines or commits using the **same frozen workload** as CI golden bundles (not a regression gate):

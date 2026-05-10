@@ -1,4 +1,4 @@
-"""Moonshot: emit twin-domain composite JSON (network + resource cascade, same genome)."""
+"""Moonshot: composite JSON — twin (network + resource cascade) or triple (+ aggregate peg)."""
 
 from __future__ import annotations
 
@@ -9,19 +9,26 @@ from pathlib import Path
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.benchmarks.institutional_composite import twin_domain_rollout_artifact
+from fragility_engine.benchmarks.institutional_composite import (
+    triple_domain_rollout_artifact,
+    twin_domain_rollout_artifact,
+)
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
+from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description=twin_domain_rollout_artifact.__doc__ or "")
+    ap = argparse.ArgumentParser(description=__doc__ or "")
     ap.add_argument("--nodes", type=int, default=11)
     ap.add_argument("--er-p", type=float, default=0.14)
     ap.add_argument("--graph-seed", type=int, default=55)
     ap.add_argument("--genome-seed", type=int, default=333)
     ap.add_argument("--horizon", type=int, default=10)
+    ap.add_argument("--triple", action="store_true", help="Include aggregate peg kernel (schema v2).")
+    ap.add_argument("--aggregate-seed", type=int, default=7000)
+    ap.add_argument("--aggregate-initial-panic", type=float, default=0.05)
     ap.add_argument("--network-seed", type=int, default=7001)
     ap.add_argument("--cascade-seed", type=int, default=7002)
     ap.add_argument("--base-panic", type=float, default=0.05)
@@ -48,15 +55,30 @@ def main() -> None:
     )
     rc_w = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=22)
 
-    out = twin_domain_rollout_artifact(
-        net_w,
-        rc_w,
-        genome,
-        network_seed=int(args.network_seed),
-        cascade_seed=int(args.cascade_seed),
-        base_panic=float(args.base_panic),
-        initial_overload=float(args.initial_overload),
-    )
+    if args.triple:
+        peg_w = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=24)
+        out = triple_domain_rollout_artifact(
+            peg_w,
+            net_w,
+            rc_w,
+            genome,
+            aggregate_seed=int(args.aggregate_seed),
+            network_seed=int(args.network_seed),
+            cascade_seed=int(args.cascade_seed),
+            initial_panic=float(args.aggregate_initial_panic),
+            base_panic=float(args.base_panic),
+            initial_overload=float(args.initial_overload),
+        )
+    else:
+        out = twin_domain_rollout_artifact(
+            net_w,
+            rc_w,
+            genome,
+            network_seed=int(args.network_seed),
+            cascade_seed=int(args.cascade_seed),
+            base_panic=float(args.base_panic),
+            initial_overload=float(args.initial_overload),
+        )
     text = json.dumps(out, indent=2)
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)

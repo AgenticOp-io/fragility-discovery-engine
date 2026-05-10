@@ -2384,6 +2384,60 @@ def test_institutional_composite_demo_cli(py_exe: str) -> None:
     assert data["schema"] == "fragility-institutional-composite-v1"
 
 
+def test_institutional_composite_demo_triple_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--triple",
+            "--nodes",
+            "9",
+            "--horizon",
+            "8",
+            "--aggregate-seed",
+            "6001",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-institutional-composite-v2"
+    assert "aggregate" in data
+
+
+def test_fragility_robustness_sweep_ga_population_neighbor_json_cli(py_exe: str, tmp_path: Path) -> None:
+    a = tmp_path / "a.json"
+    b = tmp_path / "b.json"
+    a.write_text("[[1],[0]]", encoding="utf-8")
+    b.write_text("[[1],[2],[0]]", encoding="utf-8")
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--ga-population-sweep",
+            "--ga-population-values",
+            "10,12",
+            "--ga-fixed-generations",
+            "2",
+            "--neighbor-json-list",
+            f"{a},{b}",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-robustness-ga-population-1d-v1"
+    assert len(data["points"]) == 2
+    assert data["points"][0]["ensemble"]["topology_mode"] == "neighbor_json_bundle"
+
+
 def test_fragility_robustness_sweep_neighbor_json_list_cli(py_exe: str, tmp_path: Path) -> None:
     a = tmp_path / "a.json"
     b = tmp_path / "b.json"

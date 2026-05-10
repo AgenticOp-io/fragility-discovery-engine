@@ -136,7 +136,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble over **`graph_seed`** / **`--neighbor-json-list`**; physics **`--sweep-*`**; GA **`--ga-budget-sweep`**, **`--ga-population-sweep`** (**`--ga-fixed-generations`**), **`--ga-budget-2d`** |
 | `scripts/mechanism_design_policy_sweep.py` | Moonshot: defender presets (**weak/mid/strong/relaxed/strict/reserve_focus/panic_focus**) + inner GA; **`--eval-workers`** (thread pool); **`fragility-mechanism-design-outer-v1`** |
-| `scripts/institutional_composite_demo.py` | Moonshot: same genome scored on **network** + **resource cascade** (**decoupled**); **`--out`** JSON; **`fragility-institutional-composite-v1`** |
+| `scripts/institutional_composite_demo.py` | Moonshot: same genome scored on **network** + **resource cascade** (**decoupled**); **`--triple`** adds **aggregate peg** → **`fragility-institutional-composite-v2`**; **`--out`** JSON; default twin **`fragility-institutional-composite-v1`** |
 | `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 
 **Plot scripts** (`plot_*.py`) require **`matplotlib`** (`pip install -e ".[dev]"` or **`.[viz]`**).

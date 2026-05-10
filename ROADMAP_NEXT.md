@@ -161,7 +161,7 @@ These are **exploratory** directions; shipped slices below are **scoped** (tests
 
 - **Fragility robustness** (**shipped exploration slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. **1D**/**2D** physics sweeps; **`topology_representation`**: **`dense`** vs **`neighbor_lists`**; **`neighbor_json_bundle`** via **`--neighbor-json-list`**. **GA budget:** generations 1D (`--ga-budget-sweep`); population 1D (`--ga-population-sweep`, `--ga-fixed-generations`); 2D grid (`--ga-budget-2d`).
 - **Mechanism design loop** (**minimal slice**): discrete defender presets (**weak/mid/strong/relaxed/strict/reserve_focus/panic_focus**) + inner GA — `scripts/mechanism_design_policy_sweep.py`, schema **`fragility-mechanism-design-outer-v1`** (+ cross-policy **`policy_summary`**). Not a general equilibrium solver.
-- **Synthetic institutional scenarios** (**audit composite slice**): side-by-side metrics from **two** reference kernels with the **same** schedule genome — `fragility_engine.benchmarks.institutional_composite.twin_domain_rollout_artifact`, `scripts/institutional_composite_demo.py` (**`--out`** JSON), **`fragility-institutional-composite-v1`** (**decoupled** dynamics; not a monolithic mega-model).
+- **Synthetic institutional scenarios** (**audit composite slice**): side-by-side metrics from **two** or **three** reference kernels with the **same** schedule genome — `twin_domain_rollout_artifact` (**v1**), `triple_domain_rollout_artifact` (**v2** aggregate + network + resource cascade), `scripts/institutional_composite_demo.py` (**`--triple`**, **`--out`** JSON) (**decoupled** dynamics; not a monolithic mega-model).
 
 ---
 

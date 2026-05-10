@@ -11,7 +11,10 @@ from fragility_engine.benchmarks.ensemble import (
     robustness_rollouts_over_graph_seeds,
 )
 from fragility_engine.benchmarks.flagship import run_flagship_demo
-from fragility_engine.benchmarks.institutional_composite import twin_domain_rollout_artifact
+from fragility_engine.benchmarks.institutional_composite import (
+    triple_domain_rollout_artifact,
+    twin_domain_rollout_artifact,
+)
 from fragility_engine.benchmarks.manifest import MANIFEST_SCHEMA, build_benchmark_manifest
 from fragility_engine.benchmarks.suite import (
     BUNDLE_IDS,
@@ -50,6 +53,7 @@ __all__ = [
     "robustness_ga_population_1d_sweep",
     "robustness_rollouts_neighbor_json_bundle",
     "robustness_rollouts_over_graph_seeds",
+    "triple_domain_rollout_artifact",
     "twin_domain_rollout_artifact",
     "run_benchmark_suite",
     "run_bundle_rollout_once",
