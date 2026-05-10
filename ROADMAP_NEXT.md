@@ -144,7 +144,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - Versioned LLM prompt pack (**`artifacts/llm_prompts/narration_v1/`**) + [`scripts/export_llm_narration_prompt.py`](scripts/export_llm_narration_prompt.py) (**`llm-prompt-bundle-v1`**; optional **`--invoke-openai`** via stdlib HTTP).
 - Figures: replay timeline, ε-sweep, Pareto scatter, fragility-surface heatmap (`scripts/plot_*.py`, **`artifacts/plot_styles/`**).
 
-**Future (non-gates):** additional plot types; richer prompt packs per venue.
+**Follow-ups (non-gates):** extra prompt packs / plot types ship incrementally — see `artifacts/llm_prompts/*`, `scripts/plot_*.py`.
 
 ---
 

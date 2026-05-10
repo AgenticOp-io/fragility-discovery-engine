@@ -251,8 +251,8 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 **In scope:**
 
 - Deterministic narration library + CLI (`fragility_engine.explain.narration`, `scripts/narrate_frozen_json.py`, `--cite-digest` / `narration-summary-v1`).
-- Versioned **LLM prompt bundles** (`artifacts/llm_prompts/narration_v1/`, `scripts/export_llm_narration_prompt.py`, schema **`llm-prompt-bundle-v1`**); optional OpenAI invoke is **stdout-only documentation**, never fed back into worlds.
-- Matplotlib figure hooks: replay timelines, ε-sweeps, Pareto archives, fragility-surface CSV heatmaps (`scripts/plot_*.py`, pinned styles under `artifacts/plot_styles/`).
+- Versioned **LLM prompt packs** (`artifacts/llm_prompts/narration_v1`, **`reviewer_memo_v1`**, **`paper_appendix_v1`**; `scripts/export_llm_narration_prompt.py --prompt-pack …`, schema **`llm-prompt-bundle-v1`**); optional OpenAI invoke is **stdout-only documentation**, never fed back into worlds.
+- Matplotlib figure hooks: replay timelines, ε-sweeps, Pareto archives, fragility-surface CSV heatmaps, **counterfactual baseline/variant bars** (`scripts/plot_*.py`, pinned styles under `artifacts/plot_styles/`).
 
 **Out of scope:**
 

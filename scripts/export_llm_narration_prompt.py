@@ -1,9 +1,9 @@
 """Phase L — versioned LLM prompt bundle for frozen engine JSON (optional OpenAI invoke).
 
-Templates live under ``artifacts/llm_prompts/narration_v1/``. Bundle schema: **llm-prompt-bundle-v1**.
-Output is **never** fed back into simulation (see bundle disclaimer).
+Templates live under ``artifacts/llm_prompts/<pack>/`` (see ``--prompt-pack``).
+Bundle schema: **llm-prompt-bundle-v1**. Output is **never** fed back into simulation.
 
-Optional ``--invoke-openai`` posts to the Chat Completions API (stdlib ``urllib`` only; requires API key).
+Optional ``--invoke-openai`` posts to the Chat Completions API (stdlib ``urllib``; requires API key).
 """
 
 from __future__ import annotations
@@ -23,25 +23,32 @@ BUNDLE_SCHEMA = "llm-prompt-bundle-v1"
 DEFAULT_TEMPLATE_ID = "frozen_artifact_narration"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
+PROMPT_PACK_IDS: tuple[str, ...] = ("narration_v1", "reviewer_memo_v1", "paper_appendix_v1")
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
-def _prompt_pack_dir() -> Path:
-    return _repo_root() / "artifacts" / "llm_prompts" / "narration_v1"
+def _pack_dir(name: str) -> Path:
+    if name not in PROMPT_PACK_IDS:
+        raise SystemExit(f"--prompt-pack must be one of: {', '.join(PROMPT_PACK_IDS)}")
+    d = _repo_root() / "artifacts" / "llm_prompts" / name
+    if not d.is_dir():
+        raise SystemExit(f"missing prompt pack directory: {d}")
+    return d
 
 
-def _read_template_version() -> str:
-    vpath = _prompt_pack_dir() / "version.txt"
+def _read_pack_version(pack_dir: Path) -> str:
+    vpath = pack_dir / "version.txt"
     try:
         return vpath.read_text(encoding="utf-8").strip()
     except OSError as e:
         raise SystemExit(f"missing template version file {vpath}: {e}") from e
 
 
-def _read_text(name: str) -> str:
-    p = _prompt_pack_dir() / name
+def _read_pack_file(pack_dir: Path, name: str) -> str:
+    p = pack_dir / name
     try:
         return p.read_text(encoding="utf-8")
     except OSError as e:
@@ -52,7 +59,9 @@ def build_prompt_bundle(
     artifact_path: Path,
     *,
     cite_digest: bool,
+    prompt_pack: str,
 ) -> dict[str, Any]:
+    pack_dir = _pack_dir(prompt_pack)
     resolved = artifact_path.resolve()
     digest_hex: str | None = None
     cite_prefix = ""
@@ -70,8 +79,8 @@ def build_prompt_bundle(
 
     narration = narrate_frozen_artifact(data, source=str(resolved), citation_prefix="")
 
-    system_prompt = _read_text("system.txt").strip()
-    user_tpl = _read_text("user_template.txt")
+    system_prompt = _read_pack_file(pack_dir, "system.txt").strip()
+    user_tpl = _read_pack_file(pack_dir, "user_template.txt")
     user_prompt = user_tpl.format(citation_block=cite_prefix, deterministic_narration=narration.strip())
 
     disclaimer = (
@@ -82,7 +91,8 @@ def build_prompt_bundle(
     bundle: dict[str, Any] = {
         "schema": BUNDLE_SCHEMA,
         "template_id": DEFAULT_TEMPLATE_ID,
-        "template_version": _read_template_version(),
+        "prompt_pack": prompt_pack,
+        "template_version": _read_pack_version(pack_dir),
         "system_prompt": system_prompt,
         "user_prompt": user_prompt,
         "input_path": str(resolved),
@@ -93,7 +103,14 @@ def build_prompt_bundle(
     return bundle
 
 
-def invoke_openai_chat(*, bundle: dict[str, Any], model: str, api_key: str, timeout_s: float = 120.0) -> str:
+def invoke_openai_chat(
+    *,
+    bundle: dict[str, Any],
+    model: str,
+    api_key: str,
+    max_tokens: int,
+    timeout_s: float = 120.0,
+) -> str:
     body = json.dumps(
         {
             "model": model,
@@ -102,7 +119,7 @@ def invoke_openai_chat(*, bundle: dict[str, Any], model: str, api_key: str, time
                 {"role": "user", "content": bundle["user_prompt"]},
             ],
             "temperature": 0.2,
-            "max_tokens": 600,
+            "max_tokens": int(max_tokens),
         }
     ).encode("utf-8")
     req = urllib.request.Request(
@@ -135,11 +152,18 @@ def main() -> None:
     ap.add_argument("--out", type=Path, required=True, help="Write llm-prompt-bundle-v1 JSON.")
     ap.add_argument("--cite-digest", action="store_true", help="Include SHA-256 of raw artifact bytes.")
     ap.add_argument(
+        "--prompt-pack",
+        choices=PROMPT_PACK_IDS,
+        default="narration_v1",
+        help="Which versioned template directory under artifacts/llm_prompts/ to use.",
+    )
+    ap.add_argument(
         "--invoke-openai",
         action="store_true",
         help="POST bundle to OpenAI Chat Completions (requires API key env).",
     )
     ap.add_argument("--model", type=str, default="gpt-4o-mini")
+    ap.add_argument("--max-tokens", type=int, default=600, help="Completion budget when --invoke-openai.")
     ap.add_argument(
         "--api-key-env",
         type=str,
@@ -148,14 +172,23 @@ def main() -> None:
     )
     args = ap.parse_args()
 
-    bundle = build_prompt_bundle(Path(args.artifact_json), cite_digest=bool(args.cite_digest))
+    bundle = build_prompt_bundle(
+        Path(args.artifact_json),
+        cite_digest=bool(args.cite_digest),
+        prompt_pack=str(args.prompt_pack),
+    )
     args.out.write_text(json.dumps(bundle, indent=2), encoding="utf-8")
 
     if args.invoke_openai:
         key = os.environ.get(str(args.api_key_env), "").strip()
         if not key:
             raise SystemExit(f"Set {args.api_key_env} for --invoke-openai.")
-        text = invoke_openai_chat(bundle=bundle, model=str(args.model), api_key=key)
+        text = invoke_openai_chat(
+            bundle=bundle,
+            model=str(args.model),
+            api_key=key,
+            max_tokens=int(args.max_tokens),
+        )
         print("--- LLM_NARRATION_BEGIN (do not feed to simulation) ---")
         print(text)
         print("--- LLM_NARRATION_END ---")

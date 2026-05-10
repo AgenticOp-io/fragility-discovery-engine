@@ -1,0 +1,7 @@
+Frozen artifact citation:
+{citation_block}
+
+Engine summary (deterministic):
+{deterministic_narration}
+
+Write **2–3 sentences** only: what artifact type this is, the main quantitative headline, and that prose is non-normative for the simulator.

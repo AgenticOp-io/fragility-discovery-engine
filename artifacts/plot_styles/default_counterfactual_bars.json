@@ -1,0 +1,32 @@
+{
+  "schema": "fragility-plot-counterfactual-style-v1",
+  "figure": {
+    "width_in": 7.0,
+    "height_in": 5.0,
+    "dpi": 120
+  },
+  "matplotlib_rc": {
+    "font.size": 10
+  },
+  "baseline_bar": {
+    "color": "#1f77b4",
+    "label": "baseline",
+    "alpha": 0.88,
+    "edgecolor": "#0d4f82",
+    "linewidth": 0.8
+  },
+  "counterfactual_bar": {
+    "color": "#ff7f0e",
+    "label": "counterfactual",
+    "alpha": 0.88,
+    "edgecolor": "#994700",
+    "linewidth": 0.8
+  },
+  "ylabel": "value",
+  "grid_axisy": {
+    "alpha": 0.28,
+    "linestyle": ":"
+  },
+  "legend_loc": "upper right",
+  "title_template": "Counterfactual — {intervention}"
+}

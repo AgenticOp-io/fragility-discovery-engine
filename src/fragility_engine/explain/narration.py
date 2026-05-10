@@ -71,6 +71,37 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"initial_overload: {data.get('initial_overload')}")
         return "\n".join(lines)
 
+    bs = data.get("baseline")
+    cf = data.get("counterfactual")
+    if (
+        isinstance(bs, dict)
+        and isinstance(cf, dict)
+        and data.get("intervention") is not None
+        and "integral_instability" in bs
+        and "integral_instability" in cf
+        and schema != "attribution-merge-v1"
+    ):
+        lines.append("kind: counterfactual bundle (baseline vs variant rollout snapshots)")
+        lines.append(f"intervention: {data.get('intervention')}")
+        lines.append(
+            f"baseline integral_instability: {bs.get('integral_instability')}  "
+            f"attack_cost: {bs.get('attack_cost')}"
+        )
+        lines.append(
+            f"counterfactual integral_instability: {cf.get('integral_instability')}  "
+            f"attack_cost: {cf.get('attack_cost')}"
+        )
+        if data.get("delta_integral_instability") is not None:
+            lines.append(f"delta_integral_instability (base - var): {data.get('delta_integral_instability')}")
+        if data.get("delta_attack_cost") is not None:
+            lines.append(f"delta_attack_cost (base - var): {data.get('delta_attack_cost')}")
+        if data.get("interpretation_hint"):
+            lines.append(f"hint: {data.get('interpretation_hint')}")
+        meta = data.get("meta")
+        if isinstance(meta, dict) and meta.get("cli"):
+            lines.append(f"meta.cli: {meta.get('cli')}")
+        return "\n".join(lines)
+
     if isinstance(schema_ver, str) and data.get("trajectory") is not None:
         lines.append("kind: replay rollout")
         lines.append(f"schema_version: {schema_ver}")

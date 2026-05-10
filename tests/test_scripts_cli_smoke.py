@@ -383,9 +383,63 @@ def test_export_llm_narration_prompt_cli(py_exe: str, tmp_path: Path) -> None:
     data = json.loads(bundle_p.read_text(encoding="utf-8"))
     assert data["schema"] == "llm-prompt-bundle-v1"
     assert data["template_id"] == "frozen_artifact_narration"
+    assert data["prompt_pack"] == "narration_v1"
     assert data["template_version"]
     assert len(data["input_sha256"]) == 64
     assert "system_prompt" in data and "user_prompt" in data
+
+
+def test_export_llm_narration_prompt_reviewer_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    bundle_p = tmp_path / "llm_rev.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_resource_cascade_replay.json"),
+            "--prompt-pack",
+            "reviewer_memo_v1",
+            "--out",
+            str(bundle_p),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(bundle_p.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "reviewer_memo_v1"
+    assert "sentences" in data["user_prompt"]
+
+
+def test_plot_counterfactual_bars_cli(py_exe: str, tmp_path: Path) -> None:
+    cf = tmp_path / "cf.json"
+    cf.write_text(
+        json.dumps(
+            {
+                "intervention": "remove_steps",
+                "baseline": {"integral_instability": 5.2, "attack_cost": 3.1},
+                "counterfactual": {"integral_instability": 2.3, "attack_cost": 3.4},
+                "delta_integral_instability": 2.9,
+                "delta_attack_cost": -0.3,
+                "interpretation_hint": "test hint",
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    png = tmp_path / "cfb.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_counterfactual_bars.py"),
+            str(cf),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    raw = png.read_bytes()
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+    assert len(raw) > 600
 
 
 def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -> None:

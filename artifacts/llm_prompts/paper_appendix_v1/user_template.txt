@@ -1,0 +1,12 @@
+Artifact citation block:
+{citation_block}
+
+Deterministic engine narration (structure only — not stylized prose):
+{deterministic_narration}
+
+Produce **one compact appendix subsection** (about 120–220 words) with:
+(1) one sentence naming the artifact schema/kind;
+(2) a short bullet list (use plain "-" lines) of **only** quantitative fields explicitly present above;
+(3) one closing sentence reminding readers this is interpretive wrapping around deterministic exports.
+
+Plain text; no markdown headings (#); no JSON.
