@@ -40,7 +40,17 @@ Libraries often use an explicit toggle (examples: `FRAGILITY_BACKEND=numpy|numba
 
 Install optional dependency: `pip install -e ".[accelerate]"` (declares `numba`). Parity tests live in `tests/test_resource_cascade_numba_parity.py` and **skip** when Numba is absent.
 
-**Platform caveat:** Numba publishes wheels for many **x86_64** targets (Linux, macOS, Windows amd64). **Windows ARM64** (`win_arm64`) Python often has **no** prebuilt `llvmlite`/`numba` wheels, so `pip install …[accelerate]` may fail while compiling from source. On those hosts use the default NumPy rollout path, run parity in CI/Linux/x64, or use an x64 Python install / container where wheels exist.
+**Platform caveat:** Numba publishes wheels for many **x86_64** targets (Linux, macOS, Windows **amd64**). **Native Windows ARM64** Python (`win_arm64`) often has **no** prebuilt `llvmlite`/`numba` wheels, so `pip install …[accelerate]` may fail while compiling from source.
+
+**Windows on ARM hosts:** Install **64-bit (amd64) CPython** alongside native ARM64 Python (e.g. `%LOCALAPPDATA%\Programs\Python\Python312-x64\python.exe` from the “Windows installer (64-bit)” on [python.org](https://www.python.org/downloads/windows/)). That build runs under emulation but installs **win_amd64** wheels. Then:
+
+```powershell
+cd path\to\fragility-discovery-engine
+& "$env:LOCALAPPDATA\Programs\Python\Python312-x64\python.exe" -m pip install -e ".[dev,accelerate]"
+& "$env:LOCALAPPDATA\Programs\Python\Python312-x64\python.exe" -m pytest tests/test_resource_cascade_numba_parity.py -q
+```
+
+Otherwise use the default NumPy rollout path, or run Numba parity in CI / Linux / x64 environments.
 
 ## Exit criteria (reminder)
 
