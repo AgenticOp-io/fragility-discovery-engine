@@ -169,6 +169,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - Cost per **round** scales roughly as **O(G_att·P_att·H·step + G_def·P_def·H·step)** where **step** is one simulated timestep and **H** is attacker schedule horizon.
 - **Network:** dense **`int8` adjacency** remains the default synthetic-graph path (**Θ(n²)** RAM). **List-only** **`neighbor_lists`** (+ optional positive **row weights** aligned with out-edges) avoids storing a dense matrix; diffusion stays **O(out-edges)** per step via `contagion_step_lists`. CI enables **`FRAGILITY_PERF_GATE=1`** (`.github/workflows/ci.yml`; ceiling **`FRAGILITY_PERF_GATE_MS`**, default **240000** ms). Locally, omit the env var to skip `tests/test_benchmark_perf_gate.py`.
 - Reduce **`max_steps`**, GA generations/population, or **horizon** before adding defender parameters; new knobs belong in `coevolution/defender.py` with explicit tests.
+- Optional **threaded batch** helper for isolated rollouts: `fragility_engine.parallel_rollouts.thread_pool_map_ordered` — ordering matches inputs; do not share mutable worlds across threads without cloning (see [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
 - For institution-scale models, supply **`alternating_coevolution_rollout`** with your own deterministic `rollout_fn`; keep **seed discipline** documented at the call site.
 
 ### Phase H — Fragility certificates & benchmark harness
@@ -220,7 +221,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Static viewer (shipped):** `artifacts/attribution_viewer/index.html` for **`attribution-merge-v1`** and mutation-chain path traces.
 
-**Backlog (not gates yet):** formal Shapley-style decompositions; Phase J mutation **chains** / multi-knob bundles beyond scalar shifts (`remove_steps`, `initial_overload_shift`, `cascade_coupling_shift`, joint merge CLI).
+**Backlog (not gates yet):** formal Shapley-style decompositions; richer **aggregate/network** multi-step knob bundles beyond the shipped scalar shifts / merges (Phase J **resource-cascade** cumulative chains are shipped: `resource-cascade-mutation-chain-spec-v1`, `export_resource_cascade_counterfactual_chain.py`, path trace schema `explanation-mutation-chain-path-resource-cascade-v1`).
 
 **Earlier shipped backlog slices:**
 

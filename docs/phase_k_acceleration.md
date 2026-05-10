@@ -22,6 +22,14 @@ Phase K is defined at a high level in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) (*
 | Runner | `rollout_*` loops | Optional batched evaluation of **independent** `(genome, seed)` pairs; document reduction order if vectorized. |
 | Search | `genetic_search` / co-evolution | Parallel fitness evaluation must not mutate shared RNG state across workers. |
 
+## Batch evaluation (`parallel_rollouts`)
+
+Independent rollouts can be evaluated concurrently **without changing per-seed results** only when each task owns its mutable simulation state.
+
+- **API:** `fragility_engine.parallel_rollouts.thread_pool_map_ordered(fn, items, max_workers=None)` — thin `ThreadPoolExecutor.map` wrapper; **output order matches `items`** (same contract as sequential ``list(map(fn, items))`` when tasks are isolated).
+- **Shared templates:** `clone_resource_cascade` / defended builds often **reuse** `AgentPopulation` by reference; advancing one clone’s population can race another thread. Prefer a **fresh** world template inside each `fn(item)` (see `tests/test_parallel_rollouts.py`).
+- **Process pools:** for CPU-bound kernels that release the GIL poorly, a **process** pool may win wall-clock, but pickling worlds/genomes must be justified at the call site — not bundled here.
+
 ## Optional environment flag pattern
 
 Libraries often use an explicit toggle (examples: `FRAGILITY_BACKEND=numpy|numba`, `JAX_PLATFORM_NAME=cpu`). Any adoption here should:

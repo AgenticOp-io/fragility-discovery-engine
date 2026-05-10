@@ -25,7 +25,9 @@
   <strong>Attribution graph viewer</strong>
   <div id="hint">
     Load <code>attribution-merge-v1</code> (<code>merge_counterfactual_attribution.py</code>) or
-    <code>explanation-mutation-chain-path-v1</code> (embedded under <code>path_trace</code> in chain exports with <code>--emit-path-trace</code>, or standalone).
+    mutation-chain path traces: <code>explanation-mutation-chain-path-v1</code> (network panic) /
+    <code>explanation-mutation-chain-path-resource-cascade-v1</code> (overload), including embedded <code>path_trace</code>
+    from chain exports with <code>--emit-path-trace</code>.
     Replay timelines: <code>artifacts/replay_viewer/index.html</code>. Pareto: <code>artifacts/pareto_viewer/index.html</code>.
   </div>
   <div style="margin-bottom:12px">
@@ -97,10 +99,14 @@
           const data = JSON.parse(t);
           const sch = data.schema;
           if (sch === 'attribution-merge-v1') renderMerge(data);
-          else if (sch === 'explanation-mutation-chain-path-v1') renderChainPath(data);
-          else if (data.path_trace && data.path_trace.schema === 'explanation-mutation-chain-path-v1')
+          else if (sch === 'explanation-mutation-chain-path-v1' || sch === 'explanation-mutation-chain-path-resource-cascade-v1')
+            renderChainPath(data);
+          else if (data.path_trace && (
+            data.path_trace.schema === 'explanation-mutation-chain-path-v1' ||
+            data.path_trace.schema === 'explanation-mutation-chain-path-resource-cascade-v1'))
             renderChainPath(data.path_trace);
-          else panel.textContent = 'Unknown schema: ' + (sch || '(missing)') + '. Expected attribution-merge-v1 or explanation-mutation-chain-path-v1.';
+          else panel.textContent = 'Unknown schema: ' + (sch || '(missing)') +
+            '. Expected attribution-merge-v1 or explanation-mutation-chain-path-v1 / explanation-mutation-chain-path-resource-cascade-v1.';
         } catch (e) {
           panel.textContent = 'Invalid JSON: ' + e;
         }

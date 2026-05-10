@@ -47,6 +47,7 @@ Static **`replay_viewer`** treats unknown modes like aggregate for plotting (pri
 - **API:** `fragility_engine.explain.counterfactual_chain_resource_cascade` (`counterfactual_resource_cascade_mutation_chain_with_rollouts`, `mutation_chain_path_rollouts_resource_cascade`).
 - **Path trace schema:** `explanation-mutation-chain-path-resource-cascade-v1` via `mutation_chain_path_to_trace_resource_cascade`.
 - **CLI:** `scripts/export_resource_cascade_counterfactual_chain.py --chain-json …`.
+- **Viewer:** `artifacts/attribution_viewer/index.html` loads path traces with **`reset_initial_overload`** labels (same UI entry point as network chain paths).
 
 ## Limits / non-goals
 

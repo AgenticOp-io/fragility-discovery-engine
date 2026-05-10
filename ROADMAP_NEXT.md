@@ -133,6 +133,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] Documented **speedup measurement** for resource cascade: paired bundle benchmarks vs NumPy + reference NumPy timing snapshot ([`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)); Numba ratio is operator-measured after `[accelerate]` install.
 - [x] CI **`numba-parity`** job (Ubuntu, `[accelerate]`) runs `tests/test_resource_cascade_numba_parity.py`; main matrix stays NumPy-only.
 - [x] Fallback path always available (acceleration optional dependency; default NumPy `rollout_resource_cascade`, env `FRAGILITY_RESOURCE_CASCADE_BACKEND`).
+- [x] **Batch helper:** `parallel_rollouts.thread_pool_map_ordered` + ordering / shared-template caveat in [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md); tests `tests/test_parallel_rollouts.py`.
 
 ---
 
