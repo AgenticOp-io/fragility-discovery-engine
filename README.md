@@ -48,6 +48,21 @@ python scripts/week1_smoke.py
 python scripts/run_ga_demo.py
 ```
 
+### Google Compute Engine (Linux VM)
+
+Use a small **Debian/Ubuntu** instance when you want Linux CI parity or heavier `pytest` runs. **winget is Windows-only**; on the VM use **`apt`** (or your image’s Python if it already meets **≥ 3.11**).
+
+```bash
+sudo apt-get update && sudo apt-get install -y git python3.12 python3.12-venv python3-pip
+git clone https://github.com/theorem6/fragility-discovery-engine.git
+cd fragility-discovery-engine
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+```
+
+To have **Cursor** (and this agent’s terminal) run **on the VM**, open the repo via **Remote - SSH** and point the workspace at the clone path above. The agent only executes where the integrated terminal’s default cwd is bound—local laptop vs GCE is whichever host that terminal is on.
+
 ## Scripts
 
 | Script | Purpose |
