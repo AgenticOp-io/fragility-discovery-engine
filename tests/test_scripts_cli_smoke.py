@@ -251,6 +251,24 @@ def test_narrate_frozen_json_cite_digest_cli(py_exe: str, tmp_path: Path) -> Non
     assert "citation_sha256:" in payload["text"]
 
 
+def test_plot_replay_timeline_cli(py_exe: str, tmp_path: Path) -> None:
+    png = tmp_path / "tl.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_replay_timeline.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_resource_cascade_replay.json"),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    raw = png.read_bytes()
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+    assert len(raw) > 2000
+
+
 def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "cf.json"
     repdir = tmp_path / "replays"

@@ -1,0 +1,40 @@
+{
+  "schema": "fragility-plot-style-v1",
+  "figure": {
+    "width_in": 9.0,
+    "height_in": 4.5,
+    "dpi": 120
+  },
+  "matplotlib_rc": {
+    "font.size": 10
+  },
+  "series": {
+    "price": {
+      "color": "#1f77b4",
+      "ylabel_left": "metrics.price",
+      "linewidth": 1.8,
+      "zorder": 3
+    },
+    "instability": {
+      "color": "#d62728",
+      "ylabel_right": "metrics.instability",
+      "linewidth": 1.6,
+      "zorder": 2
+    }
+  },
+  "xlabel": "timestep",
+  "grid": {
+    "alpha": 0.28,
+    "linestyle": ":"
+  },
+  "collapse_line": {
+    "enabled": true,
+    "color": "#444444",
+    "linestyle": "--",
+    "linewidth": 1.2,
+    "alpha": 0.85,
+    "label_template": "collapse t={collapse_timestep}"
+  },
+  "legend_loc": "upper right",
+  "title_template": "{simulation_mode} — seed={seed} collapsed={collapsed}"
+}

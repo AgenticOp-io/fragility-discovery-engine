@@ -72,3 +72,13 @@ python scripts/narrate_frozen_json.py merge_rc.json --json-out narration.json --
 ```bash
 python scripts/compare_replays.py tmp_rc_pair/baseline.json tmp_rc_pair/counterfactual.json
 ```
+
+## 8. Timeline figure (Phase L)
+
+Replay JSON → PNG using the pinned style contract **`fragility-plot-style-v1`** (`matplotlib`; installed via `pip install -e ".[dev]"` or `.[viz]`).
+
+```bash
+python scripts/plot_replay_timeline.py artifacts/replay_viewer/sample_resource_cascade_replay.json \
+  --out rc_timeline.png
+# Override aesthetics: --style-json path/to/custom.json
+```
