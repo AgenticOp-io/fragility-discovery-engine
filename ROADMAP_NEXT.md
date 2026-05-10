@@ -152,7 +152,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] Summaries carry **citations** to artifact paths / hashes (`narrate_frozen_json --cite-digest`, `frozen_json_digest.py`).
 - [x] Visual outputs reproducible from CLI with pinned style configs (`plot_replay_timeline.py`, `artifacts/plot_styles/default_replay_timeline.json`).
 
-**Scaffold (partial):** deterministic text summaries via [`scripts/narrate_frozen_json.py`](scripts/narrate_frozen_json.py) (`replay` / `pareto-front-v1` / `attribution-merge-v1` / epsilon-sweep) — no LLM; **`--cite-digest`** (SHA-256 + path); output schema **`narration-summary-v1`** when using `--json-out`. Timeline figures via [`scripts/plot_replay_timeline.py`](scripts/plot_replay_timeline.py) + **`fragility-plot-style-v1`** (matplotlib in **`[dev]`** / **`[viz]`** extras).
+**Scaffold (partial):** deterministic text summaries via [`scripts/narrate_frozen_json.py`](scripts/narrate_frozen_json.py) (`replay` / `pareto-front-v1` / `attribution-merge-v1` / epsilon-sweep) — no LLM; **`--cite-digest`** (SHA-256 + path); output schema **`narration-summary-v1`** when using `--json-out`. Figures: replay timelines [`scripts/plot_replay_timeline.py`](scripts/plot_replay_timeline.py) (**`fragility-plot-style-v1`**) and ε-sweep curves [`scripts/plot_epsilon_sweep.py`](scripts/plot_epsilon_sweep.py) (**`fragility-plot-epsilon-sweep-style-v1`**); matplotlib in **`[dev]`** / **`[viz]`** extras.
 
 **Still optional / out of band:** LLM summarizer over frozen JSON; richer plot gallery beyond replay timelines.
 

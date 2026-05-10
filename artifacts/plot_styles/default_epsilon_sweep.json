@@ -1,0 +1,37 @@
+{
+  "schema": "fragility-plot-epsilon-sweep-style-v1",
+  "figure": {
+    "width_in": 8.5,
+    "height_in": 4.5,
+    "dpi": 120
+  },
+  "matplotlib_rc": {
+    "font.size": 10
+  },
+  "integral_curve": {
+    "color": "#1f77b4",
+    "linewidth": 1.8,
+    "marker": "o",
+    "markersize": 6,
+    "markerfacecolor": "#1f77b4",
+    "markeredgecolor": "#0d4f82",
+    "markeredgewidth": 0.8,
+    "label": "integral_instability",
+    "zorder": 2
+  },
+  "collapse_overlay": {
+    "color": "#d62728",
+    "marker": "X",
+    "scatter_s": 96,
+    "linewidths": 0.9,
+    "label": "collapsed run",
+    "zorder": 4
+  },
+  "ylabel": "integral_instability",
+  "grid": {
+    "alpha": 0.28,
+    "linestyle": ":"
+  },
+  "legend_loc": "best",
+  "title_template": "{mode} ε-sweep — axis={axis} (n={n}, rollout_seed={rollout_seed})"
+}

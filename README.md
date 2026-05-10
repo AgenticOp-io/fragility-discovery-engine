@@ -58,6 +58,7 @@ python scripts/run_ga_demo.py
 | `scripts/export_resource_cascade_joint_attribution.py` | **`attribution-merge-v1`**: shared-baseline **remove_steps** + **`--second-branch`** **initial_overload_shift** or **cascade_coupling_shift** |
 | `scripts/narrate_frozen_json.py` | Phase **L** scaffold: replay / Pareto / merge / epsilon-sweep JSON; **`--cite-digest`** (SHA-256 + path); **`--json-out`** → **`narration-summary-v1`** |
 | `scripts/plot_replay_timeline.py` | Phase **L** figure hook: **`metrics.price`** + **`metrics.instability`** vs timestep from replay JSON; pinned style **`artifacts/plot_styles/default_replay_timeline.json`** (`fragility-plot-style-v1`); requires **`matplotlib`** (`pip install -e ".[dev]"` or **`.[viz]`**) |
+| `scripts/plot_epsilon_sweep.py` | **`counterfactual-epsilon-sweep-v1`**: sweep axis vs **`integral_instability`** + collapse markers; style **`artifacts/plot_styles/default_epsilon_sweep.json`** (`fragility-plot-epsilon-sweep-style-v1`) |
 | `scripts/merge_counterfactual_attribution.py` | Star-merge exports → **`attribution-merge-v1`** |
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |

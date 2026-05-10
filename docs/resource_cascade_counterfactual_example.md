@@ -54,6 +54,8 @@ python scripts/export_resource_cascade_joint_attribution.py --out merge_rc_cc.js
 python scripts/counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload \
   --values "0.05,0.09,0.13" --horizon 11 --rollout-seed 501 --genome-seed 502 \
   --out sweep_rc.json --emit-trace
+
+python scripts/plot_epsilon_sweep.py sweep_rc.json --out sweep_rc.png
 ```
 
 ## 6. Narration + citation digest (Phase L hook)

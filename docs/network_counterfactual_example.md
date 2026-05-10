@@ -74,7 +74,7 @@ python scripts/counterfactual_epsilon_sweep.py `
   --out artifacts/tmp_sweep_beta.json
 ```
 
-Schema: `counterfactual-epsilon-sweep-v1` (`fragility_engine.explain.sweep`).
+Schema: `counterfactual-epsilon-sweep-v1` (`fragility_engine.explain.sweep`). Plot axis vs integral instability: `python scripts/plot_epsilon_sweep.py <sweep.json> --out sweep.png`.
 
 ## 5. Aggregate **initial_panic** sweep + linear trace
 

@@ -269,6 +269,50 @@ def test_plot_replay_timeline_cli(py_exe: str, tmp_path: Path) -> None:
     assert len(raw) > 2000
 
 
+def test_plot_epsilon_sweep_cli(py_exe: str, tmp_path: Path) -> None:
+    sweep_p = tmp_path / "sw.json"
+    sweep_p.write_text(
+        json.dumps(
+            {
+                "schema": "counterfactual-epsilon-sweep-v1",
+                "axis": "initial_overload",
+                "mode": "resource_cascade",
+                "rollout_seed": 501,
+                "runs": [
+                    {
+                        "initial_overload": 0.05,
+                        "integral_instability": 2.1,
+                        "collapsed": False,
+                    },
+                    {
+                        "initial_overload": 0.14,
+                        "integral_instability": 6.2,
+                        "collapsed": True,
+                    },
+                ],
+                "summary": {"count": 2},
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    png = tmp_path / "eps.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_epsilon_sweep.py"),
+            str(sweep_p),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    raw = png.read_bytes()
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+    assert len(raw) > 800
+
+
 def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "cf.json"
     repdir = tmp_path / "replays"
