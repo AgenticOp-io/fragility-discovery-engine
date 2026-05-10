@@ -49,6 +49,12 @@ python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102,103
 
 Schema: `fragility-robustness-ensemble-v1` (see `fragility_engine.benchmarks.ensemble`).
 
+**1D sensitivity (collapse rate vs one knob):** same graph seeds at each step; scans `er_p`, `ws_p`, `ws_k`, `base_panic`, `contagion_beta`, or `whale_frac`. Nested schema `fragility-robustness-sensitivity-1d-v1`:
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102,103 --sweep-param er_p --sweep-values 0.08,0.12,0.16
+```
+
 ## Wall-clock timing (Phase K helper)
 
 Compare machines or commits using the **same frozen workload** as CI golden bundles (not a regression gate):

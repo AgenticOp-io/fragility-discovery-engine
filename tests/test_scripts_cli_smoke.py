@@ -2146,6 +2146,32 @@ def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:
     assert data["summary"]["count"] == 2
 
 
+def test_fragility_robustness_sweep_1d_sensitivity_json_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--graph-seeds",
+            "101,102",
+            "--nodes",
+            "12",
+            "--sweep-param",
+            "base_panic",
+            "--sweep-values",
+            "0.04,0.07",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-robustness-sensitivity-1d-v1"
+    assert data["sweep_param"] == "base_panic"
+    assert len(data["points"]) == 2
+
+
 def test_export_fragility_certificate_cli(py_exe: str, tmp_path: Path) -> None:
     j = tmp_path / "x.json"
     j.write_text('{"k":1}', encoding="utf-8")
