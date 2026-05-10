@@ -42,7 +42,7 @@ Install optional dependency: `pip install -e ".[accelerate]"` (declares `numba`)
 
 ## Exit criteria (reminder)
 
-Promote Phase K in `BOUNDARIES.md` only when named bundles show documented speedups **and** CI remains on the reference path with frozen goldens (or documented relaxed tolerances per bundle ID).
+Promotion in `BOUNDARIES.md` should stay tied to **honest** reporting: optional backends remain off by default in CI; relative timings are measured via the harness above (and parity tests when Numba is installed), not assumed from prose.
 
 ## Named Phase H bundles (`--bundle`)
 
@@ -62,6 +62,30 @@ python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repea
 ```
 
 Emit JSON includes `workflow`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, `mean_ms_per_rollout`.
+
+### Comparing NumPy vs Numba (`resource_cascade_rollout_v1`)
+
+Use the **same** bundle ID and repeat counts; only the environment flag changes. Install Numba first (`pip install -e ".[accelerate]"`) on a platform with wheels (many Linux x86_64 / macOS / Windows x64 builds; some ARM Windows setups lack wheels).
+
+```bash
+FRAGILITY_RESOURCE_CASCADE_BACKEND=numpy python scripts/benchmark_rollout.py \
+  --bundle resource_cascade_rollout_v1 --repeat 16 --warmup 2 --json
+FRAGILITY_RESOURCE_CASCADE_BACKEND=numba python scripts/benchmark_rollout.py \
+  --bundle resource_cascade_rollout_v1 --repeat 16 --warmup 2 --json
+```
+
+PowerShell:
+
+```powershell
+$env:FRAGILITY_RESOURCE_CASCADE_BACKEND='numpy'
+python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repeat 16 --warmup 2 --json
+$env:FRAGILITY_RESOURCE_CASCADE_BACKEND='numba'
+python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repeat 16 --warmup 2 --json
+```
+
+Divide the first run’s `mean_ms_per_rollout` by the second to get a **local** speedup factor (JIT warmup is included in `--warmup`; cold-start semantics match how you configure repeats).
+
+**Reference NumPy snapshot** (informative, one developer machine, 2026): `resource_cascade_rollout_v1`, `--repeat 12 --warmup 2`, yielded `mean_ms_per_rollout` ≈ **0.37** ms. Re-run the command above on your CPU/OS before trusting ratios.
 
 Suite sweep (every registered bundle, comparable relative timings on one machine):
 

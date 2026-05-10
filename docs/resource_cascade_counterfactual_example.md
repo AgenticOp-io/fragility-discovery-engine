@@ -48,7 +48,30 @@ python scripts/export_resource_cascade_joint_attribution.py --out merge_rc_cc.js
   --horizon 11 --seed 403 --genome-seed 404 --initial-overload 0.07 --remove "0"
 ```
 
-## 5. ε-sweep on `initial_overload`
+## 5. Cumulative mutation chain (`resource-cascade-mutation-chain-spec-v1`)
+
+Ordered physics knobs applied on a template clone; baseline vs final cumulative variant uses the same genome and rollout seed. Optional **`--emit-path-trace`** emits **`explanation-mutation-chain-path-resource-cascade-v1`**.
+
+Save a small chain spec as `chain_rc.json`:
+
+```json
+{
+  "schema": "resource-cascade-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "cascade_coupling", "value": 0.38},
+    {"kind": "rumor_gain", "value": 0.27}
+  ]
+}
+```
+
+```bash
+python scripts/export_resource_cascade_counterfactual_chain.py \
+  --chain-json chain_rc.json --horizon 12 --seed 601 --genome-seed 602 \
+  --initial-overload 0.065 --variant-initial-overload 0.10 \
+  --emit-path-trace --out cf_rc_chain.json
+```
+
+## 6. ε-sweep on `initial_overload`
 
 ```bash
 python scripts/counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload \
@@ -58,7 +81,7 @@ python scripts/counterfactual_epsilon_sweep.py --mode resource_cascade --axis in
 python scripts/plot_epsilon_sweep.py sweep_rc.json --out sweep_rc.png
 ```
 
-## 6. Narration + citation digest (Phase L)
+## 7. Narration + citation digest (Phase L)
 
 See [`docs/phase_l_publication.md`](phase_l_publication.md) for the full Phase L CLI index (plots, LLM prompt export).
 
@@ -77,7 +100,7 @@ python scripts/narrate_frozen_json.py merge_rc.json --json-out narration.json --
 python scripts/compare_replays.py tmp_rc_pair/baseline.json tmp_rc_pair/counterfactual.json
 ```
 
-## 8. Timeline figure (Phase L)
+## 9. Timeline figure (Phase L)
 
 Replay JSON → PNG using the pinned style contract **`fragility-plot-style-v1`** (`matplotlib`; installed via `pip install -e ".[dev]"` or `.[viz]`).
 

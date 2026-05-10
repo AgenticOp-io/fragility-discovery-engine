@@ -130,7 +130,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 **Exit criteria (candidate):**
 
 - [x] Reproducible wall-clock harness on **named** Phase H bundles (`benchmark_rollout.py --bundle <id>`, table in [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
-- [ ] Documented **speedups** vs the NumPy reference on those same bundles (relative timings still ad hoc; optional Numba path + parity tests when `numba` is installed).
+- [x] Documented **speedup measurement** for resource cascade: paired bundle benchmarks vs NumPy + reference NumPy timing snapshot ([`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)); Numba ratio is operator-measured after `[accelerate]` install.
 - [x] Fallback path always available (acceleration optional dependency; default NumPy `rollout_resource_cascade`, env `FRAGILITY_RESOURCE_CASCADE_BACKEND`).
 
 ---
