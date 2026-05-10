@@ -80,6 +80,8 @@ Promotion in `BOUNDARIES.md` should stay tied to **honest** reporting: optional 
 
 `scripts/benchmark_rollout.py --bundle <id>` times **exactly** the rollout body used by `fragility_engine.benchmarks.suite` / `run_benchmark_suite.py` (pinned genome + rollout seeds). Use this to document **relative** speedups when experimenting with optional backends—absolute ms vary by CPU/OS.
 
+**Search microbench:** `--bench-search mc|ga` (requires `--bundle` or `--bundle-all`) runs `monte_carlo_search` or `genetic_search` on the same bundle templates via `bundle_search_evaluator` (`PINNED_SCHEDULE_HORIZON` rows). Pass **`--eval-workers`**, **`--search-generations`** / **`--search-population`** (GA), **`--search-samples`** (MC), **`--search-seed`**. JSON **`workflow`: `phase_h_bundle_search_microbench`** with per-bundle **`mean_ms_per_search`**.
+
 | Bundle id | Domain workload |
 |-----------|-----------------|
 | `aggregate_rollout_v1` | `StablecoinPegWorld`, `max_steps=28`, 12-row pinned genome |

@@ -192,6 +192,7 @@ def main() -> None:
     payload = {
         "schema": "pareto-front-v1",
         "best_fitness": search.best_fitness,
+        "eval_workers": ew,
         "archive": [
             {
                 "severity": p.severity,
@@ -227,6 +228,7 @@ def main() -> None:
             "cli": "export_pareto_front",
             "pareto_front_seed": args.seed,
             "mode": args.mode,
+            "eval_workers": ew,
             **meta_extra,
         }
         if topo_meta is not None:

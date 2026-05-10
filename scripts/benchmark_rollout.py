@@ -14,11 +14,14 @@ from pathlib import Path
 import numpy as np
 
 from fragility_engine.adversary.encoding import random_genome
+from fragility_engine.adversary.search import genetic_search, monte_carlo_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.benchmarks.suite import (
     BUNDLE_IDS,
     PINNED_GENOME_SEED,
     PINNED_ROLLOUT_SEED,
+    PINNED_SCHEDULE_HORIZON,
+    bundle_search_evaluator,
     run_bundle_rollout_once,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
@@ -85,10 +88,116 @@ def main() -> None:
         help="[resource_cascade] overload at reset [0,1].",
     )
     p.add_argument("--json", action="store_true", help="Emit one JSON object on stdout.")
+    p.add_argument(
+        "--bench-search",
+        choices=("mc", "ga"),
+        default=None,
+        help=(
+            "[Phase H bundle only] Time monte_carlo_search or genetic_search on the bundle template "
+            "(requires --bundle or --bundle-all). Uses PINNED_SCHEDULE_HORIZON rows."
+        ),
+    )
+    p.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for search fitness/MC evaluation when --bench-search is set.",
+    )
+    p.add_argument("--search-generations", type=int, default=2, help="[bench-search ga] GA generations.")
+    p.add_argument("--search-population", type=int, default=8, help="[bench-search ga] Population size.")
+    p.add_argument("--search-samples", type=int, default=16, help="[bench-search mc] Sample count.")
+    p.add_argument(
+        "--search-seed",
+        type=int,
+        default=None,
+        help="Search RNG seed (defaults to pinned genome seed).",
+    )
     args = p.parse_args()
 
     repeat = max(0, int(args.repeat))
     warmup = max(0, int(args.warmup))
+
+    if args.bench_search is not None and not args.bundle_all and args.bundle is None:
+        print("--bench-search requires --bundle or --bundle-all", file=sys.stderr)
+        raise SystemExit(2)
+
+    if args.bench_search is not None:
+        ew = max(1, int(args.eval_workers))
+        search_seed = int(args.search_seed) if args.search_seed is not None else PINNED_GENOME_SEED
+        sg = max(1, int(args.search_generations))
+        sp = max(2, int(args.search_population))
+        ss = max(0, int(args.search_samples))
+        bundles_loop = list(BUNDLE_IDS) if args.bundle_all else [str(args.bundle)]
+
+        def emit_search_rows() -> None:
+            rows_sr: list[dict[str, float | str | int]] = []
+            total_wall = 0.0
+            for bid in bundles_loop:
+                evaluator = bundle_search_evaluator(bid, eval_workers=ew)
+
+                def run_search_once() -> None:
+                    if args.bench_search == "ga":
+                        genetic_search(
+                            evaluator,
+                            horizon=PINNED_SCHEDULE_HORIZON,
+                            generations=sg,
+                            population_size=sp,
+                            seed=search_seed,
+                            eval_workers=ew,
+                        )
+                    else:
+                        monte_carlo_search(
+                            evaluator,
+                            horizon=PINNED_SCHEDULE_HORIZON,
+                            samples=ss,
+                            seed=search_seed,
+                            eval_workers=ew,
+                        )
+
+                for _ in range(warmup):
+                    run_search_once()
+                t0 = time.perf_counter()
+                for _ in range(repeat):
+                    run_search_once()
+                elapsed = time.perf_counter() - t0
+                total_wall += elapsed
+                mean_ms = (elapsed / repeat * 1000.0) if repeat else 0.0
+                rows_sr.append(
+                    {
+                        "bundle_id": bid,
+                        "wall_clock_s": elapsed,
+                        "mean_ms_per_search": mean_ms,
+                    }
+                )
+            payload_sr: dict[str, object] = {
+                "workflow": "phase_h_bundle_search_microbench",
+                "bench_search": args.bench_search,
+                "eval_workers": ew,
+                "search_seed": search_seed,
+                "pinned_schedule_horizon": PINNED_SCHEDULE_HORIZON,
+                "repeat": repeat,
+                "warmup": warmup,
+                "bundles": rows_sr,
+                "total_wall_clock_s": total_wall,
+            }
+            if args.bench_search == "ga":
+                payload_sr["search_generations"] = sg
+                payload_sr["search_population"] = sp
+            else:
+                payload_sr["search_samples"] = ss
+            if args.json:
+                print(json.dumps(payload_sr, indent=2))
+            else:
+                mode = "GA" if args.bench_search == "ga" else "MC"
+                print(
+                    f"Phase H search microbench ({mode})  eval_workers={ew}  repeat={repeat}  "
+                    f"warmup={warmup}  total_wall={total_wall:.4f}s"
+                )
+                for row in rows_sr:
+                    print(f"  {row['bundle_id']}: mean={row['mean_ms_per_search']:.3f} ms/search")
+
+        emit_search_rows()
+        return
 
     if args.bundle_all:
         rows: list[dict[str, float | str]] = []

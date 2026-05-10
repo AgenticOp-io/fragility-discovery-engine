@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_network_clone,
+    thread_safe_peg_clone,
+    thread_safe_resource_cascade_clone,
+)
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
@@ -20,6 +26,8 @@ RESULT_SCHEMA = "benchmark-bundle-result-v1"
 PINNED_GENOME_SEED = 9001
 PINNED_ROLLOUT_SEED = 4242
 _GENOME_ROWS = 12
+# Schedule rows for pinned genome / Phase H bundles (encoding width).
+PINNED_SCHEDULE_HORIZON = _GENOME_ROWS
 
 
 def _pinned_genome() -> np.ndarray:
@@ -77,6 +85,75 @@ def run_bundle_rollout_once(bundle_id: str) -> RolloutResult:
     if bundle_id == "resource_cascade_rollout_v1":
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
         return rollout_resource_cascade(template, genome, seed=PINNED_ROLLOUT_SEED, initial_overload=0.05)
+    raise ValueError(f"unknown bundle_id {bundle_id!r}")
+
+
+def bundle_search_evaluator(
+    bundle_id: str,
+    *,
+    eval_workers: int = 1,
+) -> Callable[[np.ndarray, int], RolloutResult]:
+    """
+    Rollout closure for timing ``monte_carlo_search`` / ``genetic_search`` on a Phase H bundle world.
+
+    When ``eval_workers > 1``, builds a fresh population clone per call (same physics/topology as
+    :func:`run_bundle_rollout_once`).
+    """
+
+    ew = max(1, int(eval_workers))
+    if bundle_id == "aggregate_rollout_v1":
+        template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=28)
+
+        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
+            world = thread_safe_peg_clone(template) if ew > 1 else template
+            return rollout_stablecoin(world, g, seed=seed, initial_panic=0.05)
+
+        return evaluator
+    if bundle_id == "network_er_rollout_v1":
+        graph, _meta = contagion_graph_from_cli(
+            graph_kind="erdos_renyi",
+            nodes=16,
+            graph_seed=7,
+            er_p=0.14,
+            ws_k=4,
+            ws_p=0.12,
+        )
+        template = StablecoinNetworkWorld(
+            population=default_stablecoin_population(),
+            adjacency=graph,
+            node_weights=default_whale_weights(16, whale_index=0, whale_frac=0.22),
+            contagion_beta=0.36,
+            max_steps=26,
+        )
+
+        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
+            world = thread_safe_network_clone(template) if ew > 1 else template
+            return rollout_stablecoin_network(world, g, seed=seed, base_panic=0.05)
+
+        return evaluator
+    if bundle_id == "network_neighbor_list_rollout_v1":
+        nl = [[1], [2], [0]]
+        template = StablecoinNetworkWorld(
+            population=default_stablecoin_population(),
+            neighbor_lists=nl,
+            node_weights=default_whale_weights(3, whale_index=0, whale_frac=0.25),
+            contagion_beta=0.35,
+            max_steps=24,
+        )
+
+        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
+            world = thread_safe_network_clone(template) if ew > 1 else template
+            return rollout_stablecoin_network(world, g, seed=seed, base_panic=0.05)
+
+        return evaluator
+    if bundle_id == "resource_cascade_rollout_v1":
+        template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
+
+        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
+            world = thread_safe_resource_cascade_clone(template) if ew > 1 else template
+            return rollout_resource_cascade(world, g, seed=seed, initial_overload=0.05)
+
+        return evaluator
     raise ValueError(f"unknown bundle_id {bundle_id!r}")
 
 

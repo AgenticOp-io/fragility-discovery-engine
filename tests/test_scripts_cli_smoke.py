@@ -909,6 +909,79 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     assert bundle_payload["mean_ms_per_rollout"] >= 0.0
     assert "resource_cascade_backend" not in bundle_payload
 
+    proc_search = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "aggregate_rollout_v1",
+            "--bench-search",
+            "ga",
+            "--eval-workers",
+            "2",
+            "--search-generations",
+            "1",
+            "--search-population",
+            "8",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    search_payload = json.loads(proc_search.stdout)
+    assert search_payload["workflow"] == "phase_h_bundle_search_microbench"
+    assert search_payload["bench_search"] == "ga"
+    assert search_payload["eval_workers"] == 2
+    assert len(search_payload["bundles"]) == 1
+    assert search_payload["bundles"][0]["bundle_id"] == "aggregate_rollout_v1"
+
+    proc_search_mc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "aggregate_rollout_v1",
+            "--bench-search",
+            "mc",
+            "--search-samples",
+            "6",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    mc_pl = json.loads(proc_search_mc.stdout)
+    assert mc_pl["workflow"] == "phase_h_bundle_search_microbench"
+    assert mc_pl["bench_search"] == "mc"
+    assert mc_pl["search_samples"] == 6
+
+    bad = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bench-search",
+            "ga",
+            "--repeat",
+            "1",
+        ],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert bad.returncode == 2
+
     proc_rc_b = subprocess.run(
         [
             py_exe,
@@ -1246,8 +1319,39 @@ def test_export_pareto_front_network_smoke(py_exe: str, tmp_path: Path) -> None:
     )
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["schema"] == "pareto-front-v1"
+    assert data["eval_workers"] == 1
     assert "topology" in data
     assert data["topology"]["kind"] == "erdos_renyi"
+
+
+def test_export_pareto_front_payload_eval_workers_parallel(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_ew.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "aggregate",
+            "--out",
+            str(out),
+            "--horizon",
+            "8",
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--max-steps",
+            "20",
+            "--seed",
+            "717171",
+            "--eval-workers",
+            "2",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["eval_workers"] == 2
 
 
 def test_run_coevolution_resource_cascade_exports_replay(py_exe: str, tmp_path: Path) -> None:
