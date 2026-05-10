@@ -13,6 +13,7 @@ dependencies = ["numpy>=1.26", "networkx>=3.2"]
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8.0", "matplotlib>=3.8.0"]
 viz = ["matplotlib>=3.8.0"]
+accelerate = ["numba>=0.59"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

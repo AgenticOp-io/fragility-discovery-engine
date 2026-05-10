@@ -10,6 +10,11 @@ from fragility_engine.coevolution.defender import (
     build_defended_network_world,
     build_defended_resource_cascade_world,
 )
+from fragility_engine.runner_resource_cascade_numba import (
+    resource_cascade_backend_from_env,
+    rollout_resource_cascade_numba,
+    should_attempt_resource_cascade_numba,
+)
 from fragility_engine.types import RolloutResult, TrajectoryStep
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
@@ -166,7 +171,12 @@ def rollout_resource_cascade(
     continue_after_collapse: bool = False,
     defender_genome: np.ndarray | None = None,
 ) -> RolloutResult:
-    """Phase J reference rollout — same schedule decoding as aggregate/network (``decode_schedule``)."""
+    """Phase J reference rollout — same schedule decoding as aggregate/network (``decode_schedule``).
+
+    Optional accelerated path: set ``FRAGILITY_RESOURCE_CASCADE_BACKEND`` to ``numba`` or ``auto`` when
+    ``numba`` is installed and the agent population matches the default mixture (see
+    :mod:`fragility_engine.runner_resource_cascade_numba`). Otherwise the NumPy reference loop runs.
+    """
 
     world, reserve_boost = build_defended_resource_cascade_world(world_template, defender_genome)
     world.reset(initial_overload=float(initial_overload), capacity_scale=float(reserve_boost))
@@ -174,6 +184,27 @@ def rollout_resource_cascade(
 
     schedule = decode_schedule(genome)
     attack_cost = schedule_attack_cost(schedule)
+
+    backend = resource_cascade_backend_from_env()
+    if should_attempt_resource_cascade_numba(backend, world_template):
+        nb = rollout_resource_cascade_numba(
+            world,
+            schedule,
+            attack_cost,
+            seed=int(seed),
+            initial_overload=float(initial_overload),
+            reserve_boost=float(reserve_boost),
+            continue_after_collapse=bool(continue_after_collapse),
+        )
+        if nb is not None:
+            nb.recovery_timestep = _recovery_timestep(
+                nb.trajectory,
+                collapsed=nb.collapsed,
+                collapse_timestep=nb.collapse_timestep,
+                continue_after_collapse=bool(continue_after_collapse),
+                depeg_threshold=world.depeg_threshold,
+            )
+            return nb
 
     trajectory: list[TrajectoryStep] = []
     collapsed = False

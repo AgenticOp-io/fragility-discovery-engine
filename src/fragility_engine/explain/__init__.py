@@ -20,6 +20,13 @@ from fragility_engine.explain.counterfactual_chain import (
     mutation_chain_path_rollouts,
     parse_chain_spec_payload,
 )
+from fragility_engine.explain.counterfactual_chain_resource_cascade import (
+    RESOURCE_CASCADE_CHAIN_SPEC_SCHEMA,
+    apply_resource_cascade_mutation_step,
+    counterfactual_resource_cascade_mutation_chain_with_rollouts,
+    mutation_chain_path_rollouts_resource_cascade,
+    parse_resource_cascade_chain_spec_payload,
+)
 from fragility_engine.explain.interaction_summary import INTERACTION_SUMMARY_SCHEMA, summarize_attribution_merge
 from fragility_engine.explain.merge_attribution import SCHEMA as ATTRIBUTION_MERGE_SCHEMA
 from fragility_engine.explain.merge_attribution import merge_heterogeneous_counterfactuals
@@ -32,9 +39,14 @@ from fragility_engine.explain.sweep import (
     sweep_network_scalar_axis,
     sweep_resource_cascade_initial_overload,
 )
+from fragility_engine.explain.trace import CHAIN_PATH_TRACE_RESOURCE_CASCADE_SCHEMA as EXPLANATION_RC_CHAIN_PATH_SCHEMA
 from fragility_engine.explain.trace import CHAIN_PATH_TRACE_SCHEMA as EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA
 from fragility_engine.explain.trace import TRACE_SCHEMA as EXPLANATION_TRACE_SCHEMA
-from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace, mutation_chain_path_to_trace
+from fragility_engine.explain.trace import (
+    linear_epsilon_sweep_to_trace,
+    mutation_chain_path_to_trace,
+    mutation_chain_path_to_trace_resource_cascade,
+)
 
 __all__ = [
     "load_frozen_json_artifact",
@@ -58,6 +70,11 @@ __all__ = [
     "mutation_chain_path_rollouts",
     "parse_chain_spec_payload",
     "CHAIN_SPEC_SCHEMA",
+    "RESOURCE_CASCADE_CHAIN_SPEC_SCHEMA",
+    "parse_resource_cascade_chain_spec_payload",
+    "apply_resource_cascade_mutation_step",
+    "counterfactual_resource_cascade_mutation_chain_with_rollouts",
+    "mutation_chain_path_rollouts_resource_cascade",
     "compare_rollouts",
     "rollout_snapshot",
     "counterfactual_bundle_to_jsonable",
@@ -67,9 +84,11 @@ __all__ = [
     "sweep_resource_cascade_initial_overload",
     "linear_epsilon_sweep_to_trace",
     "mutation_chain_path_to_trace",
+    "mutation_chain_path_to_trace_resource_cascade",
     "COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA",
     "ATTRIBUTION_MERGE_SCHEMA",
     "INTERACTION_SUMMARY_SCHEMA",
     "EXPLANATION_TRACE_SCHEMA",
     "EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA",
+    "EXPLANATION_RC_CHAIN_PATH_SCHEMA",
 ]

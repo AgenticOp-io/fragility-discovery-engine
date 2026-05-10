@@ -108,6 +108,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] GA smoke + determinism tests — `scripts/run_resource_cascade_ga_demo.py`, `tests/test_resource_cascade_rollout.py`, `tests/test_replay_contract_resource_cascade.py`.
 - [x] README “Why this domain” ≤ 1 page — [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) (+ root README pointer).
 - [x] Co-evolution / Pareto on `ResourceCascadeWorld` — `alternating_coevolution_resource_cascade`, `scripts/run_coevolution.py --mode resource_cascade`, `scripts/export_pareto_front.py --mode resource_cascade`.
+- [x] Cumulative mutation chains + path trace — `explain/counterfactual_chain_resource_cascade.py`, `scripts/export_resource_cascade_counterfactual_chain.py`, `tests/test_counterfactual_chain_resource_cascade.py`.
 
 ---
 
@@ -129,8 +130,8 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 **Exit criteria (candidate):**
 
 - [x] Reproducible wall-clock harness on **named** Phase H bundles (`benchmark_rollout.py --bundle <id>`, table in [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
-- [ ] Documented **speedups** vs the NumPy reference on those same bundles (needs optional backend + golden parity).
-- [ ] Fallback path always available (acceleration optional dependency).
+- [ ] Documented **speedups** vs the NumPy reference on those same bundles (relative timings still ad hoc; optional Numba path + parity tests when `numba` is installed).
+- [x] Fallback path always available (acceleration optional dependency; default NumPy `rollout_resource_cascade`, env `FRAGILITY_RESOURCE_CASCADE_BACKEND`).
 
 ---
 

@@ -41,7 +41,13 @@ Static **`replay_viewer`** treats unknown modes like aggregate for plotting (pri
 - **Joint star-merge:** `scripts/export_resource_cascade_joint_attribution.py` merges **remove_steps** + **`--second-branch`** **initial_overload_shift** or **cascade_coupling_shift** (`attribution-merge-v1` → `artifacts/attribution_viewer/index.html`).
 - **Scalar ε-sweep:** `counterfactual_epsilon_sweep.py --mode resource_cascade --axis initial_overload --values …` (+ optional `--emit-trace` → `explanation-trace-v1`).
 
+## Mutation chains (cumulative physics)
+
+- **Spec:** `resource-cascade-mutation-chain-spec-v1` — JSON `steps` with `kind` in `{cascade_coupling, overload_decay, rumor_gain, reserve_hit_primary, reserve_hit_secondary, redeem_damage_primary, collapse_headroom, recovery_headroom, max_steps}` and scalar `value`.
+- **API:** `fragility_engine.explain.counterfactual_chain_resource_cascade` (`counterfactual_resource_cascade_mutation_chain_with_rollouts`, `mutation_chain_path_rollouts_resource_cascade`).
+- **Path trace schema:** `explanation-mutation-chain-path-resource-cascade-v1` via `mutation_chain_path_to_trace_resource_cascade`.
+- **CLI:** `scripts/export_resource_cascade_counterfactual_chain.py --chain-json …`.
+
 ## Limits / non-goals
 
 - Not calibrated to any real infrastructure dataset.
-- No multi-step mutation **chains** on this domain yet (stablecoin + network remain the reference for chain path traces).

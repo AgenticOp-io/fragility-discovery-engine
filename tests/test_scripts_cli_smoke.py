@@ -1500,6 +1500,46 @@ def test_export_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
     assert len(payload["path_trace"]["edges"]) == 2
 
 
+def test_export_resource_cascade_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    spec = tmp_path / "rc_chain.json"
+    spec.write_text(
+        '{"schema": "resource-cascade-mutation-chain-spec-v1", "steps": ['
+        '{"kind": "cascade_coupling", "value": 0.44}, '
+        '{"kind": "rumor_gain", "value": 0.29}'
+        "]}",
+        encoding="utf-8",
+    )
+    out = tmp_path / "cf_rc_chain.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_resource_cascade_counterfactual_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--horizon",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "9103",
+            "--genome-seed",
+            "52",
+            "--variant-initial-overload",
+            "0.09",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "resource_cascade_mutation_chain"
+    assert len(payload["mutation_steps"]) == 2
+    assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-resource-cascade-v1"
+    assert len(payload["path_trace"]["edges"]) == 2
+
+
 def test_merge_counterfactual_attribution_cli(py_exe: str, tmp_path: Path) -> None:
     nb = tmp_path / "nl_merge.json"
     nb.write_text("[[1],[0]]", encoding="utf-8")

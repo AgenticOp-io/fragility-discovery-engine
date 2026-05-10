@@ -30,6 +30,16 @@ Libraries often use an explicit toggle (examples: `FRAGILITY_BACKEND=numpy|numba
 2. Be mentioned in [`BOUNDARIES.md`](../BOUNDARIES.md) when behavior or tolerances change.
 3. Keep **`pytest`** green on the default path in CI.
 
+### `FRAGILITY_RESOURCE_CASCADE_BACKEND` (implemented)
+
+| Value | Behavior |
+|-------|----------|
+| *(unset)* or `numpy` | Reference loop: `ResourceCascadeWorld.step` (deterministic default). |
+| `numba` | JIT fast path when `numba` is installed and the population matches `default_stablecoin_population()` (aggregate redeem is inlined). |
+| `auto` | Use Numba when eligible; otherwise NumPy. |
+
+Install optional dependency: `pip install -e ".[accelerate]"` (declares `numba`). Parity tests live in `tests/test_resource_cascade_numba_parity.py` and **skip** when Numba is absent.
+
 ## Exit criteria (reminder)
 
 Promote Phase K in `BOUNDARIES.md` only when named bundles show documented speedups **and** CI remains on the reference path with frozen goldens (or documented relaxed tolerances per bundle ID).
