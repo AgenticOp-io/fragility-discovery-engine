@@ -2144,3 +2144,49 @@ def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:
     data = json.loads(proc.stdout)
     assert data["schema"] == "fragility-robustness-ensemble-v1"
     assert data["summary"]["count"] == 2
+
+
+def test_export_fragility_certificate_cli(py_exe: str, tmp_path: Path) -> None:
+    j = tmp_path / "x.json"
+    j.write_text('{"k":1}', encoding="utf-8")
+    out = tmp_path / "cert.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_fragility_certificate.py"),
+            "--out",
+            str(out),
+            "--digest-json",
+            str(j),
+            "--no-manifest",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "fragility-certificate-v1"
+    assert len(data["artifact_sha256"]) == 1
+
+
+def test_run_flagship_demo_cli(py_exe: str, tmp_path: Path) -> None:
+    out_dir = tmp_path / "flagship_out"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_flagship_demo.py"),
+            "--out-dir",
+            str(out_dir),
+            "--skip-validate",
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    cert = json.loads((out_dir / "fragility_certificate.json").read_text(encoding="utf-8"))
+    assert cert["schema"] == "fragility-certificate-v1"
+    assert (out_dir / "best_replay.json").is_file()

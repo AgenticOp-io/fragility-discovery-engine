@@ -63,4 +63,20 @@ Optional **search timing** (Monte Carlo or GA on bundle worlds, same pinned hori
 
 From the suite driver: **`python scripts/run_benchmark_suite.py --bench-search ga|mc`** (same flags: `--eval-workers`, `--eval-pool`, `--search-generations`, `--search-population`, `--search-samples`, `--search-seed`) runs **`run_phase_h_search_microbench`** once over all bundles (no repeat/warmup loop).
 
+## Citation bundle (`fragility-certificate-v1`)
+
+Machine-readable environment + artifact digests (not a legal certificate):
+
+```powershell
+python scripts/export_fragility_certificate.py --out cite.json --digest-json replay.json pareto.json --validate-bundles
+```
+
+Or generate replay + Pareto + certificate together:
+
+```powershell
+python scripts/run_flagship_demo.py --out-dir artifacts/flagship/output
+```
+
+Schema constant: `fragility_engine.benchmarks.certificate.FRAGILITY_CERTIFICATE_SCHEMA`. Workflow: [`docs/PAPER_APPENDIX_WORKFLOW.md`](../docs/PAPER_APPENDIX_WORKFLOW.md).
+
 JSON includes `workflow: "phase_h_bundle"`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, and `mean_ms_per_rollout`. Resource-cascade bundles / suite / `ad_hoc` **`resource_cascade`** runs also include **`resource_cascade_backend`**: `resource_cascade_backend_env` and `resource_cascade_backend_effective` (NumPy vs Numba dispatch intent for `FRAGILITY_RESOURCE_CASCADE_BACKEND`). **`--bundle-all`** emits **`phase_h_bundle_suite`** with a `bundles` array plus `total_wall_clock_s`. Ad-hoc sizing continues to use `--mode` (`workflow: "ad_hoc"`). See [`docs/phase_k_acceleration.md`](../docs/phase_k_acceleration.md).

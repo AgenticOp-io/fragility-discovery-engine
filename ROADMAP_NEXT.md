@@ -137,6 +137,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] **Optional process pool:** `eval_pool='processes'` on `monte_carlo_search` / `genetic_search` / `genetic_vector_search` when `rollout_fn` is picklable (e.g. `functools.partial(rollout_bundle_with_genome, bundle_id, isolate=True)`); `process_pool_map_ordered` + pickle preflight.
 - [x] **MC across domains:** `scripts/run_mc_demo.py --mode aggregate|network|resource_cascade` + `--eval-pool` (threads default).
 - [x] **Unified bench entry:** `scripts/run_benchmark_suite.py --bench-search mc|ga` (+ `--eval-workers`, `--eval-pool`, search budget flags) delegates to `run_phase_h_search_microbench` in `benchmarks/suite.py`.
+- [x] **Citable artifact trail:** `fragility-certificate-v1` (`fragility_engine.benchmarks.certificate`), `scripts/export_fragility_certificate.py`, `scripts/run_flagship_demo.py`, plus reviewer path [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) and [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md).
 
 ---
 

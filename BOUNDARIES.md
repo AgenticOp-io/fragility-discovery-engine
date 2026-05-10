@@ -174,7 +174,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 ### Phase H — Fragility certificates & benchmark harness
 
-**Status:** `fragility_engine.benchmarks` + `scripts/run_benchmark_suite.py` + `benchmarks/README.md`; **`scripts/benchmark_rollout.py`** **`--bundle <id>`** or **`--bundle-all`** times the same frozen workloads as the suite ([`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
+**Status:** `fragility_engine.benchmarks` + `scripts/run_benchmark_suite.py` + `benchmarks/README.md`; **`scripts/benchmark_rollout.py`** **`--bundle <id>`** or **`--bundle-all`** times the same frozen workloads as the suite ([`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)). **Citation / appendix:** **`fragility-certificate-v1`** (`fragility_engine.benchmarks.certificate`, `scripts/export_fragility_certificate.py`, `scripts/run_flagship_demo.py`) + guided path [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) and limits [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md).
 
 **Purpose:** portable, regression-tested **golden bundles** so fragility claims stay reproducible across time and machines.
 

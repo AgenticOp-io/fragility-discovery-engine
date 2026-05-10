@@ -25,6 +25,8 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
+**Reviewer walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py`.
+
 ## Quick start
 
 ```powershell
@@ -72,7 +74,9 @@ python scripts/run_ga_demo.py
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <phase_h_id>`**, **`--bundle-all`** (full Phase H suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade` (`--json`, **`workflow`** field) |
-| `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
+| `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
+| `scripts/run_flagship_demo.py` | **Flagship bundle:** short GA + `pareto_front.json` + **`fragility-certificate-v1`** under `artifacts/flagship/output` (see [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md)) |
+| `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
 | `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 
