@@ -6,3 +6,6 @@ def test_build_benchmark_manifest_shape():
     assert m["schema"] == MANIFEST_SCHEMA
     assert m["bundle_count"] == len(m["bundle_ids"])
     assert "replay_schema_version" in m
+    rb = m["resource_cascade_backend"]
+    assert set(rb) == {"resource_cascade_backend_env", "resource_cascade_backend_effective"}
+    assert rb["resource_cascade_backend_effective"] in ("numpy", "numba")

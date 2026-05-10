@@ -1732,6 +1732,7 @@ def test_run_benchmark_manifest_out_cli(py_exe: str, tmp_path: Path) -> None:
     m = json.loads(out.read_text(encoding="utf-8"))
     assert m["schema"] == "benchmark-manifest-v1"
     assert m["bundle_count"] >= 3
+    assert m["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
 
 def test_frozen_json_digest_cli(py_exe: str, tmp_path: Path) -> None:

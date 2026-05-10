@@ -25,6 +25,8 @@ Portable inventory (`benchmark-manifest-v1`):
 python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifest.json
 ```
 
+The manifest includes **`resource_cascade_backend`** (`resource_cascade_backend_env`, `resource_cascade_backend_effective`) for the same pinned `ResourceCascadeWorld` template as bundle `resource_cascade_rollout_v1`, matching `scripts/benchmark_rollout.py --json` semantics.
+
 ## Cite a bundle
 
 Use the bundle id, pinned seeds documented in `suite.py` (`PINNED_GENOME_SEED`, `PINNED_ROLLOUT_SEED`), and record:
