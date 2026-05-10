@@ -8,6 +8,7 @@ import numpy as np
 from fragility_engine.adversary.encoding import crossover_genome, mutate_genome, random_genome
 from fragility_engine.adversary.fitness import fitness_phase_a
 from fragility_engine.adversary.pareto import ParetoPoint, merge_pareto_points, pareto_point_from_rollout
+from fragility_engine.parallel_rollouts import thread_pool_map_ordered
 from fragility_engine.types import RolloutResult, SearchResult
 
 
@@ -65,8 +66,12 @@ def genetic_search(
     mutation_sigma: float = 0.14,
     fitness_fn: Callable[[RolloutResult], float] | None = None,
     collect_pareto: bool = False,
+    eval_workers: int = 1,
 ) -> SearchResult:
     score = fitness_fn or fitness_phase_a
+    ew = int(eval_workers)
+    if ew < 1:
+        raise ValueError("eval_workers must be >= 1")
     rng = np.random.default_rng(seed)
     population = [random_genome(horizon, rng) for _ in range(population_size)]
 
@@ -79,13 +84,18 @@ def genetic_search(
         archive.append(pareto_point_from_rollout(population[0], best_rollout))
 
     for gen in range(generations):
-        fitnesses: list[float] = []
-        rollouts: list[RolloutResult] = []
-        for idx, individual in enumerate(population):
-            rr = rollout_fn(individual, seed + 1000 + gen * population_size + idx)
-            fit = float(score(rr))
-            fitnesses.append(fit)
-            rollouts.append(rr)
+        seed_base = seed + 1000 + gen * population_size
+        pairs: list[tuple[np.ndarray, int]] = [(population[idx], seed_base + idx) for idx in range(population_size)]
+
+        def eval_one(pair: tuple[np.ndarray, int]) -> tuple[float, RolloutResult]:
+            ind, s = pair
+            rr = rollout_fn(ind, s)
+            return float(score(rr)), rr
+
+        evaluated = thread_pool_map_ordered(eval_one, pairs, max_workers=ew)
+        fitnesses = [e[0] for e in evaluated]
+        for idx, (fit, rr) in enumerate(evaluated):
+            individual = population[idx]
             if collect_pareto:
                 archive.append(pareto_point_from_rollout(individual, rr))
             if fit > best_fitness:
@@ -163,10 +173,14 @@ def genetic_vector_search(
     mutation_sigma: float = 0.18,
     fitness_fn: Callable[[RolloutResult], float] | None = None,
     collect_pareto: bool = False,
+    eval_workers: int = 1,
 ) -> SearchResult:
     """Evolutionary search over a bounded ``[0, 1]^{dim}`` defender/policy vector."""
 
     score = fitness_fn or fitness_phase_a
+    ew = int(eval_workers)
+    if ew < 1:
+        raise ValueError("eval_workers must be >= 1")
     rng = np.random.default_rng(seed)
     population = [_random_vector(dim, rng) for _ in range(population_size)]
 
@@ -179,13 +193,18 @@ def genetic_vector_search(
         archive.append(pareto_point_from_rollout(population[0], best_rollout))
 
     for gen in range(generations):
-        fitnesses: list[float] = []
-        rollouts: list[RolloutResult] = []
-        for idx, individual in enumerate(population):
-            rr = rollout_fn(individual, seed + 2000 + gen * population_size + idx)
-            fit = float(score(rr))
-            fitnesses.append(fit)
-            rollouts.append(rr)
+        seed_base = seed + 2000 + gen * population_size
+        pairs = [(population[idx], seed_base + idx) for idx in range(population_size)]
+
+        def eval_one_vec(pair: tuple[np.ndarray, int]) -> tuple[float, RolloutResult]:
+            ind, s = pair
+            rr = rollout_fn(ind, s)
+            return float(score(rr)), rr
+
+        evaluated = thread_pool_map_ordered(eval_one_vec, pairs, max_workers=ew)
+        fitnesses = [e[0] for e in evaluated]
+        for idx, (fit, rr) in enumerate(evaluated):
+            individual = population[idx]
             if collect_pareto:
                 archive.append(pareto_point_from_rollout(individual, rr))
             if fit > best_fitness:

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import thread_safe_peg_clone
 from fragility_engine.explain.minimal_collapse import minimize_schedule_with_rollout
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_stablecoin, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -31,20 +32,32 @@ def main() -> None:
     p.add_argument("--generations", type=int, default=12)
     p.add_argument("--population-size", type=int, default=24)
     p.add_argument("--seed", type=int, default=999)
+    p.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for per-generation fitness evaluation (requires isolated worlds when >1).",
+    )
     args = p.parse_args()
 
     template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=48)
     horizon = 24
+    ew = max(1, int(args.eval_workers))
 
-    def evaluator(genome, seed: int):
+    def ga_evaluator(genome, seed: int):
+        world = thread_safe_peg_clone(template) if ew > 1 else template
+        return rollout_stablecoin(world, genome, seed=seed)
+
+    def minimize_evaluator(genome, seed: int):
         return rollout_stablecoin(template, genome, seed=seed)
 
     search = genetic_search(
-        evaluator,
+        ga_evaluator,
         horizon=horizon,
         generations=int(args.generations),
         population_size=int(args.population_size),
         seed=int(args.seed),
+        eval_workers=ew,
     )
 
     print("best_fitness=", round(search.best_fitness, 5))
@@ -52,7 +65,7 @@ def main() -> None:
     print("collapsed=", search.best_rollout.collapsed, "at", search.best_rollout.collapse_timestep)
 
     min_seed = 424242
-    minimized, min_rollout = minimize_schedule_with_rollout(search.best_genome, evaluator, base_seed=min_seed)
+    minimized, min_rollout = minimize_schedule_with_rollout(search.best_genome, minimize_evaluator, base_seed=min_seed)
     print("minimization=", json.dumps(minimized, indent=2)[:1200])
 
     replay = rollout_to_replay_dict(search.best_rollout)
@@ -65,6 +78,7 @@ def main() -> None:
         "population_size": int(args.population_size),
         "horizon": horizon,
         "ga_seed": int(args.seed),
+        "eval_workers": ew,
     }
 
     if args.export_replay is not None:

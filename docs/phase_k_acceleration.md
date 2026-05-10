@@ -20,15 +20,16 @@ Phase K is defined at a high level in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) (*
 |-------|------|--------|
 | Worlds | `World.step` / internal state update | Swap NumPy-only math for Numba/JAX/etc. only if state transitions match reference tests. |
 | Runner | `rollout_*` loops | Optional batched evaluation of **independent** `(genome, seed)` pairs; document reduction order if vectorized. |
-| Search | `genetic_search` / co-evolution | Parallel fitness evaluation must not mutate shared RNG state across workers. |
+| Search | `genetic_search` / `genetic_vector_search` / co-evolution | `eval_workers` uses `thread_pool_map_ordered`; parallel fitness must not share mutable world/population state across threads unless cloned per eval (see `coevolution.thread_safe_template`). |
 
 ## Batch evaluation (`parallel_rollouts`)
 
 Independent rollouts can be evaluated concurrently **without changing per-seed results** only when each task owns its mutable simulation state.
 
-- **API:** `fragility_engine.parallel_rollouts.thread_pool_map_ordered(fn, items, max_workers=None)` — thin `ThreadPoolExecutor.map` wrapper; **output order matches `items`** (same contract as sequential ``list(map(fn, items))`` when tasks are isolated).
+- **API (threads):** `fragility_engine.parallel_rollouts.thread_pool_map_ordered(fn, items, max_workers=None)` — thin `ThreadPoolExecutor.map` wrapper; **output order matches `items`** (same contract as sequential ``list(map(fn, items))`` when tasks are isolated).
+- **GA:** `genetic_search(..., eval_workers=N)` and `genetic_vector_search(..., eval_workers=N)` evaluate each generation’s population with that pool size (`N=1` is sequential). Seeds stay **`seed + 1000 + gen * population_size + idx`** (attacker GA) and **`seed + 2000 + …`** (defender vector GA). Cli scripts accept **`--eval-workers`**; built-in evaluators clone worlds via `coevolution.thread_safe_template` when `N > 1`.
 - **Shared templates:** `clone_resource_cascade` / defended builds often **reuse** `AgentPopulation` by reference; advancing one clone’s population can race another thread. Prefer a **fresh** world template inside each `fn(item)` (see `tests/test_parallel_rollouts.py`).
-- **Process pools:** for CPU-bound kernels that release the GIL poorly, a **process** pool may win wall-clock, but pickling worlds/genomes must be justified at the call site — not bundled here.
+- **API (processes):** `process_pool_map_ordered(fn, items, max_workers=None)` — `ProcessPoolExecutor.map`; **`fn` must be pickle-safe** (module-level callable). Prefer threads for rollout closures; use the process pool only when profiling justifies pickling overhead (Windows uses spawn).
 
 ## Optional environment flag pattern
 

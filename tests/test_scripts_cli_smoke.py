@@ -655,6 +655,30 @@ def test_export_minimized_replay_smoke(py_exe: str, tmp_path: Path) -> None:
     assert data["trajectory"]
 
 
+def test_run_ga_demo_eval_workers_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "best.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_ga_demo.py"),
+            "--generations",
+            "2",
+            "--population-size",
+            "10",
+            "--seed",
+            "1001",
+            "--eval-workers",
+            "2",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["eval_workers"] == 2
+
+
 def test_run_ga_demo_exports_replay_variants(py_exe: str, tmp_path: Path) -> None:
     best = tmp_path / "best.json"
     mini = tmp_path / "mini.json"

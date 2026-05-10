@@ -51,3 +51,22 @@ def test_alternating_coevolution_two_rounds_reproducible():
     assert a.rounds == b.rounds
     assert np.allclose(a.best_attacker, b.best_attacker)
     assert np.allclose(a.best_defender, b.best_defender)
+
+
+def test_alternating_coevolution_eval_workers_matches_sequential():
+    template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=26)
+    kwargs = dict(
+        attacker_horizon=10,
+        defender_genome_size=4,
+        rounds=2,
+        attacker_generations=2,
+        attacker_population=8,
+        defender_generations=2,
+        defender_population=8,
+        seed=919,
+    )
+    s1 = alternating_coevolution(template, eval_workers=1, **kwargs)
+    s4 = alternating_coevolution(template, eval_workers=4, **kwargs)
+    assert s1.rounds == s4.rounds
+    assert np.allclose(s1.best_attacker, s4.best_attacker)
+    assert np.allclose(s1.best_defender, s4.best_defender)

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import thread_safe_resource_cascade_clone
 from fragility_engine.explain.minimal_collapse import minimize_schedule_with_rollout
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_resource_cascade, rollout_to_replay_dict
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
@@ -27,12 +28,28 @@ def main() -> None:
     p.add_argument("--population-size", type=int, default=20)
     p.add_argument("--seed", type=int, default=808)
     p.add_argument("--initial-overload", type=float, default=0.06, help="Reset overload [0,1].")
+    p.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for GA fitness evaluation (clone per eval when >1).",
+    )
     args = p.parse_args()
 
     template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=36)
     horizon = 18
+    ew = max(1, int(args.eval_workers))
 
-    def evaluator(genome, seed: int):
+    def ga_evaluator(genome, seed: int):
+        world = thread_safe_resource_cascade_clone(template) if ew > 1 else template
+        return rollout_resource_cascade(
+            world,
+            genome,
+            seed=seed,
+            initial_overload=float(args.initial_overload),
+        )
+
+    def minimize_evaluator(genome, seed: int):
         return rollout_resource_cascade(
             template,
             genome,
@@ -41,11 +58,12 @@ def main() -> None:
         )
 
     search = genetic_search(
-        evaluator,
+        ga_evaluator,
         horizon=horizon,
         generations=int(args.generations),
         population_size=int(args.population_size),
         seed=int(args.seed),
+        eval_workers=ew,
     )
 
     print("best_fitness=", round(search.best_fitness, 5))
@@ -53,7 +71,7 @@ def main() -> None:
     print("collapsed=", search.best_rollout.collapsed, "at", search.best_rollout.collapse_timestep)
 
     min_seed = 515151
-    minimized, min_rollout = minimize_schedule_with_rollout(search.best_genome, evaluator, base_seed=min_seed)
+    minimized, min_rollout = minimize_schedule_with_rollout(search.best_genome, minimize_evaluator, base_seed=min_seed)
     print("minimization=", json.dumps(minimized, indent=2)[:1200])
 
     replay = rollout_to_replay_dict(search.best_rollout)
@@ -68,6 +86,7 @@ def main() -> None:
         "horizon": horizon,
         "ga_seed": int(args.seed),
         "initial_overload": float(args.initial_overload),
+        "eval_workers": ew,
     }
 
     if args.export_replay is not None:

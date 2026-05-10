@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.parallel_rollouts import thread_pool_map_ordered
+from fragility_engine.parallel_rollouts import process_pool_map_ordered, thread_pool_map_ordered
 from fragility_engine.runner import rollout_resource_cascade
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 
@@ -24,6 +24,17 @@ def test_thread_pool_map_ordered_matches_sequential_resource_cascade():
 
     seq = [one(s) for s in seeds]
     par = thread_pool_map_ordered(one, seeds, max_workers=4)
+    assert par == seq
+
+
+def _proc_square(x: int) -> int:
+    return x * x
+
+
+def test_process_pool_map_ordered_matches_sequential():
+    items = list(range(8))
+    seq = [_proc_square(x) for x in items]
+    par = process_pool_map_ordered(_proc_square, items, max_workers=3)
     assert par == seq
 
 

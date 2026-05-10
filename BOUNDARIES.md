@@ -243,6 +243,12 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Normative exit criteria** remain in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). Replay compatibility: [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md). Motivation ≤ 1 page: [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md). Phase **H** bundle: **`resource_cascade_rollout_v1`** (`benchmarks/suite.py`).
 
+### Phase K — Acceleration & parallel evaluation (partial / adopted)
+
+**Status:** [`parallel_rollouts`](src/fragility_engine/parallel_rollouts.py) (`thread_pool_map_ordered`, `process_pool_map_ordered`), GA **`eval_workers`** on [`genetic_search` / `genetic_vector_search`](src/fragility_engine/adversary/search.py), CLI **`--eval-workers`** on GA / co-evolution scripts, isolated-template helpers in [`coevolution/thread_safe_template.py`](src/fragility_engine/coevolution/thread_safe_template.py). Optional Numba resource-cascade backend + CI **`numba-parity`** job and env **`FRAGILITY_RESOURCE_CASCADE_BACKEND`** — see [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md).
+
+**Normative:** Parallel fitness evaluation must use **isolated** mutable simulation state per task (or a caller-documented thread-safe `rollout_fn`). Worlds that **reuse** [`AgentPopulation`](src/fragility_engine/agents/stablecoin_agents.py) by reference **race** on `reset` / stepping when shared across threads.
+
 ### Phase L — Narration & publication (wrapper)
 
 **Status:** adopted — [`docs/phase_l_publication.md`](docs/phase_l_publication.md).

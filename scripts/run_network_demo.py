@@ -11,6 +11,7 @@ import numpy as np
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import thread_safe_network_clone
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_stablecoin_network, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
@@ -42,7 +43,14 @@ def main() -> None:
         help="List-only topology JSON (out-neighbor lists); skips synthetic graph flags.",
     )
     p.add_argument("--neighbor-weights-json", type=Path, default=None, help="Optional edge weights JSON.")
+    p.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for GA fitness evaluation (uses topology clone + fresh population when >1).",
+    )
     args = p.parse_args()
+    ew = max(1, int(args.eval_workers))
 
     topo_meta: dict
     if args.neighbor_json is not None:
@@ -98,7 +106,8 @@ def main() -> None:
         }
 
     def evaluator(genome: np.ndarray, seed: int):
-        return rollout_stablecoin_network(template, genome, seed=seed)
+        world = thread_safe_network_clone(template) if ew > 1 else template
+        return rollout_stablecoin_network(world, genome, seed=seed)
 
     ga = genetic_search(
         evaluator,
@@ -106,6 +115,7 @@ def main() -> None:
         generations=int(args.generations),
         population_size=int(args.population_size),
         seed=int(args.ga_seed),
+        eval_workers=ew,
     )
     replay = rollout_to_replay_dict(ga.best_rollout)
     print(json.dumps({"best_fitness": ga.best_fitness, "replay_summary": replay["trajectory"][-1]}, indent=2))
@@ -117,6 +127,7 @@ def main() -> None:
             "topology": topo_meta,
             "generations": int(args.generations),
             "population_size": int(args.population_size),
+            "eval_workers": ew,
         }
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 

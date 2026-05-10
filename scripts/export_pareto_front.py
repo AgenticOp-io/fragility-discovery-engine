@@ -11,6 +11,11 @@ import numpy as np
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_network_clone,
+    thread_safe_peg_clone,
+    thread_safe_resource_cascade_clone,
+)
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
@@ -67,8 +72,15 @@ def main() -> None:
     ap.add_argument("--whale-index", type=int, default=0)
     ap.add_argument("--neighbor-json", type=Path, default=None)
     ap.add_argument("--neighbor-weights-json", type=Path, default=None)
+    ap.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for GA fitness evaluation (clone per eval when >1).",
+    )
     args = ap.parse_args()
 
+    ew = max(1, int(args.eval_workers))
     ms = max(int(args.max_steps), int(args.horizon))
     topo_meta: dict | None = None
 
@@ -76,8 +88,9 @@ def main() -> None:
         template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=ms)
 
         def evaluator(genome: np.ndarray, seed: int):
+            world = thread_safe_peg_clone(template) if ew > 1 else template
             return rollout_stablecoin(
-                template,
+                world,
                 genome,
                 seed=seed,
                 initial_panic=float(args.initial_panic),
@@ -144,8 +157,9 @@ def main() -> None:
             }
 
         def evaluator(genome: np.ndarray, seed: int):
+            world = thread_safe_network_clone(template) if ew > 1 else template
             return rollout_stablecoin_network(
-                template,
+                world,
                 genome,
                 seed=seed,
                 base_panic=float(args.base_panic),
@@ -156,8 +170,9 @@ def main() -> None:
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=ms)
 
         def evaluator(genome: np.ndarray, seed: int):
+            world = thread_safe_resource_cascade_clone(template) if ew > 1 else template
             return rollout_resource_cascade(
-                template,
+                world,
                 genome,
                 seed=seed,
                 initial_overload=float(args.initial_overload),
@@ -171,6 +186,7 @@ def main() -> None:
         population_size=int(args.population_size),
         seed=int(args.seed),
         collect_pareto=True,
+        eval_workers=ew,
     )
 
     payload = {

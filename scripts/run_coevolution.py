@@ -59,6 +59,12 @@ def main() -> None:
     p.add_argument("--defender-population", type=int, default=12)
     p.add_argument("--seed", type=int, default=131)
     p.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for attacker/defender GA fitness evaluation (built-in modes clone worlds when >1).",
+    )
+    p.add_argument(
         "--continue-after-collapse",
         action="store_true",
         help="Keep rolling after collapse for recovery metrics (passed through to rollouts).",
@@ -102,6 +108,7 @@ def main() -> None:
     args = p.parse_args()
 
     collect_pareto = bool(args.collect_attacker_pareto or args.export_pareto_json)
+    ew = max(1, int(args.eval_workers))
 
     enriched_topo: dict | None = None
     network_graph = None
@@ -122,6 +129,7 @@ def main() -> None:
             defender_generations=int(args.defender_generations),
             defender_population=int(args.defender_population),
             seed=int(args.seed),
+            eval_workers=ew,
         )
     elif args.mode == "network":
         if args.neighbor_json is not None:
@@ -187,6 +195,7 @@ def main() -> None:
             defender_generations=int(args.defender_generations),
             defender_population=int(args.defender_population),
             seed=int(args.seed),
+            eval_workers=ew,
         )
     else:
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=int(args.max_steps))
@@ -203,6 +212,7 @@ def main() -> None:
             defender_generations=int(args.defender_generations),
             defender_population=int(args.defender_population),
             seed=int(args.seed),
+            eval_workers=ew,
         )
 
     payload: dict = {
@@ -229,6 +239,7 @@ def main() -> None:
             "coevolution_rounds": len(summary.rounds),
             "coevolution_mode": summary.simulation_mode,
             "continue_after_collapse": bool(args.continue_after_collapse),
+            "eval_workers": ew,
         }
         if enriched_topo is not None:
             meta["topology"] = enriched_topo

@@ -39,3 +39,28 @@ def thread_pool_map_ordered(fn: Callable[[T], R], items: Sequence[T], *, max_wor
         return [fn(x) for x in items]
     with ThreadPoolExecutor(max_workers=workers) as ex:
         return list(ex.map(fn, items))
+
+
+def process_pool_map_ordered(fn: Callable[[T], R], items: Sequence[T], *, max_workers: int | None = None) -> list[R]:
+    """
+    Same ordering contract as :func:`thread_pool_map_ordered`, using ``ProcessPoolExecutor``.
+
+    ``fn`` must be **pickle-safe** (typically a module-level function). Closures, lambdas, and
+    bound methods often fail on Windows (spawn). Prefer threads (:func:`thread_pool_map_ordered`)
+    for rollout closures unless profiling shows a win from multiprocessing.
+    """
+
+    from concurrent.futures import ProcessPoolExecutor
+
+    if not items:
+        return []
+    n = len(items)
+    if max_workers is None:
+        workers = min(32, n + 4)
+    else:
+        workers = max_workers
+    workers = max(1, min(workers, n))
+    if workers == 1:
+        return [fn(x) for x in items]
+    with ProcessPoolExecutor(max_workers=workers) as ex:
+        return list(ex.map(fn, items))

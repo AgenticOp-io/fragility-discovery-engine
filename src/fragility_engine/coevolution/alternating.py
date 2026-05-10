@@ -8,6 +8,11 @@ import numpy as np
 
 from fragility_engine.adversary.fitness import severity_score
 from fragility_engine.adversary.search import genetic_search, genetic_vector_search
+from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_network_clone,
+    thread_safe_peg_clone,
+    thread_safe_resource_cascade_clone,
+)
 from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
 from fragility_engine.types import RolloutResult, SearchResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
@@ -41,6 +46,7 @@ def alternating_coevolution_rollout(
     baseline_seed_offset: int = 50_000,
     simulation_mode: str = "aggregate",
     collect_attacker_pareto: bool = False,
+    eval_workers: int = 1,
 ) -> CoevolutionSummary:
     """
     Alternating attacker/defender search over an arbitrary rollout closure.
@@ -48,8 +54,14 @@ def alternating_coevolution_rollout(
     ``rollout_fn(schedule_genome, seed, defender_genome)`` must be deterministic in ``seed``.
     Use this hook to attach **custom worlds** (larger graphs, different physics) without forking
     the co-evolution loop.
+
+    When ``eval_workers > 1``, fitness evaluations run concurrently; ``rollout_fn`` must not
+    mutate shared mutable simulation state across calls unless it synchronizes internally.
+    Built-in helpers (:func:`alternating_coevolution`, network/cascade variants) clone worlds per
+    evaluation via :mod:`fragility_engine.coevolution.thread_safe_template`.
     """
 
+    ew = max(1, int(eval_workers))
     rng = np.random.default_rng(seed)
     defender = rng.uniform(size=(defender_genome_size,))
     summary = CoevolutionSummary(
@@ -69,6 +81,7 @@ def alternating_coevolution_rollout(
             population_size=attacker_population,
             seed=seed + rd * 997 + 3,
             collect_pareto=collect_attacker_pareto,
+            eval_workers=ew,
         )
         attacker = att_search.best_genome.copy()
         summary.best_attacker = attacker
@@ -87,6 +100,7 @@ def alternating_coevolution_rollout(
             population_size=defender_population,
             seed=seed + rd * 991 + 9,
             fitness_fn=defender_fitness,
+            eval_workers=ew,
         )
         defender = def_search.best_genome.copy()
         summary.best_defender = defender.copy()
@@ -130,6 +144,7 @@ def alternating_coevolution(
     defender_population: int = 16,
     seed: int = 4242,
     baseline_seed_offset: int = 50_000,
+    eval_workers: int = 1,
 ) -> CoevolutionSummary:
     """
     Lightweight attacker/defender loop on the aggregate peg world:
@@ -138,9 +153,12 @@ def alternating_coevolution(
     - Fix attacker ⇒ evolve defender minimizing attacker severity (negative fitness).
     """
 
+    ew = max(1, int(eval_workers))
+
     def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
+        world = thread_safe_peg_clone(template) if ew > 1 else template
         return rollout_stablecoin(
-            template,
+            world,
             g,
             seed=s,
             defender_genome=d,
@@ -160,6 +178,7 @@ def alternating_coevolution(
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="aggregate",
         collect_attacker_pareto=collect_attacker_pareto,
+        eval_workers=ew,
     )
 
 
@@ -180,12 +199,16 @@ def alternating_coevolution_network(
     defender_population: int = 16,
     seed: int = 4242,
     baseline_seed_offset: int = 50_000,
+    eval_workers: int = 1,
 ) -> CoevolutionSummary:
     """Same alternating loop on :class:`~fragility_engine.world.stablecoin_network.StablecoinNetworkWorld`."""
 
+    ew = max(1, int(eval_workers))
+
     def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
+        world = thread_safe_network_clone(template) if ew > 1 else template
         return rollout_stablecoin_network(
-            template,
+            world,
             g,
             seed=s,
             defender_genome=d,
@@ -208,6 +231,7 @@ def alternating_coevolution_network(
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="network",
         collect_attacker_pareto=collect_attacker_pareto,
+        eval_workers=ew,
     )
 
 
@@ -226,12 +250,16 @@ def alternating_coevolution_resource_cascade(
     defender_population: int = 16,
     seed: int = 4242,
     baseline_seed_offset: int = 50_000,
+    eval_workers: int = 1,
 ) -> CoevolutionSummary:
     """Alternating attacker/defender loop on :class:`~fragility_engine.world.resource_cascade.ResourceCascadeWorld`."""
 
+    ew = max(1, int(eval_workers))
+
     def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
+        world = thread_safe_resource_cascade_clone(template) if ew > 1 else template
         return rollout_resource_cascade(
-            template,
+            world,
             g,
             seed=s,
             initial_overload=float(initial_overload),
@@ -252,4 +280,5 @@ def alternating_coevolution_resource_cascade(
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="resource_cascade",
         collect_attacker_pareto=collect_attacker_pareto,
+        eval_workers=ew,
     )
