@@ -4,6 +4,10 @@
 
 Autonomous **coverage-guided-style** search over a modular simulation: mutate shock schedules, maximize instability metrics, then extract **minimal collapse sequences** and causal replay artifacts.
 
+## Supported platforms
+
+CI builds **sdist + wheel** (`pip install build` then `python -m build`; artifacts in `dist/`) and smoke-installs the wheel on **Ubuntu** and **Windows**. The full test matrix runs on both OSes; optional **Numba** parity tests also run on both. Core package code is pure Python; dependencies resolve via PyPI wheels (`numpy`, `networkx`, optional `numba`). Requires **CPython ≥ 3.11** ([`pyproject.toml`](pyproject.toml)).
+
 ## Layout (four engines)
 
 | Layer | Role |

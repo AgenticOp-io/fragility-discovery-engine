@@ -34,10 +34,40 @@ jobs:
           FRAGILITY_PERF_GATE_MS: "240000"
         run: python -m pytest -q
 
-  # Numba wheels are platform-specific; Ubuntu x86_64 has stable PyPI binaries. Keeps the optional
-  # resource-cascade JIT path parity-tested without slowing every matrix cell.
+  # Prove release artifacts install on both Linux and Windows (pure-Python wheel + platform deps).
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install build frontend
+        run: pip install build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Smoke install wheel (POSIX glob)
+        shell: bash
+        run: |
+          pip install dist/*.whl
+          python -c "import fragility_engine; print('import_ok', fragility_engine.__file__)"
+
+  # Numba wheels are platform-specific; exercise JIT parity on Linux and Windows x86_64 runners.
   numba-parity:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
