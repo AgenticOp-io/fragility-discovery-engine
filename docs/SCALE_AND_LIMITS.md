@@ -27,6 +27,11 @@ This document states **what scales how** and **what breaks reproducibility** if 
 - Golden bundles are **small** and intended for **regression**, not production-scale stress.
 - `benchmark_rollout.py` measures wall-clock; numbers are **machine-dependent**. Compare **relative** speedups under identical flags.
 
+## Ensemble robustness sweeps (moonshot)
+
+- **`fragility_robustness_sweep.py --topology dense|neighbor_lists`** — same ER/WS draws; **`neighbor_lists`** keeps **O(edges)** topology RAM while matching dense rollouts bit-for-bit for the same adjacency (see tests).
+- **2D grids** (`fragility-robustness-sensitivity-2d-v1`) scale as **|values_x| × |values_y| × |graph_seeds|** rollouts — keep grids tiny for exploration.
+
 ## “Game changing” without lying
 
 What moves perception is not bigger graphs by default, but **frozen artifacts + manifest + certificate + one guided workflow** — see [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) and `scripts/run_flagship_demo.py`.

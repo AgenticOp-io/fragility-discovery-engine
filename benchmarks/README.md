@@ -47,12 +47,24 @@ Topology dispersion for a **fixed** attacker genome:
 python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102,103
 ```
 
-Schema: `fragility-robustness-ensemble-v1` (see `fragility_engine.benchmarks.ensemble`).
+Schema: `fragility-robustness-ensemble-v1` (see `fragility_engine.benchmarks.ensemble`). Payload includes **`topology_representation`** (`dense` \| `neighbor_lists`).
+
+**List topology (matches dense per draw):**
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --topology neighbor_lists --graph-seeds 101,102,103
+```
 
 **1D sensitivity (collapse rate vs one knob):** same graph seeds at each step; scans `er_p`, `ws_p`, `ws_k`, `base_panic`, `contagion_beta`, or `whale_frac`. Nested schema `fragility-robustness-sensitivity-1d-v1`:
 
 ```powershell
 python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102,103 --sweep-param er_p --sweep-values 0.08,0.12,0.16
+```
+
+**2D grid:** `--sweep-param` / `--sweep-values` plus **`--sweep-param-2`** / **`--sweep-values-2`** (distinct params). Schema `fragility-robustness-sensitivity-2d-v1`:
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102 --sweep-param er_p --sweep-values 0.10,0.14 --sweep-param-2 base_panic --sweep-values-2 0.04,0.07
 ```
 
 ## Wall-clock timing (Phase K helper)

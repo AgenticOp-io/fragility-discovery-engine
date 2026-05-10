@@ -159,7 +159,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 These are **not** commitments—ideas worth protecting from premature implementation:
 
-- **Fragility robustness** (**partial / shipped slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. **1D collapse / integral sensitivity** over `er_p` \| `ws_p` \| `ws_k` \| `base_panic` \| `contagion_beta` \| `whale_frac` — `robustness_ensemble_1d_param_sweep`, CLI `--sweep-param` + `--sweep-values`, schema **`fragility-robustness-sensitivity-1d-v1`**. Still to explore: GA budget sweeps, neighbor-list priors, 2D grids.
+- **Fragility robustness** (**partial / shipped slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. **1D** sensitivity (`fragility-robustness-sensitivity-1d-v1`) and **2D** Cartesian grids (`fragility-robustness-sensitivity-2d-v1`). **`topology_representation`**: **`dense`** vs **`neighbor_lists`** (same ER/WS adjacency, list **O(edges)** path; parity-tested). Still to explore: GA budget sweeps, custom **neighbor-json** priors.
 - **Mechanism design loop**: outer search over **policy rules** (discrete or low-dimensional) with inner adversary—only if Phase H benchmarks exist.
 - **Synthetic institutional scenarios**: composite worlds built from **composed** kernels with explicit interfaces—never as a single monolithic “mega-model.”
 

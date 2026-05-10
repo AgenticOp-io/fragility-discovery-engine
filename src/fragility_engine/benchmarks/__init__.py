@@ -3,6 +3,7 @@
 from fragility_engine.benchmarks.certificate import FRAGILITY_CERTIFICATE_SCHEMA, build_fragility_certificate
 from fragility_engine.benchmarks.ensemble import (
     robustness_ensemble_1d_param_sweep,
+    robustness_ensemble_2d_param_grid,
     robustness_rollouts_over_graph_seeds,
 )
 from fragility_engine.benchmarks.flagship import run_flagship_demo
@@ -38,6 +39,7 @@ __all__ = [
     "bundle_search_evaluator",
     "rollout_bundle_with_genome",
     "robustness_ensemble_1d_param_sweep",
+    "robustness_ensemble_2d_param_grid",
     "robustness_rollouts_over_graph_seeds",
     "run_benchmark_suite",
     "run_bundle_rollout_once",

@@ -184,7 +184,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - Golden scalar checks (`GOLDEN_METRICS`) with relaxed tolerances in CI.
 - Optional CLI validation (`run_benchmark_suite.py --validate`).
 
-**Moonshot (ensemble dispersion):** `fragility_engine.benchmarks.ensemble` + `scripts/fragility_robustness_sweep.py` — same genome and rollout seed; sweep **`graph_seed`**; emit quantiles (**not** within-rollout stochasticity). **1D knob scan:** `robustness_ensemble_1d_param_sweep` + CLI `--sweep-param` / `--sweep-values` → **`fragility-robustness-sensitivity-1d-v1`** (nested **`fragility-robustness-ensemble-v1`** per point).
+**Moonshot (ensemble dispersion):** `fragility_engine.benchmarks.ensemble` + `scripts/fragility_robustness_sweep.py` — same genome and rollout seed; sweep **`graph_seed`**; emit quantiles (**not** within-rollout stochasticity). **1D / 2D scans:** `robustness_ensemble_1d_param_sweep`, `robustness_ensemble_2d_param_grid`; CLI `--sweep-param` / `--sweep-values` and optional **`--sweep-param-2`** / **`--sweep-values-2`**; schemas **`fragility-robustness-sensitivity-1d-v1`** / **`fragility-robustness-sensitivity-2d-v1`**. **`--topology neighbor_lists`** matches dense rollouts for synthetic ER/WS (parity tests).
 
 **Exit criteria:**
 
