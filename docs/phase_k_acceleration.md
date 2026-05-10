@@ -20,7 +20,7 @@ Phase K is defined at a high level in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) (*
 |-------|------|--------|
 | Worlds | `World.step` / internal state update | Swap NumPy-only math for Numba/JAX/etc. only if state transitions match reference tests. |
 | Runner | `rollout_*` loops | Optional batched evaluation of **independent** `(genome, seed)` pairs; document reduction order if vectorized. |
-| Search | `genetic_search` / `genetic_vector_search` / co-evolution | `eval_workers` uses `thread_pool_map_ordered`; parallel fitness must not share mutable world/population state across threads unless cloned per eval (see `coevolution.thread_safe_template`). |
+| Search | `monte_carlo_search` / `genetic_search` / `genetic_vector_search` / co-evolution | `eval_workers` uses `thread_pool_map_ordered`; MC pre-draws genomes sequentially then evaluates `(genome, seed + 2 + i)` in parallel. Parallel fitness must not share mutable world/population unless cloned per eval (see `coevolution.thread_safe_template`). |
 
 ## Batch evaluation (`parallel_rollouts`)
 
@@ -28,6 +28,7 @@ Independent rollouts can be evaluated concurrently **without changing per-seed r
 
 - **API (threads):** `fragility_engine.parallel_rollouts.thread_pool_map_ordered(fn, items, max_workers=None)` — thin `ThreadPoolExecutor.map` wrapper; **output order matches `items`** (same contract as sequential ``list(map(fn, items))`` when tasks are isolated).
 - **GA:** `genetic_search(..., eval_workers=N)` and `genetic_vector_search(..., eval_workers=N)` evaluate each generation’s population with that pool size (`N=1` is sequential). Seeds stay **`seed + 1000 + gen * population_size + idx`** (attacker GA) and **`seed + 2000 + …`** (defender vector GA). Cli scripts accept **`--eval-workers`**; built-in evaluators clone worlds via `coevolution.thread_safe_template` when `N > 1`.
+- **MC:** `monte_carlo_search(..., eval_workers=N)` draws **`samples`** genomes with the same RNG stream as before, then evaluates rollouts at **`seed + 2 + i`**. **`scripts/run_mc_demo.py --eval-workers`** mirrors the GA demos (peg clone when `N > 1`).
 - **Shared templates:** `clone_resource_cascade` / defended builds often **reuse** `AgentPopulation` by reference; advancing one clone’s population can race another thread. Prefer a **fresh** world template inside each `fn(item)` (see `tests/test_parallel_rollouts.py`).
 - **API (processes):** `process_pool_map_ordered(fn, items, max_workers=None)` — `ProcessPoolExecutor.map`; **`fn` must be pickle-safe** (module-level callable). Prefer threads for rollout closures; use the process pool only when profiling justifies pickling overhead (Windows uses spawn).
 

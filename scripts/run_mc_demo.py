@@ -10,6 +10,7 @@ import numpy as np
 
 from fragility_engine.adversary.search import monte_carlo_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import thread_safe_peg_clone
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_stablecoin, rollout_to_replay_dict
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -25,13 +26,21 @@ def main() -> None:
         action="store_true",
         help="Forward past collapse for recovery fields (slower trajectories).",
     )
+    p.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for MC rollout evaluation (clone per eval when >1).",
+    )
     args = p.parse_args()
+    ew = max(1, int(args.eval_workers))
 
     template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=max(args.horizon, 40))
 
     def evaluator(genome: np.ndarray, seed: int):
+        world = thread_safe_peg_clone(template) if ew > 1 else template
         return rollout_stablecoin(
-            template,
+            world,
             genome,
             seed=seed,
             continue_after_collapse=bool(args.continue_after_collapse),
@@ -42,6 +51,7 @@ def main() -> None:
         horizon=int(args.horizon),
         samples=int(args.samples),
         seed=int(args.seed),
+        eval_workers=ew,
     )
 
     print(
@@ -64,6 +74,7 @@ def main() -> None:
             "samples": int(args.samples),
             "horizon": int(args.horizon),
             "mc_seed": int(args.seed),
+            "eval_workers": ew,
         }
         if args.continue_after_collapse:
             replay["meta"]["continue_after_collapse"] = True

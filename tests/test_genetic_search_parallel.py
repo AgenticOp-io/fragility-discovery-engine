@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from fragility_engine.adversary.search import genetic_search
+from fragility_engine.adversary.search import genetic_search, genetic_vector_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
@@ -13,6 +13,7 @@ from fragility_engine.coevolution.thread_safe_template import (
 )
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -77,3 +78,26 @@ def test_genetic_search_resource_cascade_eval_workers_matches_sequential():
     s4 = genetic_search(evaluator, eval_workers=4, **kwargs)
     assert np.allclose(s1.best_genome, s4.best_genome)
     assert s1.best_fitness == s4.best_fitness
+
+
+def _synthetic_rollout(vec: np.ndarray, seed: int) -> RolloutResult:
+    peak = float(np.sum(vec)) + 1e-6 * float(seed)
+    return RolloutResult(
+        trajectory=[],
+        collapsed=False,
+        collapse_timestep=None,
+        final_instability=peak,
+        seed=seed,
+        attack_cost=0.0,
+        simulation_mode="aggregate",
+        integral_instability=peak,
+    )
+
+
+def test_genetic_vector_search_eval_workers_matches_sequential():
+    kwargs = dict(dim=5, generations=3, population_size=10, seed=777)
+    s1 = genetic_vector_search(_synthetic_rollout, eval_workers=1, **kwargs)
+    s4 = genetic_vector_search(_synthetic_rollout, eval_workers=4, **kwargs)
+    assert np.allclose(s1.best_genome, s4.best_genome)
+    assert s1.best_fitness == s4.best_fitness
+    assert len(s1.history) == len(s4.history)

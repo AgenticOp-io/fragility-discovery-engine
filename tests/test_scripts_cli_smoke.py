@@ -570,6 +570,30 @@ def test_run_mc_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
     assert data["meta"]["cli"] == "run_mc_demo"
 
 
+def test_run_mc_demo_eval_workers_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "mc_par.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_mc_demo.py"),
+            "--samples",
+            "8",
+            "--horizon",
+            "10",
+            "--seed",
+            "505",
+            "--eval-workers",
+            "2",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["eval_workers"] == 2
+
+
 def test_compare_replays_cli(py_exe: str, tmp_path: Path) -> None:
     left = tmp_path / "a.json"
     right = tmp_path / "b.json"

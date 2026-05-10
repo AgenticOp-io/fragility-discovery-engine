@@ -20,8 +20,12 @@ def monte_carlo_search(
     seed: int,
     fitness_fn: Callable[[RolloutResult], float] | None = None,
     collect_pareto: bool = False,
+    eval_workers: int = 1,
 ) -> SearchResult:
     score = fitness_fn or fitness_phase_a
+    ew = int(eval_workers)
+    if ew < 1:
+        raise ValueError("eval_workers must be >= 1")
     rng = np.random.default_rng(seed)
     best_genome = random_genome(horizon, rng)
     best_rollout = rollout_fn(best_genome, seed + 1)
@@ -32,10 +36,18 @@ def monte_carlo_search(
     if collect_pareto:
         archive.append(pareto_point_from_rollout(best_genome, best_rollout))
 
+    trial_genomes = [random_genome(horizon, rng) for _ in range(samples)]
+    pairs: list[tuple[np.ndarray, int]] = [(trial_genomes[i], seed + 2 + i) for i in range(samples)]
+
+    def eval_mc(pair: tuple[np.ndarray, int]) -> tuple[float, RolloutResult]:
+        g, s = pair
+        r = rollout_fn(g, s)
+        return float(score(r)), r
+
+    mc_results = thread_pool_map_ordered(eval_mc, pairs, max_workers=ew)
     for i in range(samples):
-        g = random_genome(horizon, rng)
-        r = rollout_fn(g, seed + 2 + i)
-        fitness = float(score(r))
+        fitness, r = mc_results[i]
+        g = trial_genomes[i]
         history.append({"sample": i, "fitness": fitness, "collapsed": r.collapsed})
         if collect_pareto:
             archive.append(pareto_point_from_rollout(g, r))
