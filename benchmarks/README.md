@@ -67,6 +67,12 @@ python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102,103 --
 python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102 --sweep-param er_p --sweep-values 0.10,0.14 --sweep-param-2 base_panic --sweep-values-2 0.04,0.07
 ```
 
+**Neighbor-json bundle (fixed list topologies):** each JSON file is one ensemble member (`topology_mode: neighbor_json_bundle`). **`--graph-seeds`** is ignored. Optional per-file weights: **`--neighbor-weights-json-list`** with the same number of comma-separated paths; use **`none`** or **`-`** for slots without weights.
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --neighbor-json-list path/topA.json,path/topB.json --sweep-param contagion_beta --sweep-values 0.30,0.36
+```
+
 ## Wall-clock timing (Phase K helper)
 
 Compare machines or commits using the **same frozen workload** as CI golden bundles (not a regression gate):

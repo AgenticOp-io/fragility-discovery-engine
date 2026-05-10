@@ -2143,6 +2143,7 @@ def test_fragility_robustness_sweep_json_cli(py_exe: str) -> None:
     )
     data = json.loads(proc.stdout)
     assert data["schema"] == "fragility-robustness-ensemble-v1"
+    assert data["topology_mode"] == "synthetic_er_ws"
     assert data["topology_representation"] == "dense"
     assert data["summary"]["count"] == 2
 
@@ -2223,6 +2224,32 @@ def test_fragility_robustness_sweep_2d_grid_json_cli(py_exe: str) -> None:
     data = json.loads(proc.stdout)
     assert data["schema"] == "fragility-robustness-sensitivity-2d-v1"
     assert data["summary"]["grid_cells"] == 4
+
+
+def test_fragility_robustness_sweep_neighbor_json_list_cli(py_exe: str, tmp_path: Path) -> None:
+    a = tmp_path / "a.json"
+    b = tmp_path / "b.json"
+    a.write_text("[[1],[0]]", encoding="utf-8")
+    b.write_text("[[1],[2],[0]]", encoding="utf-8")
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--neighbor-json-list",
+            f"{a},{b}",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["topology_mode"] == "neighbor_json_bundle"
+    assert data["summary"]["count"] == 2
+    assert data["runs"][0]["topology_kind"] == "neighbor_json"
 
 
 def test_export_fragility_certificate_cli(py_exe: str, tmp_path: Path) -> None:

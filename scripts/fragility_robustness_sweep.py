@@ -4,14 +4,41 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 import numpy as np
 
 from fragility_engine.benchmarks.ensemble import (
     robustness_ensemble_1d_param_sweep,
     robustness_ensemble_2d_param_grid,
+    robustness_rollouts_neighbor_json_bundle,
     robustness_rollouts_over_graph_seeds,
 )
+
+
+def _parse_neighbor_bundle_paths(s: str) -> list[Path]:
+    paths = [Path(x.strip()) for x in s.split(",") if x.strip()]
+    if not paths:
+        raise SystemExit("--neighbor-json-list must list at least one existing-path candidate.")
+    return paths
+
+
+def _parse_neighbor_weights_bundle(s: str | None, n: int) -> list[Path | None] | None:
+    if s is None:
+        return None
+    parts = [x.strip() for x in s.split(",")]
+    if len(parts) != n:
+        raise SystemExit(
+            f"--neighbor-weights-json-list must have {n} comma-separated entries "
+            "(use none or - for no weights file)."
+        )
+    out: list[Path | None] = []
+    for p in parts:
+        if p.lower() in ("", "none", "-"):
+            out.append(None)
+        else:
+            out.append(Path(p))
+    return out
 
 
 def main() -> None:
@@ -24,13 +51,25 @@ def main() -> None:
         "--graph-seeds",
         type=str,
         default="101,102,103",
-        help="Comma-separated topology RNG seeds.",
+        help="Comma-separated topology RNG seeds (ignored when --neighbor-json-list is set).",
+    )
+    ap.add_argument(
+        "--neighbor-json-list",
+        type=str,
+        default=None,
+        help="Comma-separated neighbor-list JSON paths; each file is one ensemble member (list topology).",
+    )
+    ap.add_argument(
+        "--neighbor-weights-json-list",
+        type=str,
+        default=None,
+        help="Optional weights JSON paths, same length as --neighbor-json-list (none/-/empty slot = unweighted).",
     )
     ap.add_argument(
         "--topology",
         choices=("dense", "neighbor_lists"),
         default="dense",
-        help="World topology storage: dense ContagionGraph adjacency vs list-only (**O(edges)** RAM).",
+        help="Synthetic mode only: dense ContagionGraph adjacency vs list-only (**O(edges)** RAM).",
     )
     ap.add_argument("--rollout-seed", type=int, default=5000)
     ap.add_argument("--genome-seed", type=int, default=9001)
@@ -69,9 +108,18 @@ def main() -> None:
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    seeds = [int(x.strip()) for x in args.graph_seeds.split(",") if x.strip()]
-    if not seeds:
-        raise SystemExit("Provide at least one --graph-seeds value.")
+    nb_paths = _parse_neighbor_bundle_paths(args.neighbor_json_list) if args.neighbor_json_list else None
+    if nb_paths is None:
+        nb_weights = None
+    elif args.neighbor_weights_json_list:
+        nb_weights = _parse_neighbor_weights_bundle(args.neighbor_weights_json_list, len(nb_paths))
+    else:
+        nb_weights = None
+
+    if nb_paths is None:
+        seeds = [int(x.strip()) for x in args.graph_seeds.split(",") if x.strip()]
+        if not seeds:
+            raise SystemExit("Provide at least one --graph-seeds value (or use --neighbor-json-list).")
 
     sweep_1 = args.sweep_param is not None or args.sweep_values is not None
     sweep_2_axis = args.sweep_param_2 is not None or args.sweep_values_2 is not None
@@ -91,7 +139,7 @@ def main() -> None:
     common = dict(
         graph_kind=str(args.graph_kind),
         nodes=int(args.nodes),
-        graph_seeds=seeds,
+        graph_seeds=seeds if nb_paths is None else [0],
         rollout_seed=int(args.rollout_seed),
         er_p=float(args.er_p),
         ws_k=int(args.ws_k),
@@ -101,6 +149,8 @@ def main() -> None:
         whale_frac=float(args.whale_frac),
         max_steps=int(args.max_steps),
         topology_representation=topo,
+        neighbor_json_paths=nb_paths,
+        neighbor_weights_json_paths=nb_weights,
     )
 
     if args.sweep_param is not None and args.sweep_param_2 is not None:
@@ -126,8 +176,19 @@ def main() -> None:
             sweep_values=sweep_vals,
             **common,
         )
+    elif nb_paths is not None:
+        payload = robustness_rollouts_neighbor_json_bundle(
+            genome,
+            neighbor_json_paths=nb_paths,
+            rollout_seed=int(args.rollout_seed),
+            contagion_beta=float(args.beta),
+            whale_frac=float(args.whale_frac),
+            base_panic=float(args.base_panic),
+            max_steps=int(args.max_steps),
+            neighbor_weights_json_paths=nb_weights,
+        )
     else:
-        payload = robustness_rollouts_over_graph_seeds(genome, **common)
+        payload = robustness_rollouts_over_graph_seeds(genome, **{k: v for k, v in common.items() if k not in ("neighbor_json_paths", "neighbor_weights_json_paths")})
 
     payload["genome_seed"] = int(args.genome_seed)
     payload["horizon"] = int(args.horizon)

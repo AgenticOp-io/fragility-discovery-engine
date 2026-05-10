@@ -31,6 +31,7 @@ This document states **what scales how** and **what breaks reproducibility** if 
 
 - **`fragility_robustness_sweep.py --topology dense|neighbor_lists`** — same ER/WS draws; **`neighbor_lists`** keeps **O(edges)** topology RAM while matching dense rollouts bit-for-bit for the same adjacency (see tests).
 - **2D grids** (`fragility-robustness-sensitivity-2d-v1`) scale as **|values_x| × |values_y| × |graph_seeds|** rollouts — keep grids tiny for exploration.
+- **`neighbor_json_bundle`**: ensemble size is **number of JSON files**; each path is loaded via `load_neighbor_topology` (same format as Phase I counterfactual CLIs).
 
 ## “Game changing” without lying
 
