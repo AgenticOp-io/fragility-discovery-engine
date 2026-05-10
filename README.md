@@ -32,6 +32,7 @@ cd C:\Users\david\projects\fragility-discovery-engine
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
+# Optional Numba rollout (`FRAGILITY_RESOURCE_CASCADE_BACKEND`): `pip install -e ".[accelerate]"` — often unavailable on Windows ARM64 Python (no wheels); see docs/phase_k_acceleration.md.
 pytest -q
 python scripts/week1_smoke.py
 python scripts/run_ga_demo.py

@@ -40,6 +40,8 @@ Libraries often use an explicit toggle (examples: `FRAGILITY_BACKEND=numpy|numba
 
 Install optional dependency: `pip install -e ".[accelerate]"` (declares `numba`). Parity tests live in `tests/test_resource_cascade_numba_parity.py` and **skip** when Numba is absent.
 
+**Platform caveat:** Numba publishes wheels for many **x86_64** targets (Linux, macOS, Windows amd64). **Windows ARM64** (`win_arm64`) Python often has **no** prebuilt `llvmlite`/`numba` wheels, so `pip install …[accelerate]` may fail while compiling from source. On those hosts use the default NumPy rollout path, run parity in CI/Linux/x64, or use an x64 Python install / container where wheels exist.
+
 ## Exit criteria (reminder)
 
 Promotion in `BOUNDARIES.md` should stay tied to **honest** reporting: optional backends remain off by default in CI; relative timings are measured via the harness above (and parity tests when Numba is installed), not assumed from prose.
