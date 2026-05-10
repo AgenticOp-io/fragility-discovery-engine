@@ -15,6 +15,8 @@ from fragility_engine.benchmarks.ensemble import (
     robustness_rollouts_over_graph_seeds,
 )
 
+_SYNTHETIC_ONLY_KEYS = frozenset({"neighbor_json_paths", "neighbor_weights_json_paths"})
+
 
 def _parse_neighbor_bundle_paths(s: str) -> list[Path]:
     paths = [Path(x.strip()) for x in s.split(",") if x.strip()]
@@ -188,7 +190,8 @@ def main() -> None:
             neighbor_weights_json_paths=nb_weights,
         )
     else:
-        payload = robustness_rollouts_over_graph_seeds(genome, **{k: v for k, v in common.items() if k not in ("neighbor_json_paths", "neighbor_weights_json_paths")})
+        synthetic_kw = {k: v for k, v in common.items() if k not in _SYNTHETIC_ONLY_KEYS}
+        payload = robustness_rollouts_over_graph_seeds(genome, **synthetic_kw)
 
     payload["genome_seed"] = int(args.genome_seed)
     payload["horizon"] = int(args.horizon)
