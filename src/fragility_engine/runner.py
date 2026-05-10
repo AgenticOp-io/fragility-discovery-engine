@@ -249,6 +249,23 @@ def rollout_resource_cascade(
     )
 
 
+def resource_cascade_backend_benchmark_meta(template: ResourceCascadeWorld) -> dict[str, str]:
+    """
+    Labels for profiling JSON: resolved ``FRAGILITY_RESOURCE_CASCADE_BACKEND`` and whether dispatch
+    would attempt Numba for this template (default population, Numba importable, ``numba``/``auto``).
+
+    ``resource_cascade_backend_effective`` is **intent** (same preconditions as ``rollout_resource_cascade``),
+    not proof that JIT compilation succeeded on every iteration.
+    """
+
+    backend = resource_cascade_backend_from_env()
+    effective = "numba" if should_attempt_resource_cascade_numba(backend, template) else "numpy"
+    return {
+        "resource_cascade_backend_env": backend,
+        "resource_cascade_backend_effective": effective,
+    }
+
+
 def _recovery_timestep(
     trajectory: list[TrajectoryStep],
     *,

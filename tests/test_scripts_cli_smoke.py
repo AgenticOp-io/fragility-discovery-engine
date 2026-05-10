@@ -832,6 +832,9 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     assert rc["mode"] == "resource_cascade"
     assert rc["initial_overload"] == pytest.approx(0.06)
     assert rc["nodes"] is None
+    rb = rc["resource_cascade_backend"]
+    assert set(rb) == {"resource_cascade_backend_env", "resource_cascade_backend_effective"}
+    assert rb["resource_cascade_backend_effective"] in ("numpy", "numba")
 
     proc_b = subprocess.run(
         [
@@ -856,6 +859,28 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     assert bundle_payload["pinned_genome_seed"] == 9001
     assert bundle_payload["pinned_rollout_seed"] == 4242
     assert bundle_payload["mean_ms_per_rollout"] >= 0.0
+    assert "resource_cascade_backend" not in bundle_payload
+
+    proc_rc_b = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "resource_cascade_rollout_v1",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    rc_bundle = json.loads(proc_rc_b.stdout)
+    assert rc_bundle["bundle_id"] == "resource_cascade_rollout_v1"
+    assert rc_bundle["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
 
 def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
@@ -882,6 +907,7 @@ def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
     ids = [row["bundle_id"] for row in suite["bundles"]]
     assert ids == sorted(ids)
     assert suite["total_wall_clock_s"] >= 0.0
+    assert suite["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
 
 def test_export_replay_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:

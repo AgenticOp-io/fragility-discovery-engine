@@ -83,7 +83,7 @@ Example:
 python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repeat 8 --warmup 1 --json
 ```
 
-Emit JSON includes `workflow`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, `mean_ms_per_rollout`.
+Emit JSON includes `workflow`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, `mean_ms_per_rollout`. For **`resource_cascade_rollout_v1`**, **`--bundle-all`**, and ad-hoc **`--mode resource_cascade`**, JSON also includes **`resource_cascade_backend`** (`resource_cascade_backend_env`, `resource_cascade_backend_effective`) so timed runs record NumPy vs Numba dispatch intent.
 
 ### Comparing NumPy vs Numba (`resource_cascade_rollout_v1`)
 

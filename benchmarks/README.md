@@ -57,4 +57,4 @@ python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repea
 python scripts/benchmark_rollout.py --bundle-all --repeat 16 --warmup 2 --json
 ```
 
-JSON includes `workflow: "phase_h_bundle"`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, and `mean_ms_per_rollout`. **`--bundle-all`** emits **`phase_h_bundle_suite`** with a `bundles` array plus `total_wall_clock_s`. Ad-hoc sizing continues to use `--mode` (`workflow: "ad_hoc"`). See [`docs/phase_k_acceleration.md`](../docs/phase_k_acceleration.md).
+JSON includes `workflow: "phase_h_bundle"`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, and `mean_ms_per_rollout`. Resource-cascade bundles / suite / `ad_hoc` **`resource_cascade`** runs also include **`resource_cascade_backend`**: `resource_cascade_backend_env` and `resource_cascade_backend_effective` (NumPy vs Numba dispatch intent for `FRAGILITY_RESOURCE_CASCADE_BACKEND`). **`--bundle-all`** emits **`phase_h_bundle_suite`** with a `bundles` array plus `total_wall_clock_s`. Ad-hoc sizing continues to use `--mode` (`workflow: "ad_hoc"`). See [`docs/phase_k_acceleration.md`](../docs/phase_k_acceleration.md).

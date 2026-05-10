@@ -5,7 +5,11 @@ from __future__ import annotations
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.runner import rollout_resource_cascade, rollout_to_replay_dict
+from fragility_engine.runner import (
+    resource_cascade_backend_benchmark_meta,
+    rollout_resource_cascade,
+    rollout_to_replay_dict,
+)
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 
 
@@ -39,6 +43,14 @@ def test_rollout_resource_cascade_identity_defender_matches_none():
     assert a.integral_instability == b.integral_instability
     assert a.attack_cost == b.attack_cost
     assert a.collapsed == b.collapsed
+
+
+def test_resource_cascade_backend_benchmark_meta_respects_env(monkeypatch):
+    world = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=20)
+    monkeypatch.setenv("FRAGILITY_RESOURCE_CASCADE_BACKEND", "numpy")
+    m = resource_cascade_backend_benchmark_meta(world)
+    assert m["resource_cascade_backend_env"] == "numpy"
+    assert m["resource_cascade_backend_effective"] == "numpy"
 
 
 def test_rollout_resource_cascade_defender_changes_metrics():

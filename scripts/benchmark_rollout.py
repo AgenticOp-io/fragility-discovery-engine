@@ -22,7 +22,12 @@ from fragility_engine.benchmarks.suite import (
     run_bundle_rollout_once,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
-from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import (
+    resource_cascade_backend_benchmark_meta,
+    rollout_resource_cascade,
+    rollout_stablecoin,
+    rollout_stablecoin_network,
+)
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -117,6 +122,9 @@ def main() -> None:
             "bundle_count": len(rows),
             "bundles": rows,
             "total_wall_clock_s": total_wall,
+            "resource_cascade_backend": resource_cascade_backend_benchmark_meta(
+                ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
+            ),
         }
         if args.json:
             print(json.dumps(payload, indent=2))
@@ -150,6 +158,10 @@ def main() -> None:
             "wall_clock_s": elapsed,
             "mean_ms_per_rollout": mean_ms,
         }
+        if args.bundle == "resource_cascade_rollout_v1":
+            payload["resource_cascade_backend"] = resource_cascade_backend_benchmark_meta(
+                ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
+            )
         if args.json:
             print(json.dumps(payload, indent=2))
         else:
@@ -254,6 +266,8 @@ def main() -> None:
         "horizon": int(args.horizon),
         "seed": int(args.seed),
     }
+    if args.mode == "resource_cascade":
+        payload["resource_cascade_backend"] = resource_cascade_backend_benchmark_meta(template)
     if args.json:
         print(json.dumps(payload, indent=2))
     else:
