@@ -50,18 +50,39 @@ python scripts/run_ga_demo.py
 
 ### Google Compute Engine (Linux VM)
 
-Use a small **Debian/Ubuntu** instance when you want Linux CI parity or heavier `pytest` runs. **winget is Windows-only**; on the VM use **`apt`** (or your image’s Python if it already meets **≥ 3.11**).
+Use a small **Debian/Ubuntu** instance when you want Linux CI parity or heavier `pytest` runs. **Prefer git clone/pull on the VM** instead of uploading tarballs from your laptop.
+
+**One-shot deploy** (public `main`; installs Python 3.11+ via `apt` if needed, shallow clone, venv, editable install):
 
 ```bash
-sudo apt-get update && sudo apt-get install -y git python3.12 python3.12-venv python3-pip
-git clone https://github.com/theorem6/fragility-discovery-engine.git
-cd fragility-discovery-engine
-python3.12 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pytest -q
+sudo apt-get update && sudo apt-get install -y git curl python3.11 python3.11-venv
+curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
 ```
 
-To have **Cursor** (and this agent’s terminal) run **on the VM**, open the repo via **Remote - SSH** and point the workspace at the clone path above. The agent only executes where the integrated terminal’s default cwd is bound—local laptop vs GCE is whichever host that terminal is on.
+Run tests after install:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | FRAGILITY_RUN_TESTS=1 bash
+```
+
+Or after the first clone: `FRAGILITY_RUN_TESTS=1 bash ~/fragility-discovery-engine/scripts/gce_git_deploy.sh`
+
+**Updates:** rerun the script from anywhere — it **`git pull`s** when `~/fragility-discovery-engine` already exists.
+
+**Private repo:** HTTPS clone on a headless VM often prompts for credentials and fails. Use either:
+
+- **SSH:** install a deploy key (or agent forwarding), then  
+  `export FRAGILITY_REPO_URL='git@github.com:YOUR_ORG/fragility-discovery-engine.git'`  
+  and run `bash scripts/gce_git_deploy.sh` from a copy of the script, **or**
+- **HTTPS + token:**  
+  `export FRAGILITY_REPO_URL='https://YOUR_TOKEN@github.com/YOUR_ORG/fragility-discovery-engine.git'`  
+  (avoid logging the URL; prefer SSH.)
+
+Optional env: `FRAGILITY_DEPLOY_DIR`, `FRAGILITY_BRANCH`, `FRAGILITY_PYTHON`, `FRAGILITY_SHALLOW=0` for full history — see header in [`scripts/gce_git_deploy.sh`](scripts/gce_git_deploy.sh).
+
+To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy directory as the workspace.
+
+**winget** is Windows-only; on the VM use **`apt`** as above.
 
 ## Scripts
 
@@ -94,6 +115,7 @@ To have **Cursor** (and this agent’s terminal) run **on the VM**, open the rep
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
+| `scripts/gce_git_deploy.sh` | **Linux VM / GCE:** `git clone` or `git pull`, venv, `pip install -e ".[dev]"` — curl one-liner in README **Google Compute Engine** |
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <phase_h_id>`**, **`--bundle-all`** (full Phase H suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade` (`--json`, **`workflow`** field) |
