@@ -20,7 +20,7 @@ Phase K is defined at a high level in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) (*
 |-------|------|--------|
 | Worlds | `World.step` / internal state update | Swap NumPy-only math for Numba/JAX/etc. only if state transitions match reference tests. |
 | Runner | `rollout_*` loops | Optional batched evaluation of **independent** `(genome, seed)` pairs; document reduction order if vectorized. |
-| Search | `monte_carlo_search` / `genetic_search` / `genetic_vector_search` / co-evolution | `eval_workers` uses `thread_pool_map_ordered`; MC pre-draws genomes sequentially then evaluates `(genome, seed + 2 + i)` in parallel. Parallel fitness must not share mutable world/population unless cloned per eval (see `coevolution.thread_safe_template`). |
+| Search | `monte_carlo_search` / `genetic_search` / `genetic_vector_search` / co-evolution | `eval_workers` + `eval_pool` (`threads` \| `processes`); threads use `thread_pool_map_ordered`. Process pool pickling requires a **picklable** `rollout_fn` (bundle helper: `partial(rollout_bundle_with_genome, id, isolate=True)`). MC pre-draws genomes then evaluates `(genome, seed + 2 + i)`. |
 
 ## Batch evaluation (`parallel_rollouts`)
 
@@ -80,7 +80,9 @@ Promotion in `BOUNDARIES.md` should stay tied to **honest** reporting: optional 
 
 `scripts/benchmark_rollout.py --bundle <id>` times **exactly** the rollout body used by `fragility_engine.benchmarks.suite` / `run_benchmark_suite.py` (pinned genome + rollout seeds). Use this to document **relative** speedups when experimenting with optional backends—absolute ms vary by CPU/OS.
 
-**Search microbench:** `--bench-search mc|ga` (requires `--bundle` or `--bundle-all`) runs `monte_carlo_search` or `genetic_search` on the same bundle templates via `bundle_search_evaluator` (`PINNED_SCHEDULE_HORIZON` rows). Pass **`--eval-workers`**, **`--search-generations`** / **`--search-population`** (GA), **`--search-samples`** (MC), **`--search-seed`**. JSON **`workflow`: `phase_h_bundle_search_microbench`** with per-bundle **`mean_ms_per_search`**.
+**Search microbench:** `--bench-search mc|ga` (requires `--bundle` or `--bundle-all`) runs `monte_carlo_search` or `genetic_search` on the same bundle templates via `bundle_search_evaluator` (`PINNED_SCHEDULE_HORIZON` rows). Pass **`--eval-workers`**, **`--eval-pool threads|processes`** (processes uses `functools.partial(rollout_bundle_with_genome, …, isolate=True)` for pickling), **`--search-generations`** / **`--search-population`** (GA), **`--search-samples`** (MC), **`--search-seed`**. JSON **`workflow`: `phase_h_bundle_search_microbench`** with per-bundle **`mean_ms_per_search`**.
+
+**Suite CLI:** `python scripts/run_benchmark_suite.py --bench-search ga|mc [--eval-workers N] [--eval-pool processes] …` calls **`fragility_engine.benchmarks.suite.run_phase_h_search_microbench`** (same payload shape as `benchmark_rollout` microbench, without repeat/warmup loops).
 
 | Bundle id | Domain workload |
 |-----------|-----------------|

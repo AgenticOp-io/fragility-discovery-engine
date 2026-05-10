@@ -147,6 +147,7 @@
       let block =
         `schema: ${data.schema ?? '?'}\n` +
         `best_fitness: ${data.best_fitness ?? '—'}\n` +
+        (data.eval_workers != null ? `eval_workers: ${data.eval_workers}\n` : '') +
         `archive points: ${arch.length}\n` +
         `cost [${minC.toFixed(4)}, ${maxC.toFixed(4)}]\n` +
         `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]` +

@@ -9,6 +9,7 @@ import argparse
 import json
 import sys
 import time
+from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -22,6 +23,7 @@ from fragility_engine.benchmarks.suite import (
     PINNED_ROLLOUT_SEED,
     PINNED_SCHEDULE_HORIZON,
     bundle_search_evaluator,
+    rollout_bundle_with_genome,
     run_bundle_rollout_once,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
@@ -101,7 +103,13 @@ def main() -> None:
         "--eval-workers",
         type=int,
         default=1,
-        help="Thread pool size for search fitness/MC evaluation when --bench-search is set.",
+        help="Pool size for search fitness/MC evaluation when --bench-search is set.",
+    )
+    p.add_argument(
+        "--eval-pool",
+        choices=("threads", "processes"),
+        default="threads",
+        help="threads (default) or processes (process requires picklable rollout; bundle bench uses partial).",
     )
     p.add_argument("--search-generations", type=int, default=2, help="[bench-search ga] GA generations.")
     p.add_argument("--search-population", type=int, default=8, help="[bench-search ga] Population size.")
@@ -123,6 +131,7 @@ def main() -> None:
 
     if args.bench_search is not None:
         ew = max(1, int(args.eval_workers))
+        eval_pool = str(args.eval_pool)
         search_seed = int(args.search_seed) if args.search_seed is not None else PINNED_GENOME_SEED
         sg = max(1, int(args.search_generations))
         sp = max(2, int(args.search_population))
@@ -133,7 +142,10 @@ def main() -> None:
             rows_sr: list[dict[str, float | str | int]] = []
             total_wall = 0.0
             for bid in bundles_loop:
-                evaluator = bundle_search_evaluator(bid, eval_workers=ew)
+                if eval_pool == "processes" and ew > 1:
+                    evaluator = partial(rollout_bundle_with_genome, bid, isolate=True)
+                else:
+                    evaluator = bundle_search_evaluator(bid, eval_workers=ew)
 
                 def run_search_once() -> None:
                     if args.bench_search == "ga":
@@ -144,6 +156,7 @@ def main() -> None:
                             population_size=sp,
                             seed=search_seed,
                             eval_workers=ew,
+                            eval_pool=eval_pool,  # type: ignore[arg-type]
                         )
                     else:
                         monte_carlo_search(
@@ -152,6 +165,7 @@ def main() -> None:
                             samples=ss,
                             seed=search_seed,
                             eval_workers=ew,
+                            eval_pool=eval_pool,  # type: ignore[arg-type]
                         )
 
                 for _ in range(warmup):
@@ -173,6 +187,7 @@ def main() -> None:
                 "workflow": "phase_h_bundle_search_microbench",
                 "bench_search": args.bench_search,
                 "eval_workers": ew,
+                "eval_pool": eval_pool,
                 "search_seed": search_seed,
                 "pinned_schedule_horizon": PINNED_SCHEDULE_HORIZON,
                 "repeat": repeat,
@@ -190,8 +205,8 @@ def main() -> None:
             else:
                 mode = "GA" if args.bench_search == "ga" else "MC"
                 print(
-                    f"Phase H search microbench ({mode})  eval_workers={ew}  repeat={repeat}  "
-                    f"warmup={warmup}  total_wall={total_wall:.4f}s"
+                    f"Phase H search microbench ({mode})  eval_workers={ew}  eval_pool={eval_pool}  "
+                    f"repeat={repeat}  warmup={warmup}  total_wall={total_wall:.4f}s"
                 )
                 for row in rows_sr:
                     print(f"  {row['bundle_id']}: mean={row['mean_ms_per_search']:.3f} ms/search")

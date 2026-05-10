@@ -48,13 +48,24 @@ def _rollout_snapshot(bundle_id: str, r: RolloutResult) -> dict[str, Any]:
     }
 
 
-def run_bundle_rollout_once(bundle_id: str) -> RolloutResult:
-    """Execute exactly one rollout for a Phase H bundle id (pinned genome + seeds)."""
+def rollout_bundle_with_genome(
+    bundle_id: str,
+    genome: np.ndarray,
+    seed: int,
+    *,
+    isolate: bool = False,
+) -> RolloutResult:
+    """Run one rollout for a Phase H bundle with caller-supplied genome and seed.
 
-    genome = _pinned_genome()
+    ``isolate=True`` uses a fresh :class:`~fragility_engine.agents.stablecoin_agents.AgentPopulation`
+    per call (safe for process- or thread-parallel search). ``isolate=False`` matches
+    :func:`run_bundle_rollout_once` single-template semantics (pinned golden bundles).
+    """
+
     if bundle_id == "aggregate_rollout_v1":
-        template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=28)
-        return rollout_stablecoin(template, genome, seed=PINNED_ROLLOUT_SEED, initial_panic=0.05)
+        base = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=28)
+        world = thread_safe_peg_clone(base) if isolate else base
+        return rollout_stablecoin(world, genome, seed=seed, initial_panic=0.05)
     if bundle_id == "network_er_rollout_v1":
         graph, _meta = contagion_graph_from_cli(
             graph_kind="erdos_renyi",
@@ -71,7 +82,8 @@ def run_bundle_rollout_once(bundle_id: str) -> RolloutResult:
             contagion_beta=0.36,
             max_steps=26,
         )
-        return rollout_stablecoin_network(template, genome, seed=PINNED_ROLLOUT_SEED, base_panic=0.05)
+        world = thread_safe_network_clone(template) if isolate else template
+        return rollout_stablecoin_network(world, genome, seed=seed, base_panic=0.05)
     if bundle_id == "network_neighbor_list_rollout_v1":
         nl = [[1], [2], [0]]
         template = StablecoinNetworkWorld(
@@ -81,11 +93,19 @@ def run_bundle_rollout_once(bundle_id: str) -> RolloutResult:
             contagion_beta=0.35,
             max_steps=24,
         )
-        return rollout_stablecoin_network(template, genome, seed=PINNED_ROLLOUT_SEED, base_panic=0.05)
+        world = thread_safe_network_clone(template) if isolate else template
+        return rollout_stablecoin_network(world, genome, seed=seed, base_panic=0.05)
     if bundle_id == "resource_cascade_rollout_v1":
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
-        return rollout_resource_cascade(template, genome, seed=PINNED_ROLLOUT_SEED, initial_overload=0.05)
+        world = thread_safe_resource_cascade_clone(template) if isolate else template
+        return rollout_resource_cascade(world, genome, seed=seed, initial_overload=0.05)
     raise ValueError(f"unknown bundle_id {bundle_id!r}")
+
+
+def run_bundle_rollout_once(bundle_id: str) -> RolloutResult:
+    """Execute exactly one rollout for a Phase H bundle id (pinned genome + seeds)."""
+
+    return rollout_bundle_with_genome(bundle_id, _pinned_genome(), PINNED_ROLLOUT_SEED, isolate=False)
 
 
 def bundle_search_evaluator(
@@ -101,60 +121,12 @@ def bundle_search_evaluator(
     """
 
     ew = max(1, int(eval_workers))
-    if bundle_id == "aggregate_rollout_v1":
-        template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=28)
+    isolate = ew > 1
 
-        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
-            world = thread_safe_peg_clone(template) if ew > 1 else template
-            return rollout_stablecoin(world, g, seed=seed, initial_panic=0.05)
+    def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
+        return rollout_bundle_with_genome(bundle_id, g, seed, isolate=isolate)
 
-        return evaluator
-    if bundle_id == "network_er_rollout_v1":
-        graph, _meta = contagion_graph_from_cli(
-            graph_kind="erdos_renyi",
-            nodes=16,
-            graph_seed=7,
-            er_p=0.14,
-            ws_k=4,
-            ws_p=0.12,
-        )
-        template = StablecoinNetworkWorld(
-            population=default_stablecoin_population(),
-            adjacency=graph,
-            node_weights=default_whale_weights(16, whale_index=0, whale_frac=0.22),
-            contagion_beta=0.36,
-            max_steps=26,
-        )
-
-        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
-            world = thread_safe_network_clone(template) if ew > 1 else template
-            return rollout_stablecoin_network(world, g, seed=seed, base_panic=0.05)
-
-        return evaluator
-    if bundle_id == "network_neighbor_list_rollout_v1":
-        nl = [[1], [2], [0]]
-        template = StablecoinNetworkWorld(
-            population=default_stablecoin_population(),
-            neighbor_lists=nl,
-            node_weights=default_whale_weights(3, whale_index=0, whale_frac=0.25),
-            contagion_beta=0.35,
-            max_steps=24,
-        )
-
-        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
-            world = thread_safe_network_clone(template) if ew > 1 else template
-            return rollout_stablecoin_network(world, g, seed=seed, base_panic=0.05)
-
-        return evaluator
-    if bundle_id == "resource_cascade_rollout_v1":
-        template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
-
-        def evaluator(g: np.ndarray, seed: int) -> RolloutResult:
-            world = thread_safe_resource_cascade_clone(template) if ew > 1 else template
-            return rollout_resource_cascade(world, g, seed=seed, initial_overload=0.05)
-
-        return evaluator
-    raise ValueError(f"unknown bundle_id {bundle_id!r}")
+    return evaluator
 
 
 def run_aggregate_rollout_v1() -> dict[str, Any]:
@@ -243,6 +215,88 @@ def assert_bundle_matches_golden(result: dict[str, Any], *, rtol: float = 1e-5, 
         atol=ato,
     )
     assert result["collapsed"] is gold["collapsed"]
+
+
+def run_phase_h_search_microbench(
+    *,
+    bench_search: str,
+    bundle_ids: tuple[str, ...] | None = None,
+    eval_workers: int = 1,
+    eval_pool: str = "threads",
+    search_seed: int | None = None,
+    generations: int = 2,
+    population_size: int = 8,
+    samples: int = 16,
+) -> dict[str, Any]:
+    """
+    One-shot Phase H search microbench (same semantics as ``benchmark_rollout.py --bench-search``).
+
+    Intended for ``run_benchmark_suite.py --bench-search`` and scripting; not a CI golden gate.
+    """
+
+    import time
+    from functools import partial
+
+    from fragility_engine.adversary.search import genetic_search, monte_carlo_search
+
+    bs = bench_search.strip().lower()
+    if bs not in ("mc", "ga"):
+        raise ValueError("bench_search must be 'mc' or 'ga'")
+    pool = eval_pool.strip().lower()
+    if pool not in ("threads", "processes"):
+        raise ValueError("eval_pool must be 'threads' or 'processes'")
+    ew = max(1, int(eval_workers))
+    bids = tuple(bundle_ids) if bundle_ids is not None else BUNDLE_IDS
+    seed_ = PINNED_GENOME_SEED if search_seed is None else int(search_seed)
+    sg = max(1, int(generations))
+    sp = max(2, int(population_size))
+    ss = max(0, int(samples))
+    rows: list[dict[str, float | str]] = []
+    total_wall = 0.0
+    for bid in bids:
+        if pool == "processes" and ew > 1:
+            rollout = partial(rollout_bundle_with_genome, bid, isolate=True)
+        else:
+            rollout = bundle_search_evaluator(bid, eval_workers=ew)
+        t0 = time.perf_counter()
+        if bs == "ga":
+            genetic_search(
+                rollout,
+                horizon=PINNED_SCHEDULE_HORIZON,
+                generations=sg,
+                population_size=sp,
+                seed=seed_,
+                eval_workers=ew,
+                eval_pool=pool,  # type: ignore[arg-type]
+            )
+        else:
+            monte_carlo_search(
+                rollout,
+                horizon=PINNED_SCHEDULE_HORIZON,
+                samples=ss,
+                seed=seed_,
+                eval_workers=ew,
+                eval_pool=pool,  # type: ignore[arg-type]
+            )
+        elapsed = time.perf_counter() - t0
+        total_wall += elapsed
+        rows.append({"bundle_id": bid, "wall_clock_s": elapsed, "mean_ms_per_search": elapsed * 1000.0})
+    payload: dict[str, Any] = {
+        "workflow": "phase_h_bundle_search_microbench",
+        "bench_search": bs,
+        "eval_workers": ew,
+        "eval_pool": pool,
+        "search_seed": seed_,
+        "pinned_schedule_horizon": PINNED_SCHEDULE_HORIZON,
+        "bundles": rows,
+        "total_wall_clock_s": total_wall,
+    }
+    if bs == "ga":
+        payload["search_generations"] = sg
+        payload["search_population"] = sp
+    else:
+        payload["search_samples"] = ss
+    return payload
 
 
 def validate_benchmark_suite(*, rtol: float = 1e-5, atol: float = 1e-7) -> None:

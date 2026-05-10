@@ -1,15 +1,52 @@
 from __future__ import annotations
 
+import pickle
 from collections.abc import Callable
-from typing import Any
+from functools import partial
+from typing import Any, Literal
 
 import numpy as np
 
 from fragility_engine.adversary.encoding import crossover_genome, mutate_genome, random_genome
 from fragility_engine.adversary.fitness import fitness_phase_a
 from fragility_engine.adversary.pareto import ParetoPoint, merge_pareto_points, pareto_point_from_rollout
-from fragility_engine.parallel_rollouts import thread_pool_map_ordered
+from fragility_engine.parallel_rollouts import process_pool_map_ordered, thread_pool_map_ordered
 from fragility_engine.types import RolloutResult, SearchResult
+
+EvalPool = Literal["threads", "processes"]
+
+
+def _fitness_rollout_pair(
+    pair: tuple[np.ndarray, int],
+    *,
+    rollout_fn: Callable[[np.ndarray, int], RolloutResult],
+    score: Callable[[RolloutResult], float],
+) -> tuple[float, RolloutResult]:
+    ind, s = pair
+    rr = rollout_fn(ind, s)
+    return float(score(rr)), rr
+
+
+def _ordered_map(
+    pool: EvalPool,
+    fn: Callable[[tuple[np.ndarray, int]], tuple[float, RolloutResult]],
+    pairs: list[tuple[np.ndarray, int]],
+    *,
+    max_workers: int,
+) -> list[tuple[float, RolloutResult]]:
+    if max_workers <= 1:
+        return [fn(p) for p in pairs]
+    if pool == "processes":
+        try:
+            pickle.dumps(fn)
+        except Exception as e:
+            raise ValueError(
+                "eval_pool='processes' requires a picklable rollout_fn bound for workers "
+                "(e.g. functools.partial(fragility_engine.benchmarks.suite.rollout_bundle_with_genome, "
+                "<bundle_id>, isolate=True))."
+            ) from e
+        return list(process_pool_map_ordered(fn, pairs, max_workers=max_workers))
+    return list(thread_pool_map_ordered(fn, pairs, max_workers=max_workers))
 
 
 def monte_carlo_search(
@@ -21,11 +58,15 @@ def monte_carlo_search(
     fitness_fn: Callable[[RolloutResult], float] | None = None,
     collect_pareto: bool = False,
     eval_workers: int = 1,
+    eval_pool: EvalPool = "threads",
 ) -> SearchResult:
     score = fitness_fn or fitness_phase_a
     ew = int(eval_workers)
     if ew < 1:
         raise ValueError("eval_workers must be >= 1")
+    if eval_pool not in ("threads", "processes"):
+        raise ValueError("eval_pool must be 'threads' or 'processes'")
+    pool: EvalPool = eval_pool
     rng = np.random.default_rng(seed)
     best_genome = random_genome(horizon, rng)
     best_rollout = rollout_fn(best_genome, seed + 1)
@@ -39,12 +80,8 @@ def monte_carlo_search(
     trial_genomes = [random_genome(horizon, rng) for _ in range(samples)]
     pairs: list[tuple[np.ndarray, int]] = [(trial_genomes[i], seed + 2 + i) for i in range(samples)]
 
-    def eval_mc(pair: tuple[np.ndarray, int]) -> tuple[float, RolloutResult]:
-        g, s = pair
-        r = rollout_fn(g, s)
-        return float(score(r)), r
-
-    mc_results = thread_pool_map_ordered(eval_mc, pairs, max_workers=ew)
+    _fn = partial(_fitness_rollout_pair, rollout_fn=rollout_fn, score=score)
+    mc_results = _ordered_map(pool, _fn, pairs, max_workers=ew)
     for i in range(samples):
         fitness, r = mc_results[i]
         g = trial_genomes[i]
@@ -79,11 +116,15 @@ def genetic_search(
     fitness_fn: Callable[[RolloutResult], float] | None = None,
     collect_pareto: bool = False,
     eval_workers: int = 1,
+    eval_pool: EvalPool = "threads",
 ) -> SearchResult:
     score = fitness_fn or fitness_phase_a
     ew = int(eval_workers)
     if ew < 1:
         raise ValueError("eval_workers must be >= 1")
+    if eval_pool not in ("threads", "processes"):
+        raise ValueError("eval_pool must be 'threads' or 'processes'")
+    pool: EvalPool = eval_pool
     rng = np.random.default_rng(seed)
     population = [random_genome(horizon, rng) for _ in range(population_size)]
 
@@ -99,12 +140,8 @@ def genetic_search(
         seed_base = seed + 1000 + gen * population_size
         pairs: list[tuple[np.ndarray, int]] = [(population[idx], seed_base + idx) for idx in range(population_size)]
 
-        def eval_one(pair: tuple[np.ndarray, int]) -> tuple[float, RolloutResult]:
-            ind, s = pair
-            rr = rollout_fn(ind, s)
-            return float(score(rr)), rr
-
-        evaluated = thread_pool_map_ordered(eval_one, pairs, max_workers=ew)
+        _fn = partial(_fitness_rollout_pair, rollout_fn=rollout_fn, score=score)
+        evaluated = _ordered_map(pool, _fn, pairs, max_workers=ew)
         fitnesses = [e[0] for e in evaluated]
         for idx, (fit, rr) in enumerate(evaluated):
             individual = population[idx]
@@ -186,6 +223,7 @@ def genetic_vector_search(
     fitness_fn: Callable[[RolloutResult], float] | None = None,
     collect_pareto: bool = False,
     eval_workers: int = 1,
+    eval_pool: EvalPool = "threads",
 ) -> SearchResult:
     """Evolutionary search over a bounded ``[0, 1]^{dim}`` defender/policy vector."""
 
@@ -193,6 +231,9 @@ def genetic_vector_search(
     ew = int(eval_workers)
     if ew < 1:
         raise ValueError("eval_workers must be >= 1")
+    if eval_pool not in ("threads", "processes"):
+        raise ValueError("eval_pool must be 'threads' or 'processes'")
+    pool: EvalPool = eval_pool
     rng = np.random.default_rng(seed)
     population = [_random_vector(dim, rng) for _ in range(population_size)]
 
@@ -208,12 +249,8 @@ def genetic_vector_search(
         seed_base = seed + 2000 + gen * population_size
         pairs = [(population[idx], seed_base + idx) for idx in range(population_size)]
 
-        def eval_one_vec(pair: tuple[np.ndarray, int]) -> tuple[float, RolloutResult]:
-            ind, s = pair
-            rr = rollout_fn(ind, s)
-            return float(score(rr)), rr
-
-        evaluated = thread_pool_map_ordered(eval_one_vec, pairs, max_workers=ew)
+        _fn = partial(_fitness_rollout_pair, rollout_fn=rollout_fn, score=score)
+        evaluated = _ordered_map(pool, _fn, pairs, max_workers=ew)
         fitnesses = [e[0] for e in evaluated]
         for idx, (fit, rr) in enumerate(evaluated):
             individual = population[idx]

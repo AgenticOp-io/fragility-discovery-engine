@@ -568,6 +568,39 @@ def test_run_mc_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
     )
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["meta"]["cli"] == "run_mc_demo"
+    assert data["meta"]["eval_pool"] == "threads"
+    assert data["meta"]["simulation_mode"] == "aggregate"
+
+
+def test_run_mc_demo_network_mode_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "mc_net.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_mc_demo.py"),
+            "--mode",
+            "network",
+            "--nodes",
+            "14",
+            "--samples",
+            "6",
+            "--horizon",
+            "8",
+            "--seed",
+            "909",
+            "--max-steps",
+            "20",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "network"
+    assert data["meta"]["cli"] == "run_mc_demo"
+    assert data["meta"]["simulation_mode"] == "network"
+    assert "topology" in data["meta"]
 
 
 def test_run_mc_demo_eval_workers_smoke(py_exe: str, tmp_path: Path) -> None:
@@ -981,6 +1014,36 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
         text=True,
     )
     assert bad.returncode == 2
+
+    proc_proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "aggregate_rollout_v1",
+            "--bench-search",
+            "ga",
+            "--eval-pool",
+            "processes",
+            "--eval-workers",
+            "2",
+            "--search-generations",
+            "1",
+            "--search-population",
+            "8",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    proc_pl = json.loads(proc_proc.stdout)
+    assert proc_pl["eval_pool"] == "processes"
 
     proc_rc_b = subprocess.run(
         [
@@ -1533,6 +1596,32 @@ def test_run_benchmark_suite_validate_cli(py_exe: str) -> None:
         check=True,
         cwd=str(ROOT),
     )
+
+
+def test_run_benchmark_suite_bench_search_json(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_benchmark_suite.py"),
+            "--bench-search",
+            "ga",
+            "--eval-workers",
+            "2",
+            "--search-generations",
+            "1",
+            "--search-population",
+            "8",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["workflow"] == "phase_h_bundle_search_microbench"
+    assert data["eval_pool"] == "threads"
+    assert len(data["bundles"]) == 4
 
 
 def test_export_counterfactual_base_panic_shift_cli(py_exe: str, tmp_path: Path) -> None:

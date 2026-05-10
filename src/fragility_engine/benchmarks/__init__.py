@@ -11,8 +11,10 @@ from fragility_engine.benchmarks.suite import (
     RESULT_SCHEMA,
     assert_bundle_matches_golden,
     bundle_search_evaluator,
+    rollout_bundle_with_genome,
     run_benchmark_suite,
     run_bundle_rollout_once,
+    run_phase_h_search_microbench,
     validate_benchmark_suite,
 )
 
@@ -27,8 +29,10 @@ __all__ = [
     "RESULT_SCHEMA",
     "assert_bundle_matches_golden",
     "bundle_search_evaluator",
+    "rollout_bundle_with_genome",
     "robustness_rollouts_over_graph_seeds",
     "run_benchmark_suite",
     "run_bundle_rollout_once",
+    "run_phase_h_search_microbench",
     "validate_benchmark_suite",
 ]

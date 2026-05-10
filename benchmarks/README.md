@@ -59,6 +59,8 @@ python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repea
 python scripts/benchmark_rollout.py --bundle-all --repeat 16 --warmup 2 --json
 ```
 
-Optional **search timing** (Monte Carlo or GA on bundle worlds, same pinned horizon as suite genomes): `--bench-search mc|ga` with `--bundle` or `--bundle-all`, plus `--eval-workers`, `--search-samples` / `--search-generations`, `--search-population`. Emits `workflow: "phase_h_bundle_search_microbench"`.
+Optional **search timing** (Monte Carlo or GA on bundle worlds, same pinned horizon as suite genomes): `--bench-search mc|ga` with `--bundle` or `--bundle-all`, plus `--eval-workers`, **`--eval-pool threads|processes`**, `--search-samples` / `--search-generations`, `--search-population`. Emits `workflow: "phase_h_bundle_search_microbench"`.
+
+From the suite driver: **`python scripts/run_benchmark_suite.py --bench-search ga|mc`** (same flags: `--eval-workers`, `--eval-pool`, `--search-generations`, `--search-population`, `--search-samples`, `--search-seed`) runs **`run_phase_h_search_microbench`** once over all bundles (no repeat/warmup loop).
 
 JSON includes `workflow: "phase_h_bundle"`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, and `mean_ms_per_rollout`. Resource-cascade bundles / suite / `ad_hoc` **`resource_cascade`** runs also include **`resource_cascade_backend`**: `resource_cascade_backend_env` and `resource_cascade_backend_effective` (NumPy vs Numba dispatch intent for `FRAGILITY_RESOURCE_CASCADE_BACKEND`). **`--bundle-all`** emits **`phase_h_bundle_suite`** with a `bundles` array plus `total_wall_clock_s`. Ad-hoc sizing continues to use `--mode` (`workflow: "ad_hoc"`). See [`docs/phase_k_acceleration.md`](../docs/phase_k_acceleration.md).
