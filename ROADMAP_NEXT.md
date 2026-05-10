@@ -157,11 +157,11 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 ## Moonshots (explicitly post–Phase L or fork)
 
-These are **not** commitments—ideas worth protecting from premature implementation:
+These are **exploratory** directions; shipped slices below are **scoped** (tests + schemas), not full research programs.
 
-- **Fragility robustness** (**partial / shipped slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. **1D**/**2D** sensitivity schemas above. **`topology_representation`**: **`dense`** vs **`neighbor_lists`** on synthetic ER/WS (parity-tested). **`neighbor_json_bundle`**: **`robustness_rollouts_neighbor_json_bundle`**, CLI **`--neighbor-json-list`** (+ optional **`--neighbor-weights-json-list`**), composable with sweeps. Still to explore: GA budget sweeps.
-- **Mechanism design loop**: outer search over **policy rules** (discrete or low-dimensional) with inner adversary—only if Phase H benchmarks exist.
-- **Synthetic institutional scenarios**: composite worlds built from **composed** kernels with explicit interfaces—never as a single monolithic “mega-model.”
+- **Fragility robustness** (**shipped exploration slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. **1D**/**2D** physics sweeps; **`topology_representation`**: **`dense`** vs **`neighbor_lists`**; **`neighbor_json_bundle`** via **`--neighbor-json-list`**. **GA budget sweep:** **`robustness_ga_generations_1d_sweep`**, CLI **`--ga-budget-sweep`** / **`--ga-generations-values`** → **`fragility-robustness-ga-budget-1d-v1`**.
+- **Mechanism design loop** (**minimal slice**): discrete defender presets + inner GA — `scripts/mechanism_design_policy_sweep.py`, schema **`fragility-mechanism-design-outer-v1`**. Not a general equilibrium solver.
+- **Synthetic institutional scenarios** (**audit composite slice**): side-by-side metrics from **two** reference kernels with the **same** schedule genome — `fragility_engine.benchmarks.institutional_composite.twin_domain_rollout_artifact`, `scripts/institutional_composite_demo.py`, **`fragility-institutional-composite-v1`** (**decoupled** dynamics; not a monolithic mega-model).
 
 ---
 

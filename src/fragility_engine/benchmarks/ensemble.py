@@ -3,16 +3,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 import numpy as np
 
+from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import thread_safe_network_clone
 from fragility_engine.network.contagion import neighbor_lists_from_adjacency
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.network.neighbor_io import load_neighbor_topology
 from fragility_engine.runner import rollout_stablecoin_network
+from fragility_engine.types import RolloutResult
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 
 _SWEEPS_1D: frozenset[str] = frozenset(
@@ -58,6 +61,61 @@ def _stablecoin_network_from_graph(
             max_steps=int(max_steps),
         )
     raise ValueError(f"topology_representation must be 'dense' or 'neighbor_lists', got {rep!r}")
+
+
+def _training_world_synthetic(
+    *,
+    graph_kind: str,
+    nodes: int,
+    train_graph_seed: int,
+    er_p: float,
+    ws_k: int,
+    ws_p: float,
+    whale_frac: float,
+    contagion_beta: float,
+    max_steps: int,
+    topology_representation: str,
+) -> StablecoinNetworkWorld:
+    graph, _meta = contagion_graph_from_cli(
+        graph_kind=graph_kind,
+        nodes=nodes,
+        graph_seed=int(train_graph_seed),
+        er_p=float(er_p),
+        ws_k=int(ws_k),
+        ws_p=float(ws_p),
+    )
+    return _stablecoin_network_from_graph(
+        graph,
+        nodes=int(nodes),
+        whale_frac=float(whale_frac),
+        contagion_beta=float(contagion_beta),
+        max_steps=int(max_steps),
+        topology_representation=str(topology_representation),
+    )
+
+
+def _training_world_neighbor_bundle(
+    *,
+    neighbor_json_paths: Sequence[Path | str],
+    neighbor_weights_json_paths: Sequence[Path | str | None] | None,
+    whale_frac: float,
+    contagion_beta: float,
+    max_steps: int,
+) -> StablecoinNetworkWorld:
+    paths = [Path(p) for p in neighbor_json_paths]
+    if not paths:
+        raise ValueError("neighbor_json_paths must be non-empty")
+    wplist = _neighbor_bundle_weights_list(neighbor_weights_json_paths, len(paths))
+    nl, nw = load_neighbor_topology(paths[0], wplist[0])
+    n_nodes = len(nl)
+    return StablecoinNetworkWorld(
+        population=default_stablecoin_population(),
+        neighbor_lists=nl,
+        neighbor_weights=nw,
+        node_weights=default_whale_weights(n_nodes, whale_index=0, whale_frac=float(whale_frac)),
+        contagion_beta=float(contagion_beta),
+        max_steps=int(max_steps),
+    )
 
 
 def _neighbor_bundle_weights_list(
@@ -505,3 +563,179 @@ def robustness_ensemble_2d_param_grid(
         out2["nodes"] = int(nodes)
         out2["topology_representation"] = str(topology_representation)
     return out2
+
+
+def robustness_ga_generations_1d_sweep(
+    *,
+    ga_generations_values: Sequence[int],
+    population_size: int,
+    ga_seed: int,
+    horizon: int,
+    rollout_seed: int,
+    base_panic: float = 0.05,
+    graph_kind: str = "erdos_renyi",
+    nodes: int = 14,
+    graph_seeds: list[int] | None = None,
+    train_graph_seed: int | None = None,
+    er_p: float = 0.12,
+    ws_k: int = 4,
+    ws_p: float = 0.15,
+    contagion_beta: float = 0.36,
+    whale_frac: float = 0.22,
+    max_steps: int = 26,
+    topology_representation: str = "dense",
+    neighbor_json_paths: Sequence[Path | str] | None = None,
+    neighbor_weights_json_paths: Sequence[Path | str | None] | None = None,
+    fitness_fn: Callable[[RolloutResult], float] | None = None,
+    eval_workers: int = 1,
+) -> dict[str, Any]:
+    """
+    For each GA generation budget, train an attacker on **one** fixed topology (train seed or first
+    neighbor JSON), then score **ensemble dispersion** with :func:`robustness_rollouts_over_graph_seeds`
+    or :func:`robustness_rollouts_neighbor_json_bundle` on the held-out ensemble members.
+
+    This answers whether extra search budget changes fragility **across** topology draws—not whether
+    GA is noisy inside one graph.
+    """
+
+    gw = [int(x) for x in ga_generations_values]
+    if not gw or any(g < 1 for g in gw):
+        raise ValueError("ga_generations_values must be non-empty positive ints")
+    ps = int(population_size)
+    if ps < 2:
+        raise ValueError("population_size must be >= 2 for genetic_search")
+    ew = max(1, int(eval_workers))
+
+    synthetic_seeds: list[int] | None = None
+    if neighbor_json_paths is not None:
+        paths = [Path(p) for p in neighbor_json_paths]
+        template = _training_world_neighbor_bundle(
+            neighbor_json_paths=paths,
+            neighbor_weights_json_paths=neighbor_weights_json_paths,
+            whale_frac=float(whale_frac),
+            contagion_beta=float(contagion_beta),
+            max_steps=int(max_steps),
+        )
+        train_meta: dict[str, Any] = {
+            "mode": "neighbor_json_bundle",
+            "train_neighbor_json": str(paths[0].as_posix()),
+        }
+        eval_neighbor_paths = paths
+    else:
+        if not graph_seeds:
+            raise ValueError("graph_seeds required for synthetic GA budget sweep")
+        synthetic_seeds = list(graph_seeds)
+        tseed = int(train_graph_seed if train_graph_seed is not None else synthetic_seeds[0])
+        template = _training_world_synthetic(
+            graph_kind=graph_kind,
+            nodes=int(nodes),
+            train_graph_seed=tseed,
+            er_p=float(er_p),
+            ws_k=int(ws_k),
+            ws_p=float(ws_p),
+            whale_frac=float(whale_frac),
+            contagion_beta=float(contagion_beta),
+            max_steps=int(max_steps),
+            topology_representation=str(topology_representation),
+        )
+        train_meta = {
+            "mode": "synthetic_er_ws",
+            "train_graph_seed": tseed,
+            "graph_kind": graph_kind,
+            "nodes": int(nodes),
+            "topology_representation": str(topology_representation),
+        }
+        eval_neighbor_paths = None
+
+    def rollout_train(genome: np.ndarray, seed: int) -> RolloutResult:
+        world = thread_safe_network_clone(template) if ew > 1 else template
+        return rollout_stablecoin_network(world, genome, seed=int(seed), base_panic=float(base_panic))
+
+    points: list[dict[str, Any]] = []
+    best_fits: list[float] = []
+    collapse_rates: list[float] = []
+
+    for g in gw:
+        sr = genetic_search(
+            rollout_train,
+            horizon=int(horizon),
+            generations=int(g),
+            population_size=ps,
+            seed=int(ga_seed),
+            fitness_fn=fitness_fn,
+            eval_workers=ew,
+        )
+        if eval_neighbor_paths is not None:
+            ens = robustness_rollouts_neighbor_json_bundle(
+                sr.best_genome,
+                neighbor_json_paths=eval_neighbor_paths,
+                rollout_seed=int(rollout_seed),
+                contagion_beta=float(contagion_beta),
+                whale_frac=float(whale_frac),
+                base_panic=float(base_panic),
+                max_steps=int(max_steps),
+                neighbor_weights_json_paths=neighbor_weights_json_paths,
+            )
+        else:
+            assert synthetic_seeds is not None
+            ens = robustness_rollouts_over_graph_seeds(
+                sr.best_genome,
+                graph_kind=graph_kind,
+                nodes=int(nodes),
+                graph_seeds=list(synthetic_seeds),
+                rollout_seed=int(rollout_seed),
+                er_p=float(er_p),
+                ws_k=int(ws_k),
+                ws_p=float(ws_p),
+                base_panic=float(base_panic),
+                contagion_beta=float(contagion_beta),
+                whale_frac=float(whale_frac),
+                max_steps=int(max_steps),
+                topology_representation=str(topology_representation),
+            )
+        bf = float(sr.best_fitness)
+        cr = float(ens["summary"]["collapse_rate"])
+        best_fits.append(bf)
+        collapse_rates.append(cr)
+        points.append({"ga_generations": int(g), "ga_best_fitness": bf, "ensemble": ens})
+
+    bf_arr = np.asarray(best_fits, dtype=np.float64)
+    cr_arr = np.asarray(collapse_rates, dtype=np.float64)
+    summary = {
+        "steps": len(points),
+        "ga_best_fitness_min": float(bf_arr.min()) if bf_arr.size else 0.0,
+        "ga_best_fitness_max": float(bf_arr.max()) if bf_arr.size else 0.0,
+        "collapse_rate_min": float(cr_arr.min()) if cr_arr.size else 0.0,
+        "collapse_rate_max": float(cr_arr.max()) if cr_arr.size else 0.0,
+        "collapse_rate_spread": float(cr_arr.max() - cr_arr.min()) if cr_arr.size else 0.0,
+    }
+
+    out: dict[str, Any] = {
+        "schema": "fragility-robustness-ga-budget-1d-v1",
+        "sweep_axis": "ga_generations",
+        "ga_generations_values": [int(x) for x in gw],
+        "population_size": ps,
+        "ga_seed": int(ga_seed),
+        "horizon": int(horizon),
+        "rollout_seed": int(rollout_seed),
+        "base_panic": float(base_panic),
+        "train_topology": train_meta,
+        "eval_workers": int(ew),
+        "points": points,
+        "summary": summary,
+    }
+    if eval_neighbor_paths is not None:
+        out["topology_mode"] = "neighbor_json_bundle"
+        out["neighbor_json_paths"] = [str(p.as_posix()) for p in eval_neighbor_paths]
+        out["graph_kind"] = None
+        out["nodes"] = None
+        out["topology_representation"] = "neighbor_lists"
+    else:
+        assert synthetic_seeds is not None
+        out["topology_mode"] = "synthetic_er_ws"
+        out["neighbor_json_paths"] = None
+        out["graph_kind"] = graph_kind
+        out["nodes"] = int(nodes)
+        out["topology_representation"] = str(topology_representation)
+        out["graph_seeds"] = [int(x) for x in synthetic_seeds]
+    return out

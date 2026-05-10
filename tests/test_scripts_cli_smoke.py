@@ -2226,6 +2226,78 @@ def test_fragility_robustness_sweep_2d_grid_json_cli(py_exe: str) -> None:
     assert data["summary"]["grid_cells"] == 4
 
 
+def test_fragility_robustness_sweep_ga_budget_json_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_robustness_sweep.py"),
+            "--json",
+            "--ga-budget-sweep",
+            "--ga-generations-values",
+            "1,2",
+            "--ga-population-size",
+            "10",
+            "--graph-seeds",
+            "101,102",
+            "--nodes",
+            "10",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-robustness-ga-budget-1d-v1"
+    assert len(data["points"]) == 2
+
+
+def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "mechanism_design_policy_sweep.py"),
+            "--json",
+            "--policies",
+            "weak,mid",
+            "--generations",
+            "2",
+            "--population-size",
+            "10",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-mechanism-design-outer-v1"
+    assert len(data["policies"]) == 2
+
+
+def test_institutional_composite_demo_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--nodes",
+            "9",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == "fragility-institutional-composite-v1"
+
+
 def test_fragility_robustness_sweep_neighbor_json_list_cli(py_exe: str, tmp_path: Path) -> None:
     a = tmp_path / "a.json"
     b = tmp_path / "b.json"

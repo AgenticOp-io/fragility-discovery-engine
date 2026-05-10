@@ -11,6 +11,7 @@ import numpy as np
 from fragility_engine.benchmarks.ensemble import (
     robustness_ensemble_1d_param_sweep,
     robustness_ensemble_2d_param_grid,
+    robustness_ga_generations_1d_sweep,
     robustness_rollouts_neighbor_json_bundle,
     robustness_rollouts_over_graph_seeds,
 )
@@ -108,6 +109,31 @@ def main() -> None:
         help="Comma-separated values for --sweep-param-2.",
     )
     ap.add_argument("--json", action="store_true")
+    ap.add_argument(
+        "--ga-budget-sweep",
+        action="store_true",
+        help="Sweep GA generation budgets: train attacker on one topology, ensemble-evaluate.",
+    )
+    ap.add_argument(
+        "--ga-generations-values",
+        type=str,
+        default=None,
+        help="Comma-separated positive ints; requires --ga-budget-sweep.",
+    )
+    ap.add_argument("--ga-population-size", type=int, default=16)
+    ap.add_argument("--ga-seed", type=int, default=7001)
+    ap.add_argument(
+        "--train-graph-seed",
+        type=int,
+        default=None,
+        help="Synthetic mode only: ER/WS seed for inner GA training (default: first --graph-seeds).",
+    )
+    ap.add_argument(
+        "--ga-eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for GA fitness eval (isolated clones when >1).",
+    )
     args = ap.parse_args()
 
     nb_paths = _parse_neighbor_bundle_paths(args.neighbor_json_list) if args.neighbor_json_list else None
@@ -123,6 +149,14 @@ def main() -> None:
         if not seeds:
             raise SystemExit("Provide at least one --graph-seeds value (or use --neighbor-json-list).")
 
+    ga_budget = bool(args.ga_budget_sweep)
+    if ga_budget:
+        if not args.ga_generations_values:
+            raise SystemExit("--ga-budget-sweep requires --ga-generations-values.")
+        gw = [int(x.strip()) for x in str(args.ga_generations_values).split(",") if x.strip()]
+        if not gw:
+            raise SystemExit("--ga-generations-values must list at least one int.")
+
     sweep_1 = args.sweep_param is not None or args.sweep_values is not None
     sweep_2_axis = args.sweep_param_2 is not None or args.sweep_values_2 is not None
     if sweep_1 != bool(args.sweep_param and args.sweep_values):
@@ -134,8 +168,8 @@ def main() -> None:
     if args.sweep_param and args.sweep_param_2 and args.sweep_param == args.sweep_param_2:
         raise SystemExit("--sweep-param and --sweep-param-2 must differ.")
 
-    rng = np.random.default_rng(int(args.genome_seed))
-    genome = rng.uniform(size=(int(args.horizon), 2))
+    if ga_budget and (sweep_1 or sweep_2_axis):
+        raise SystemExit("Use either --ga-budget-sweep or physics (--sweep-param) sweeps, not both.")
 
     topo = str(args.topology)
     common = dict(
@@ -155,11 +189,36 @@ def main() -> None:
         neighbor_weights_json_paths=nb_weights,
     )
 
-    if args.sweep_param is not None and args.sweep_param_2 is not None:
+    if ga_budget:
+        payload = robustness_ga_generations_1d_sweep(
+            ga_generations_values=gw,
+            population_size=int(args.ga_population_size),
+            ga_seed=int(args.ga_seed),
+            horizon=int(args.horizon),
+            rollout_seed=int(args.rollout_seed),
+            base_panic=float(args.base_panic),
+            graph_kind=str(args.graph_kind),
+            nodes=int(args.nodes),
+            graph_seeds=seeds if nb_paths is None else None,
+            train_graph_seed=args.train_graph_seed,
+            er_p=float(args.er_p),
+            ws_k=int(args.ws_k),
+            ws_p=float(args.ws_p),
+            contagion_beta=float(args.beta),
+            whale_frac=float(args.whale_frac),
+            max_steps=int(args.max_steps),
+            topology_representation=topo,
+            neighbor_json_paths=nb_paths,
+            neighbor_weights_json_paths=nb_weights,
+            eval_workers=int(args.ga_eval_workers),
+        )
+    elif args.sweep_param is not None and args.sweep_param_2 is not None:
         vx = [float(x.strip()) for x in str(args.sweep_values).split(",") if x.strip()]
         vy = [float(x.strip()) for x in str(args.sweep_values_2).split(",") if x.strip()]
         if not vx or not vy:
             raise SystemExit("Both sweep value lists must have at least one number.")
+        rng = np.random.default_rng(int(args.genome_seed))
+        genome = rng.uniform(size=(int(args.horizon), 2))
         payload = robustness_ensemble_2d_param_grid(
             genome,
             sweep_param_x=str(args.sweep_param),
@@ -172,6 +231,8 @@ def main() -> None:
         sweep_vals = [float(x.strip()) for x in str(args.sweep_values).split(",") if x.strip()]
         if not sweep_vals:
             raise SystemExit("--sweep-values must list at least one number.")
+        rng = np.random.default_rng(int(args.genome_seed))
+        genome = rng.uniform(size=(int(args.horizon), 2))
         payload = robustness_ensemble_1d_param_sweep(
             genome,
             sweep_param=str(args.sweep_param),
@@ -179,6 +240,8 @@ def main() -> None:
             **common,
         )
     elif nb_paths is not None:
+        rng = np.random.default_rng(int(args.genome_seed))
+        genome = rng.uniform(size=(int(args.horizon), 2))
         payload = robustness_rollouts_neighbor_json_bundle(
             genome,
             neighbor_json_paths=nb_paths,
@@ -190,10 +253,15 @@ def main() -> None:
             neighbor_weights_json_paths=nb_weights,
         )
     else:
+        rng = np.random.default_rng(int(args.genome_seed))
+        genome = rng.uniform(size=(int(args.horizon), 2))
         synthetic_kw = {k: v for k, v in common.items() if k not in _SYNTHETIC_ONLY_KEYS}
         payload = robustness_rollouts_over_graph_seeds(genome, **synthetic_kw)
 
-    payload["genome_seed"] = int(args.genome_seed)
+    if ga_budget:
+        payload["genome_seed"] = None
+    else:
+        payload["genome_seed"] = int(args.genome_seed)
     payload["horizon"] = int(args.horizon)
 
     if args.json:
@@ -225,6 +293,21 @@ def main() -> None:
             sp = payload["summary"]
             print(
                 f"--- collapse_rate in [{sp['collapse_rate_min']:.3f}, {sp['collapse_rate_max']:.3f}] "
+                f"spread={sp['collapse_rate_spread']:.3f}"
+            )
+        elif sch == "fragility-robustness-ga-budget-1d-v1":
+            for pt in payload["points"]:
+                s = pt["ensemble"]["summary"]
+                print(
+                    f"ga_generations={pt['ga_generations']} "
+                    f"best_fitness={pt['ga_best_fitness']:.5f} "
+                    f"collapse_rate={s['collapse_rate']:.3f} "
+                    f"integral_p50={s['integral_instability_p50']:.6f}"
+                )
+            sp = payload["summary"]
+            print(
+                f"--- GA budget steps={sp['steps']} collapse_rate in "
+                f"[{sp['collapse_rate_min']:.3f}, {sp['collapse_rate_max']:.3f}] "
                 f"spread={sp['collapse_rate_spread']:.3f}"
             )
         else:

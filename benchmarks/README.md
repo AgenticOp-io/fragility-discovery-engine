@@ -73,6 +73,24 @@ python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102 --swee
 python scripts/fragility_robustness_sweep.py --json --neighbor-json-list path/topA.json,path/topB.json --sweep-param contagion_beta --sweep-values 0.30,0.36
 ```
 
+**GA budget sweep** (train attacker on one topology / first neighbor JSON; ensemble-evaluate): schema **`fragility-robustness-ga-budget-1d-v1`**:
+
+```powershell
+python scripts/fragility_robustness_sweep.py --json --ga-budget-sweep --ga-generations-values 2,4,8 --graph-seeds 101,102,103 --ga-population-size 16
+```
+
+**Mechanism design (outer discrete policies):**
+
+```powershell
+python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,strong
+```
+
+**Twin-domain composite (audit bundle, not coupled dynamics):**
+
+```powershell
+python scripts/institutional_composite_demo.py
+```
+
 ## Wall-clock timing (Phase K helper)
 
 Compare machines or commits using the **same frozen workload** as CI golden bundles (not a regression gate):
