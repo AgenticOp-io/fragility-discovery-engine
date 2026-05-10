@@ -27,7 +27,7 @@ python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifes
 
 ## Cite a bundle
 
-Use the bundle id, pinned seeds documented in `suite.py` (`_GENOME_SEED`, `_ROLLOUT_SEED`), and record:
+Use the bundle id, pinned seeds documented in `suite.py` (`PINNED_GENOME_SEED`, `PINNED_ROLLOUT_SEED`), and record:
 
 - `fragility-engine` git commit SHA,
 - Python version,
@@ -46,3 +46,14 @@ python scripts/fragility_robustness_sweep.py --json --graph-seeds 101,102,103
 ```
 
 Schema: `fragility-robustness-ensemble-v1` (see `fragility_engine.benchmarks.ensemble`).
+
+## Wall-clock timing (Phase K helper)
+
+Compare machines or commits using the **same frozen workload** as CI golden bundles (not a regression gate):
+
+```powershell
+python scripts/benchmark_rollout.py --bundle aggregate_rollout_v1 --repeat 16 --warmup 2 --json
+python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repeat 16 --json
+```
+
+JSON includes `workflow: "phase_h_bundle"`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, and `mean_ms_per_rollout`. Ad-hoc sizing continues to use `--mode` (`workflow: "ad_hoc"`). See [`docs/phase_k_acceleration.md`](../docs/phase_k_acceleration.md).

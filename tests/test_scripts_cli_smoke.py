@@ -601,6 +601,7 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
         text=True,
     )
     data = json.loads(proc.stdout)
+    assert data["workflow"] == "ad_hoc"
     assert data["mode"] == "aggregate"
     assert data["repeat"] == 1
     proc2 = subprocess.run(
@@ -627,6 +628,7 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
         text=True,
     )
     net = json.loads(proc2.stdout)
+    assert net["workflow"] == "ad_hoc"
     assert net["mode"] == "network"
     assert net["nodes"] == 16
     proc3 = subprocess.run(
@@ -653,9 +655,34 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
         text=True,
     )
     rc = json.loads(proc3.stdout)
+    assert rc["workflow"] == "ad_hoc"
     assert rc["mode"] == "resource_cascade"
     assert rc["initial_overload"] == pytest.approx(0.06)
     assert rc["nodes"] is None
+
+    proc_b = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "aggregate_rollout_v1",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    bundle_payload = json.loads(proc_b.stdout)
+    assert bundle_payload["workflow"] == "phase_h_bundle"
+    assert bundle_payload["bundle_id"] == "aggregate_rollout_v1"
+    assert bundle_payload["pinned_genome_seed"] == 9001
+    assert bundle_payload["pinned_rollout_seed"] == 4242
+    assert bundle_payload["mean_ms_per_rollout"] >= 0.0
 
 
 def test_export_replay_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:

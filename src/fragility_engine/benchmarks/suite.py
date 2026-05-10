@@ -17,13 +17,13 @@ from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 RESULT_SCHEMA = "benchmark-bundle-result-v1"
 
 # Pin genome + rollout seed so CI matches local; tolerances in tests absorb tiny FP drift.
-_GENOME_SEED = 9001
-_ROLLOUT_SEED = 4242
+PINNED_GENOME_SEED = 9001
+PINNED_ROLLOUT_SEED = 4242
 _GENOME_ROWS = 12
 
 
 def _pinned_genome() -> np.ndarray:
-    return np.random.default_rng(_GENOME_SEED).uniform(size=(_GENOME_ROWS, 2))
+    return np.random.default_rng(PINNED_GENOME_SEED).uniform(size=(_GENOME_ROWS, 2))
 
 
 def _rollout_snapshot(bundle_id: str, r: RolloutResult) -> dict[str, Any]:
@@ -40,52 +40,63 @@ def _rollout_snapshot(bundle_id: str, r: RolloutResult) -> dict[str, Any]:
     }
 
 
-def run_aggregate_rollout_v1() -> dict[str, Any]:
+def run_bundle_rollout_once(bundle_id: str) -> RolloutResult:
+    """Execute exactly one rollout for a Phase H bundle id (pinned genome + seeds)."""
+
     genome = _pinned_genome()
-    template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=28)
-    r = rollout_stablecoin(template, genome, seed=_ROLLOUT_SEED, initial_panic=0.05)
+    if bundle_id == "aggregate_rollout_v1":
+        template = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=28)
+        return rollout_stablecoin(template, genome, seed=PINNED_ROLLOUT_SEED, initial_panic=0.05)
+    if bundle_id == "network_er_rollout_v1":
+        graph, _meta = contagion_graph_from_cli(
+            graph_kind="erdos_renyi",
+            nodes=16,
+            graph_seed=7,
+            er_p=0.14,
+            ws_k=4,
+            ws_p=0.12,
+        )
+        template = StablecoinNetworkWorld(
+            population=default_stablecoin_population(),
+            adjacency=graph,
+            node_weights=default_whale_weights(16, whale_index=0, whale_frac=0.22),
+            contagion_beta=0.36,
+            max_steps=26,
+        )
+        return rollout_stablecoin_network(template, genome, seed=PINNED_ROLLOUT_SEED, base_panic=0.05)
+    if bundle_id == "network_neighbor_list_rollout_v1":
+        nl = [[1], [2], [0]]
+        template = StablecoinNetworkWorld(
+            population=default_stablecoin_population(),
+            neighbor_lists=nl,
+            node_weights=default_whale_weights(3, whale_index=0, whale_frac=0.25),
+            contagion_beta=0.35,
+            max_steps=24,
+        )
+        return rollout_stablecoin_network(template, genome, seed=PINNED_ROLLOUT_SEED, base_panic=0.05)
+    if bundle_id == "resource_cascade_rollout_v1":
+        template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
+        return rollout_resource_cascade(template, genome, seed=PINNED_ROLLOUT_SEED, initial_overload=0.05)
+    raise ValueError(f"unknown bundle_id {bundle_id!r}")
+
+
+def run_aggregate_rollout_v1() -> dict[str, Any]:
+    r = run_bundle_rollout_once("aggregate_rollout_v1")
     return _rollout_snapshot("aggregate_rollout_v1", r)
 
 
 def run_network_er_rollout_v1() -> dict[str, Any]:
-    genome = _pinned_genome()
-    graph, _meta = contagion_graph_from_cli(
-        graph_kind="erdos_renyi",
-        nodes=16,
-        graph_seed=7,
-        er_p=0.14,
-        ws_k=4,
-        ws_p=0.12,
-    )
-    template = StablecoinNetworkWorld(
-        population=default_stablecoin_population(),
-        adjacency=graph,
-        node_weights=default_whale_weights(16, whale_index=0, whale_frac=0.22),
-        contagion_beta=0.36,
-        max_steps=26,
-    )
-    r = rollout_stablecoin_network(template, genome, seed=_ROLLOUT_SEED, base_panic=0.05)
+    r = run_bundle_rollout_once("network_er_rollout_v1")
     return _rollout_snapshot("network_er_rollout_v1", r)
 
 
 def run_network_neighbor_list_rollout_v1() -> dict[str, Any]:
-    genome = _pinned_genome()
-    nl = [[1], [2], [0]]
-    template = StablecoinNetworkWorld(
-        population=default_stablecoin_population(),
-        neighbor_lists=nl,
-        node_weights=default_whale_weights(3, whale_index=0, whale_frac=0.25),
-        contagion_beta=0.35,
-        max_steps=24,
-    )
-    r = rollout_stablecoin_network(template, genome, seed=_ROLLOUT_SEED, base_panic=0.05)
+    r = run_bundle_rollout_once("network_neighbor_list_rollout_v1")
     return _rollout_snapshot("network_neighbor_list_rollout_v1", r)
 
 
 def run_resource_cascade_rollout_v1() -> dict[str, Any]:
-    genome = _pinned_genome()
-    template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
-    r = rollout_resource_cascade(template, genome, seed=_ROLLOUT_SEED, initial_overload=0.05)
+    r = run_bundle_rollout_once("resource_cascade_rollout_v1")
     return _rollout_snapshot("resource_cascade_rollout_v1", r)
 
 

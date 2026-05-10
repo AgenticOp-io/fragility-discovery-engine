@@ -1,4 +1,7 @@
-"""Wall-clock timing for representative rollouts (local profiling; not a regression gate)."""
+"""Wall-clock timing for representative rollouts (local profiling; not a regression gate).
+
+Use ``--bundle <id>`` to time the exact Phase H frozen bundles from ``fragility_engine.benchmarks.suite``.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +15,12 @@ import numpy as np
 
 from fragility_engine.adversary.encoding import random_genome
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.benchmarks.suite import (
+    BUNDLE_IDS,
+    PINNED_GENOME_SEED,
+    PINNED_ROLLOUT_SEED,
+    run_bundle_rollout_once,
+)
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
@@ -20,7 +29,22 @@ from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Time aggregate, network, or resource_cascade rollouts (perf_counter).")
+    p = argparse.ArgumentParser(
+        description=(
+            "Time aggregate, network, or resource_cascade rollouts (perf_counter). "
+            "Optional --bundle runs the exact Phase H golden workload (ignores --mode sizing)."
+        ),
+    )
+    p.add_argument(
+        "--bundle",
+        choices=BUNDLE_IDS,
+        default=None,
+        help=(
+            "Phase H bundle id: same genome seeds + templates as run_benchmark_suite.py "
+            f"(genome_seed={PINNED_GENOME_SEED}, rollout_seed={PINNED_ROLLOUT_SEED}). "
+            "When set, --mode / --horizon / --seed / topology flags are ignored."
+        ),
+    )
     p.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="network")
     p.add_argument("--warmup", type=int, default=1, help="Ignored iterations before timing.")
     p.add_argument("--repeat", type=int, default=8, help="Timed iterations.")
@@ -49,10 +73,45 @@ def main() -> None:
     p.add_argument("--json", action="store_true", help="Emit one JSON object on stdout.")
     args = p.parse_args()
 
-    rng = np.random.default_rng(int(args.seed))
-    genome = random_genome(int(args.horizon), rng)
     repeat = max(0, int(args.repeat))
     warmup = max(0, int(args.warmup))
+
+    if args.bundle is not None:
+
+        def run_once() -> None:
+            run_bundle_rollout_once(args.bundle)
+
+        for _ in range(warmup):
+            run_once()
+
+        t0 = time.perf_counter()
+        for _ in range(repeat):
+            run_once()
+        elapsed = time.perf_counter() - t0
+
+        mean_ms = (elapsed / repeat * 1000.0) if repeat else 0.0
+        payload = {
+            "workflow": "phase_h_bundle",
+            "bundle_id": args.bundle,
+            "pinned_genome_seed": PINNED_GENOME_SEED,
+            "pinned_rollout_seed": PINNED_ROLLOUT_SEED,
+            "repeat": repeat,
+            "warmup": warmup,
+            "wall_clock_s": elapsed,
+            "mean_ms_per_rollout": mean_ms,
+        }
+        if args.json:
+            print(json.dumps(payload, indent=2))
+        else:
+            print(
+                f"bundle={args.bundle}  repeat={repeat}  wall={elapsed:.4f}s  "
+                f"mean={mean_ms:.3f} ms/rollout  (Phase H pinned seeds)"
+            )
+        return
+
+    rng = np.random.default_rng(int(args.seed))
+    genome = random_genome(int(args.horizon), rng)
+    n_report: int | None = None
 
     if args.mode == "aggregate":
         template = StablecoinPegWorld(
@@ -64,7 +123,6 @@ def main() -> None:
             rollout_stablecoin(template, genome, seed=int(args.seed))
 
     elif args.mode == "network":
-        n_report: int
         if args.neighbor_json is not None:
             from fragility_engine.network.neighbor_io import load_neighbor_topology
 
@@ -134,6 +192,7 @@ def main() -> None:
 
     mean_ms = (elapsed / repeat * 1000.0) if repeat else 0.0
     payload = {
+        "workflow": "ad_hoc",
         "mode": args.mode,
         "repeat": repeat,
         "warmup": warmup,
@@ -143,6 +202,7 @@ def main() -> None:
         "initial_overload": float(args.initial_overload) if args.mode == "resource_cascade" else None,
         "max_steps": int(args.max_steps),
         "horizon": int(args.horizon),
+        "seed": int(args.seed),
     }
     if args.json:
         print(json.dumps(payload, indent=2))

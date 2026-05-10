@@ -34,15 +34,34 @@ Libraries often use an explicit toggle (examples: `FRAGILITY_BACKEND=numpy|numba
 
 Promote Phase K in `BOUNDARIES.md` only when named bundles show documented speedups **and** CI remains on the reference path with frozen goldens (or documented relaxed tolerances per bundle ID).
 
+## Named Phase H bundles (`--bundle`)
+
+`scripts/benchmark_rollout.py --bundle <id>` times **exactly** the rollout body used by `fragility_engine.benchmarks.suite` / `run_benchmark_suite.py` (pinned genome + rollout seeds). Use this to document **relative** speedups when experimenting with optional backends—absolute ms vary by CPU/OS.
+
+| Bundle id | Domain workload |
+|-----------|-----------------|
+| `aggregate_rollout_v1` | `StablecoinPegWorld`, `max_steps=28`, 12-row pinned genome |
+| `network_er_rollout_v1` | ER graph **n=16**, `max_steps=26`, same genome |
+| `network_neighbor_list_rollout_v1` | 3-cycle neighbor lists, `max_steps=24` |
+| `resource_cascade_rollout_v1` | `ResourceCascadeWorld`, `max_steps=26`, `initial_overload=0.05` |
+
+Example:
+
+```bash
+python scripts/benchmark_rollout.py --bundle resource_cascade_rollout_v1 --repeat 8 --warmup 1 --json
+```
+
+Emit JSON includes `workflow`, `bundle_id`, `pinned_genome_seed`, `pinned_rollout_seed`, `mean_ms_per_rollout`.
+
 ## Reference timing snapshot (informative, not a gate)
 
-Wall-clock from `scripts/benchmark_rollout.py` (**NumPy** reference path, `--repeat 5 --warmup 1`, `horizon=24`, `max_steps=48`). Numbers vary by CPU/OS; use the same command to reproduce locally.
+**Ad-hoc** workloads: wall-clock from `scripts/benchmark_rollout.py` (**NumPy** reference path, `--repeat 5 --warmup 1`, `horizon=24`, `max_steps=48`). Numbers vary by CPU/OS; use the same command to reproduce locally.
 
 Example run (developer machine, 2026):
 
 ```json
-{"mode": "aggregate", "mean_ms_per_rollout": 0.381, "wall_clock_s": 0.00191}
-{"mode": "resource_cascade", "mean_ms_per_rollout": 0.484, "wall_clock_s": 0.00242, "initial_overload": 0.05}
+{"workflow": "ad_hoc", "mode": "aggregate", "mean_ms_per_rollout": 0.381, "wall_clock_s": 0.00191}
+{"workflow": "ad_hoc", "mode": "resource_cascade", "mean_ms_per_rollout": 0.484, "wall_clock_s": 0.00242, "initial_overload": 0.05}
 ```
 
 Purpose: establish that **`resource_cascade`** rollouts stay in the same ballpark as aggregate at modest horizons before investing in optional backends.

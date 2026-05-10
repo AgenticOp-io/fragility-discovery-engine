@@ -128,7 +128,8 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Exit criteria (candidate):**
 
-- [ ] Documented speedups on **named** benchmark bundles (Phase H).
+- [x] Reproducible wall-clock harness on **named** Phase H bundles (`benchmark_rollout.py --bundle <id>`, table in [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
+- [ ] Documented **speedups** vs the NumPy reference on those same bundles (needs optional backend + golden parity).
 - [ ] Fallback path always available (acceleration optional dependency).
 
 ---
