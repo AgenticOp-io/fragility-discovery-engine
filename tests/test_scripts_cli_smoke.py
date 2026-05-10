@@ -313,6 +313,81 @@ def test_plot_epsilon_sweep_cli(py_exe: str, tmp_path: Path) -> None:
     assert len(raw) > 800
 
 
+def test_plot_pareto_front_cli(py_exe: str, tmp_path: Path) -> None:
+    png = tmp_path / "pf.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_pareto_front.py"),
+            str(ROOT / "artifacts" / "pareto_viewer" / "sample_pareto_front.json"),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    raw = png.read_bytes()
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+    assert len(raw) > 1500
+
+
+def test_plot_fragility_surface_csv_cli(py_exe: str, tmp_path: Path) -> None:
+    csv_p = tmp_path / "surf.csv"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "fragility_surface.py"),
+            "--out",
+            str(csv_p),
+            "--panic-points",
+            "4",
+            "--depeg-points",
+            "4",
+            "--steps",
+            "12",
+            "--seed",
+            "555",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    png = tmp_path / "surf.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_fragility_surface_csv.py"),
+            str(csv_p),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert png.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_export_llm_narration_prompt_cli(py_exe: str, tmp_path: Path) -> None:
+    bundle_p = tmp_path / "llm_bundle.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_resource_cascade_replay.json"),
+            "--cite-digest",
+            "--out",
+            str(bundle_p),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(bundle_p.read_text(encoding="utf-8"))
+    assert data["schema"] == "llm-prompt-bundle-v1"
+    assert data["template_id"] == "frozen_artifact_narration"
+    assert data["template_version"]
+    assert len(data["input_sha256"]) == 64
+    assert "system_prompt" in data and "user_prompt" in data
+
+
 def test_export_counterfactual_writes_replay_pair(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "cf.json"
     repdir = tmp_path / "replays"

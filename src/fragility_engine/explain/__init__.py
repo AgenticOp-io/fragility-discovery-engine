@@ -24,6 +24,7 @@ from fragility_engine.explain.interaction_summary import INTERACTION_SUMMARY_SCH
 from fragility_engine.explain.merge_attribution import SCHEMA as ATTRIBUTION_MERGE_SCHEMA
 from fragility_engine.explain.merge_attribution import merge_heterogeneous_counterfactuals
 from fragility_engine.explain.minimal_collapse import minimize_schedule, minimize_schedule_with_rollout
+from fragility_engine.explain.narration import load_frozen_json_artifact, narrate_frozen_artifact
 from fragility_engine.explain.sweep import SCHEMA as COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA
 from fragility_engine.explain.sweep import (
     sweep_aggregate_initial_panic,
@@ -36,6 +37,8 @@ from fragility_engine.explain.trace import TRACE_SCHEMA as EXPLANATION_TRACE_SCH
 from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace, mutation_chain_path_to_trace
 
 __all__ = [
+    "load_frozen_json_artifact",
+    "narrate_frozen_artifact",
     "minimize_schedule",
     "minimize_schedule_with_rollout",
     "counterfactual_remove_steps",

@@ -1,0 +1,24 @@
+{
+  "schema": "fragility-plot-surface-style-v1",
+  "figure": {
+    "width_in": 8.0,
+    "height_in": 6.0,
+    "dpi": 120
+  },
+  "matplotlib_rc": {
+    "font.size": 10
+  },
+  "contourf": {
+    "levels": 18,
+    "cmap": "viridis",
+    "alpha": 0.95
+  },
+  "colorbar_label": "integral_instability",
+  "xlabel": "panic0 (initial panic)",
+  "ylabel": "depeg_threshold",
+  "grid": {
+    "alpha": 0.2,
+    "linestyle": ":"
+  },
+  "title_template": "Fragility surface (integral_instability)"
+}

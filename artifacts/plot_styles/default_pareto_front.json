@@ -1,0 +1,39 @@
+{
+  "schema": "fragility-plot-pareto-style-v1",
+  "figure": {
+    "width_in": 7.5,
+    "height_in": 6.0,
+    "dpi": 120
+  },
+  "matplotlib_rc": {
+    "font.size": 10
+  },
+  "points_ok": {
+    "color": "#1f77b4",
+    "marker": "o",
+    "s": 36,
+    "alpha": 0.72,
+    "edgecolors": "#0d4f82",
+    "linewidths": 0.6,
+    "label": "not collapsed",
+    "zorder": 3
+  },
+  "points_collapsed": {
+    "color": "#d62728",
+    "marker": "s",
+    "s": 42,
+    "alpha": 0.78,
+    "edgecolors": "#7f0000",
+    "linewidths": 0.65,
+    "label": "collapsed",
+    "zorder": 4
+  },
+  "xlabel": "severity",
+  "ylabel": "attack_cost",
+  "grid": {
+    "alpha": 0.28,
+    "linestyle": ":"
+  },
+  "legend_loc": "upper right",
+  "title_template": "Pareto archive — n={n} best_fitness={best_fitness}"
+}

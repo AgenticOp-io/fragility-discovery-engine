@@ -19,7 +19,7 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Scope creep guardrail:** read [`BOUNDARIES.md`](BOUNDARIES.md) before adding agents, graph models, multi-objective fitness, UI, or defender loops.
 
-**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — phases I–L plus moonshots; **Phase H** (benchmark harness + ensemble robustness slice) is **normative** in [`BOUNDARIES.md`](BOUNDARIES.md).
+**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — phases I–L plus moonshots; **Phase H** (benchmark harness + ensemble robustness slice) is **normative** in [`BOUNDARIES.md`](BOUNDARIES.md). **Phase L** (narration + publication CLI): [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
 
 **Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 
@@ -56,9 +56,12 @@ python scripts/run_ga_demo.py
 | `scripts/export_counterfactual.py` | Attribution JSON; **`--mode aggregate|network|resource_cascade`**; cascade: `remove_steps`, **`initial_overload_shift`**, **`cascade_coupling_shift`** (`--variant-cascade-coupling`); network shifts (`base_panic_shift`, …); [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 | `scripts/export_counterfactual_chain.py` | Ordered mutation chain counterfactual + optional **`--emit-path-trace`** (`explanation-mutation-chain-path-v1`) |
 | `scripts/export_resource_cascade_joint_attribution.py` | **`attribution-merge-v1`**: shared-baseline **remove_steps** + **`--second-branch`** **initial_overload_shift** or **cascade_coupling_shift** |
-| `scripts/narrate_frozen_json.py` | Phase **L** scaffold: replay / Pareto / merge / epsilon-sweep JSON; **`--cite-digest`** (SHA-256 + path); **`--json-out`** → **`narration-summary-v1`** |
-| `scripts/plot_replay_timeline.py` | Phase **L** figure hook: **`metrics.price`** + **`metrics.instability`** vs timestep from replay JSON; pinned style **`artifacts/plot_styles/default_replay_timeline.json`** (`fragility-plot-style-v1`); requires **`matplotlib`** (`pip install -e ".[dev]"` or **`.[viz]`**) |
-| `scripts/plot_epsilon_sweep.py` | **`counterfactual-epsilon-sweep-v1`**: sweep axis vs **`integral_instability`** + collapse markers; style **`artifacts/plot_styles/default_epsilon_sweep.json`** (`fragility-plot-epsilon-sweep-style-v1`) |
+| `scripts/narrate_frozen_json.py` | Phase **L**: replay / Pareto / merge / epsilon-sweep JSON; **`--cite-digest`**; **`--json-out`** → **`narration-summary-v1`** (core narration lives in **`fragility_engine.explain.narration`**) |
+| `scripts/export_llm_narration_prompt.py` | Phase **L**: **`llm-prompt-bundle-v1`** from frozen JSON + templates **`artifacts/llm_prompts/narration_v1/`**; optional **`--invoke-openai`** (API key env); output **must not** feed simulation |
+| `scripts/plot_replay_timeline.py` | Replay: **`metrics.price`** / **`metrics.instability`** vs timestep; **`fragility-plot-style-v1`** |
+| `scripts/plot_epsilon_sweep.py` | **`counterfactual-epsilon-sweep-v1`** curve + collapse markers; **`fragility-plot-epsilon-sweep-style-v1`** |
+| `scripts/plot_pareto_front.py` | **`pareto-front-v1`**: severity vs attack_cost; **`fragility-plot-pareto-style-v1`** |
+| `scripts/plot_fragility_surface_csv.py` | **`fragility_surface.py`** CSV heatmap (**panic0** × **depeg_threshold**); **`fragility-plot-surface-style-v1`** |
 | `scripts/merge_counterfactual_attribution.py` | Star-merge exports → **`attribution-merge-v1`** |
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
@@ -68,6 +71,8 @@ python scripts/run_ga_demo.py
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble metrics over **`graph_seed`** (`--json`, topology sizing) |
 | `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
+
+**Plot scripts** (`plot_*.py`) require **`matplotlib`** (`pip install -e ".[dev]"` or **`.[viz]`**).
 
 Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
 

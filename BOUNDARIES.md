@@ -242,6 +242,28 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Normative exit criteria** remain in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). Replay compatibility: [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md). Motivation ≤ 1 page: [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md). Phase **H** bundle: **`resource_cascade_rollout_v1`** (`benchmarks/suite.py`).
 
+### Phase L — Narration & publication (wrapper)
+
+**Status:** adopted — [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
+
+**Purpose:** Make frozen JSON **legible** (deterministic summaries, citations, publication figures) without letting narration or LLM prose **drive** physics or search.
+
+**In scope:**
+
+- Deterministic narration library + CLI (`fragility_engine.explain.narration`, `scripts/narrate_frozen_json.py`, `--cite-digest` / `narration-summary-v1`).
+- Versioned **LLM prompt bundles** (`artifacts/llm_prompts/narration_v1/`, `scripts/export_llm_narration_prompt.py`, schema **`llm-prompt-bundle-v1`**); optional OpenAI invoke is **stdout-only documentation**, never fed back into worlds.
+- Matplotlib figure hooks: replay timelines, ε-sweeps, Pareto archives, fragility-surface CSV heatmaps (`scripts/plot_*.py`, pinned styles under `artifacts/plot_styles/`).
+
+**Out of scope:**
+
+- LLM (or any external model) as **agent policy** inside `world/` rollouts.
+
+**Exit criteria:**
+
+- [x] Citations / hashes on summaries (`--cite-digest`, `frozen_json_digest.py`).
+- [x] Reproducible CLI figures from frozen JSON/CSV with pinned style configs.
+- [x] Optional LLM path restricted to prompt export + explicit disclaimer; templates versioned on disk.
+
 ## Fitness function discipline
 
 Current scalar fitness is **acceptable for Phase A**.

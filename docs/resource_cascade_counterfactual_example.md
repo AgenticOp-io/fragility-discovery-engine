@@ -58,7 +58,9 @@ python scripts/counterfactual_epsilon_sweep.py --mode resource_cascade --axis in
 python scripts/plot_epsilon_sweep.py sweep_rc.json --out sweep_rc.png
 ```
 
-## 6. Narration + citation digest (Phase L hook)
+## 6. Narration + citation digest (Phase L)
+
+See [`docs/phase_l_publication.md`](phase_l_publication.md) for the full Phase L CLI index (plots, LLM prompt export).
 
 Deterministic summary; `--cite-digest` adds SHA-256 of the **raw JSON bytes** and the resolved path.
 

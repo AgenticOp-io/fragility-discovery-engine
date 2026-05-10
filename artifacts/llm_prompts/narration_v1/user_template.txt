@@ -1,0 +1,14 @@
+Frozen deterministic simulation artifact (engine-export JSON already summarized below).
+
+{citation_block}
+
+--- Deterministic narration (structure extracted without LLM) ---
+{deterministic_narration}
+---
+
+Task: Write 3–6 sentences for a paper appendix or review memo:
+- Identify artifact kind (replay, Pareto archive, merge graph, sweep, etc.) using only the lines above.
+- Call out the headline numeric facts explicitly present (collapse, integral instability, costs, branch counts, sweep ranges).
+- State clearly that this text is descriptive commentary only and must not be fed back into the simulator as parameters or code.
+
+Plain prose only (no JSON, no markdown headings).

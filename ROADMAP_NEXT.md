@@ -134,27 +134,17 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 ---
 
-### Phase L — Narration & publication layer (wrapper only)
+### Phase L — Narration & publication layer (**adopted**)
 
-**Purpose:** Make artifacts **legible to humans and reviewers** without letting narration drive physics.
+**Normative detail:** [`BOUNDARIES.md`](BOUNDARIES.md) (Phase L) + CLI index [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
 
-**In scope:**
+**Shipped:**
 
-- **LLM optional summarizer** over **frozen** JSON (replay + counterfactual diff + Pareto)—prompt templates versioned; output never fed back into simulation.
-- **Figure hooks**: scriptable plots from CSV/JSON (e.g. fragility surfaces, Pareto fronts, collapse timelines) suitable for papers.
+- Deterministic narration in **`fragility_engine.explain.narration`** + [`scripts/narrate_frozen_json.py`](scripts/narrate_frozen_json.py) (`--cite-digest`, **`narration-summary-v1`**).
+- Versioned LLM prompt pack (**`artifacts/llm_prompts/narration_v1/`**) + [`scripts/export_llm_narration_prompt.py`](scripts/export_llm_narration_prompt.py) (**`llm-prompt-bundle-v1`**; optional **`--invoke-openai`** via stdlib HTTP).
+- Figures: replay timeline, ε-sweep, Pareto scatter, fragility-surface heatmap (`scripts/plot_*.py`, **`artifacts/plot_styles/`**).
 
-**Out of scope:**
-
-- LLM as agent policy inside worlds (see `BOUNDARIES.md`).
-
-**Exit criteria (candidate):**
-
-- [x] Summaries carry **citations** to artifact paths / hashes (`narrate_frozen_json --cite-digest`, `frozen_json_digest.py`).
-- [x] Visual outputs reproducible from CLI with pinned style configs (`plot_replay_timeline.py`, `artifacts/plot_styles/default_replay_timeline.json`).
-
-**Scaffold (partial):** deterministic text summaries via [`scripts/narrate_frozen_json.py`](scripts/narrate_frozen_json.py) (`replay` / `pareto-front-v1` / `attribution-merge-v1` / epsilon-sweep) — no LLM; **`--cite-digest`** (SHA-256 + path); output schema **`narration-summary-v1`** when using `--json-out`. Figures: replay timelines [`scripts/plot_replay_timeline.py`](scripts/plot_replay_timeline.py) (**`fragility-plot-style-v1`**) and ε-sweep curves [`scripts/plot_epsilon_sweep.py`](scripts/plot_epsilon_sweep.py) (**`fragility-plot-epsilon-sweep-style-v1`**); matplotlib in **`[dev]`** / **`[viz]`** extras.
-
-**Still optional / out of band:** LLM summarizer over frozen JSON; richer plot gallery beyond replay timelines.
+**Future (non-gates):** additional plot types; richer prompt packs per venue.
 
 ---
 
