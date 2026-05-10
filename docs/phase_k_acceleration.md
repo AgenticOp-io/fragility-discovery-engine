@@ -42,10 +42,18 @@ Install optional dependency: `pip install -e ".[accelerate]"` (declares `numba`)
 
 **Platform caveat:** Numba publishes wheels for many **x86_64** targets (Linux, macOS, Windows **amd64**). **Native Windows ARM64** Python (`win_arm64`) often has **no** prebuilt `llvmlite`/`numba` wheels, so `pip install …[accelerate]` may fail while compiling from source.
 
-**Windows on ARM hosts:** Install **64-bit (amd64) CPython** alongside native ARM64 Python (e.g. `%LOCALAPPDATA%\Programs\Python\Python312-x64\python.exe` from the “Windows installer (64-bit)” on [python.org](https://www.python.org/downloads/windows/)). That build runs under emulation but installs **win_amd64** wheels. Then:
+**Windows on ARM (WoA):** Use the **same** setup as on any Windows PC: install CPython from the **Windows installer (64-bit)** link on [python.org](https://www.python.org/downloads/windows/). That build targets **x64 (amd64)**; on ARM hardware the OS runs it under **built-in x64 emulation** (automatic — not the old `.exe` → Properties → Compatibility tab). Then the usual `pip install -e ".[accelerate]"` pulls **win_amd64** wheels.
+
+Helper (finds an amd64 `python.exe` and installs `[dev,accelerate]`):
 
 ```powershell
 cd path\to\fragility-discovery-engine
+.\scripts\install_accelerate_windows.ps1
+```
+
+Manual example if the interpreter lives under `%LOCALAPPDATA%\Programs\Python\Python312-x64\`:
+
+```powershell
 & "$env:LOCALAPPDATA\Programs\Python\Python312-x64\python.exe" -m pip install -e ".[dev,accelerate]"
 & "$env:LOCALAPPDATA\Programs\Python\Python312-x64\python.exe" -m pytest tests/test_resource_cascade_numba_parity.py -q
 ```

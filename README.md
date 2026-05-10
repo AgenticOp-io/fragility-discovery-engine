@@ -32,7 +32,7 @@ cd C:\Users\david\projects\fragility-discovery-engine
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
-# Optional Numba: `pip install -e ".[accelerate]"` on platforms with wheels. On **Windows ARM64**, use **amd64** Python (64-bit installer) or see docs/phase_k_acceleration.md — native ARM64 Python lacks Numba wheels.
+# Optional Numba (`pip install -e ".[accelerate]"`): on Windows on ARM, use the normal **64-bit** python.org installer (x64 build; OS runs it under built-in x64 emulation), then e.g. `.\scripts\install_accelerate_windows.ps1` — see docs/phase_k_acceleration.md.
 pytest -q
 python scripts/week1_smoke.py
 python scripts/run_ga_demo.py
@@ -69,6 +69,7 @@ python scripts/run_ga_demo.py
 | `scripts/summarize_attribution_merge.py` | **`attribution-interaction-summary-v1`** (sum of branch deltas + disclaimer) |
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
+| `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <phase_h_id>`**, **`--bundle-all`** (full Phase H suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
