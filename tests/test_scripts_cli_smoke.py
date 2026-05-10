@@ -2296,6 +2296,8 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
             "10",
             "--horizon",
             "8",
+            "--eval-workers",
+            "4",
         ],
         check=True,
         cwd=str(ROOT),
@@ -2305,6 +2307,7 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
     data = json.loads(proc.stdout)
     assert data["schema"] == "fragility-mechanism-design-outer-v1"
     assert len(data["policies"]) == 2
+    assert data["eval_workers"] == 4
 
 
 def test_institutional_composite_demo_cli(py_exe: str) -> None:

@@ -9,6 +9,7 @@ import numpy as np
 
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.coevolution.thread_safe_template import thread_safe_network_clone
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.runner import rollout_stablecoin_network
 from fragility_engine.types import RolloutResult
@@ -47,8 +48,15 @@ def main() -> None:
     ap.add_argument("--ga-seed", type=int, default=12002)
     ap.add_argument("--base-panic", type=float, default=0.05)
     ap.add_argument("--max-steps", type=int, default=22)
+    ap.add_argument(
+        "--eval-workers",
+        type=int,
+        default=1,
+        help="Thread pool size for inner GA fitness eval (uses isolated world clones when >1).",
+    )
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
+    ew = max(1, int(args.eval_workers))
 
     names = [x.strip() for x in str(args.policies).split(",") if x.strip()]
     defenders: list[np.ndarray] = []
@@ -72,8 +80,9 @@ def main() -> None:
     for i, dgen in enumerate(defenders):
 
         def evaluator(genome: np.ndarray, seed: int, defender: np.ndarray = dgen) -> RolloutResult:
+            world = thread_safe_network_clone(template) if ew > 1 else template
             return rollout_stablecoin_network(
-                template,
+                world,
                 genome,
                 seed=int(seed),
                 base_panic=float(args.base_panic),
@@ -86,6 +95,7 @@ def main() -> None:
             generations=int(args.generations),
             population_size=int(args.population_size),
             seed=int(args.ga_seed) + i * 997,
+            eval_workers=ew,
         )
         outer.append(
             {
@@ -106,6 +116,7 @@ def main() -> None:
         "generations": int(args.generations),
         "population_size": int(args.population_size),
         "ga_seed_base": int(args.ga_seed),
+        "eval_workers": int(ew),
         "policies": outer,
     }
 
