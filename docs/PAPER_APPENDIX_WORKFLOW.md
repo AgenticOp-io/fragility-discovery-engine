@@ -4,6 +4,8 @@ This is a **single path** from frozen bundles → search → replay → Pareto �
 
 **Broader operator guide** (install, tutorials, artifact map, static viewers): [`HOW_TO_USE.md`](HOW_TO_USE.md).
 
+**Third reference domain (proposed phase charter):** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md).
+
 ## 0. One-command flagship bundle (synthetic aggregate)
 
 Produces `best_replay.json`, `pareto_front.json`, `fragility_certificate.json`, and a short index file:

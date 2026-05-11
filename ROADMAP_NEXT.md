@@ -159,6 +159,31 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 ---
 
+### Phase M — Third reference domain (**proposed**)
+
+**Purpose:** Ship a **third** thin `World` that reuses the existing shock schedule encoding, exports replay JSON under a documented contract, and lands a **Phase H** golden bundle — proving another physics story on the same engine spine without coupling worlds.
+
+**Normative gate:** [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase M) + checklist [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md).
+
+**Status:** **Proposed** — flight is **closed** until the admission checklist (selected candidate, no parallel flight, per-criterion issues) is satisfied.
+
+**Hard rules:**
+
+- Exactly **one** Phase M physics line in flight; **max 3–5** archetypes.
+- Aggregate + network + **Phase J** cascade remain default **CI golden anchors** unless charter is explicitly revised.
+- No **coupled** mega-institution `World` (cross-domain state in one `step`) under Phase M — that is out of charter (`docs/RESEARCH_FRONTIERS.md`).
+
+**Exit criteria (copy to issues when opening the flight):**
+
+- [ ] `world/` module + `runner` rollout + `rollout_to_replay_dict` row in compatibility doc.
+- [ ] Determinism + replay contract tests.
+- [ ] GA (or documented) smoke CLI mirroring `run_resource_cascade_ga_demo.py` pattern.
+- [ ] Phase **H** bundle id + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py`.
+- [ ] “Why this domain” doc (≤ 1 page).
+- [ ] *(Optional, if claimed at admission)* co-evolution / Pareto / counterfactuals for the new mode.
+
+---
+
 ## Exploration slices (post–Phase L or fork)
 
 Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research programs. CLI flags, examples, and schema names: [`benchmarks/README.md`](benchmarks/README.md). Normative wording: [`BOUNDARIES.md`](BOUNDARIES.md) (Phase H exploration).

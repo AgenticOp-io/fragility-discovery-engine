@@ -15,6 +15,7 @@ We are **not** building: a generic “digital twin platform,” a blockchain pro
 3. **Evidence before chrome** — no web UI until replay JSON schema + tests are stable.
 4. **Few agent knobs** — archetypes stay thin (response functions + thresholds). No personalities, memory, language, or beliefs until topology + metrics are done.
 5. **One primary domain in flight** — stablecoin peg toy stays the reference until Phase B explicitly replaces it.
+6. **Third reference domain (Phase M) — single flight** — at most **one** new `world/` physics experiment under **Phase M** at a time; admission + exit criteria live in **Phase M** below and in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Aggregate + network + **Phase J** cascade bundles remain **regression oracles** unless a future charter change explicitly revises that split.
 
 ## Explicit non-goals (reject without guilt)
 
@@ -26,7 +27,7 @@ We are **not** building: a generic “digital twin platform,” a blockchain pro
 
 ## Phased roadmap — hard gates
 
-Work **does not start** on a phase until **all exit criteria** for the prior phase are true.
+Work **does not start** on a phase until **all exit criteria** for the prior phase are true (unless the phase text defines a narrower **admission** gate — see **Phase M**).
 
 ### Phase A — Aggregate kernel (current baseline)
 
@@ -272,6 +273,38 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] Citations / hashes on summaries (`--cite-digest`, `frozen_json_digest.py`).
 - [x] Reproducible CLI figures from frozen JSON/CSV with pinned style configs.
 - [x] Optional LLM path restricted to prompt export + explicit disclaimer; templates versioned on disk.
+
+### Phase M — Third reference domain (**proposed**; flight closed until admission)
+
+**Status:** proposed — **no** `world/` implementation shipped under this label yet. Normative gate + checklist: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Research context: [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
+
+**Purpose:** Add a **third** thin reference `World` that reuses the **same** shock schedule encoding (`decode_schedule`, `schedule_attack_cost`) as aggregate / network / cascade, proves another physics story fits the engine, and ships with replay + tests + Phase **H** bundle parity — **without** coupling worlds inside one `step()` and without relaxing existing golden bundles.
+
+**Admission (all required before first merge under Phase M):**
+
+1. **Selected candidate** recorded in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) §Selected candidate (one physics narrative; **max 3–5** archetypes).
+2. **No other domain flight open** — only one Phase M line at a time (see immutable principle **6** above).
+3. **Tracking issues** — one GitHub (or equivalent) issue per **exit criterion** below, each naming a single acceptance test up front.
+
+**In scope (once admitted):**
+
+- New `fragility_engine/world/<name>.py` + `RolloutResult` integration + `runner.rollout_*` entry point.
+- `rollout_to_replay_dict` compatibility table (schema **0.4.x** unless a bump is justified) + `simulation_mode` string + `state_vector` / `metrics` semantics documented in the Phase M doc.
+- Determinism tests, replay contract tests, GA smoke CLI (pattern: `run_resource_cascade_ga_demo.py`), and **one** frozen Phase **H** bundle id in `benchmarks/suite.py` + `GOLDEN_METRICS` row.
+- “Why this domain” ≤ 1 page (`docs/WHY_<DOMAIN>.md` or a section inside the Phase M doc).
+
+**Out of scope (Phase M charter):**
+
+- **Coupled** cross-world state (aggregate ↔ network ↔ cascade ↔ new world in one `World.step`) — that remains a **fork** / different product (see [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md)).
+- Claiming calibration to real institutions or production stress-test sign-off.
+
+**Exit criteria (adopt Phase M as “shipped” only when all are checked):**
+
+- [ ] World module + rollout wired; replay export matches documented contract.
+- [ ] `tests/test_*_rollout.py` + `tests/test_replay_contract_*` (or merged equivalents) cover determinism and collapse metrics.
+- [ ] GA demo script (or documented flag on an existing script) exercises search on the new world.
+- [ ] Phase **H** golden bundle + tolerances in CI (`tests/test_benchmark_suite.py`).
+- [ ] Counterfactual / co-evolution / Pareto parity **only if** claimed in the admission one-pager — otherwise explicitly deferred with issues.
 
 ## Fitness function discipline
 

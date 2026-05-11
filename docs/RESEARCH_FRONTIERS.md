@@ -6,9 +6,7 @@ This document separates **charter gates** from **aspirational research** so the 
 
 **Shipped second domain:** `ResourceCascadeWorld` + full replay / GA / co-evolution / counterfactual / benchmark bundle parity — see [`phase_j_resource_cascade.md`](phase_j_resource_cascade.md) and [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md).
 
-**Rule in `BOUNDARIES.md`:** at most **one** new reference domain “in flight” at a time; the stablecoin aggregate + network stack remains the **CI oracle** for encoding and replay contracts.
-
-**Candidates** (not implemented here): alternate liability / infrastructure cascades with different agent surfaces — each would need its own Phase-J-style gate (world module, `RolloutResult`, replay compatibility table, golden bundle, docs).
+**Third domain (Phase M):** The **normative** gate, admission checklist, replay contract template, and exit criteria live in **[`docs/phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md)** and [`BOUNDARIES.md`](../BOUNDARIES.md) **Phase M**. Implementation work starts only after **admission** there is complete (selected candidate, no parallel flight, issues filed).
 
 ## Coupled “mega-institution” dynamics
 

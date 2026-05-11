@@ -29,6 +29,8 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 
+**Phase M (third reference domain — proposed):** [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) — admission gate, replay contract template, exit criteria (`BOUNDARIES.md` Phase M).
+
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
 **Reviewer walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).

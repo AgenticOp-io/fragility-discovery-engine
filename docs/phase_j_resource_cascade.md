@@ -52,3 +52,7 @@ Static **`replay_viewer`** treats unknown modes like aggregate for plotting (pri
 ## Limits / non-goals
 
 - Not calibrated to any real infrastructure dataset.
+
+## Next chartered reference slot
+
+A **third** thin domain (after aggregate, network, and this cascade) is governed by **Phase M** — [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) + [`BOUNDARIES.md`](../BOUNDARIES.md) Phase M.

@@ -257,6 +257,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | One end-to-end reviewer path |
 | [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) | VM deploy keys |
 | [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Third-domain gate, coupled dynamics (non-goals) |
+| [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) | **Phase M** — third `World` flight (admission + replay template + exit criteria) |
 
 ---
 
