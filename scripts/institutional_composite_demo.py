@@ -1,20 +1,23 @@
-"""Moonshot: composite JSON — twin (network + resource cascade) or triple (+ aggregate peg)."""
+"""Moonshot: composite JSON — twin (network + cascade), triple (+ peg), or quad (+ service backlog)."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.benchmarks.institutional_composite import (
+    quad_domain_rollout_artifact,
     triple_domain_rollout_artifact,
     twin_domain_rollout_artifact,
 )
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -27,12 +30,19 @@ def main() -> None:
     ap.add_argument("--genome-seed", type=int, default=333)
     ap.add_argument("--horizon", type=int, default=10)
     ap.add_argument("--triple", action="store_true", help="Include aggregate peg kernel (schema v2).")
+    ap.add_argument(
+        "--quad",
+        action="store_true",
+        help="Include aggregate + network + cascade + service_backlog (schema v3). Implies --triple domains plus backlog.",
+    )
     ap.add_argument("--aggregate-seed", type=int, default=7000)
     ap.add_argument("--aggregate-initial-panic", type=float, default=0.05)
     ap.add_argument("--network-seed", type=int, default=7001)
     ap.add_argument("--cascade-seed", type=int, default=7002)
+    ap.add_argument("--backlog-seed", type=int, default=7003)
     ap.add_argument("--base-panic", type=float, default=0.05)
     ap.add_argument("--initial-overload", type=float, default=0.05)
+    ap.add_argument("--initial-backlog", type=float, default=0.05)
     ap.add_argument(
         "--out",
         type=Path,
@@ -40,6 +50,10 @@ def main() -> None:
         help="Optional path to write JSON (UTF-8); still prints to stdout.",
     )
     args = ap.parse_args()
+
+    if args.triple and args.quad:
+        print("Choose at most one of --triple and --quad.", file=sys.stderr)
+        raise SystemExit(2)
 
     rng = np.random.default_rng(int(args.genome_seed))
     genome = rng.uniform(size=(int(args.horizon), 2))
@@ -55,7 +69,25 @@ def main() -> None:
     )
     rc_w = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=22)
 
-    if args.triple:
+    if args.quad:
+        peg_w = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=24)
+        sb_w = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=22)
+        out = quad_domain_rollout_artifact(
+            peg_w,
+            net_w,
+            rc_w,
+            sb_w,
+            genome,
+            aggregate_seed=int(args.aggregate_seed),
+            network_seed=int(args.network_seed),
+            cascade_seed=int(args.cascade_seed),
+            backlog_seed=int(args.backlog_seed),
+            initial_panic=float(args.aggregate_initial_panic),
+            base_panic=float(args.base_panic),
+            initial_overload=float(args.initial_overload),
+            initial_backlog=float(args.initial_backlog),
+        )
+    elif args.triple:
         peg_w = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=24)
         out = triple_domain_rollout_artifact(
             peg_w,

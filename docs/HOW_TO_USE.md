@@ -126,7 +126,7 @@ Concepts: [`phase_j_resource_cascade.md`](phase_j_resource_cascade.md), narrativ
 python scripts/run_service_backlog_ga_demo.py --export-replay sb.json --initial-backlog 0.05
 ```
 
-Concepts: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md), narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md).
+Concepts: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md), narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md). Counterfactual cookbook: [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
 
 ### 4.6 Co-evolution and Pareto viewer
 
@@ -217,7 +217,7 @@ Serve the **repo root** over HTTP so relative paths and optional presets work (`
 | Certificate | `fragility-certificate-v1` | `export_fragility_certificate`, `run_flagship_demo` |
 | Robustness / GA sweep | `fragility-robustness-*` | `fragility_robustness_sweep.py --json` |
 | Mechanism design | `fragility-mechanism-design-outer-v1` | `mechanism_design_policy_sweep.py --json` |
-| Institutional composite | `fragility-institutional-composite-v1` / **v2** | `institutional_composite_demo.py --out` |
+| Institutional composite | `fragility-institutional-composite-v1` / **v2** / **v3** (`--quad`) | `institutional_composite_demo.py --out` |
 | Explanation DAG | `explanation-dag-v1` | `export_explanation_dag.py` |
 | Benchmark manifest | `benchmark-manifest-v2` | `run_benchmark_suite.py --manifest-out` |
 | Narration output | `narration-summary-v1` | `narrate_frozen_json.py --json-out` |

@@ -108,6 +108,8 @@ python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,stron
 python scripts/institutional_composite_demo.py --out artifacts/tmp/composite.json
 # + aggregate peg → v2 (--aggregate-seed, --aggregate-initial-panic)
 python scripts/institutional_composite_demo.py --triple --out artifacts/tmp/composite_v2.json
+# + service_backlog kernel → v3 (mutually exclusive with --triple)
+python scripts/institutional_composite_demo.py --quad --out artifacts/tmp/composite_v3.json
 ```
 
 Composite JSON is **not** loadable in the static **replay** timeline viewer — see [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md).

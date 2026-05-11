@@ -29,9 +29,7 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 
-**Phase M (third domain narrative):** [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md) — `ServiceBacklogWorld` + `simulation_mode` **`service_backlog`**; gate + replay table: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md).
-
-**Phase M (third reference domain — proposed):** [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) — admission gate, replay contract template, exit criteria (`BOUNDARIES.md` Phase M).
+**Phase M (third domain narrative):** [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md) — `ServiceBacklogWorld` + `simulation_mode` **`service_backlog`**; gate + replay table: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Counterfactual cookbook: [`docs/service_backlog_counterfactual_example.md`](docs/service_backlog_counterfactual_example.md).
 
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 

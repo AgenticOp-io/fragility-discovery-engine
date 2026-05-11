@@ -402,6 +402,37 @@ def test_narrate_frozen_json_institutional_composite_cli(py_exe: str, tmp_path: 
     assert "fragility-institutional-composite-v1" in proc.stdout
 
 
+def test_narrate_frozen_json_institutional_composite_quad_cli(py_exe: str, tmp_path: Path) -> None:
+    comp = tmp_path / "composite_quad.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--nodes",
+            "9",
+            "--horizon",
+            "6",
+            "--quad",
+            "--out",
+            str(comp),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    proc = subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "narrate_frozen_json.py"), str(comp)],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert "institutional composite" in proc.stdout
+    assert "fragility-institutional-composite-v3" in proc.stdout
+    assert "service_backlog:" in proc.stdout
+
+
 def test_plot_replay_timeline_cli(py_exe: str, tmp_path: Path) -> None:
     png = tmp_path / "tl.png"
     subprocess.run(
@@ -2159,6 +2190,78 @@ def test_export_resource_cascade_counterfactual_chain_cli(py_exe: str, tmp_path:
     assert len(payload["path_trace"]["edges"]) == 2
 
 
+def test_export_service_backlog_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    spec = tmp_path / "sb_chain.json"
+    spec.write_text(
+        '{"schema": "service-backlog-mutation-chain-spec-v1", "steps": ['
+        '{"kind": "process_rate", "value": 0.44}, '
+        '{"kind": "ingest_gain", "value": 0.29}'
+        "]}",
+        encoding="utf-8",
+    )
+    out = tmp_path / "cf_sb_chain.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_service_backlog_counterfactual_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--horizon",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "9104",
+            "--genome-seed",
+            "53",
+            "--variant-initial-backlog",
+            "0.09",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "service_backlog_mutation_chain"
+    assert len(payload["mutation_steps"]) == 2
+    assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-service-backlog-v1"
+    assert len(payload["path_trace"]["edges"]) == 2
+
+
+def test_export_service_backlog_joint_attribution_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "merge_sb_cli.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_service_backlog_joint_attribution.py"),
+            "--out",
+            str(out),
+            "--horizon",
+            "10",
+            "--max-steps",
+            "22",
+            "--seed",
+            "9201",
+            "--genome-seed",
+            "9202",
+            "--initial-backlog",
+            "0.07",
+            "--variant-initial-backlog",
+            "0.03",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["schema"] == "attribution-merge-v1"
+    assert payload["branch_count"] == 2
+    assert len(payload["edges"]) == 2
+
+
 def test_merge_counterfactual_attribution_cli(py_exe: str, tmp_path: Path) -> None:
     nb = tmp_path / "nl_merge.json"
     nb.write_text("[[1],[0]]", encoding="utf-8")
@@ -2736,6 +2839,12 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
             ("aggregate",),
             id="triple",
         ),
+        pytest.param(
+            ["--quad", "--aggregate-seed", "6003", "--backlog-seed", "6004"],
+            "fragility-institutional-composite-v3",
+            ("aggregate", "service_backlog"),
+            id="quad",
+        ),
     ],
 )
 def test_institutional_composite_demo_stdout_cli(
@@ -2775,6 +2884,13 @@ def test_institutional_composite_demo_stdout_cli(
             "fragility-institutional-composite-v2",
             ("aggregate", "network", "resource_cascade"),
             id="triple-out",
+        ),
+        pytest.param(
+            ["--quad", "--aggregate-seed", "6005", "--backlog-seed", "6006"],
+            "composite_quad.json",
+            "fragility-institutional-composite-v3",
+            ("aggregate", "network", "resource_cascade", "service_backlog"),
+            id="quad-out",
         ),
     ],
 )

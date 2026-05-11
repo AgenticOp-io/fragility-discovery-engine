@@ -32,10 +32,10 @@ All must be true:
 
 1. [x] **§Selected candidate** below is filled in (one narrative + public API names planned).
 2. [x] **No other** open domain flight (no parallel second “Phase J–style” rewrite; no duplicate Phase M candidates in flight).
-3. [ ] **Issues filed** — one tracker issue per exit criterion in `BOUNDARIES.md` Phase M, each naming **one** acceptance test.
+3. [x] **Issues filed** — one tracker issue per exit criterion in `BOUNDARIES.md` Phase M, each naming **one** acceptance test. Copy-paste bodies: [`PHASE_M_TRACKING_ISSUES.md`](PHASE_M_TRACKING_ISSUES.md).
 4. [x] **Replay table drafted** — §5 below completed for the candidate (even if implementation lags by one PR).
 
-Until admission is satisfied, Phase M work stays **design-only** (docs, spikes on branches) or lives in a **fork**.
+**Historical:** this checklist gated the **first** Phase M merge. With all items checked, further work follows normal `BOUNDARIES.md` simulation rules (not “design-only only”).
 
 ---
 
@@ -51,7 +51,7 @@ Until admission is satisfied, Phase M work stays **design-only** (docs, spikes o
 
 **Shipped in v1:** `rollout_service_backlog`, `rollout_to_replay_dict`, defender decoding (`build_defended_service_backlog_world`), co-evolution (`alternating_coevolution_service_backlog`), Pareto + MC + export CLIs, counterfactuals (`remove_steps`, `initial_backlog_shift`, `process_rate_shift`), ε-sweeps (`initial_backlog`, `process_rate`), Phase **H** bundle `service_backlog_rollout_v1`, GA demo `scripts/run_service_backlog_ga_demo.py`.
 
-**Deferred (charter-optional):** cumulative mutation chains + joint attribution merge (Phase J chain scripts) — not claimed for this flight; add via separate issue if needed.
+**Also shipped (J-style parity):** cumulative mutation chains (`service-backlog-mutation-chain-spec-v1`, `scripts/export_service_backlog_counterfactual_chain.py`), path trace `explanation-mutation-chain-path-service-backlog-v1`, joint star-merge (`scripts/export_service_backlog_joint_attribution.py`), and cookbook [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
 
 ---
 

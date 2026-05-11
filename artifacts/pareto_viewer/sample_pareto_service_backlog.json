@@ -1,0 +1,40 @@
+{
+  "schema": "pareto-front-v1",
+  "best_fitness": 3.2,
+  "archive": [
+    {
+      "severity": 2.8,
+      "attack_cost": 3.1,
+      "collapsed": true,
+      "integral_instability": 6.2,
+      "genome": [
+        [0.61, 0.34],
+        [0.19, 0.79],
+        [0.80, 0.39],
+        [0.44, 0.81],
+        [0.12, 0.13],
+        [0.66, 0.98],
+        [0.03, 0.28],
+        [0.40, 0.07]
+      ]
+    },
+    {
+      "severity": 3.2,
+      "attack_cost": 6.5,
+      "collapsed": true,
+      "integral_instability": 6.4,
+      "genome": [
+        [0.65, 0.91],
+        [0.80, 0.56],
+        [0.83, 0.67],
+        [0.22, 0.50],
+        [0.69, 0.62],
+        [0.60, 0.94],
+        [0.78, 0.75],
+        [0.01, 0.19]
+      ]
+    }
+  ],
+  "domain": "service_backlog",
+  "initial_backlog": 0.06
+}

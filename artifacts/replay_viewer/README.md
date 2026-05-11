@@ -6,7 +6,7 @@
 
 | Kind | Example schema / artifact | Where |
 |------|---------------------------|--------|
-| Institutional composite | `fragility-institutional-composite-v1`, `v2` | `institutional_composite_demo.py --out` |
+| Institutional composite | `fragility-institutional-composite-v1`, `v2`, `v3` | `institutional_composite_demo.py --out` (`--triple`, `--quad`) |
 | Robustness / GA sweeps | `fragility-robustness-*` | `fragility_robustness_sweep.py --json` |
 | Pareto | `pareto_front.json`, `pareto-front-v1` | `artifacts/pareto_viewer/index.html` |
 

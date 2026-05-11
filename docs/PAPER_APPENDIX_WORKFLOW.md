@@ -48,7 +48,7 @@ python scripts/export_minimized_replay.py --out minimized.json
 python scripts/export_counterfactual.py --out cf.json --mode aggregate
 ```
 
-Network / resource-cascade cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md).
+Network / resource-cascade / service-backlog cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
 
 ## 5. Citation bundle (`fragility-certificate-v1`)
 

@@ -102,10 +102,14 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"meta.cli: {meta.get('cli')}")
         return "\n".join(lines)
 
-    if schema in ("fragility-institutional-composite-v1", "fragility-institutional-composite-v2"):
+    if schema in (
+        "fragility-institutional-composite-v1",
+        "fragility-institutional-composite-v2",
+        "fragility-institutional-composite-v3",
+    ):
         lines.append("kind: institutional composite (decoupled kernels, one shock schedule)")
         lines.append(f"schema: {schema}")
-        for branch in ("aggregate", "network", "resource_cascade"):
+        for branch in ("aggregate", "network", "resource_cascade", "service_backlog"):
             b = data.get(branch)
             if isinstance(b, dict):
                 lines.append(

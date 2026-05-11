@@ -94,6 +94,47 @@ def test_narrate_frozen_artifact_institutional_composite_v2() -> None:
     assert "fragility-institutional-composite-v2" in text
 
 
+def test_narrate_frozen_artifact_institutional_composite_v3() -> None:
+    text = narrate_frozen_artifact(
+        {
+            "schema": "fragility-institutional-composite-v3",
+            "aggregate": {
+                "integral_instability": 0.5,
+                "collapsed": False,
+                "attack_cost": 0.5,
+                "collapse_timestep": None,
+                "simulation_mode": "aggregate",
+            },
+            "network": {
+                "integral_instability": 1.0,
+                "collapsed": False,
+                "attack_cost": 0.5,
+                "collapse_timestep": None,
+                "simulation_mode": "network",
+            },
+            "resource_cascade": {
+                "integral_instability": 2.0,
+                "collapsed": False,
+                "attack_cost": 0.5,
+                "collapse_timestep": None,
+                "simulation_mode": "resource_cascade",
+            },
+            "service_backlog": {
+                "integral_instability": 1.5,
+                "collapsed": False,
+                "attack_cost": 0.6,
+                "collapse_timestep": None,
+                "simulation_mode": "service_backlog",
+            },
+            "genome_shape": [4, 2],
+        },
+        source="inline",
+    )
+    assert "institutional composite" in text
+    assert "service_backlog:" in text
+    assert "fragility-institutional-composite-v3" in text
+
+
 def test_narrate_frozen_artifact_counterfactual_bundle() -> None:
     text = narrate_frozen_artifact(
         {

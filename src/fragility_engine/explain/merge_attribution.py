@@ -75,6 +75,10 @@ def merge_heterogeneous_counterfactuals(
             "variant_initial_overload",
             "baseline_cascade_coupling",
             "variant_cascade_coupling",
+            "baseline_initial_backlog",
+            "variant_initial_backlog",
+            "baseline_process_rate",
+            "variant_process_rate",
         ):
             if optional in bundle:
                 edge[optional] = bundle[optional]

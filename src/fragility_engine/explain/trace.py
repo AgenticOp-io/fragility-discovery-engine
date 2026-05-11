@@ -7,12 +7,14 @@ from typing import Any
 from fragility_engine.explain.counterfactual import rollout_snapshot
 from fragility_engine.explain.counterfactual_chain import CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_resource_cascade import RESOURCE_CASCADE_CHAIN_SPEC_SCHEMA
+from fragility_engine.explain.counterfactual_chain_service_backlog import SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.sweep import SCHEMA as EPSILON_SWEEP_SCHEMA
 from fragility_engine.types import RolloutResult
 
 TRACE_SCHEMA = "explanation-trace-v1"
 CHAIN_PATH_TRACE_SCHEMA = "explanation-mutation-chain-path-v1"
 CHAIN_PATH_TRACE_RESOURCE_CASCADE_SCHEMA = "explanation-mutation-chain-path-resource-cascade-v1"
+CHAIN_PATH_TRACE_SERVICE_BACKLOG_SCHEMA = "explanation-mutation-chain-path-service-backlog-v1"
 
 
 def linear_epsilon_sweep_to_trace(sweep: dict[str, Any]) -> dict[str, Any]:
@@ -207,6 +209,75 @@ def mutation_chain_path_to_trace_resource_cascade(
         "rollout_seed": int(rollout_seed),
         "baseline_initial_overload": bio,
         "variant_initial_overload": vio,
+        "nodes": nodes,
+        "edges": edges,
+    }
+
+
+def mutation_chain_path_to_trace_service_backlog(
+    rollouts: list[RolloutResult],
+    steps: list[dict[str, Any]],
+    *,
+    rollout_seed: int,
+    baseline_initial_backlog: float,
+    variant_initial_backlog: float,
+) -> dict[str, Any]:
+    """
+    Path trace for service-backlog cumulative mutation prefixes.
+
+    Consumes the rollout list from ``mutation_chain_path_rollouts_service_backlog``.
+    """
+
+    if len(rollouts) != len(steps) + 1:
+        raise ValueError("expected len(rollouts) == len(steps) + 1")
+    if not steps:
+        raise ValueError("steps must be non-empty")
+
+    bib = float(baseline_initial_backlog)
+    vib = float(variant_initial_backlog)
+
+    nodes: list[dict[str, Any]] = []
+    for i, r in enumerate(rollouts):
+        snap = rollout_snapshot(r)
+        backlog_used = bib if i < len(rollouts) - 1 else vib
+        nodes.append(
+            {
+                "id": f"chain_{i}",
+                "index": i,
+                "mutations_applied": i,
+                "reset_initial_backlog": backlog_used,
+                **snap,
+            }
+        )
+
+    edges: list[dict[str, Any]] = []
+    for i in range(len(steps)):
+        a = rollouts[i]
+        b = rollouts[i + 1]
+        di = float(b.integral_instability - a.integral_instability)
+        dc = float(b.attack_cost - a.attack_cost)
+        backlog_from = bib
+        backlog_to = bib if i < len(steps) - 1 else vib
+        edges.append(
+            {
+                "from": f"chain_{i}",
+                "to": f"chain_{i + 1}",
+                "kind": "mutation_chain_step",
+                "step_index": i,
+                "step": dict(steps[i]),
+                "delta_integral_instability": di,
+                "delta_attack_cost": dc,
+                "reset_initial_backlog_from": backlog_from,
+                "reset_initial_backlog_to": backlog_to,
+            }
+        )
+
+    return {
+        "schema": CHAIN_PATH_TRACE_SERVICE_BACKLOG_SCHEMA,
+        "source_chain_schema": SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA,
+        "rollout_seed": int(rollout_seed),
+        "baseline_initial_backlog": bib,
+        "variant_initial_backlog": vib,
         "nodes": nodes,
         "edges": edges,
     }

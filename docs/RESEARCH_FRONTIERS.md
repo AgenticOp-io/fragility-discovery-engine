@@ -10,7 +10,7 @@ This document separates **charter gates** from **aspirational research** so the 
 
 ## Coupled “mega-institution” dynamics
 
-**Non-goal for this repository:** a single coupled state graph where aggregate peg, network contagion, and resource layers exchange mass or liquidity inside one `step()` — that is a different research product than **decoupled** audit composites (`fragility-institutional-composite-v1` / **v2**).
+**Non-goal for this repository:** a single coupled state graph where aggregate peg, network contagion, and resource layers exchange mass or liquidity inside one `step()` — that is a different research product than **decoupled** audit composites (`fragility-institutional-composite-v1` / **v2** / **v3**).
 
 If you pursue coupling, treat it as a **fork**: new world module, new replay schema bump, new benchmarks — do not silently overload the decoupled composite JSON as if it were coupled physics.
 

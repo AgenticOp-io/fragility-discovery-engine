@@ -29,6 +29,13 @@ from fragility_engine.explain.counterfactual_chain_resource_cascade import (
     mutation_chain_path_rollouts_resource_cascade,
     parse_resource_cascade_chain_spec_payload,
 )
+from fragility_engine.explain.counterfactual_chain_service_backlog import (
+    SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA,
+    apply_service_backlog_mutation_step,
+    counterfactual_service_backlog_mutation_chain_with_rollouts,
+    mutation_chain_path_rollouts_service_backlog,
+    parse_service_backlog_chain_spec_payload,
+)
 from fragility_engine.explain.explanation_dag import (
     EXPLANATION_DAG_SCHEMA,
     counterfactual_bundle_to_dag,
@@ -49,12 +56,14 @@ from fragility_engine.explain.sweep import (
     sweep_service_backlog_process_rate,
 )
 from fragility_engine.explain.trace import CHAIN_PATH_TRACE_RESOURCE_CASCADE_SCHEMA as EXPLANATION_RC_CHAIN_PATH_SCHEMA
+from fragility_engine.explain.trace import CHAIN_PATH_TRACE_SERVICE_BACKLOG_SCHEMA as EXPLANATION_SB_CHAIN_PATH_SCHEMA
 from fragility_engine.explain.trace import CHAIN_PATH_TRACE_SCHEMA as EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA
 from fragility_engine.explain.trace import TRACE_SCHEMA as EXPLANATION_TRACE_SCHEMA
 from fragility_engine.explain.trace import (
     linear_epsilon_sweep_to_trace,
     mutation_chain_path_to_trace,
     mutation_chain_path_to_trace_resource_cascade,
+    mutation_chain_path_to_trace_service_backlog,
 )
 
 __all__ = [
@@ -89,6 +98,11 @@ __all__ = [
     "apply_resource_cascade_mutation_step",
     "counterfactual_resource_cascade_mutation_chain_with_rollouts",
     "mutation_chain_path_rollouts_resource_cascade",
+    "SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA",
+    "parse_service_backlog_chain_spec_payload",
+    "apply_service_backlog_mutation_step",
+    "counterfactual_service_backlog_mutation_chain_with_rollouts",
+    "mutation_chain_path_rollouts_service_backlog",
     "compare_rollouts",
     "rollout_snapshot",
     "counterfactual_bundle_to_jsonable",
@@ -101,10 +115,12 @@ __all__ = [
     "linear_epsilon_sweep_to_trace",
     "mutation_chain_path_to_trace",
     "mutation_chain_path_to_trace_resource_cascade",
+    "mutation_chain_path_to_trace_service_backlog",
     "COUNTERFACTUAL_EPSILON_SWEEP_SCHEMA",
     "ATTRIBUTION_MERGE_SCHEMA",
     "INTERACTION_SUMMARY_SCHEMA",
     "EXPLANATION_TRACE_SCHEMA",
     "EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA",
     "EXPLANATION_RC_CHAIN_PATH_SCHEMA",
+    "EXPLANATION_SB_CHAIN_PATH_SCHEMA",
 ]
