@@ -105,6 +105,8 @@ python scripts/institutional_composite_demo.py --out artifacts/tmp/composite.jso
 
 **Triple-domain** (adds aggregate peg, still decoupled): `--triple` → **`fragility-institutional-composite-v2`** (`--aggregate-seed`, `--aggregate-initial-panic`).
 
+Composite JSON is for **audits / notebooks / certificates** — not the timeline **`replay_viewer`** (that UI expects per-step replay exports; see [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md)).
+
 ## Wall-clock timing (Phase K helper)
 
 Compare machines or commits using the **same frozen workload** as CI golden bundles (not a regression gate):

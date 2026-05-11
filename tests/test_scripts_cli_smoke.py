@@ -2407,6 +2407,34 @@ def test_institutional_composite_demo_triple_cli(py_exe: str) -> None:
     assert "aggregate" in data
 
 
+def test_institutional_composite_demo_triple_out_cli(py_exe: str, tmp_path: Path) -> None:
+    out_j = tmp_path / "composite_triple.json"
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--triple",
+            "--nodes",
+            "9",
+            "--horizon",
+            "8",
+            "--aggregate-seed",
+            "6002",
+            "--out",
+            str(out_j),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    disk = json.loads(out_j.read_text(encoding="utf-8"))
+    stdout = json.loads(proc.stdout)
+    assert disk == stdout
+    assert disk["schema"] == "fragility-institutional-composite-v2"
+    assert "aggregate" in disk and "network" in disk and "resource_cascade" in disk
+
+
 def test_fragility_robustness_sweep_ga_population_neighbor_json_cli(py_exe: str, tmp_path: Path) -> None:
     a = tmp_path / "a.json"
     b = tmp_path / "b.json"

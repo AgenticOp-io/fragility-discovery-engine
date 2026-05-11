@@ -141,7 +141,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 
 **Plot scripts** (`plot_*.py`) require **`matplotlib`** (`pip install -e ".[dev]"` or **`.[viz]`**).
 
-Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP).
+Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP). Loads **replay export** JSON only (`rollout_to_replay_dict` contract). **Institutional composite** outputs (**`fragility-institutional-composite-v1`** / **v2** from `institutional_composite_demo.py`) are metric bundles for other tools, not this viewer — see [`artifacts/replay_viewer/README.md`](artifacts/replay_viewer/README.md).
 
 Local **bulk exports** for trying many scenarios in the browser: run `pwsh -File scripts/regenerate_test_exports.ps1` → writes under `artifacts/test_exports/` (gitignored). See `artifacts/README_test_exports.txt`.
 
