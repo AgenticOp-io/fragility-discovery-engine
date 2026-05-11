@@ -1,0 +1,12 @@
+# Fragility Discovery Engine — Whitepaper
+
+This repository’s **public whitepaper** is the forwardable **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** (executive summary, capability map, audiences, how to evaluate quickly, outreach routing, positioning blurb, and references).
+
+| Need | Document |
+|------|----------|
+| Install, tutorials, viewers, CLI index | [`HOW_TO_USE.md`](HOW_TO_USE.md) |
+| Phase gates, non-goals, exit criteria | [`BOUNDARIES.md`](../BOUNDARIES.md) |
+| Reviewer-style artifact walkthrough | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) |
+| Honest limits and wall-clock | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |
+
+**Canonical URL on GitHub:** [github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md](https://github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md)

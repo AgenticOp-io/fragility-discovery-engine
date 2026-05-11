@@ -4,7 +4,7 @@
 
 Autonomous **coverage-guided-style** search over a modular simulation: mutate shock schedules, maximize instability metrics, then extract **minimal collapse sequences** and causal replay artifacts.
 
-**How to use this software (install, tutorials, viewers, artifacts):** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md)
+**How to use this software (install, tutorials, viewers, artifacts):** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 
 ## Supported platforms
 

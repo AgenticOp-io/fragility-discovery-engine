@@ -9,7 +9,7 @@
 
 ## 1. Executive summary
 
-The **Fragility Discovery Engine** is an open-source, **deterministic-first** Python stack that **searches** for exogenous shock schedules (Monte Carlo, genetic algorithms, coevolutionary loops) over **modular worlds**, **maximizes explicit instability metrics**, then produces **reviewer-grade artifacts**: frozen replay JSON, greedy **minimal collapse sequences**, **counterfactual** and **mutation-chain** explanations, **Pareto fronts**, and a **`fragility-certificate-v1`** bundle for digests and environment fingerprints.
+The **Fragility Discovery Engine** is an open-source, **deterministic-first** Python stack that **searches** for exogenous shock schedules (Monte Carlo, genetic algorithms, coevolutionary loops) over **modular worlds** (aggregate peg, network contagion, resource cascade, service backlog—**decoupled** reference kernels), **maximizes explicit instability metrics**, then produces **reviewer-grade artifacts**: frozen replay JSON, greedy **minimal collapse sequences**, **counterfactual** and **mutation-chain** explanations, **Pareto fronts**, and a **`fragility-certificate-v1`** bundle for digests and environment fingerprints.
 
 It is **not** a live trading system, a blockchain product, or a calibrated forecast of real institutions. It is a **laboratory** for disciplined fragility analysis with **schema-versioned exports** and **Phase H** benchmark validation hooks—aimed at teams who care about **evidence before chrome** and **reproducible narratives** over dashboards alone.
 
@@ -35,13 +35,17 @@ This engine attacks the **systems layer**: a **single codebase** where search, m
 | **World** | Domain physics only; no hidden “attack hooks” inside `World.step`. |
 | **Agents** | Thin archetypes: observe → decide → act. |
 | **Adversary** | Deterministic search over shock schedules (MC, GA, cost-penalized variants). |
-| **Explain** | Ablation, minimization, counterfactual bundles, optional path traces. |
+| **Explain** | Ablation, minimization, counterfactual bundles, mutation chains, path traces, joint merges, narration helpers. |
 | **Network** | Contagion on explicit graphs (`ContagionGraph`), neighbor-list–friendly updates. |
 | **Coevolution** | Alternating attacker/defender search; Pareto export for tradeoff narratives. |
 
-**Domains in flight** include an aggregate **stablecoin peg toy** (reference domain), **graph contagion**, and a **resource cascade** scaffold—each with explicit **non-goals** in project documentation so scope does not drift into generic “digital twin” platforms.
+**Domains shipped as reference kernels** (same shock-schedule encoding; different physics): an aggregate **stablecoin peg** toy, **graph contagion** (`StablecoinNetworkWorld`), **resource cascade** (`ResourceCascadeWorld`, Phase **J**), and **service backlog / latency stress** (`ServiceBacklogWorld`, Phase **M**; `simulation_mode` **`service_backlog`**). Each domain documents explicit **non-goals** (see [`BOUNDARIES.md`](../BOUNDARIES.md), [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md), [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md)) so scope does not drift into generic “digital twin” platforms.
 
-**Reproducibility:** fixed RNG seeds, CI workflows, Phase **H** golden bundles (`scripts/run_benchmark_suite.py --validate`), flagship demo (`scripts/run_flagship_demo.py`), and **`fragility-certificate-v1`** (`scripts/export_fragility_certificate.py`).
+**Decoupled audit composites** bundle one attacker schedule across multiple kernels **without** cross-`World` coupling inside `step()`: `fragility-institutional-composite-v1` (network + cascade), **v2** (+ aggregate peg), **v3** (+ service backlog). CLI: `scripts/institutional_composite_demo.py` (`--triple`, `--quad`).
+
+**Explanation artifacts** include greedy **minimal collapse** reports, **counterfactual** bundles (`remove_steps`, scalar shifts, network patches), **ordered mutation chains** with optional **path traces** (network, resource cascade, service backlog), **joint attribution merges** (`attribution-merge-v1`), **ε-sweeps** with trace export, and **mechanical explanation DAGs**. Cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
+
+**Reproducibility:** fixed RNG seeds, CI workflows, Phase **H** golden bundles (`scripts/run_benchmark_suite.py --validate`), flagship demo (`scripts/run_flagship_demo.py`), ensemble / mechanism-design / robustness sweep CLIs (see [`benchmarks/README.md`](../benchmarks/README.md)), and **`fragility-certificate-v1`** (`scripts/export_fragility_certificate.py`). Pareto and replay JSON use schema-versioned contracts (see [`HOW_TO_USE.md`](HOW_TO_USE.md)).
 
 ---
 
@@ -80,7 +84,8 @@ Product security and resilience teams sometimes need **repeatable** “find a sm
 3. **Validate benchmarks:** `python scripts/run_benchmark_suite.py --validate` (see [`benchmarks/README.md`](../benchmarks/README.md)).  
 4. **Reviewer path:** [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md).  
 5. **Honest scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).  
-6. **One-shot bundle:** `python scripts/run_flagship_demo.py` (see README for defaults and output layout).
+6. **Phase M gate + replay table:** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md).  
+7. **One-shot bundle:** `python scripts/run_flagship_demo.py` (see README for defaults and output layout).
 
 ---
 
@@ -116,7 +121,8 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 
 | Field | Value |
 |--------|--------|
-| **Version** | 1.0 |
+| **Version** | 1.1 |
+| **Last updated** | 2026-05 (Phase M + institutional composite v3 + service-backlog explain parity on `main`) |
 | **Repo state** | Tracks `main`; cite commit when forwarding alongside frozen JSON. |
 | **Maintainer path** | Prefer **GitHub Issues** for accuracy and public record. |
 
