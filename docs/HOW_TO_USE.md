@@ -120,6 +120,14 @@ python scripts/run_resource_cascade_ga_demo.py --export-replay rc.json --initial
 
 Concepts: [`phase_j_resource_cascade.md`](phase_j_resource_cascade.md), narrative: [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md).
 
+### 4.5b Service backlog (third reference domain, Phase M)
+
+```bash
+python scripts/run_service_backlog_ga_demo.py --export-replay sb.json --initial-backlog 0.05
+```
+
+Concepts: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md), narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md).
+
 ### 4.6 Co-evolution and Pareto viewer
 
 ```bash

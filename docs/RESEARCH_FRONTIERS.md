@@ -6,7 +6,7 @@ This document separates **charter gates** from **aspirational research** so the 
 
 **Shipped second domain:** `ResourceCascadeWorld` + full replay / GA / co-evolution / counterfactual / benchmark bundle parity — see [`phase_j_resource_cascade.md`](phase_j_resource_cascade.md) and [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md).
 
-**Third domain (Phase M):** The **normative** gate, admission checklist, replay contract template, and exit criteria live in **[`docs/phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md)** and [`BOUNDARIES.md`](../BOUNDARIES.md) **Phase M**. Implementation work starts only after **admission** there is complete (selected candidate, no parallel flight, issues filed).
+**Third domain (Phase M):** **`ServiceBacklogWorld`** is **shipped** (`simulation_mode` **`service_backlog`**, bundle **`service_backlog_rollout_v1`**). Narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md). Gate + replay table: **[`docs/phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md)**; status: [`BOUNDARIES.md`](../BOUNDARIES.md) **Phase M**.
 
 ## Coupled “mega-institution” dynamics
 

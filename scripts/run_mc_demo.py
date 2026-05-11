@@ -1,4 +1,4 @@
-"""Monte Carlo random shock schedules — aggregate, network, or resource_cascade."""
+"""Monte Carlo random shock schedules — aggregate, network, resource_cascade, or service_backlog."""
 
 from __future__ import annotations
 
@@ -15,26 +15,33 @@ from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
+    thread_safe_service_backlog_clone,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_resource_cascade,
+    rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
 from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
 def main() -> None:
     p = argparse.ArgumentParser(
-        description="Monte Carlo search over random genomes (aggregate, network, or resource_cascade)."
+        description="Monte Carlo search over random genomes (aggregate, network, resource_cascade, or service_backlog)."
     )
-    p.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="aggregate")
+    p.add_argument(
+        "--mode",
+        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        default="aggregate",
+    )
     p.add_argument("--samples", type=int, default=48)
     p.add_argument("--horizon", type=int, default=20)
     p.add_argument("--seed", type=int, default=303)
@@ -60,6 +67,7 @@ def main() -> None:
     p.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
     p.add_argument("--base-panic", type=float, default=0.05, help="[network] uniform panic at reset.")
     p.add_argument("--initial-overload", type=float, default=0.05, help="[resource_cascade] reset overload [0,1].")
+    p.add_argument("--initial-backlog", type=float, default=0.05, help="[service_backlog] reset backlog.")
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order (synthetic).")
     p.add_argument(
         "--graph-kind",
@@ -154,7 +162,7 @@ def main() -> None:
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
-    else:
+    elif args.mode == "resource_cascade":
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=ms)
 
         def evaluator(genome: np.ndarray, seed: int) -> RolloutResult:
@@ -164,6 +172,19 @@ def main() -> None:
                 genome,
                 seed=seed,
                 initial_overload=float(args.initial_overload),
+                continue_after_collapse=bool(args.continue_after_collapse),
+            )
+
+    else:
+        template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=ms)
+
+        def evaluator(genome: np.ndarray, seed: int) -> RolloutResult:
+            world = thread_safe_service_backlog_clone(template) if ew > 1 else template
+            return rollout_service_backlog(
+                world,
+                genome,
+                seed=seed,
+                initial_backlog=float(args.initial_backlog),
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
@@ -205,6 +226,8 @@ def main() -> None:
             replay["meta"]["topology"] = topo_meta
         if args.mode == "resource_cascade":
             replay["meta"]["initial_overload"] = float(args.initial_overload)
+        if args.mode == "service_backlog":
+            replay["meta"]["initial_backlog"] = float(args.initial_backlog)
         if args.mode == "aggregate":
             replay["meta"]["initial_panic"] = float(args.initial_panic)
         if args.mode == "network":

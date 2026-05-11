@@ -19,16 +19,20 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_remove_steps_with_rollouts,
     counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts,
     counterfactual_resource_cascade_initial_overload_shift_with_rollouts,
+    counterfactual_service_backlog_initial_backlog_shift_with_rollouts,
+    counterfactual_service_backlog_process_rate_shift_with_rollouts,
 )
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_resource_cascade,
+    rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
@@ -60,6 +64,8 @@ def main() -> None:
             "remove_steps",
             "initial_overload_shift",
             "cascade_coupling_shift",
+            "initial_backlog_shift",
+            "process_rate_shift",
             "base_panic_shift",
             "contagion_beta_shift",
             "edge_weight_shift",
@@ -67,9 +73,9 @@ def main() -> None:
         ),
         default="remove_steps",
         help=(
-            "remove_steps: zero shock rows; resource_cascade: initial_overload_shift or cascade_coupling_shift "
-            "(physics clone); network-only: base_panic / contagion_beta / edge weights "
-            "(--neighbor-json for edge shifts); edge_weights_shift uses --edges-patch-json."
+            "remove_steps: zero shock rows; resource_cascade: initial_overload_shift or cascade_coupling_shift; "
+            "service_backlog: initial_backlog_shift or process_rate_shift; network-only: base_panic / contagion_beta / "
+            "edge weights (--neighbor-json for edge shifts); edge_weights_shift uses --edges-patch-json."
         ),
     )
     ap.add_argument(
@@ -104,9 +110,10 @@ def main() -> None:
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
         default="aggregate",
-        help="aggregate = peg world; network = StablecoinNetworkWorld; resource_cascade = Phase J scaffold.",
+        help="aggregate = peg world; network = StablecoinNetworkWorld; resource_cascade = Phase J; "
+        "service_backlog = Phase M third domain.",
     )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
     ap.add_argument(
@@ -126,6 +133,24 @@ def main() -> None:
         type=float,
         default=None,
         help="[resource_cascade, cascade_coupling_shift] counterfactual cascade_coupling (baseline = template).",
+    )
+    ap.add_argument(
+        "--initial-backlog",
+        type=float,
+        default=0.05,
+        help="[service_backlog] baseline reset backlog (also backlog for remove_steps evaluator).",
+    )
+    ap.add_argument(
+        "--variant-initial-backlog",
+        type=float,
+        default=None,
+        help="[service_backlog, initial_backlog_shift] counterfactual reset backlog.",
+    )
+    ap.add_argument(
+        "--variant-process-rate",
+        type=float,
+        default=None,
+        help="[service_backlog, process_rate_shift] counterfactual process_rate (baseline = template).",
     )
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
@@ -174,6 +199,10 @@ def main() -> None:
         raise SystemExit("--intervention initial_overload_shift requires --mode resource_cascade.")
     if args.intervention == "cascade_coupling_shift" and args.mode != "resource_cascade":
         raise SystemExit("--intervention cascade_coupling_shift requires --mode resource_cascade.")
+    if args.intervention == "initial_backlog_shift" and args.mode != "service_backlog":
+        raise SystemExit("--intervention initial_backlog_shift requires --mode service_backlog.")
+    if args.intervention == "process_rate_shift" and args.mode != "service_backlog":
+        raise SystemExit("--intervention process_rate_shift requires --mode service_backlog.")
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
@@ -199,6 +228,15 @@ def main() -> None:
             raise SystemExit("--variant-initial-overload required for --intervention initial_overload_shift.")
         if args.intervention == "cascade_coupling_shift" and args.variant_cascade_coupling is None:
             raise SystemExit("--variant-cascade-coupling required for --intervention cascade_coupling_shift.")
+    if args.mode == "service_backlog":
+        if args.intervention not in ("remove_steps", "initial_backlog_shift", "process_rate_shift"):
+            raise SystemExit(
+                "service_backlog mode supports remove_steps, initial_backlog_shift, or process_rate_shift."
+            )
+        if args.intervention == "initial_backlog_shift" and args.variant_initial_backlog is None:
+            raise SystemExit("--variant-initial-backlog required for --intervention initial_backlog_shift.")
+        if args.intervention == "process_rate_shift" and args.variant_process_rate is None:
+            raise SystemExit("--variant-process-rate required for --intervention process_rate_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -257,6 +295,41 @@ def main() -> None:
                 variant_cascade_coupling=float(args.variant_cascade_coupling),
                 rollout_seed=int(args.seed),
                 initial_overload=float(args.initial_overload),
+                continue_after_collapse=cont,
+            )
+    elif args.mode == "service_backlog":
+        ms = max(args.horizon, 32)
+        template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=ms)
+        if args.intervention == "remove_steps":
+
+            def evaluator_sb(g: np.ndarray, s: int):
+                return rollout_service_backlog(
+                    template,
+                    g,
+                    seed=s,
+                    initial_backlog=float(args.initial_backlog),
+                    continue_after_collapse=cont,
+                )
+
+            report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
+                genome, evaluator_sb, remove_timesteps=remove_ts, base_seed=args.seed
+            )
+        elif args.intervention == "initial_backlog_shift":
+            report, baseline_rr, variant_rr = counterfactual_service_backlog_initial_backlog_shift_with_rollouts(
+                genome,
+                template,
+                baseline_initial_backlog=float(args.initial_backlog),
+                variant_initial_backlog=float(args.variant_initial_backlog),
+                rollout_seed=int(args.seed),
+                continue_after_collapse=cont,
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_service_backlog_process_rate_shift_with_rollouts(
+                genome,
+                template,
+                variant_process_rate=float(args.variant_process_rate),
+                rollout_seed=int(args.seed),
+                initial_backlog=float(args.initial_backlog),
                 continue_after_collapse=cont,
             )
     else:
@@ -353,6 +426,9 @@ def main() -> None:
     if args.mode == "resource_cascade":
         payload["meta"]["domain"] = "resource_cascade"
         payload["meta"]["initial_overload"] = float(args.initial_overload)
+    if args.mode == "service_backlog":
+        payload["meta"]["domain"] = "service_backlog"
+        payload["meta"]["initial_backlog"] = float(args.initial_backlog)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay_dir is not None:
@@ -383,6 +459,12 @@ def main() -> None:
         elif args.intervention == "cascade_coupling_shift":
             common_meta["baseline_cascade_coupling"] = float(report["baseline_cascade_coupling"])
             common_meta["variant_cascade_coupling"] = float(report["variant_cascade_coupling"])
+        elif args.intervention == "initial_backlog_shift":
+            common_meta["baseline_initial_backlog"] = float(args.initial_backlog)
+            common_meta["variant_initial_backlog"] = float(args.variant_initial_backlog)
+        elif args.intervention == "process_rate_shift":
+            common_meta["baseline_process_rate"] = float(report["baseline_process_rate"])
+            common_meta["variant_process_rate"] = float(report["variant_process_rate"])
         else:
             common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:
@@ -390,6 +472,9 @@ def main() -> None:
         if args.mode == "resource_cascade":
             common_meta["domain"] = "resource_cascade"
             common_meta["initial_overload"] = float(args.initial_overload)
+        if args.mode == "service_backlog":
+            common_meta["domain"] = "service_backlog"
+            common_meta["initial_backlog"] = float(args.initial_backlog)
         br = rollout_to_replay_dict(baseline_rr)
         br["meta"] = {**common_meta, "variant": "baseline"}
         vr = rollout_to_replay_dict(variant_rr)

@@ -22,6 +22,7 @@ _BUNDLE_TOPOLOGY: dict[str, dict[str, str]] = {
     "network_er_rollout_v1": {"world": "StablecoinNetworkWorld", "topology": "erdos_renyi_dense"},
     "network_neighbor_list_rollout_v1": {"world": "StablecoinNetworkWorld", "topology": "neighbor_lists"},
     "resource_cascade_rollout_v1": {"world": "ResourceCascadeWorld", "topology": "scalar"},
+    "service_backlog_rollout_v1": {"world": "ServiceBacklogWorld", "topology": "scalar"},
 }
 
 

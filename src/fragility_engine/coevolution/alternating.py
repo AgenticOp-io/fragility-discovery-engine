@@ -12,10 +12,17 @@ from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
+    thread_safe_service_backlog_clone,
 )
-from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import (
+    rollout_resource_cascade,
+    rollout_service_backlog,
+    rollout_stablecoin,
+    rollout_stablecoin_network,
+)
 from fragility_engine.types import RolloutResult, SearchResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -279,6 +286,55 @@ def alternating_coevolution_resource_cascade(
         seed=seed,
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="resource_cascade",
+        collect_attacker_pareto=collect_attacker_pareto,
+        eval_workers=ew,
+    )
+
+
+def alternating_coevolution_service_backlog(
+    template: ServiceBacklogWorld,
+    *,
+    initial_backlog: float = 0.05,
+    continue_after_collapse: bool = False,
+    collect_attacker_pareto: bool = False,
+    attacker_horizon: int = 20,
+    defender_genome_size: int = 4,
+    rounds: int = 3,
+    attacker_generations: int = 8,
+    attacker_population: int = 18,
+    defender_generations: int = 8,
+    defender_population: int = 16,
+    seed: int = 4242,
+    baseline_seed_offset: int = 50_000,
+    eval_workers: int = 1,
+) -> CoevolutionSummary:
+    """Alternating attacker/defender loop on :class:`~fragility_engine.world.service_backlog.ServiceBacklogWorld`."""
+
+    ew = max(1, int(eval_workers))
+
+    def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
+        world = thread_safe_service_backlog_clone(template) if ew > 1 else template
+        return rollout_service_backlog(
+            world,
+            g,
+            seed=s,
+            initial_backlog=float(initial_backlog),
+            continue_after_collapse=continue_after_collapse,
+            defender_genome=d,
+        )
+
+    return alternating_coevolution_rollout(
+        rollout_fn,
+        attacker_horizon=attacker_horizon,
+        defender_genome_size=defender_genome_size,
+        rounds=rounds,
+        attacker_generations=attacker_generations,
+        attacker_population=attacker_population,
+        defender_generations=defender_generations,
+        defender_population=defender_population,
+        seed=seed,
+        baseline_seed_offset=baseline_seed_offset,
+        simulation_mode="service_backlog",
         collect_attacker_pareto=collect_attacker_pareto,
         eval_workers=ew,
     )

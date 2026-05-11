@@ -3,8 +3,13 @@ from __future__ import annotations
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.coevolution import alternating_coevolution, alternating_coevolution_resource_cascade
+from fragility_engine.coevolution import (
+    alternating_coevolution,
+    alternating_coevolution_resource_cascade,
+    alternating_coevolution_service_backlog,
+)
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
@@ -88,6 +93,26 @@ def test_alternating_coevolution_resource_cascade_eval_workers_matches_sequentia
     )
     s1 = alternating_coevolution_resource_cascade(template, eval_workers=1, **kwargs)
     s4 = alternating_coevolution_resource_cascade(template, eval_workers=4, **kwargs)
+    assert s1.rounds == s4.rounds
+    assert np.allclose(s1.best_attacker, s4.best_attacker)
+    assert np.allclose(s1.best_defender, s4.best_defender)
+
+
+def test_alternating_coevolution_service_backlog_eval_workers_matches_sequential():
+    template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=24)
+    kwargs = dict(
+        attacker_horizon=8,
+        defender_genome_size=4,
+        rounds=1,
+        attacker_generations=2,
+        attacker_population=8,
+        defender_generations=2,
+        defender_population=7,
+        seed=525,
+        initial_backlog=0.05,
+    )
+    s1 = alternating_coevolution_service_backlog(template, eval_workers=1, **kwargs)
+    s4 = alternating_coevolution_service_backlog(template, eval_workers=4, **kwargs)
     assert s1.rounds == s4.rounds
     assert np.allclose(s1.best_attacker, s4.best_attacker)
     assert np.allclose(s1.best_defender, s4.best_defender)

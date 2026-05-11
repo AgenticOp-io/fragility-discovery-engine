@@ -12,6 +12,8 @@ def _price_metric_note(mode: str | None) -> str:
 
     if mode == "resource_cascade":
         return "metrics.price encodes min layer headroom [0,1] (not a peg)."
+    if mode == "service_backlog":
+        return "metrics.price encodes service slack headroom S in [0,1] (not a peg)."
     if mode == "network":
         return "metrics.price encodes network summary headroom proxy (see trajectory step metrics)."
     return "metrics.price encodes peg ratio (aggregate)."

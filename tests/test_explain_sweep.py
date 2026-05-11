@@ -12,9 +12,12 @@ from fragility_engine.explain.sweep import (
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
     sweep_resource_cascade_initial_overload,
+    sweep_service_backlog_initial_backlog,
+    sweep_service_backlog_process_rate,
 )
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -95,6 +98,37 @@ def test_sweep_resource_cascade_initial_overload():
     assert out["mode"] == "resource_cascade"
     assert len(out["runs"]) == 3
     assert "initial_overload" in out["runs"][0]
+
+
+def test_sweep_service_backlog_initial_backlog():
+    template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=20)
+    genome = np.random.default_rng(91).uniform(size=(8, 2))
+    out = sweep_service_backlog_initial_backlog(
+        genome,
+        template,
+        values=[0.03, 0.08, 0.11],
+        rollout_seed=881881,
+    )
+    assert out["schema"] == SCHEMA
+    assert out["axis"] == "initial_backlog"
+    assert out["mode"] == "service_backlog"
+    assert len(out["runs"]) == 3
+    assert "initial_backlog" in out["runs"][0]
+
+
+def test_sweep_service_backlog_process_rate():
+    template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=20)
+    genome = np.random.default_rng(92).uniform(size=(8, 2))
+    out = sweep_service_backlog_process_rate(
+        genome,
+        template,
+        values=[0.2, 0.38, 0.55],
+        rollout_seed=882882,
+        initial_backlog=0.05,
+    )
+    assert out["axis"] == "process_rate"
+    assert out["fixed_initial_backlog"] == pytest.approx(0.05)
+    assert "process_rate" in out["runs"][0]
 
 
 def test_sweep_aggregate_initial_panic():

@@ -13,11 +13,13 @@ from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_resource_cascade,
+    rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -30,9 +32,10 @@ def main() -> None:
     p.add_argument("--genome-seed", type=int, default=42, help="RNG seed constructing random genome.")
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
         default="aggregate",
-        help="aggregate=StablecoinPegWorld; network=contagion graph (B); resource_cascade=Phase J scaffold.",
+        help="aggregate=StablecoinPegWorld; network=contagion graph (B); resource_cascade=Phase J; "
+        "service_backlog=Phase M backlog/slack world.",
     )
     p.add_argument(
         "--continue-after-collapse",
@@ -56,6 +59,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[resource_cascade] overload at reset [0,1].",
+    )
+    p.add_argument(
+        "--initial-backlog",
+        type=float,
+        default=0.05,
+        help="[service_backlog] backlog at reset.",
     )
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
     p.add_argument(
@@ -162,7 +171,7 @@ def main() -> None:
             base_panic=float(args.base_panic),
             continue_after_collapse=cont,
         )
-    else:
+    elif args.mode == "resource_cascade":
         ms = max(int(args.horizon), 48)
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=ms)
         result = rollout_resource_cascade(
@@ -170,6 +179,16 @@ def main() -> None:
             genome,
             seed=int(args.seed),
             initial_overload=float(args.initial_overload),
+            continue_after_collapse=cont,
+        )
+    else:
+        ms = max(int(args.horizon), 48)
+        template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=ms)
+        result = rollout_service_backlog(
+            template,
+            genome,
+            seed=int(args.seed),
+            initial_backlog=float(args.initial_backlog),
             continue_after_collapse=cont,
         )
 
@@ -187,9 +206,12 @@ def main() -> None:
         meta["base_panic"] = float(args.base_panic)
         if topo_for_meta is not None:
             meta["topology"] = topo_for_meta
-    else:
+    elif args.mode == "resource_cascade":
         meta["domain"] = "resource_cascade"
         meta["initial_overload"] = float(args.initial_overload)
+    else:
+        meta["domain"] = "service_backlog"
+        meta["initial_backlog"] = float(args.initial_backlog)
     payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

@@ -9,6 +9,8 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_remove_steps_with_rollouts,
     counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts,
     counterfactual_resource_cascade_initial_overload_shift_with_rollouts,
+    counterfactual_service_backlog_initial_backlog_shift_with_rollouts,
+    counterfactual_service_backlog_process_rate_shift_with_rollouts,
     neighbor_lists_explicit_weights,
     out_edge_index,
     parse_neighbor_edges_patch,
@@ -43,6 +45,8 @@ from fragility_engine.explain.sweep import (
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
     sweep_resource_cascade_initial_overload,
+    sweep_service_backlog_initial_backlog,
+    sweep_service_backlog_process_rate,
 )
 from fragility_engine.explain.trace import CHAIN_PATH_TRACE_RESOURCE_CASCADE_SCHEMA as EXPLANATION_RC_CHAIN_PATH_SCHEMA
 from fragility_engine.explain.trace import CHAIN_PATH_TRACE_SCHEMA as EXPLANATION_MUTATION_CHAIN_PATH_SCHEMA
@@ -65,6 +69,8 @@ __all__ = [
     "counterfactual_remove_steps_with_rollouts",
     "counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts",
     "counterfactual_resource_cascade_initial_overload_shift_with_rollouts",
+    "counterfactual_service_backlog_initial_backlog_shift_with_rollouts",
+    "counterfactual_service_backlog_process_rate_shift_with_rollouts",
     "counterfactual_network_base_panic_with_rollouts",
     "counterfactual_network_contagion_beta_with_rollouts",
     "counterfactual_network_edge_weight_with_rollouts",
@@ -90,6 +96,8 @@ __all__ = [
     "sweep_network_edge_weight",
     "sweep_aggregate_initial_panic",
     "sweep_resource_cascade_initial_overload",
+    "sweep_service_backlog_initial_backlog",
+    "sweep_service_backlog_process_rate",
     "linear_epsilon_sweep_to_trace",
     "mutation_chain_path_to_trace",
     "mutation_chain_path_to_trace_resource_cascade",

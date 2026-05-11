@@ -274,9 +274,9 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] Reproducible CLI figures from frozen JSON/CSV with pinned style configs.
 - [x] Optional LLM path restricted to prompt export + explicit disclaimer; templates versioned on disk.
 
-### Phase M — Third reference domain (**proposed**; flight closed until admission)
+### Phase M — Third reference domain (**shipped**)
 
-**Status:** proposed — **no** `world/` implementation shipped under this label yet. Normative gate + checklist: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Research context: [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
+**Status:** shipped — `ServiceBacklogWorld` (`fragility_engine.world.service_backlog`), `simulation_mode` **`service_backlog`**, rollout `rollout_service_backlog`, Phase **H** bundle **`service_backlog_rollout_v1`**, GA demo **`scripts/run_service_backlog_ga_demo.py`**, co-evolution / Pareto / MC / counterfactual / ε-sweep CLI parity with Phase J wiring. Normative doc: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Motivation: [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md). Research context: [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
 
 **Purpose:** Add a **third** thin reference `World` that reuses the **same** shock schedule encoding (`decode_schedule`, `schedule_attack_cost`) as aggregate / network / cascade, proves another physics story fits the engine, and ships with replay + tests + Phase **H** bundle parity — **without** coupling worlds inside one `step()` and without relaxing existing golden bundles.
 
@@ -300,11 +300,11 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Exit criteria (adopt Phase M as “shipped” only when all are checked):**
 
-- [ ] World module + rollout wired; replay export matches documented contract.
-- [ ] `tests/test_*_rollout.py` + `tests/test_replay_contract_*` (or merged equivalents) cover determinism and collapse metrics.
-- [ ] GA demo script (or documented flag on an existing script) exercises search on the new world.
-- [ ] Phase **H** golden bundle + tolerances in CI (`tests/test_benchmark_suite.py`).
-- [ ] Counterfactual / co-evolution / Pareto parity **only if** claimed in the admission one-pager — otherwise explicitly deferred with issues.
+- [x] World module + rollout wired; replay export matches documented contract.
+- [x] `tests/test_service_backlog_rollout.py` + `tests/test_replay_contract_service_backlog.py` cover determinism and replay keys.
+- [x] GA demo script `scripts/run_service_backlog_ga_demo.py` exercises search on the new world.
+- [x] Phase **H** golden bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` in CI (`tests/test_benchmark_suite.py`).
+- [x] Counterfactual / co-evolution / Pareto / MC / ε-sweeps shipped as documented in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) §4.
 
 ## Fitness function discipline
 

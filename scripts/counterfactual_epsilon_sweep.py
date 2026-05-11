@@ -15,10 +15,13 @@ from fragility_engine.explain.sweep import (
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
     sweep_resource_cascade_initial_overload,
+    sweep_service_backlog_initial_backlog,
+    sweep_service_backlog_process_rate,
 )
 from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
 
@@ -34,15 +37,28 @@ def _parse_float_list(raw: str) -> list[float]:
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
-            "Sweep one scalar: aggregate initial_panic, resource_cascade initial_overload, or network "
+            "Sweep one scalar: aggregate initial_panic, resource_cascade initial_overload, service_backlog "
+            "initial_backlog / process_rate, or network "
             "base_panic / contagion_beta / edge_weight on neighbor-list topology "
             "(fixed genome + rollout_seed). Optional linear explanation trace JSON."
         ),
     )
-    ap.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="network")
+    ap.add_argument(
+        "--mode",
+        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        default="network",
+    )
     ap.add_argument(
         "--axis",
-        choices=("initial_panic", "initial_overload", "base_panic", "contagion_beta", "edge_weight"),
+        choices=(
+            "initial_panic",
+            "initial_overload",
+            "initial_backlog",
+            "process_rate",
+            "base_panic",
+            "contagion_beta",
+            "edge_weight",
+        ),
         required=True,
     )
     ap.add_argument(
@@ -59,6 +75,12 @@ def main() -> None:
         type=float,
         default=0.06,
         help="[network, contagion_beta] fixed reset panic. Ignored for aggregate.",
+    )
+    ap.add_argument(
+        "--initial-backlog",
+        type=float,
+        default=0.05,
+        help="[service_backlog, axis process_rate] fixed reset backlog for each sweep row.",
     )
     ap.add_argument(
         "--continue-after-collapse",
@@ -101,10 +123,17 @@ def main() -> None:
     elif args.mode == "resource_cascade":
         if args.axis != "initial_overload":
             raise SystemExit("--mode resource_cascade requires --axis initial_overload.")
+    elif args.mode == "service_backlog":
+        if args.axis not in ("initial_backlog", "process_rate"):
+            raise SystemExit("--mode service_backlog requires --axis initial_backlog or process_rate.")
     elif args.axis == "initial_panic":
         raise SystemExit("--axis initial_panic requires --mode aggregate.")
     elif args.axis == "initial_overload":
         raise SystemExit("--axis initial_overload requires --mode resource_cascade.")
+    elif args.axis == "initial_backlog":
+        raise SystemExit("--axis initial_backlog requires --mode service_backlog.")
+    elif args.axis == "process_rate":
+        raise SystemExit("--axis process_rate requires --mode service_backlog.")
     elif args.axis == "edge_weight":
         if args.mode != "network":
             raise SystemExit("--axis edge_weight requires --mode network.")
@@ -146,6 +175,28 @@ def main() -> None:
             rollout_seed=int(args.rollout_seed),
             continue_after_collapse=cont,
         )
+    elif args.mode == "service_backlog":
+        template = ServiceBacklogWorld(
+            population=default_stablecoin_population(),
+            max_steps=max(int(args.horizon), 32),
+        )
+        if args.axis == "initial_backlog":
+            payload = sweep_service_backlog_initial_backlog(
+                genome,
+                template,
+                values=vals,
+                rollout_seed=int(args.rollout_seed),
+                continue_after_collapse=cont,
+            )
+        else:
+            payload = sweep_service_backlog_process_rate(
+                genome,
+                template,
+                values=vals,
+                rollout_seed=int(args.rollout_seed),
+                initial_backlog=float(args.initial_backlog),
+                continue_after_collapse=cont,
+            )
     else:
         try:
             template, topo_meta = build_stablecoin_network_world_cli(

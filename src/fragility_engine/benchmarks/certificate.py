@@ -71,7 +71,7 @@ def build_fragility_certificate(
     Assemble a machine-readable citation bundle (not a legal “certificate”).
 
     ``benchmark_validation`` should be small JSON-serializable metadata, e.g.
-    ``{"status": "passed", "bundle_count": 4}`` or ``{"status": "failed", "error": "…"}``.
+    ``{"status": "passed", "bundle_count": 5}`` or ``{"status": "failed", "error": "…"}``.
     """
 
     import numpy as np

@@ -15,6 +15,7 @@ This document states **what scales how** and **what breaks reproducibility** if 
 | `StablecoinNetworkWorld` step (dense adjacency) | O(n²) mixing in worst case; **neighbor-list** path is **O(edges)** per step | Prefer list topology for large n. |
 | `StablecoinPegWorld` | O(archetypes) | Aggregate reference. |
 | `ResourceCascadeWorld` | O(archetypes); optional Numba path | See `FRAGILITY_RESOURCE_CASCADE_BACKEND`. |
+| `ServiceBacklogWorld` | O(archetypes); NumPy rollout only | Same default population as other domains; `rollout_service_backlog`. |
 | GA / MC inner loop | O(population × horizon × steps) | Wall-clock ∝ parallel `eval_workers` only when work is CPU-parallel **and** isolated. |
 
 ## CI vs optional jobs

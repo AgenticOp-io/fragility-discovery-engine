@@ -27,6 +27,8 @@ This domain is a **deliberately thin** second reference: same attacker schedule 
 
 Static **`replay_viewer`** treats unknown modes like aggregate for plotting (price + instability scales).
 
+Phase **M** adds a fourth `simulation_mode`, **`service_backlog`** (`ServiceBacklogWorld`) — replay table: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) §5.
+
 ## Co-evolution, Pareto, defender
 
 - Same **four-slot defender genome** decoding as aggregate/network (`build_defended_resource_cascade_world`): knobs map to `overload_decay`, `rumor_gain`, `recovery_headroom`, and **`reserve_boost`** damps effective initial overload at `reset`.

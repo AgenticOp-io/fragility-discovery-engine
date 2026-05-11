@@ -6,10 +6,19 @@ from typing import Any
 
 import numpy as np
 
-from fragility_engine.coevolution.defender import clone_resource_cascade, clone_stablecoin_network
-from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin_network
+from fragility_engine.coevolution.defender import (
+    clone_resource_cascade,
+    clone_service_backlog,
+    clone_stablecoin_network,
+)
+from fragility_engine.runner import (
+    rollout_resource_cascade,
+    rollout_service_backlog,
+    rollout_stablecoin_network,
+)
 from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 
 
@@ -387,6 +396,82 @@ def counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts(
     merged["intervention"] = "resource_cascade_cascade_coupling_shift"
     merged["baseline_cascade_coupling"] = baseline_coupling
     merged["variant_cascade_coupling"] = float(variant_cascade_coupling)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_service_backlog_initial_backlog_shift_with_rollouts(
+    genome: np.ndarray,
+    template: ServiceBacklogWorld,
+    *,
+    baseline_initial_backlog: float,
+    variant_initial_backlog: float,
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome and RNG seed; counterfactual changes **initial_backlog** at reset."""
+
+    baseline = rollout_service_backlog(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_backlog=float(baseline_initial_backlog),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    variant = rollout_service_backlog(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_backlog=float(variant_initial_backlog),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "service_backlog_initial_backlog_shift"
+    merged["baseline_initial_backlog"] = float(baseline_initial_backlog)
+    merged["variant_initial_backlog"] = float(variant_initial_backlog)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_service_backlog_process_rate_shift_with_rollouts(
+    genome: np.ndarray,
+    template: ServiceBacklogWorld,
+    *,
+    variant_process_rate: float,
+    rollout_seed: int,
+    initial_backlog: float,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome, seed, and reset backlog; counterfactual swaps **process_rate** via template clone."""
+
+    baseline_rate = float(template.process_rate)
+    variant_tpl = clone_service_backlog(template, process_rate=float(variant_process_rate))
+    baseline = rollout_service_backlog(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_backlog=float(initial_backlog),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    variant = rollout_service_backlog(
+        variant_tpl,
+        genome,
+        seed=int(rollout_seed),
+        initial_backlog=float(initial_backlog),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "service_backlog_process_rate_shift"
+    merged["baseline_process_rate"] = baseline_rate
+    merged["variant_process_rate"] = float(variant_process_rate)
     merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
     merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
     return merged, baseline, variant

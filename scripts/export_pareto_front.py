@@ -15,16 +15,19 @@ from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
+    thread_safe_service_backlog_clone,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_resource_cascade,
+    rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import (
     StablecoinNetworkWorld,
     default_whale_weights,
@@ -48,10 +51,15 @@ def main() -> None:
         default=None,
         help="Export pareto_archive[index] rollout (re-evaluated); default is best-fitness rollout.",
     )
-    ap.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="aggregate")
+    ap.add_argument(
+        "--mode",
+        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        default="aggregate",
+    )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] uniform panic at reset.")
     ap.add_argument("--initial-overload", type=float, default=0.05, help="[resource_cascade] reset overload [0,1].")
+    ap.add_argument("--initial-backlog", type=float, default=0.05, help="[service_backlog] reset backlog.")
     ap.add_argument(
         "--continue-after-collapse",
         action="store_true",
@@ -166,7 +174,7 @@ def main() -> None:
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
-    else:
+    elif args.mode == "resource_cascade":
         template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=ms)
 
         def evaluator(genome: np.ndarray, seed: int):
@@ -176,6 +184,19 @@ def main() -> None:
                 genome,
                 seed=seed,
                 initial_overload=float(args.initial_overload),
+                continue_after_collapse=bool(args.continue_after_collapse),
+            )
+
+    else:
+        template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=ms)
+
+        def evaluator(genome: np.ndarray, seed: int):
+            world = thread_safe_service_backlog_clone(template) if ew > 1 else template
+            return rollout_service_backlog(
+                world,
+                genome,
+                seed=seed,
+                initial_backlog=float(args.initial_backlog),
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
@@ -209,6 +230,9 @@ def main() -> None:
     if args.mode == "resource_cascade":
         payload["domain"] = "resource_cascade"
         payload["initial_overload"] = float(args.initial_overload)
+    if args.mode == "service_backlog":
+        payload["domain"] = "service_backlog"
+        payload["initial_backlog"] = float(args.initial_backlog)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay is not None:
@@ -236,6 +260,9 @@ def main() -> None:
         if args.mode == "resource_cascade":
             replay["meta"]["domain"] = "resource_cascade"
             replay["meta"]["initial_overload"] = float(args.initial_overload)
+        if args.mode == "service_backlog":
+            replay["meta"]["domain"] = "service_backlog"
+            replay["meta"]["initial_backlog"] = float(args.initial_backlog)
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 

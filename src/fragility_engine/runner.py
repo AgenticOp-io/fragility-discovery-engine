@@ -9,6 +9,7 @@ from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
     build_defended_network_world,
     build_defended_resource_cascade_world,
+    build_defended_service_backlog_world,
 )
 from fragility_engine.runner_resource_cascade_numba import (
     resource_cascade_backend_from_env,
@@ -17,6 +18,7 @@ from fragility_engine.runner_resource_cascade_numba import (
 )
 from fragility_engine.types import RolloutResult, TrajectoryStep
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -249,6 +251,67 @@ def rollout_resource_cascade(
     )
 
 
+def rollout_service_backlog(
+    world_template: ServiceBacklogWorld,
+    genome: np.ndarray,
+    *,
+    seed: int,
+    initial_backlog: float = 0.05,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> RolloutResult:
+    """Phase M reference rollout — same schedule decoding as aggregate/network/cascade."""
+
+    world, reserve_boost = build_defended_service_backlog_world(world_template, defender_genome)
+    world.reset(initial_backlog=float(initial_backlog), backlog_scale=float(reserve_boost))
+    world.population.reset(initial_supply=1_000_000.0, rng=np.random.default_rng(seed ^ 0x9E3779B9))
+
+    schedule = decode_schedule(genome)
+    attack_cost = schedule_attack_cost(schedule)
+
+    trajectory: list[TrajectoryStep] = []
+    collapsed = False
+    collapse_timestep: int | None = None
+    peak_instability = 0.0
+    integral_instability = 0.0
+
+    for t in range(world.max_steps):
+        events = schedule.get(t, ())
+        step_rng = np.random.default_rng(seed + 17 * (t + 1))
+        step = world.step(events, step_rng)
+        trajectory.append(step)
+        inst = float(step.metrics["instability"])
+        peak_instability = max(peak_instability, inst)
+        integral_instability += inst
+
+        if world.is_collapsed():
+            if collapse_timestep is None:
+                collapse_timestep = t
+                collapsed = True
+            if not continue_after_collapse:
+                break
+
+    recovery_timestep = _recovery_timestep(
+        trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        continue_after_collapse=continue_after_collapse,
+        depeg_threshold=world.depeg_threshold,
+    )
+
+    return RolloutResult(
+        trajectory=trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        final_instability=peak_instability,
+        seed=seed,
+        attack_cost=attack_cost,
+        simulation_mode="service_backlog",
+        integral_instability=float(integral_instability),
+        recovery_timestep=recovery_timestep,
+    )
+
+
 def resource_cascade_backend_benchmark_meta(template: ResourceCascadeWorld) -> dict[str, str]:
     """
     Labels for profiling JSON: resolved ``FRAGILITY_RESOURCE_CASCADE_BACKEND`` and whether dispatch
@@ -334,7 +397,8 @@ def rollout_to_replay_dict(result: RolloutResult) -> dict[str, Any]:
     Top-level keys:
 
     - ``schema_version`` (`str`) — bump when fields change; viewers should branch on this.
-    - ``simulation_mode`` (`str`) — ``aggregate``, ``network``, or ``resource_cascade`` (Phase J scaffold).
+    - ``simulation_mode`` (`str`) — ``aggregate``, ``network``, ``resource_cascade`` (Phase J), or
+      ``service_backlog`` (Phase M third reference domain).
     - ``attack_cost`` (`float`) — abstract schedule cost from ``schedule_attack_cost``
       (:mod:`fragility_engine.adversary.encoding`).
     - ``integral_instability`` (`float`) — sum of per-step ``metrics["instability"]``.

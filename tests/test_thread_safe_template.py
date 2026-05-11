@@ -3,14 +3,20 @@
 from __future__ import annotations
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.coevolution.defender import clone_resource_cascade, clone_stablecoin_network
+from fragility_engine.coevolution.defender import (
+    clone_resource_cascade,
+    clone_service_backlog,
+    clone_stablecoin_network,
+)
 from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
+    thread_safe_service_backlog_clone,
 )
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -63,4 +69,18 @@ def test_clone_resource_cascade_respects_population_override():
 def test_thread_safe_resource_cascade_clone_fresh_population():
     t = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=18)
     c = thread_safe_resource_cascade_clone(t)
+    assert c.population is not t.population
+
+
+def test_clone_service_backlog_respects_population_override():
+    t = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=18)
+    alt = default_stablecoin_population()
+    c = clone_service_backlog(t, population=alt)
+    assert c.population is alt
+    assert c.population is not t.population
+
+
+def test_thread_safe_service_backlog_clone_fresh_population():
+    t = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=18)
+    c = thread_safe_service_backlog_clone(t)
     assert c.population is not t.population

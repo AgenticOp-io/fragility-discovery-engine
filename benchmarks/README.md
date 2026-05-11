@@ -4,7 +4,7 @@
 
 This folder documents **frozen deterministic bundles** implemented in code:
 
-- `fragility_engine.benchmarks.suite` — four bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, **`resource_cascade_rollout_v1`** — Phase J scaffold).
+- `fragility_engine.benchmarks.suite` — five bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, **`resource_cascade_rollout_v1`**, **`service_backlog_rollout_v1`** — Phase M third domain).
 - Golden scalars live beside the runners (`GOLDEN_METRICS`); CI asserts relaxed numerical agreement.
 
 ## Reproduce locally

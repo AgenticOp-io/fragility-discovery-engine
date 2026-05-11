@@ -9,8 +9,13 @@ These helpers copy scalar physics/topology from a template but swap in
 from __future__ import annotations
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.coevolution.defender import clone_resource_cascade, clone_stablecoin_network
+from fragility_engine.coevolution.defender import (
+    clone_resource_cascade,
+    clone_service_backlog,
+    clone_stablecoin_network,
+)
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -31,3 +36,7 @@ def thread_safe_network_clone(template: StablecoinNetworkWorld) -> StablecoinNet
 
 def thread_safe_resource_cascade_clone(template: ResourceCascadeWorld) -> ResourceCascadeWorld:
     return clone_resource_cascade(template, population=default_stablecoin_population())
+
+
+def thread_safe_service_backlog_clone(template: ServiceBacklogWorld) -> ServiceBacklogWorld:
+    return clone_service_backlog(template, population=default_stablecoin_population())

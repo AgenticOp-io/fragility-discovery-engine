@@ -148,6 +148,98 @@ def test_export_counterfactual_resource_cascade_overload_shift_cli(py_exe: str, 
     assert payload["delta_integral_instability"] is not None
 
 
+def test_export_counterfactual_service_backlog_remove_steps_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_sb_rm.json"
+    rep = tmp_path / "rep_sb"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "service_backlog",
+            "--horizon",
+            "10",
+            "--remove",
+            "0,1",
+            "--seed",
+            "7701",
+            "--genome-seed",
+            "12",
+            "--out",
+            str(out),
+            "--export-replay-dir",
+            str(rep),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["meta"]["mode"] == "service_backlog"
+    assert payload["meta"]["domain"] == "service_backlog"
+    b = json.loads((rep / "baseline.json").read_text(encoding="utf-8"))
+    assert b["simulation_mode"] == "service_backlog"
+
+
+def test_export_counterfactual_service_backlog_process_rate_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_sb_pr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "service_backlog",
+            "--horizon",
+            "11",
+            "--intervention",
+            "process_rate_shift",
+            "--initial-backlog",
+            "0.06",
+            "--variant-process-rate",
+            "0.55",
+            "--seed",
+            "7702",
+            "--genome-seed",
+            "13",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "service_backlog_process_rate_shift"
+
+
+def test_export_counterfactual_service_backlog_backlog_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_sb_ib.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "service_backlog",
+            "--horizon",
+            "11",
+            "--intervention",
+            "initial_backlog_shift",
+            "--initial-backlog",
+            "0.07",
+            "--variant-initial-backlog",
+            "0.02",
+            "--seed",
+            "7703",
+            "--genome-seed",
+            "14",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "service_backlog_initial_backlog_shift"
+
+
 def test_export_resource_cascade_joint_attribution_cli(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "joint_rc.json"
     subprocess.run(
@@ -662,6 +754,33 @@ def test_run_mc_demo_network_mode_smoke(py_exe: str, tmp_path: Path) -> None:
     assert "topology" in data["meta"]
 
 
+def test_run_mc_demo_service_backlog_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "mc_sb.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_mc_demo.py"),
+            "--mode",
+            "service_backlog",
+            "--samples",
+            "8",
+            "--horizon",
+            "9",
+            "--seed",
+            "9191",
+            "--initial-backlog",
+            "0.055",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "service_backlog"
+    assert data["meta"]["initial_backlog"] == pytest.approx(0.055)
+
+
 def test_run_mc_demo_eval_workers_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "mc_par.json"
     subprocess.run(
@@ -854,6 +973,31 @@ def test_run_resource_cascade_ga_demo_exports_replay(py_exe: str, tmp_path: Path
     assert data["trajectory"]
 
 
+def test_run_service_backlog_ga_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "sb_ga.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_service_backlog_ga_demo.py"),
+            "--generations",
+            "2",
+            "--population-size",
+            "8",
+            "--seed",
+            "929",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "service_backlog"
+    assert data["meta"]["cli"] == "run_service_backlog_ga_demo"
+    assert data["meta"]["domain"] == "service_backlog"
+    assert data["trajectory"]
+
+
 def test_run_coevolution_aggregate_continue_after_collapse(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "coev_cont.json"
     subprocess.run(
@@ -975,6 +1119,36 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     rb = rc["resource_cascade_backend"]
     assert set(rb) == {"resource_cascade_backend_env", "resource_cascade_backend_effective"}
     assert rb["resource_cascade_backend_effective"] in ("numpy", "numba")
+
+    proc_sb = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--mode",
+            "service_backlog",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--max-steps",
+            "14",
+            "--horizon",
+            "9",
+            "--initial-backlog",
+            "0.06",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    sb = json.loads(proc_sb.stdout)
+    assert sb["workflow"] == "ad_hoc"
+    assert sb["mode"] == "service_backlog"
+    assert sb["initial_backlog"] == pytest.approx(0.06)
+    assert sb["nodes"] is None
+    assert "resource_cascade_backend" not in sb
 
     proc_b = subprocess.run(
         [
@@ -1125,6 +1299,27 @@ def test_benchmark_rollout_cli_smoke(py_exe: str) -> None:
     assert rc_bundle["bundle_id"] == "resource_cascade_rollout_v1"
     assert rc_bundle["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
+    proc_sb_b = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "service_backlog_rollout_v1",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    sb_bundle = json.loads(proc_sb_b.stdout)
+    assert sb_bundle["bundle_id"] == "service_backlog_rollout_v1"
+    assert "resource_cascade_backend" not in sb_bundle
+
 
 def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
     proc = subprocess.run(
@@ -1145,8 +1340,8 @@ def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
     )
     suite = json.loads(proc.stdout)
     assert suite["workflow"] == "phase_h_bundle_suite"
-    assert suite["bundle_count"] == 4
-    assert len(suite["bundles"]) == 4
+    assert suite["bundle_count"] == 5
+    assert len(suite["bundles"]) == 5
     ids = [row["bundle_id"] for row in suite["bundles"]]
     assert ids == sorted(ids)
     assert suite["total_wall_clock_s"] >= 0.0
@@ -1180,6 +1375,35 @@ def test_export_replay_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> No
     assert data["meta"]["cli"] == "export_replay"
     assert data["meta"]["domain"] == "resource_cascade"
     assert data["meta"]["initial_overload"] == pytest.approx(0.07)
+
+
+def test_export_replay_service_backlog_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "sb_rep.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "service_backlog",
+            "--out",
+            str(out),
+            "--horizon",
+            "11",
+            "--seed",
+            "441",
+            "--genome-seed",
+            "442",
+            "--initial-backlog",
+            "0.07",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "service_backlog"
+    assert data["meta"]["cli"] == "export_replay"
+    assert data["meta"]["domain"] == "service_backlog"
+    assert data["meta"]["initial_backlog"] == pytest.approx(0.07)
 
 
 def test_export_replay_network_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
@@ -1513,6 +1737,43 @@ def test_run_coevolution_resource_cascade_exports_replay(py_exe: str, tmp_path: 
     assert data["meta"]["coevolution_mode"] == "resource_cascade"
 
 
+def test_run_coevolution_service_backlog_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "coev_sb.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "service_backlog",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "30",
+            "--initial-backlog",
+            "0.06",
+            "--attacker-horizon",
+            "10",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "808808",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "service_backlog"
+    assert data["meta"]["coevolution_mode"] == "service_backlog"
+
+
 def test_export_pareto_front_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "pf_rc.json"
     subprocess.run(
@@ -1543,6 +1804,38 @@ def test_export_pareto_front_resource_cascade_smoke(py_exe: str, tmp_path: Path)
     assert data["schema"] == "pareto-front-v1"
     assert data["domain"] == "resource_cascade"
     assert data["initial_overload"] == pytest.approx(0.07)
+
+
+def test_export_pareto_front_service_backlog_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_sb.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "service_backlog",
+            "--out",
+            str(out),
+            "--initial-backlog",
+            "0.07",
+            "--horizon",
+            "10",
+            "--generations",
+            "2",
+            "--population-size",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "626626",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert data["domain"] == "service_backlog"
+    assert data["initial_backlog"] == pytest.approx(0.07)
 
 
 def test_export_pareto_front_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
@@ -1680,7 +1973,7 @@ def test_run_benchmark_suite_bench_search_json(py_exe: str) -> None:
     data = json.loads(proc.stdout)
     assert data["workflow"] == "phase_h_bundle_search_microbench"
     assert data["eval_pool"] == "threads"
-    assert len(data["bundles"]) == 4
+    assert len(data["bundles"]) == 5
 
 
 def test_export_counterfactual_base_panic_shift_cli(py_exe: str, tmp_path: Path) -> None:
@@ -2150,6 +2443,37 @@ def test_counterfactual_epsilon_sweep_resource_cascade_cli(py_exe: str, tmp_path
     assert data["schema"] == "counterfactual-epsilon-sweep-v1"
     assert data["mode"] == "resource_cascade"
     assert data["axis"] == "initial_overload"
+    assert data["summary"]["count"] == 3
+
+
+def test_counterfactual_epsilon_sweep_service_backlog_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps_sb.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "service_backlog",
+            "--axis",
+            "initial_backlog",
+            "--values",
+            "0.04,0.08,0.12",
+            "--horizon",
+            "10",
+            "--rollout-seed",
+            "99441",
+            "--genome-seed",
+            "99442",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "counterfactual-epsilon-sweep-v1"
+    assert data["mode"] == "service_backlog"
+    assert data["axis"] == "initial_backlog"
     assert data["summary"]["count"] == 3
 
 

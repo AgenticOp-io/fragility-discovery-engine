@@ -7,10 +7,16 @@ from typing import Any, Literal
 
 import numpy as np
 
-from fragility_engine.coevolution.defender import clone_stablecoin_network
+from fragility_engine.coevolution.defender import clone_service_backlog, clone_stablecoin_network
 from fragility_engine.explain.counterfactual import neighbor_lists_explicit_weights, out_edge_index, rollout_snapshot
-from fragility_engine.runner import rollout_resource_cascade, rollout_stablecoin, rollout_stablecoin_network
+from fragility_engine.runner import (
+    rollout_resource_cascade,
+    rollout_service_backlog,
+    rollout_stablecoin,
+    rollout_stablecoin_network,
+)
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -265,6 +271,107 @@ def sweep_resource_cascade_initial_overload(
         "axis": "initial_overload",
         "mode": "resource_cascade",
         "rollout_seed": int(rollout_seed),
+        "runs": runs,
+        "summary": summary,
+    }
+
+
+def sweep_service_backlog_initial_backlog(
+    genome: np.ndarray,
+    template: ServiceBacklogWorld,
+    *,
+    values: list[float],
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+) -> dict[str, Any]:
+    """Phase M: vary ``initial_backlog`` at reset; same genome and rollout seed."""
+
+    if not values:
+        raise ValueError("values must be non-empty")
+
+    runs: list[dict[str, Any]] = []
+    integrals: list[float] = []
+
+    for v in values:
+        ib = float(max(0.0, float(v)))
+        r = rollout_service_backlog(
+            template,
+            genome,
+            seed=int(rollout_seed),
+            initial_backlog=ib,
+            continue_after_collapse=bool(continue_after_collapse),
+        )
+        integrals.append(float(r.integral_instability))
+        runs.append({"initial_backlog": ib, **rollout_snapshot(r)})
+
+    arr = np.asarray(integrals, dtype=np.float64)
+    collapses = sum(1 for row in runs if row["collapsed"])
+
+    summary = {
+        "count": len(values),
+        "collapse_count": int(collapses),
+        "integral_instability_min": float(arr.min()),
+        "integral_instability_max": float(arr.max()),
+        "integral_instability_mean": float(arr.mean()),
+    }
+
+    return {
+        "schema": SCHEMA,
+        "axis": "initial_backlog",
+        "mode": "service_backlog",
+        "rollout_seed": int(rollout_seed),
+        "runs": runs,
+        "summary": summary,
+    }
+
+
+def sweep_service_backlog_process_rate(
+    genome: np.ndarray,
+    template: ServiceBacklogWorld,
+    *,
+    values: list[float],
+    rollout_seed: int,
+    initial_backlog: float,
+    continue_after_collapse: bool = False,
+) -> dict[str, Any]:
+    """Phase M: vary ``process_rate`` via topology-preserving clone; same genome, seed, backlog."""
+
+    if not values:
+        raise ValueError("values must be non-empty")
+
+    runs: list[dict[str, Any]] = []
+    integrals: list[float] = []
+
+    for v in values:
+        pr = float(max(0.0, float(v)))
+        tw = clone_service_backlog(template, process_rate=pr)
+        r = rollout_service_backlog(
+            tw,
+            genome,
+            seed=int(rollout_seed),
+            initial_backlog=float(initial_backlog),
+            continue_after_collapse=bool(continue_after_collapse),
+        )
+        integrals.append(float(r.integral_instability))
+        runs.append({"process_rate": pr, **rollout_snapshot(r)})
+
+    arr = np.asarray(integrals, dtype=np.float64)
+    collapses = sum(1 for row in runs if row["collapsed"])
+
+    summary = {
+        "count": len(values),
+        "collapse_count": int(collapses),
+        "integral_instability_min": float(arr.min()),
+        "integral_instability_max": float(arr.max()),
+        "integral_instability_mean": float(arr.mean()),
+    }
+
+    return {
+        "schema": SCHEMA,
+        "axis": "process_rate",
+        "mode": "service_backlog",
+        "rollout_seed": int(rollout_seed),
+        "fixed_initial_backlog": float(initial_backlog),
         "runs": runs,
         "summary": summary,
     }

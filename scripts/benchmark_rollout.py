@@ -30,10 +30,12 @@ from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     resource_cascade_backend_benchmark_meta,
     rollout_resource_cascade,
+    rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -41,7 +43,7 @@ from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 def main() -> None:
     p = argparse.ArgumentParser(
         description=(
-            "Time aggregate, network, or resource_cascade rollouts (perf_counter). "
+            "Time aggregate, network, resource_cascade, or service_backlog rollouts (perf_counter). "
             "Optional --bundle / --bundle-all run Phase H golden workloads (ignore --mode sizing)."
         ),
     )
@@ -64,7 +66,11 @@ def main() -> None:
             "emits aggregate JSON with per-bundle rows under --json."
         ),
     )
-    p.add_argument("--mode", choices=("aggregate", "network", "resource_cascade"), default="network")
+    p.add_argument(
+        "--mode",
+        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        default="network",
+    )
     p.add_argument("--warmup", type=int, default=1, help="Ignored iterations before timing.")
     p.add_argument("--repeat", type=int, default=8, help="Timed iterations.")
     p.add_argument("--seed", type=int, default=42)
@@ -88,6 +94,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[resource_cascade] overload at reset [0,1].",
+    )
+    p.add_argument(
+        "--initial-backlog",
+        type=float,
+        default=0.05,
+        help="[service_backlog] backlog at reset.",
     )
     p.add_argument("--json", action="store_true", help="Emit one JSON object on stdout.")
     p.add_argument(
@@ -354,7 +366,7 @@ def main() -> None:
         def run_once() -> None:
             rollout_stablecoin_network(template, genome, seed=int(args.seed))
 
-    else:
+    elif args.mode == "resource_cascade":
         template = ResourceCascadeWorld(
             population=default_stablecoin_population(),
             max_steps=int(args.max_steps),
@@ -366,6 +378,20 @@ def main() -> None:
                 genome,
                 seed=int(args.seed),
                 initial_overload=float(args.initial_overload),
+            )
+
+    else:
+        template = ServiceBacklogWorld(
+            population=default_stablecoin_population(),
+            max_steps=int(args.max_steps),
+        )
+
+        def run_once() -> None:
+            rollout_service_backlog(
+                template,
+                genome,
+                seed=int(args.seed),
+                initial_backlog=float(args.initial_backlog),
             )
 
     for _ in range(warmup):
@@ -386,6 +412,7 @@ def main() -> None:
         "mean_ms_per_rollout": mean_ms,
         "nodes": n_report if args.mode == "network" else None,
         "initial_overload": float(args.initial_overload) if args.mode == "resource_cascade" else None,
+        "initial_backlog": float(args.initial_backlog) if args.mode == "service_backlog" else None,
         "max_steps": int(args.max_steps),
         "horizon": int(args.horizon),
         "seed": int(args.seed),

@@ -30,28 +30,28 @@ Phase **J** shipped the **second** reference domain (`ResourceCascadeWorld`). Ph
 
 All must be true:
 
-1. [ ] **§Selected candidate** below is filled in (one narrative + public API names planned).
-2. [ ] **No other** open domain flight (no parallel second “Phase J–style” rewrite; no duplicate Phase M candidates in flight).
+1. [x] **§Selected candidate** below is filled in (one narrative + public API names planned).
+2. [x] **No other** open domain flight (no parallel second “Phase J–style” rewrite; no duplicate Phase M candidates in flight).
 3. [ ] **Issues filed** — one tracker issue per exit criterion in `BOUNDARIES.md` Phase M, each naming **one** acceptance test.
-4. [ ] **Replay table drafted** — §5 below completed for the candidate (even if implementation lags by one PR).
+4. [x] **Replay table drafted** — §5 below completed for the candidate (even if implementation lags by one PR).
 
 Until admission is satisfied, Phase M work stays **design-only** (docs, spikes on branches) or lives in a **fork**.
 
 ---
 
-## 4. Selected candidate *(fill when opening the flight)*
+## 4. Selected candidate — `ServiceBacklogWorld` *(shipped)*
 
-**World module (planned):** `fragility_engine.world.________________`
+**World module:** `fragility_engine.world.service_backlog.ServiceBacklogWorld`
 
-**`simulation_mode` string (planned):** `________________`
+**`simulation_mode` string:** `service_backlog`
 
-**One-sentence physics story:**
+**One-sentence physics story:** discrete-time **work backlog** `B` and **service slack** `S` (capacity headroom in `[0,1]`); `reserve_loss` shocks add load, `rumor` shocks erode slack; the same archetyped redeemers modulate drain rate before slack recovers.
 
+**Why not cascade / peg / network:** third scalar **operations / latency** narrative without peg mechanics or graph contagion — still schedule-driven shocks and replay-shaped metrics for apples-to-oranges comparison in tooling.
 
-**Why not cascade / peg / network:**
+**Shipped in v1:** `rollout_service_backlog`, `rollout_to_replay_dict`, defender decoding (`build_defended_service_backlog_world`), co-evolution (`alternating_coevolution_service_backlog`), Pareto + MC + export CLIs, counterfactuals (`remove_steps`, `initial_backlog_shift`, `process_rate_shift`), ε-sweeps (`initial_backlog`, `process_rate`), Phase **H** bundle `service_backlog_rollout_v1`, GA demo `scripts/run_service_backlog_ga_demo.py`.
 
-
-**Deferred to later issues (optional):** co-evolution mode, Pareto, counterfactuals, mutation chains — list explicitly if not in v1 flight.
+**Deferred (charter-optional):** cumulative mutation chains + joint attribution merge (Phase J chain scripts) — not claimed for this flight; add via separate issue if needed.
 
 ---
 
@@ -59,14 +59,14 @@ Until admission is satisfied, Phase M work stays **design-only** (docs, spikes o
 
 Assume `schema_version` **0.4.x** unless you justify a bump in `BOUNDARIES.md`.
 
-| Topic | Aggregate / network / cascade (reference) | Phase M world (fill) |
+| Topic | Aggregate / network / cascade (reference) | Phase M (`service_backlog`) |
 |--------|---------------------------------------------|------------------------|
-| `simulation_mode` | `aggregate` \| `network` \| `resource_cascade` | |
-| `state_vector` length + semantics | see Phase J table | |
-| `metrics.price` semantics | peg / headroom / … | |
-| `metrics.instability` | | |
-| `events_lane` | shocks | |
-| Viewer | `artifacts/replay_viewer/index.html` behavior | |
+| `simulation_mode` | `aggregate` \| `network` \| `resource_cascade` | **`service_backlog`** |
+| `state_vector` length + semantics | see Phase J table | **4 floats:** `B`, `S`, `B / backlog_collapse` clipped to `[0,1]`, timestep index |
+| `metrics.price` semantics | peg / headroom / … | **Slack headroom** `S` (same field name for viewer compatibility) |
+| `metrics.instability` | domain formulas | `0.55 * norm(B) + 0.45 * (1 - S)` with bounded backlog norm |
+| `events_lane` | shocks | Same `reserve_loss` / `rumor` encoding as other domains |
+| Viewer | `artifacts/replay_viewer/index.html` behavior | Treat **`price` as slack** (healthy when high); collapse when `B >= backlog_collapse` or `S <= slack_floor_collapse` |
 
 ---
 
@@ -74,11 +74,11 @@ Assume `schema_version` **0.4.x** unless you justify a bump in `BOUNDARIES.md`.
 
 Track these in issues; checkboxes flip only when merged to `main`:
 
-- [ ] World + rollout + replay path + determinism tests.
-- [ ] Replay contract tests (new or extended).
-- [ ] GA (or equivalent) smoke entry point documented.
-- [ ] Phase **H** bundle + `GOLDEN_METRICS` + CI tolerance row.
-- [ ] Optional co-evolution / counterfactual / Pareto — only if listed in §4 **Deferred** as in-scope for this flight.
+- [x] World + rollout + replay path + determinism tests.
+- [x] Replay contract tests (new or extended).
+- [x] GA (or equivalent) smoke entry point documented.
+- [x] Phase **H** bundle + `GOLDEN_METRICS` + CI tolerance row.
+- [x] Co-evolution / counterfactual / Pareto / MC / ε-sweeps — shipped as listed in §4.
 
 ---
 
@@ -102,6 +102,6 @@ Pick **one** when opening §4; the others remain backlog references:
 
 ## 9. After shipping
 
-- Update **`BOUNDARIES.md`** Phase M **Status** from *proposed* to *shipped* (short pointer to module + bundle id).
-- Add **`docs/WHY_<DOMAIN>.md`** (or expand this doc) so newcomers know what the world does **not** claim.
+- [x] **`BOUNDARIES.md`** Phase M **Status** set to *shipped* (module + bundle id + script pointers).
+- [x] **`docs/WHY_SERVICE_BACKLOG.md`** — scope disclaimer for newcomers.
 - Optionally extend **institutional composite** tooling later (decoupled audit only) — not required for Phase M closure.

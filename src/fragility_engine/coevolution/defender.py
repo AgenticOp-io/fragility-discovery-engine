@@ -5,6 +5,7 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -180,6 +181,54 @@ def build_defended_resource_cascade_world(
         overload_decay=float(overrides["panic_decay"]),
         rumor_gain=float(overrides["rumor_panic_gain"]),
         recovery_headroom=float(overrides["depeg_threshold"]),
+    )
+    return world, reserve_boost
+
+
+def clone_service_backlog(template: ServiceBacklogWorld, **phys: Any) -> ServiceBacklogWorld:
+    """Clone backlog-world parameters with optional physics overrides (counterfactuals, defenders).
+
+    Optional ``population=`` replaces the template's ``population`` for concurrent evaluation safety.
+    """
+
+    return ServiceBacklogWorld(
+        population=phys.get("population", template.population),
+        ingest_gain=float(phys.get("ingest_gain", template.ingest_gain)),
+        rumor_slack_damage=float(phys.get("rumor_slack_damage", template.rumor_slack_damage)),
+        process_rate=float(phys.get("process_rate", template.process_rate)),
+        slack_recovery=float(phys.get("slack_recovery", template.slack_recovery)),
+        backlog_collapse=float(phys.get("backlog_collapse", template.backlog_collapse)),
+        slack_floor_collapse=float(phys.get("slack_floor_collapse", template.slack_floor_collapse)),
+        recovery_slack=float(phys.get("recovery_slack", template.recovery_slack)),
+        max_steps=int(phys.get("max_steps", template.max_steps)),
+    )
+
+
+def build_defended_service_backlog_world(
+    template: ServiceBacklogWorld,
+    defender_genome: np.ndarray | None,
+) -> tuple[ServiceBacklogWorld, float]:
+    """
+    Same four-knob defender decoding as aggregate/network/cascade:
+
+    - Slots map to ``slack_recovery``, ``rumor_slack_damage``, ``recovery_slack``;
+      ``reserve_boost`` damps effective initial backlog at ``reset`` (via ``backlog_scale``).
+    """
+
+    if defender_genome is None:
+        return clone_service_backlog(template), 1.0
+
+    overrides, reserve_boost = decode_defender_genome_params(
+        defender_genome,
+        panic_decay=float(template.slack_recovery),
+        rumor_panic_gain=float(template.rumor_slack_damage),
+        depeg_threshold=float(template.recovery_slack),
+    )
+    world = clone_service_backlog(
+        template,
+        slack_recovery=float(overrides["panic_decay"]),
+        rumor_slack_damage=float(overrides["rumor_panic_gain"]),
+        recovery_slack=float(overrides["depeg_threshold"]),
     )
     return world, reserve_boost
 

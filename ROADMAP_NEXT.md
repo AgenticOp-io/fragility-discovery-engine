@@ -165,22 +165,22 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Normative gate:** [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase M) + checklist [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md).
 
-**Status:** **Proposed** — flight is **closed** until the admission checklist (selected candidate, no parallel flight, per-criterion issues) is satisfied.
+**Status:** **Shipped** — `ServiceBacklogWorld` / `service_backlog` / `service_backlog_rollout_v1` + GA demo `scripts/run_service_backlog_ga_demo.py` + co-evolution / Pareto / MC / counterfactual / ε-sweep wiring (see [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) §4).
 
 **Hard rules:**
 
 - Exactly **one** Phase M physics line in flight; **max 3–5** archetypes.
-- Aggregate + network + **Phase J** cascade remain default **CI golden anchors** unless charter is explicitly revised.
+- Aggregate + network + **Phase J** cascade + **Phase M** backlog remain default **CI golden anchors** unless charter is explicitly revised.
 - No **coupled** mega-institution `World` (cross-domain state in one `step`) under Phase M — that is out of charter (`docs/RESEARCH_FRONTIERS.md`).
 
-**Exit criteria (copy to issues when opening the flight):**
+**Exit criteria (Phase M v1):**
 
-- [ ] `world/` module + `runner` rollout + `rollout_to_replay_dict` row in compatibility doc.
-- [ ] Determinism + replay contract tests.
-- [ ] GA (or documented) smoke CLI mirroring `run_resource_cascade_ga_demo.py` pattern.
-- [ ] Phase **H** bundle id + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py`.
-- [ ] “Why this domain” doc (≤ 1 page).
-- [ ] *(Optional, if claimed at admission)* co-evolution / Pareto / counterfactuals for the new mode.
+- [x] `world/` module + `runner` rollout + `rollout_to_replay_dict` row in compatibility doc.
+- [x] Determinism + replay contract tests.
+- [x] GA smoke CLI `run_service_backlog_ga_demo.py`.
+- [x] Phase **H** bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py`.
+- [x] “Why this domain” doc — [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md).
+- [x] Co-evolution / Pareto / counterfactuals / MC / ε-sweeps for `service_backlog` mode.
 
 ---
 
