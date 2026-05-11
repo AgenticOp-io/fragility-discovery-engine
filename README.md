@@ -31,7 +31,7 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
-**Reviewer walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py`.
+**Reviewer walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
 
 ## Quick start
 
@@ -101,7 +101,8 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 |--------|---------|
 | `scripts/week1_smoke.py` | Deterministic rollout smoke (`--export-replay`, `--initial-panic`, `--continue-after-collapse`) |
 | `scripts/run_mc_demo.py` | Monte Carlo random schedules (`--export-replay`, `--continue-after-collapse`) |
-| `scripts/export_minimized_replay.py` | Random collapsing schedule → greedy minimization → replay JSON |
+| `scripts/export_minimized_replay.py` | Random collapsing schedule → greedy minimization → replay JSON; optional **`--minimization-report-out`** (JSON for `export_explanation_dag.py`) |
+| `scripts/export_explanation_dag.py` | **`explanation-dag-v1`** from **`--from-counterfactual`** or **`--from-minimization-report`** |
 | `scripts/run_ga_demo.py` | GA + greedy minimization (`--export-replay`, `--export-minimized-replay`, `--generations`, `--population-size`, `--seed`) |
 | `scripts/run_resource_cascade_ga_demo.py` | Phase **J** scaffold: GA + minimization on **`ResourceCascadeWorld`** (`--initial-overload`, same export flags); see [`docs/phase_j_resource_cascade.md`](docs/phase_j_resource_cascade.md) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--neighbor-json` / `--neighbor-weights-json`, `--export-replay`, sizing flags) |

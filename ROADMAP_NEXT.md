@@ -21,6 +21,8 @@ If a feature weakens determinism, blurs world/adversary separation, or ships wit
 
 **Operator guide:** step-by-step install, CLI walkthroughs, static viewers, and artifact map — [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md).
 
+**Research frontiers (third domain, coupling — explicit non-goals vs shipped tooling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
+
 ## Strategic pillars (unchanging constraints)
 
 | Pillar | Requirement |

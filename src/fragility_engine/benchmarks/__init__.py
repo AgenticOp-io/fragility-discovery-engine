@@ -11,6 +11,7 @@ from fragility_engine.benchmarks.ensemble import (
     robustness_rollouts_over_graph_seeds,
 )
 from fragility_engine.benchmarks.flagship import run_flagship_demo
+from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min, nondominated_points_min
 from fragility_engine.benchmarks.institutional_composite import (
     triple_domain_rollout_artifact,
     twin_domain_rollout_artifact,
@@ -36,6 +37,8 @@ __all__ = [
     "FRAGILITY_CERTIFICATE_SCHEMA",
     "MANIFEST_SCHEMA",
     "build_benchmark_manifest",
+    "hypervolume_2d_min",
+    "nondominated_points_min",
     "build_fragility_certificate",
     "BUNDLE_IDS",
     "GOLDEN_METRICS",

@@ -27,6 +27,11 @@ from fragility_engine.explain.counterfactual_chain_resource_cascade import (
     mutation_chain_path_rollouts_resource_cascade,
     parse_resource_cascade_chain_spec_payload,
 )
+from fragility_engine.explain.explanation_dag import (
+    EXPLANATION_DAG_SCHEMA,
+    counterfactual_bundle_to_dag,
+    minimization_report_to_dag,
+)
 from fragility_engine.explain.interaction_summary import INTERACTION_SUMMARY_SCHEMA, summarize_attribution_merge
 from fragility_engine.explain.merge_attribution import SCHEMA as ATTRIBUTION_MERGE_SCHEMA
 from fragility_engine.explain.merge_attribution import merge_heterogeneous_counterfactuals
@@ -49,6 +54,9 @@ from fragility_engine.explain.trace import (
 )
 
 __all__ = [
+    "EXPLANATION_DAG_SCHEMA",
+    "counterfactual_bundle_to_dag",
+    "minimization_report_to_dag",
     "load_frozen_json_artifact",
     "narrate_frozen_artifact",
     "minimize_schedule",

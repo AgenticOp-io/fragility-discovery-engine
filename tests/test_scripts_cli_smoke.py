@@ -251,6 +251,36 @@ def test_narrate_frozen_json_cite_digest_cli(py_exe: str, tmp_path: Path) -> Non
     assert "citation_sha256:" in payload["text"]
 
 
+def test_export_explanation_dag_from_counterfactual_cli(py_exe: str, tmp_path: Path) -> None:
+    cf = tmp_path / "cf.json"
+    cf.write_text(
+        json.dumps(
+            {
+                "intervention": "remove_steps",
+                "baseline": {"integral_instability": 3.0, "attack_cost": 1.0, "collapsed": True},
+                "counterfactual": {"integral_instability": 1.0, "attack_cost": 1.0, "collapsed": False},
+            },
+        ),
+        encoding="utf-8",
+    )
+    out = tmp_path / "dag.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_explanation_dag.py"),
+            "--from-counterfactual",
+            str(cf),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "explanation-dag-v1"
+    assert data["kind"] == "counterfactual_pair"
+
+
 def test_narrate_frozen_json_institutional_composite_cli(py_exe: str, tmp_path: Path) -> None:
     comp = tmp_path / "composite.json"
     subprocess.run(
@@ -2000,8 +2030,10 @@ def test_run_benchmark_manifest_out_cli(py_exe: str, tmp_path: Path) -> None:
         cwd=str(ROOT),
     )
     m = json.loads(out.read_text(encoding="utf-8"))
-    assert m["schema"] == "benchmark-manifest-v1"
+    assert m["schema"] == "benchmark-manifest-v2"
     assert m["bundle_count"] >= 3
+    assert len(m["bundles"]) == m["bundle_count"]
+    assert len(m["golden_metrics_sha256"]) == 64
     assert m["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
 

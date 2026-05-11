@@ -2,27 +2,89 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import subprocess
+import sys
 from typing import Any
+
+import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.benchmarks.suite import BUNDLE_IDS, GOLDEN_METRICS, RESULT_SCHEMA
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, resource_cascade_backend_benchmark_meta
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 
-MANIFEST_SCHEMA = "benchmark-manifest-v1"
+MANIFEST_SCHEMA = "benchmark-manifest-v2"
+
+_BUNDLE_TOPOLOGY: dict[str, dict[str, str]] = {
+    "aggregate_rollout_v1": {"world": "StablecoinPegWorld", "topology": "scalar"},
+    "network_er_rollout_v1": {"world": "StablecoinNetworkWorld", "topology": "erdos_renyi_dense"},
+    "network_neighbor_list_rollout_v1": {"world": "StablecoinNetworkWorld", "topology": "neighbor_lists"},
+    "resource_cascade_rollout_v1": {"world": "ResourceCascadeWorld", "topology": "scalar"},
+}
+
+
+def _try_git_head() -> str | None:
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+def _package_version() -> str:
+    try:
+        from importlib.metadata import version
+
+        return version("fragility-engine")
+    except Exception:
+        return "unknown"
+
+
+def _golden_metrics_digest() -> str:
+    blob = json.dumps(GOLDEN_METRICS, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
 def build_benchmark_manifest() -> dict[str, Any]:
-    """Frozen bundle inventory + schema fingerprints for citations / CI dashboards."""
+    """Frozen bundle inventory + provenance for citations / CI dashboards (v2)."""
 
     gold_keys = sorted(set().union(*(set(v.keys()) for v in GOLDEN_METRICS.values()))) if GOLDEN_METRICS else []
     rc_template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
+    bundles = [{**{"bundle_id": bid}, **_BUNDLE_TOPOLOGY[bid]} for bid in BUNDLE_IDS]
     return {
         "schema": MANIFEST_SCHEMA,
         "bundle_ids": list(BUNDLE_IDS),
+        "bundles": bundles,
         "bundle_result_schema": RESULT_SCHEMA,
         "replay_schema_version": REPLAY_SCHEMA_VERSION,
         "golden_metric_field_union": gold_keys,
+        "golden_metrics_sha256": _golden_metrics_digest(),
         "bundle_count": len(BUNDLE_IDS),
         "resource_cascade_backend": resource_cascade_backend_benchmark_meta(rc_template),
+        "provenance": {
+            "python_version": sys.version.split()[0],
+            "numpy_version": str(np.__version__),
+            "fragility_engine_version": _package_version(),
+            "git_commit": _try_git_head(),
+        },
+        "hypervolume_2d_min": {
+            "module": "fragility_engine.benchmarks.hypervolume",
+            "symbol": "hypervolume_2d_min",
+            "note": "2-objective minimization hypervolume (Pareto tooling); not used on golden bundle scalars.",
+        },
+        "explanation_dag": {
+            "schema": "explanation-dag-v1",
+            "module": "fragility_engine.explain.explanation_dag",
+            "cli": "scripts/export_explanation_dag.py",
+        },
     }

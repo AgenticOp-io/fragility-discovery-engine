@@ -145,6 +145,14 @@ python scripts/run_benchmark_suite.py --validate
 
 Wall-clock on named bundles: `python scripts/benchmark_rollout.py --bundle aggregate_rollout_v1 --json`. Full index: [`benchmarks/README.md`](../benchmarks/README.md).
 
+**Portable manifest (`benchmark-manifest-v2`):**
+
+```bash
+python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json
+```
+
+Includes per-bundle topology hints, `golden_metrics_sha256`, Python/NumPy/package versions, optional `git_commit`, and pointers to **2-D minimization hypervolume** (`fragility_engine.benchmarks.hypervolume`) plus **`explanation-dag-v1`** export.
+
 ### 4.9 Robustness sweeps, mechanism design, institutional composite
 
 All documented with copy-paste examples in [`benchmarks/README.md`](../benchmarks/README.md), including:
@@ -159,6 +167,24 @@ All documented with copy-paste examples in [`benchmarks/README.md`](../benchmark
 python scripts/institutional_composite_demo.py --triple --out composite.json
 python scripts/narrate_frozen_json.py composite.json
 ```
+
+### 4.10 Hypervolume (Pareto analysis) and explanation DAG
+
+**Hypervolume** (two objectives, both minimized): use `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min(points, ref)`. The reference point must be **strictly worse** (larger on both axes) than every point on your non-dominated front.
+
+**Mechanical explanation DAG** (`explanation-dag-v1`) — summarize structure without LLMs:
+
+```bash
+# From a counterfactual export (baseline + counterfactual + intervention)
+python scripts/export_explanation_dag.py --from-counterfactual cf_bundle.json --out dag.json
+
+# From greedy minimization report (capture sidecar when exporting minimized replay)
+python scripts/export_minimized_replay.py --minimization-report-out minimize_report.json --out minimized.json
+python scripts/export_explanation_dag.py --from-minimization-report minimize_report.json --out dag.json
+python scripts/narrate_frozen_json.py dag.json
+```
+
+**Research frontiers** (third world beyond cascade, coupled mega-models — **not** shipped here): [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md).
 
 ---
 
@@ -184,6 +210,8 @@ Serve the **repo root** over HTTP so relative paths and optional presets work (`
 | Robustness / GA sweep | `fragility-robustness-*` | `fragility_robustness_sweep.py --json` |
 | Mechanism design | `fragility-mechanism-design-outer-v1` | `mechanism_design_policy_sweep.py --json` |
 | Institutional composite | `fragility-institutional-composite-v1` / **v2** | `institutional_composite_demo.py --out` |
+| Explanation DAG | `explanation-dag-v1` | `export_explanation_dag.py` |
+| Benchmark manifest | `benchmark-manifest-v2` | `run_benchmark_suite.py --manifest-out` |
 | Narration output | `narration-summary-v1` | `narrate_frozen_json.py --json-out` |
 
 Robustness / composite / Pareto JSON **do not** load in the replay timeline viewer — see [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md).
@@ -192,7 +220,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 
 ## 7. Narration, plots, LLM prompt packs (Phase L)
 
-- **Deterministic narration:** `scripts/narrate_frozen_json.py` — works on replay, Pareto, merge, epsilon-sweep, counterfactual bundles, **institutional composite v1/v2**.
+- **Deterministic narration:** `scripts/narrate_frozen_json.py` — works on replay, Pareto, merge, epsilon-sweep, counterfactual bundles, **institutional composite v1/v2**, **`explanation-dag-v1`**.
 - **Machine-readable summary:** `--json-out narration.json`.
 - **Citation hook:** `--cite-digest` (SHA-256 of file bytes + path).
 - **Plots:** `scripts/plot_*.py` require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`). Index: [`phase_l_publication.md`](phase_l_publication.md).
@@ -228,6 +256,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 | [`benchmarks/README.md`](../benchmarks/README.md) | Bundle IDs, robustness CLIs, composites |
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | One end-to-end reviewer path |
 | [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) | VM deploy keys |
+| [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Third-domain gate, coupled dynamics (non-goals) |
 
 ---
 

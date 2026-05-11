@@ -117,6 +117,20 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"genome_shape: {data.get('genome_shape')}")
         return "\n".join(lines)
 
+    if schema == "explanation-dag-v1":
+        lines.append("kind: explanation DAG (mechanical)")
+        lines.append(f"dag_kind: {data.get('kind')}")
+        nodes = data.get("nodes") or []
+        edges = data.get("edges") or []
+        lines.append(f"nodes: {len(nodes)}  edges: {len(edges)}")
+        for e in edges[:12]:
+            if isinstance(e, dict):
+                lines.append(
+                    f"  edge {e.get('from')} -> {e.get('to')}: {e.get('kind')}"
+                    + (f" ({e.get('intervention')})" if e.get("intervention") is not None else "")
+                )
+        return "\n".join(lines)
+
     if isinstance(schema_ver, str) and data.get("trajectory") is not None:
         lines.append("kind: replay rollout")
         lines.append(f"schema_version: {schema_ver}")

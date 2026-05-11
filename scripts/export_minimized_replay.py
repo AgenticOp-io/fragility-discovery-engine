@@ -20,6 +20,12 @@ def main() -> None:
         description="Find a collapsing schedule (random search), greedy-minimize shocks, write replay JSON.",
     )
     p.add_argument("--out", type=Path, default=Path("minimized_replay.json"))
+    p.add_argument(
+        "--minimization-report-out",
+        type=Path,
+        default=None,
+        help="Optional path to write the greedy minimization report JSON (for export_explanation_dag.py).",
+    )
     p.add_argument("--horizon", type=int, default=28)
     p.add_argument("--max-tries", type=int, default=256, help="Random genomes to try before giving up.")
     p.add_argument("--base-seed", type=int, default=424242, help="Pinned rollout seed for minimization.")
@@ -50,6 +56,10 @@ def main() -> None:
             file=sys.stderr,
         )
         raise SystemExit(2)
+
+    if args.minimization_report_out is not None:
+        args.minimization_report_out.parent.mkdir(parents=True, exist_ok=True)
+        args.minimization_report_out.write_text(json.dumps(chosen, indent=2), encoding="utf-8")
 
     replay = rollout_to_replay_dict(chosen_rr)
     kept = chosen.get("minimal_events_by_timestep") or {}

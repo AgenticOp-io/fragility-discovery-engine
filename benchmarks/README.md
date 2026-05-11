@@ -21,11 +21,13 @@ JSON output (no validation):
 python scripts/run_benchmark_suite.py --json
 ```
 
-Portable inventory (`benchmark-manifest-v1`):
+Portable inventory (`benchmark-manifest-v2`: per-bundle topology, provenance, `golden_metrics_sha256`, pointers to hypervolume + explanation DAG tooling):
 
 ```powershell
 python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifest.json
 ```
+
+2-objective **minimization hypervolume** (for Pareto-style archives): `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min`. **Mechanical DAG** JSON: `scripts/export_explanation_dag.py` (from counterfactual JSON or a greedy minimization report — use `export_minimized_replay.py --minimization-report-out` to capture the latter).
 
 The manifest includes **`resource_cascade_backend`** (`resource_cascade_backend_env`, `resource_cascade_backend_effective`) for the same pinned `ResourceCascadeWorld` template as bundle `resource_cascade_rollout_v1`, matching `scripts/benchmark_rollout.py --json` semantics.
 

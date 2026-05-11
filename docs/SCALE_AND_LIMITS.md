@@ -36,6 +36,7 @@ This document states **what scales how** and **what breaks reproducibility** if 
 - **GA budget 2D grid** (`fragility-robustness-ga-budget-2d-v1`): **|generations| × |populations|** inner GA runs each with its own derived seed; keep both axes small.
 - **GA population 1D sweep** (`fragility-robustness-ga-population-1d-v1`): **|population_sizes|** inner GA runs at fixed **`ga_generations_fixed`**; supports **`neighbor_json_bundle`** (`--neighbor-json-list` on `fragility_robustness_sweep.py`).
 - **Institutional composite** (`fragility-institutional-composite-v1` / **v2**): one schedule, **N** independent kernel rollouts — wall-clock ≈ sum of those rollouts (no cross-kernel state).
+- **Pareto hypervolume (2-D min):** `hypervolume_2d_min` is **O(n²)** non-dominated filter + linear sweep in **n**; safe only for modest archive sizes (use sampling for huge fronts).
 
 ## “Game changing” without lying
 

@@ -23,7 +23,7 @@ def main() -> None:
         "--manifest-out",
         type=Path,
         default=None,
-        help="Write benchmark-manifest-v1 JSON (bundle inventory + schema fingerprints).",
+        help="Write benchmark-manifest-v2 JSON (bundles + provenance + golden digest + tooling refs).",
     )
     ap.add_argument(
         "--bench-search",
