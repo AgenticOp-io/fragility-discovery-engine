@@ -33,7 +33,10 @@ def main() -> None:
     ap.add_argument(
         "--quad",
         action="store_true",
-        help="Include aggregate + network + cascade + service_backlog (schema v3). Implies --triple domains plus backlog.",
+        help=(
+            "Include aggregate, network, cascade, and service_backlog (schema v3). "
+            "Mutually exclusive with --triple."
+        ),
     )
     ap.add_argument("--aggregate-seed", type=int, default=7000)
     ap.add_argument("--aggregate-initial-panic", type=float, default=0.05)
