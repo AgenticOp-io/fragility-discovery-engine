@@ -23,7 +23,7 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Scope creep guardrail:** read [`BOUNDARIES.md`](BOUNDARIES.md) before adding agents, graph models, multi-objective fitness, UI, or defender loops.
 
-**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — phases I–L plus moonshots; **Phase H** (benchmark harness + ensemble robustness slice) is **normative** in [`BOUNDARIES.md`](BOUNDARIES.md). **Phase L** (narration + publication CLI): [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
+**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). **Normative gates:** [`BOUNDARIES.md`](BOUNDARIES.md) (Phase H bundle harness + exploration contracts). **Phase L** (narration + publication CLI): [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
 
 **Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 
@@ -134,14 +134,14 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/run_benchmark_suite.py` | Phase **H** golden bundles (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/run_flagship_demo.py` | **Flagship bundle:** short GA + `pareto_front.json` + **`fragility-certificate-v1`** under `artifacts/flagship/output` (see [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md)) |
 | `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
-| `scripts/fragility_robustness_sweep.py` | Moonshot: ensemble over **`graph_seed`** / **`--neighbor-json-list`**; physics **`--sweep-*`**; GA **`--ga-budget-sweep`**, **`--ga-population-sweep`** (**`--ga-fixed-generations`**), **`--ga-budget-2d`** |
-| `scripts/mechanism_design_policy_sweep.py` | Moonshot: defender presets (**weak/mid/strong/relaxed/strict/reserve_focus/panic_focus**) + inner GA; **`--eval-workers`** (thread pool); **`fragility-mechanism-design-outer-v1`** |
-| `scripts/institutional_composite_demo.py` | Moonshot: same genome scored on **network** + **resource cascade** (**decoupled**); **`--triple`** adds **aggregate peg** → **`fragility-institutional-composite-v2`**; **`--out`** JSON; default twin **`fragility-institutional-composite-v1`** |
+| `scripts/fragility_robustness_sweep.py` | Ensemble over **`graph_seed`** or **`--neighbor-json-list`**; physics **`--sweep-*`**; GA **`--ga-budget-sweep`**, **`--ga-population-sweep`** + **`--ga-fixed-generations`**, **`--ga-budget-2d`** — see [`benchmarks/README.md`](benchmarks/README.md) |
+| `scripts/mechanism_design_policy_sweep.py` | Defender presets + inner GA; **`--eval-workers`**; **`fragility-mechanism-design-outer-v1`** |
+| `scripts/institutional_composite_demo.py` | Same schedule on **network** + **resource cascade**; **`--triple`** adds aggregate peg (**v2**); **`--out`** — see [`benchmarks/README.md`](benchmarks/README.md) |
 | `scripts/counterfactual_epsilon_sweep.py` | **`--mode aggregate|network|resource_cascade`**; axes **`initial_panic`** / **`initial_overload`** / network scalars; **`--emit-trace`** → `explanation-trace-v1`; [`docs/network_counterfactual_example.md`](docs/network_counterfactual_example.md), cascade cookbook [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md) |
 
 **Plot scripts** (`plot_*.py`) require **`matplotlib`** (`pip install -e ".[dev]"` or **`.[viz]`**).
 
-Static **replay** UI: `artifacts/replay_viewer/index.html` — scrub timeline, keyboard arrows, optional second JSON for A/B deltas; optional URL hash `#src=…&compare=…` (HTTP). Loads **replay export** JSON only (`rollout_to_replay_dict` contract). **Institutional composite** outputs (**`fragility-institutional-composite-v1`** / **v2** from `institutional_composite_demo.py`) are metric bundles for other tools, not this viewer — see [`artifacts/replay_viewer/README.md`](artifacts/replay_viewer/README.md).
+Static **replay** UI: `artifacts/replay_viewer/index.html` — timeline scrub, optional compare replay, hash routing (HTTP). **JSON contracts:** which files this page loads vs not — [`artifacts/replay_viewer/README.md`](artifacts/replay_viewer/README.md).
 
 Local **bulk exports** for trying many scenarios in the browser: run `pwsh -File scripts/regenerate_test_exports.ps1` → writes under `artifacts/test_exports/` (gitignored). See `artifacts/README_test_exports.txt`.
 

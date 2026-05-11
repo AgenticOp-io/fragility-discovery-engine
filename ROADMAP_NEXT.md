@@ -155,13 +155,15 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 ---
 
-## Moonshots (explicitly post–Phase L or fork)
+## Exploration slices (post–Phase L or fork)
 
-These are **exploratory** directions; shipped slices below are **scoped** (tests + schemas), not full research programs.
+Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research programs. CLI flags, examples, and schema names: [`benchmarks/README.md`](benchmarks/README.md). Normative wording: [`BOUNDARIES.md`](BOUNDARIES.md) (Phase H exploration).
 
-- **Fragility robustness** (**shipped exploration slice**): deterministic **ensemble over `graph_seed`** with quantile summaries — `fragility_engine.benchmarks.ensemble`, `scripts/fragility_robustness_sweep.py`. **1D**/**2D** physics sweeps; **`topology_representation`**: **`dense`** vs **`neighbor_lists`**; **`neighbor_json_bundle`** via **`--neighbor-json-list`**. **GA budget:** generations 1D (`--ga-budget-sweep`); population 1D (`--ga-population-sweep`, `--ga-fixed-generations`); 2D grid (`--ga-budget-2d`).
-- **Mechanism design loop** (**minimal slice**): discrete defender presets (**weak/mid/strong/relaxed/strict/reserve_focus/panic_focus**) + inner GA — `scripts/mechanism_design_policy_sweep.py`, schema **`fragility-mechanism-design-outer-v1`** (+ cross-policy **`policy_summary`**). Not a general equilibrium solver.
-- **Synthetic institutional scenarios** (**audit composite slice**): side-by-side metrics from **two** or **three** reference kernels with the **same** schedule genome — `twin_domain_rollout_artifact` (**v1**), `triple_domain_rollout_artifact` (**v2** aggregate + network + resource cascade), `scripts/institutional_composite_demo.py` (**`--triple`**, **`--out`** JSON) (**decoupled** dynamics; not a monolithic mega-model).
+| Direction | What shipped | Stretch (not committed) |
+|-----------|----------------|-------------------------|
+| Robustness | Ensemble / sweeps / GA budgets / neighbor JSON bundles | Larger grids, richer theory, dashboard integration |
+| Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
+| Institutional composite | Decoupled twin (**v1**) + triple (**v2**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
 
 ---
 

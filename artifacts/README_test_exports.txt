@@ -7,9 +7,8 @@ artifacts/test_exports/
     bash scripts/regenerate_test_exports.sh
 
   Viewer:
-    Serve repo root (e.g. python -m http.server 8765), open artifacts/replay_viewer/index.html —
-    Presets dropdown loads local_presets.json (bundled samples + ../test_exports/*).
-    Replay contract vs other JSON: artifacts/replay_viewer/README.md
+    Serve repo root (e.g. python -m http.server 8765), open artifacts/replay_viewer/index.html
+    (presets: local_presets.json + ../test_exports/*). JSON contracts: replay_viewer/README.md
   Pareto scatter: artifacts/pareto_viewer/index.html — presets include ../test_exports/pareto_front.json.
   Regenerate also writes coevolution_network.json (Phase G network alternating GA),
   replay_resource_cascade.json, pareto_front_resource_cascade.json, counterfactual_resource_cascade_remove.json (Phase J).

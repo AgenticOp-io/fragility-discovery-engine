@@ -39,7 +39,7 @@ Example citation fragment:
 
 > Reproduced with `fragility-discovery-engine` bundle `network_er_rollout_v1` at commit `<SHA>` using `python scripts/run_benchmark_suite.py --validate`.
 
-## Ensemble robustness (moonshot)
+## Robustness, GA budgets, mechanism design, composites
 
 Topology dispersion for a **fixed** attacker genome:
 
@@ -97,15 +97,16 @@ python scripts/fragility_robustness_sweep.py --json --ga-population-sweep --ga-p
 python scripts/mechanism_design_policy_sweep.py --json --policies weak,mid,strong,reserve_focus,panic_focus
 ```
 
-**Twin-domain composite (audit bundle, not coupled dynamics):**
+**Institutional composite** (same schedule, **decoupled** kernels — not a coupled mega-model):
 
 ```powershell
+# Twin (network + resource cascade) → fragility-institutional-composite-v1
 python scripts/institutional_composite_demo.py --out artifacts/tmp/composite.json
+# + aggregate peg → v2 (--aggregate-seed, --aggregate-initial-panic)
+python scripts/institutional_composite_demo.py --triple --out artifacts/tmp/composite_v2.json
 ```
 
-**Triple-domain** (adds aggregate peg, still decoupled): `--triple` → **`fragility-institutional-composite-v2`** (`--aggregate-seed`, `--aggregate-initial-panic`).
-
-Composite JSON is for **audits / notebooks / certificates** — not the timeline **`replay_viewer`** (that UI expects per-step replay exports; see [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md)).
+Composite JSON is **not** loadable in the static **replay** timeline viewer — see [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md).
 
 ## Wall-clock timing (Phase K helper)
 

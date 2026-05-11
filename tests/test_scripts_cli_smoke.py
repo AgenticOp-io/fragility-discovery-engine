@@ -2341,8 +2341,24 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
     assert ps["policies_collapsed_count"] >= 0
 
 
-def test_institutional_composite_demo_out_cli(py_exe: str, tmp_path: Path) -> None:
-    out_j = tmp_path / "composite.json"
+@pytest.mark.parametrize(
+    "extra,schema,required_keys",
+    [
+        pytest.param([], "fragility-institutional-composite-v1", (), id="twin"),
+        pytest.param(
+            ["--triple", "--aggregate-seed", "6001"],
+            "fragility-institutional-composite-v2",
+            ("aggregate",),
+            id="triple",
+        ),
+    ],
+)
+def test_institutional_composite_demo_stdout_cli(
+    py_exe: str,
+    extra: list[str],
+    schema: str,
+    required_keys: tuple[str, ...],
+) -> None:
     proc = subprocess.run(
         [
             py_exe,
@@ -2351,6 +2367,50 @@ def test_institutional_composite_demo_out_cli(py_exe: str, tmp_path: Path) -> No
             "9",
             "--horizon",
             "8",
+            *extra,
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["schema"] == schema
+    for k in required_keys:
+        assert k in data
+
+
+@pytest.mark.parametrize(
+    "extra,out_name,schema,required_keys",
+    [
+        pytest.param([], "composite.json", "fragility-institutional-composite-v1", (), id="twin-out"),
+        pytest.param(
+            ["--triple", "--aggregate-seed", "6002"],
+            "composite_triple.json",
+            "fragility-institutional-composite-v2",
+            ("aggregate", "network", "resource_cascade"),
+            id="triple-out",
+        ),
+    ],
+)
+def test_institutional_composite_demo_out_cli(
+    py_exe: str,
+    tmp_path: Path,
+    extra: list[str],
+    out_name: str,
+    schema: str,
+    required_keys: tuple[str, ...],
+) -> None:
+    out_j = tmp_path / out_name
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--nodes",
+            "9",
+            "--horizon",
+            "8",
+            *extra,
             "--out",
             str(out_j),
         ],
@@ -2362,77 +2422,9 @@ def test_institutional_composite_demo_out_cli(py_exe: str, tmp_path: Path) -> No
     disk = json.loads(out_j.read_text(encoding="utf-8"))
     stdout = json.loads(proc.stdout)
     assert disk == stdout
-    assert disk["schema"] == "fragility-institutional-composite-v1"
-
-
-def test_institutional_composite_demo_cli(py_exe: str) -> None:
-    proc = subprocess.run(
-        [
-            py_exe,
-            str(ROOT / "scripts" / "institutional_composite_demo.py"),
-            "--nodes",
-            "9",
-            "--horizon",
-            "8",
-        ],
-        check=True,
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-    )
-    data = json.loads(proc.stdout)
-    assert data["schema"] == "fragility-institutional-composite-v1"
-
-
-def test_institutional_composite_demo_triple_cli(py_exe: str) -> None:
-    proc = subprocess.run(
-        [
-            py_exe,
-            str(ROOT / "scripts" / "institutional_composite_demo.py"),
-            "--triple",
-            "--nodes",
-            "9",
-            "--horizon",
-            "8",
-            "--aggregate-seed",
-            "6001",
-        ],
-        check=True,
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-    )
-    data = json.loads(proc.stdout)
-    assert data["schema"] == "fragility-institutional-composite-v2"
-    assert "aggregate" in data
-
-
-def test_institutional_composite_demo_triple_out_cli(py_exe: str, tmp_path: Path) -> None:
-    out_j = tmp_path / "composite_triple.json"
-    proc = subprocess.run(
-        [
-            py_exe,
-            str(ROOT / "scripts" / "institutional_composite_demo.py"),
-            "--triple",
-            "--nodes",
-            "9",
-            "--horizon",
-            "8",
-            "--aggregate-seed",
-            "6002",
-            "--out",
-            str(out_j),
-        ],
-        check=True,
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-    )
-    disk = json.loads(out_j.read_text(encoding="utf-8"))
-    stdout = json.loads(proc.stdout)
-    assert disk == stdout
-    assert disk["schema"] == "fragility-institutional-composite-v2"
-    assert "aggregate" in disk and "network" in disk and "resource_cascade" in disk
+    assert disk["schema"] == schema
+    for k in required_keys:
+        assert k in disk
 
 
 def test_fragility_robustness_sweep_ga_population_neighbor_json_cli(py_exe: str, tmp_path: Path) -> None:
