@@ -6,7 +6,10 @@ import numpy as np
 
 from fragility_engine import benchmarks as benchmarks_pkg
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
-from fragility_engine.benchmarks.institutional_composite import triple_domain_rollout_artifact, twin_domain_rollout_artifact
+from fragility_engine.benchmarks.institutional_composite import (
+    triple_domain_rollout_artifact,
+    twin_domain_rollout_artifact,
+)
 from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
