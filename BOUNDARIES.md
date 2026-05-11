@@ -251,13 +251,13 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 ### Phase L — Narration & publication (wrapper)
 
-**Status:** adopted — [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
+**Status:** adopted — [`docs/phase_l_publication.md`](docs/phase_l_publication.md). End-user tutorial (includes narration): [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md).
 
 **Purpose:** Make frozen JSON **legible** (deterministic summaries, citations, publication figures) without letting narration or LLM prose **drive** physics or search.
 
 **In scope:**
 
-- Deterministic narration library + CLI (`fragility_engine.explain.narration`, `scripts/narrate_frozen_json.py`, `--cite-digest` / `narration-summary-v1`).
+- Deterministic narration library + CLI (`fragility_engine.explain.narration`, `scripts/narrate_frozen_json.py`, `--cite-digest` / `narration-summary-v1`); institutional composite **v1/v2** summaries for audit JSON.
 - Versioned **LLM prompt packs** (`artifacts/llm_prompts/narration_v1`, **`reviewer_memo_v1`**, **`paper_appendix_v1`**; `scripts/export_llm_narration_prompt.py --prompt-pack …`, schema **`llm-prompt-bundle-v1`**); optional OpenAI invoke is **stdout-only documentation**, never fed back into worlds.
 - Matplotlib figure hooks: replay timelines, ε-sweeps, Pareto archives, fragility-surface CSV heatmaps, **counterfactual baseline/variant bars** (`scripts/plot_*.py`, pinned styles under `artifacts/plot_styles/`).
 

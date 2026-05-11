@@ -4,6 +4,8 @@
 
 Autonomous **coverage-guided-style** search over a modular simulation: mutate shock schedules, maximize instability metrics, then extract **minimal collapse sequences** and causal replay artifacts.
 
+**How to use this software (install, tutorials, viewers, artifacts):** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md)
+
 ## Supported platforms
 
 CI builds **sdist + wheel** (`pip install build` then `python -m build`; artifacts in `dist/`) and smoke-installs the wheel on **Ubuntu** and **Windows**. The full test matrix runs on both OSes; optional **Numba** parity tests also run on both. Core package code is pure Python; dependencies resolve via PyPI wheels (`numpy`, `networkx`, optional `numba`). Requires **CPython ≥ 3.11** ([`pyproject.toml`](pyproject.toml)).
@@ -32,6 +34,8 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 **Reviewer walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py`.
 
 ## Quick start
+
+Follow **[`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md)** for a full tutorial layout; the steps below match the Windows fast path.
 
 **Windows — install CPython with winget** (avoids the Microsoft Store `python.exe` stubs). Requires **Python ≥ 3.11** ([`pyproject.toml`](pyproject.toml)):
 

@@ -2,6 +2,8 @@
 
 This is a **single path** from frozen bundles → search → replay → Pareto → optional counterfactuals → citation JSON. It matches the project charter: **evidence before chrome** ([`BOUNDARIES.md`](../BOUNDARIES.md)).
 
+**Broader operator guide** (install, tutorials, artifact map, static viewers): [`HOW_TO_USE.md`](HOW_TO_USE.md).
+
 ## 0. One-command flagship bundle (synthetic aggregate)
 
 Produces `best_replay.json`, `pareto_front.json`, `fragility_certificate.json`, and a short index file:

@@ -251,6 +251,35 @@ def test_narrate_frozen_json_cite_digest_cli(py_exe: str, tmp_path: Path) -> Non
     assert "citation_sha256:" in payload["text"]
 
 
+def test_narrate_frozen_json_institutional_composite_cli(py_exe: str, tmp_path: Path) -> None:
+    comp = tmp_path / "composite.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--nodes",
+            "9",
+            "--horizon",
+            "6",
+            "--out",
+            str(comp),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    proc = subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "narrate_frozen_json.py"), str(comp)],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert "institutional composite" in proc.stdout
+    assert "fragility-institutional-composite-v1" in proc.stdout
+
+
 def test_plot_replay_timeline_cli(py_exe: str, tmp_path: Path) -> None:
     png = tmp_path / "tl.png"
     subprocess.run(

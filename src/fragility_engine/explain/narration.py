@@ -102,6 +102,21 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"meta.cli: {meta.get('cli')}")
         return "\n".join(lines)
 
+    if schema in ("fragility-institutional-composite-v1", "fragility-institutional-composite-v2"):
+        lines.append("kind: institutional composite (decoupled kernels, one shock schedule)")
+        lines.append(f"schema: {schema}")
+        for branch in ("aggregate", "network", "resource_cascade"):
+            b = data.get(branch)
+            if isinstance(b, dict):
+                lines.append(
+                    f"  {branch}: collapsed={b.get('collapsed')} "
+                    f"integral_instability={b.get('integral_instability')} "
+                    f"attack_cost={b.get('attack_cost')} simulation_mode={b.get('simulation_mode')}"
+                )
+        if data.get("genome_shape") is not None:
+            lines.append(f"genome_shape: {data.get('genome_shape')}")
+        return "\n".join(lines)
+
     if isinstance(schema_ver, str) and data.get("trajectory") is not None:
         lines.append("kind: replay rollout")
         lines.append(f"schema_version: {schema_ver}")

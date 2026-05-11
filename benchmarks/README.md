@@ -1,5 +1,7 @@
 # Phase H benchmark bundles
 
+**New user?** Start with [`docs/HOW_TO_USE.md`](../docs/HOW_TO_USE.md) (install + tutorial paths), then return here for bundle IDs and exploration CLIs.
+
 This folder documents **frozen deterministic bundles** implemented in code:
 
 - `fragility_engine.benchmarks.suite` — four bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, **`resource_cascade_rollout_v1`** — Phase J scaffold).

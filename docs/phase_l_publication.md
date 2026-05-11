@@ -7,6 +7,7 @@
 - **Library:** `fragility_engine.explain.narration` — `load_frozen_json_artifact`, `narrate_frozen_artifact`
 - **CLI:** `scripts/narrate_frozen_json.py` — `--cite-digest`, `--json-out` → `narration-summary-v1`
 - **Fingerprints:** `scripts/frozen_json_digest.py`
+- **User guide:** [`HOW_TO_USE.md`](HOW_TO_USE.md) — first-run paths and which artifacts narrate cleanly (including **institutional composite** v1/v2).
 
 ## Optional LLM wrapper (external prose only)
 

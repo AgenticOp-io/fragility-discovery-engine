@@ -1,6 +1,9 @@
-"""Phase L wrapper: human-readable narration over frozen engine JSON (replay, Pareto, attribution merge).
+"""Phase L wrapper: human-readable narration over frozen engine JSON.
 
-Output is **not** fed back into simulation — summaries cite artifact keys only.
+Supports replay rollouts, Pareto archives, attribution merge, epsilon sweeps,
+counterfactual bundles, **institutional composite** (v1/v2), and a few other
+schemas implemented in ``fragility_engine.explain.narration``. Output is **not**
+fed back into simulation — summaries cite artifact keys only.
 """
 
 from __future__ import annotations
@@ -15,7 +18,9 @@ from fragility_engine.explain.narration import load_frozen_json_artifact, narrat
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Print short narration for frozen replay / Pareto / merge JSON.")
+    ap = argparse.ArgumentParser(
+        description="Print short narration for frozen engine JSON (replay, Pareto, merge, composite, …)."
+    )
     ap.add_argument("json_path", type=Path, help="Path to .json artifact.")
     ap.add_argument(
         "--json-out",
