@@ -1,10 +1,10 @@
 # Paper-appendix workflow (reviewer-grade, mostly CLI)
 
-This is a **single path** from frozen bundles → search → replay → Pareto → optional counterfactuals → citation JSON. It matches the project charter: **evidence before chrome** ([`BOUNDARIES.md`](../BOUNDARIES.md)).
+This is a **single path** from frozen bundles → search → replay → Pareto → optional counterfactuals → citation JSON. It matches the project charter: **audit-ready artifacts before product UI** ([`BOUNDARIES.md`](../BOUNDARIES.md) — “evidence before chrome”).
 
 **Broader operator guide** (install, tutorials, artifact map, static viewers): [`HOW_TO_USE.md`](HOW_TO_USE.md).
 
-**Third reference domain (proposed phase charter):** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md).
+**Third reference domain (Phase M — shipped):** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) (`ServiceBacklogWorld`).
 
 ## 0. One-command flagship bundle (synthetic aggregate)
 

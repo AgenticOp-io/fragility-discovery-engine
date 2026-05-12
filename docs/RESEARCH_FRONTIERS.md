@@ -2,7 +2,7 @@
 
 This document separates **charter gates** from **aspirational research** so the public repo stays honest about what is frozen vs exploratory.
 
-## Third reference domain (beyond `ResourceCascadeWorld`)
+## Shipped thin-domain kernels (resource cascade, service backlog)
 
 **Shipped second domain:** `ResourceCascadeWorld` + full replay / GA / co-evolution / counterfactual / benchmark bundle parity — see [`phase_j_resource_cascade.md`](phase_j_resource_cascade.md) and [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md).
 

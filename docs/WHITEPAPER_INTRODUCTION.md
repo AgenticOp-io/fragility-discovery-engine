@@ -1,6 +1,6 @@
 # Fragility Discovery Engine — Introduction Whitepaper
 
-**Purpose:** A short, forwardable overview for researchers, engineers, and program leads who evaluate **stress testing**, **adversarial / coverage-guided search**, **network contagion**, or **reproducible explanation artifacts** in simulation.
+**Purpose:** A short, forwardable overview for researchers, engineers, and program leads who evaluate **stress testing**, **scenario analysis**, **directed exploration** over simulations, **network contagion**, **operational resilience** drills, or **audit-style explanation artifacts**.
 
 **Repository:** [github.com/theorem6/fragility-discovery-engine](https://github.com/theorem6/fragility-discovery-engine)  
 **Primary contact channel:** [GitHub Issues](https://github.com/theorem6/fragility-discovery-engine/issues) on that repository (best for technical questions, collaboration, and reproducibility reports).
@@ -9,11 +9,23 @@
 
 ## 1. Executive summary
 
-The **Fragility Discovery Engine** is an open-source, **deterministic-first** Python stack that **searches** for exogenous shock schedules (Monte Carlo, genetic algorithms, coevolutionary loops) over **modular worlds** (aggregate peg, network contagion, resource cascade, service backlog—**decoupled** reference kernels), **maximizes explicit instability metrics**, then produces **reviewer-grade artifacts**: frozen replay JSON, greedy **minimal collapse sequences**, **counterfactual** and **mutation-chain** explanations, **Pareto fronts**, and a **`fragility-certificate-v1`** bundle for digests and environment fingerprints.
+The **Fragility Discovery Engine** is an open-source, **deterministic-first** Python stack that **searches** for exogenous shock schedules (Monte Carlo, genetic algorithms, co-evolutionary search) over **modular worlds** (aggregate peg, network contagion, resource cascade, service backlog—**decoupled** reference kernels), **maximizes explicit instability metrics**, then produces **artifacts suited to appendices, model-risk dialogue, and audit review**: frozen replay JSON, greedy **minimal failing schedules**, **counterfactual** and **ordered sensitivity (mutation-chain)** explanations, **Pareto** tradeoff fronts, and a **`fragility-certificate-v1`** bundle for digests and environment fingerprints.
 
-It is **not** a live trading system, a blockchain product, or a calibrated forecast of real institutions. It is a **laboratory** for disciplined fragility analysis with **schema-versioned exports** and **Phase H** benchmark validation hooks—aimed at teams who care about **evidence before chrome** and **reproducible narratives** over dashboards alone.
+It is **not** a live trading system, a blockchain product, or a calibrated forecast of real institutions. It is a **laboratory** for disciplined fragility analysis with **schema-versioned exports** and **Phase H** benchmark validation hooks—aimed at teams who want **audit-ready, reproducible evidence** rather than presentation-only dashboards.
 
 ---
+
+### Terminology (plain language)
+
+| Common industry / research term | How it shows up here |
+|-----------------------------------|----------------------|
+| **Stress testing**, **scenario analysis** | Search and evaluation over **exogenous shock schedules** (same schedule encoding across reference worlds). |
+| **Sensitivity analysis** | Scalar **ε-sweeps** and one-axis counterfactuals with other parameters pinned. |
+| **Directed exploration**, fuzzing-adjacent search | Monte Carlo and **genetic-algorithm (GA)** search over schedules (reproducible with **fixed RNG seeds**). |
+| **Multi-objective analysis** | **Pareto** archives trading instability vs **attack cost** (and related scalars). |
+| **Explainability / attribution** (narrow) | **Mechanical** interventions (e.g. remove shocks, shift reset scalars, topology patches)—not neural feature attribution. |
+| **Audit trail**, **provenance** | Schema-versioned JSON plus optional **`fragility-certificate-v1`** digests. |
+| **Regression testing** | Phase **H** golden bundles and CI (`pytest`). |
 
 ## 2. Problem framing
 
@@ -24,7 +36,7 @@ Recent research underscores demand for:
 - **Robustness and fragility under stress** in learning and control (e.g. parameter and policy behavior under adversarial or distributional stress in RL safety literature).
 - **Standardized, reproducible evaluation** of post-hoc and counterfactual-style explanations (benchmark suites in the XAI / recourse literature emphasize fidelity, stability, and comparable protocols).
 
-This engine attacks the **systems layer**: a **single codebase** where search, metrics, minimization, counterfactuals, narration helpers, and **benchmark manifests** share one rollout contract—so a collapse story is **frozen JSON**, not a one-off plot.
+This repository addresses the **integration layer**: one codebase where search, metrics, minimization, counterfactuals, narration helpers, and **benchmark manifests** share one rollout contract—so a failure story is **frozen JSON** suitable for audit and comparison, not a one-off plot.
 
 ---
 
@@ -34,12 +46,12 @@ This engine attacks the **systems layer**: a **single codebase** where search, m
 |--------|------|
 | **World** | Domain physics only; no hidden “attack hooks” inside `World.step`. |
 | **Agents** | Thin archetypes: observe → decide → act. |
-| **Adversary** | Deterministic search over shock schedules (MC, GA, cost-penalized variants). |
+| **Adversary** | **Search** over shock schedules: Monte Carlo, GA, and extensions (deterministic given seeds). |
 | **Explain** | Ablation, minimization, counterfactual bundles, mutation chains, path traces, joint merges, narration helpers. |
 | **Network** | Contagion on explicit graphs (`ContagionGraph`), neighbor-list–friendly updates. |
 | **Coevolution** | Alternating attacker/defender search; Pareto export for tradeoff narratives. |
 
-**Domains shipped as reference kernels** (same shock-schedule encoding; different physics): an aggregate **stablecoin peg** toy, **graph contagion** (`StablecoinNetworkWorld`), **resource cascade** (`ResourceCascadeWorld`, Phase **J**), and **service backlog / latency stress** (`ServiceBacklogWorld`, Phase **M**; `simulation_mode` **`service_backlog`**). Each domain documents explicit **non-goals** (see [`BOUNDARIES.md`](../BOUNDARIES.md), [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md), [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md)) so scope does not drift into generic “digital twin” platforms.
+**Domains shipped as reference kernels** (same shock-schedule encoding; different physics): aggregate **stablecoin peg** toy, **graph contagion** (`StablecoinNetworkWorld`), **resource cascade** (`ResourceCascadeWorld`; internal label **Phase J**), and **service backlog / latency stress** (`ServiceBacklogWorld`; **Phase M**, `simulation_mode` **`service_backlog`**). Roadmap phase names are defined in [`BOUNDARIES.md`](../BOUNDARIES.md). Each domain documents explicit **non-goals** (see also [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md), [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md)) so scope does not drift into generic “digital twin” platforms.
 
 **Decoupled audit composites** bundle one attacker schedule across multiple kernels **without** cross-`World` coupling inside `step()`: `fragility-institutional-composite-v1` (network + cascade), **v2** (+ aggregate peg), **v3** (+ service backlog). CLI: `scripts/institutional_composite_demo.py` (`--triple`, `--quad`).
 
@@ -57,7 +69,7 @@ These segments map to **public** research and engineering communities (venues, w
 
 Teams working on **adversarial robustness**, **distribution shift**, **strategic users**, or **reliable ML under imperfect data** often need **toy worlds** where attacks and metrics are explicit. NeurIPS-style **workshops** that publish calls for papers and non-archival tracks are a natural fit for **benchmark or systems** contributions derived from this repo.
 
-**Example venue (illustrative):** [Reliable ML from Unreliable Data — NeurIPS 2025 Workshop](https://reliablemlworkshop.github.io/) — topics include adversarial robustness, strategic behavior in socio-technical systems, and benchmarks; submissions historically via OpenReview (see workshop site for the current group link and organizers).
+**Example venue (illustrative):** reliability / robustness workshops in the NeurIPS ecosystem (topics often include adversarial stress, strategic behavior, and benchmarks; follow the **current** workshop site and call for papers rather than this link alone).
 
 ### 4.2 Counterfactual explanations, recourse, and XAI benchmarks
 
@@ -104,7 +116,7 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 
 ## 7. Positioning statement (safe to paste into an e-mail)
 
-> We are sharing the **Fragility Discovery Engine** ([github.com/theorem6/fragility-discovery-engine](https://github.com/theorem6/fragility-discovery-engine)), an open-source **deterministic** simulation and search stack for **shock schedules**, **collapse metrics**, **minimal replays**, and **counterfactual** exports—with **benchmark validation** and a **`fragility-certificate-v1`** path for reproducible digests. It is explicitly **not** a production market or policy model; it is a **laboratory** for rigorous fragility narratives and comparable artifacts. We would welcome pointers to **venues, benchmarks, or teams** where a **CLI-first, schema-versioned** stress-and-explain loop would be on-scope.
+> We are sharing the **Fragility Discovery Engine** ([github.com/theorem6/fragility-discovery-engine](https://github.com/theorem6/fragility-discovery-engine)), an open-source **deterministic** simulation stack for **scenario-based stress exploration** over shock schedules, explicit **fragility metrics**, **minimal failing scenarios**, and **mechanical counterfactual** exports—with **benchmark validation** and a **`fragility-certificate-v1`** path for reproducible digests. It is explicitly **not** a production market or policy model; it is a **laboratory** for rigorous narratives and comparable artifacts. We would welcome pointers to **venues, benchmarks, or teams** where a **CLI-first, schema-versioned** stress-and-explain loop would be on-scope.
 
 ---
 
@@ -112,7 +124,7 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 
 - Kpotufe et al., *Fragile, Robust, and Antifragile: A Perspective from Parameter Responses in Reinforcement Learning Under Stress* — [arXiv:2506.23036](https://arxiv.org/abs/2506.23036) (fragility / robustness framing in RL).  
 - IMF, *Macro-Prudential Stress Test Models: A Survey* — [IMF publications](https://www.imf.org/en/publications/wp/issues/2023/08/25/macro-prudential-stress-test-models-a-survey-537990) (macro stress-test context; **not** implied calibration to this toy).  
-- Workshop example: [Reliable ML from Unreliable Data @ NeurIPS 2025](https://reliablemlworkshop.github.io/) (robustness / strategic behavior / benchmarks).  
+- Workshop example: reliability / robustness workshops (see current NeurIPS / ICML workshop lists for URLs and chairs).  
 - XAI benchmarking landscape (peers for **evaluation culture**, not code dependencies): e.g. OpenXAI, CARLA recourse library — search for current URLs and citation keys when writing formal related work.
 
 ---
@@ -121,8 +133,8 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 
 | Field | Value |
 |--------|--------|
-| **Version** | 1.1 |
-| **Last updated** | 2026-05 (Phase M + institutional composite v3 + service-backlog explain parity on `main`) |
+| **Version** | 1.2 |
+| **Last updated** | 2026-05 — terminology pass (industry language, stale links removed) |
 | **Repo state** | Tracks `main`; cite commit when forwarding alongside frozen JSON. |
 | **Maintainer path** | Prefer **GitHub Issues** for accuracy and public record. |
 

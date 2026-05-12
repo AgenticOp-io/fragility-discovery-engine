@@ -6,10 +6,12 @@ This guide is the **hands-on entry point**: install, run your first artifacts, u
 
 ## 1. What this software does
 
-- **Search** for shock schedules (Monte Carlo, genetic algorithms, co-evolution) over **modular worlds** (aggregate peg, network contagion, resource cascade).
+- **Search** for shock schedules (Monte Carlo, genetic algorithms, co-evolution) over **modular worlds**: aggregate peg, network contagion, resource cascade, and **service backlog** (operations / latency stress).
 - **Score** runs with explicit metrics (`integral_instability`, collapse, `attack_cost`, …).
 - **Export** schema-versioned JSON: replays, Pareto archives, counterfactuals, certificates, robustness sweeps, institutional composites.
 - **Explain** with minimization, counterfactuals, optional deterministic **narration** and plot hooks—without claiming market calibration or regulatory compliance.
+
+For how this maps to common terms (stress testing, sensitivity analysis, audit trails), see **[Terminology](WHITEPAPER_INTRODUCTION.md#terminology-plain-language)** in [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md).
 
 ---
 

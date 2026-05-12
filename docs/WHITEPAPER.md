@@ -1,9 +1,10 @@
 # Fragility Discovery Engine — Whitepaper
 
-This repository’s **public whitepaper** is the forwardable **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** (executive summary, capability map, audiences, how to evaluate quickly, outreach routing, positioning blurb, and references).
+This repository’s **public whitepaper** is the forwardable **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** (executive summary, [terminology glossary](WHITEPAPER_INTRODUCTION.md#terminology-plain-language), capability table, audiences, evaluation checklist, outreach routing, positioning blurb, and references).
 
 | Need | Document |
 |------|----------|
+| Industry language ↔ repo terms | [Terminology in `WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#terminology-plain-language) |
 | Install, tutorials, viewers, CLI index | [`HOW_TO_USE.md`](HOW_TO_USE.md) |
 | Phase gates, non-goals, exit criteria | [`BOUNDARIES.md`](../BOUNDARIES.md) |
 | Reviewer-style artifact walkthrough | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) |

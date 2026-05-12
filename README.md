@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml)
 
-Autonomous **coverage-guided-style** search over a modular simulation: mutate shock schedules, maximize instability metrics, then extract **minimal collapse sequences** and causal replay artifacts.
+Autonomous **directed search** (Monte Carlo and **genetic-algorithm** exploration) over modular discrete-time simulations: perturb **shock schedules** (stress scenarios), maximize explicit **fragility objectives**, then export **minimal failing schedules** and **deterministic execution replays** (JSON traces) for audit and publication—plus mechanical **counterfactual** and **sensitivity** artifacts where applicable.
 
 **How to use this software (install, tutorials, viewers, artifacts):** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 
@@ -10,14 +10,14 @@ Autonomous **coverage-guided-style** search over a modular simulation: mutate sh
 
 CI builds **sdist + wheel** (`pip install build` then `python -m build`; artifacts in `dist/`) and smoke-installs the wheel on **Ubuntu** and **Windows**. The full test matrix runs on both OSes; optional **Numba** parity tests also run on both. Core package code is pure Python; dependencies resolve via PyPI wheels (`numpy`, `networkx`, optional `numba`). Requires **CPython ≥ 3.11** ([`pyproject.toml`](pyproject.toml)).
 
-## Layout (four engines)
+## Layout (core Python packages)
 
 | Layer | Role |
 |--------|------|
 | `fragility_engine.world` | Domain physics only — no attacker concepts. |
 | `fragility_engine.agents` | Behavior archetypes — `observe → decide → act`. |
 | `fragility_engine.adversary` | Deterministic search (Monte Carlo + GA) over shock schedules. |
-| `fragility_engine.explain` | Ablation / minimization / **counterfactual** bundles. |
+| `fragility_engine.explain` | Ablation, schedule minimization, **counterfactual** bundles, mutation chains, sweeps. |
 | `fragility_engine.network` | ``ContagionGraph`` + topology; contagion uses **neighbor lists** (**O(edges)** per step, dense adjacency storage unchanged). |
 | `fragility_engine.coevolution` | Alternating attacker/defender search; aggregate + network + `alternating_coevolution_rollout` hook for custom worlds. |
 

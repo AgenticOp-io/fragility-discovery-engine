@@ -39,6 +39,6 @@ This document states **what scales how** and **what breaks reproducibility** if 
 - **Institutional composite** (`fragility-institutional-composite-v1` / **v2** / **v3**): one schedule, **N** independent kernel rollouts — wall-clock ≈ sum of those rollouts (no cross-kernel state).
 - **Pareto hypervolume (2-D min):** `hypervolume_2d_min` is **O(n²)** non-dominated filter + linear sweep in **n**; safe only for modest archive sizes (use sampling for huge fronts).
 
-## “Game changing” without lying
+## Communicating impact responsibly
 
 What moves perception is not bigger graphs by default, but **frozen artifacts + manifest + certificate + one guided workflow** — see [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) and `scripts/run_flagship_demo.py`.

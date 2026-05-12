@@ -4,7 +4,7 @@ This document is **normative**: if an idea is not justified against these gates,
 
 ## North star (what we are building)
 
-One sentence: **a deterministic engine that searches for shock schedules that maximize measurable fragility in a modular simulation, then explains collapse with replay + minimization + (later) counterfactuals.**
+One sentence: **a deterministic engine that searches shock schedules (stress scenarios) to maximize explicit fragility metrics in modular discrete-time simulations, then documents outcomes with replay traces, minimization, and mechanical counterfactuals.**
 
 We are **not** building: a generic “digital twin platform,” a blockchain product, an LLM roleplay sandbox, or a pretty dashboard without a frozen replay artifact contract.
 
@@ -12,9 +12,9 @@ We are **not** building: a generic “digital twin platform,” a blockchain pro
 
 1. **Deterministic core first** — same seed ⇒ same rollout; search is reproducible.
 2. **World/adversary separation** — worlds interpret physics only; “attacks” enter as explicit exogenous schedules or budgets, never as hidden hooks inside `World.step`.
-3. **Evidence before chrome** — no web UI until replay JSON schema + tests are stable.
+3. **Evidence before chrome** (audit-ready artifacts first: versioned JSON contracts + tests before product UI) — no web UI until replay JSON schema + tests are stable.
 4. **Few agent knobs** — archetypes stay thin (response functions + thresholds). No personalities, memory, language, or beliefs until topology + metrics are done.
-5. **One primary domain in flight** — stablecoin peg toy stays the reference until Phase B explicitly replaces it.
+5. **Reference hierarchy** — the aggregate peg toy remains the **default tutorial anchor**; additional kernels (network contagion, resource cascade, service backlog) ship as **labeled reference domains** with their own Phase H bundles and docs—not unbounded parallel physics experiments without a charter.
 6. **Third reference domain (Phase M) — single flight** — at most **one** new `world/` physics experiment under **Phase M** at a time; admission + exit criteria live in **Phase M** below and in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Aggregate + network + **Phase J** cascade bundles remain **regression oracles** unless a future charter change explicitly revises that split.
 
 ## Explicit non-goals (reject without guilt)
