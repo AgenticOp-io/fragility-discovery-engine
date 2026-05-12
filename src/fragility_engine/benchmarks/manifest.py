@@ -123,4 +123,9 @@ def build_benchmark_manifest() -> dict[str, Any]:
             "service_backlog_mutation_chain_spec": "service-backlog-mutation-chain-spec-v1",
             "resource_cascade_mutation_chain_spec": "resource-cascade-mutation-chain-spec-v1",
         },
+        "pareto_hypervolume_fixture": {
+            "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",
+            "objectives_minimized": ["severity", "attack_cost"],
+            "pytest_module": "tests.test_pareto_front_hypervolume_fixture",
+        },
     }

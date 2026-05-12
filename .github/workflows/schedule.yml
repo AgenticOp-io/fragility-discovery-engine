@@ -1,5 +1,5 @@
 # Weekly regression on main (Ubuntu + Python 3.12) — complements push/PR CI matrix.
-# Artifacts are not uploaded; failures surface in the Actions tab.
+# Uploads benchmark-manifest-v2 JSON for drift archaeology (retention: GitHub default).
 
 name: Scheduled regression
 
@@ -33,3 +33,19 @@ jobs:
           FRAGILITY_PERF_GATE: "1"
           FRAGILITY_PERF_GATE_MS: "240000"
         run: python -m pytest -q
+
+      - name: Write benchmark manifest (artifact)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from fragility_engine.benchmarks.manifest import build_benchmark_manifest
+          Path("benchmark_manifest.json").write_text(
+              json.dumps(build_benchmark_manifest(), indent=2), encoding="utf-8"
+          )
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-manifest-${{ github.run_id }}
+          path: benchmark_manifest.json

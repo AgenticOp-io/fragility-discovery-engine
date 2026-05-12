@@ -1,0 +1,31 @@
+{
+  "schema": "pareto-front-v1",
+  "best_fitness": 3.0,
+  "domain": "fixture",
+  "meta": {
+    "description": "Pinned 3-point minimization front for hypervolume_2d_min regression (severity vs attack_cost, both minimized). Reference (5,5) yields HV 11.0 — see tests/test_pareto_front_hypervolume_fixture.py."
+  },
+  "archive": [
+    {
+      "severity": 1.0,
+      "attack_cost": 4.0,
+      "collapsed": false,
+      "integral_instability": 2.0,
+      "genome": [[[0.5, 0.5]]]
+    },
+    {
+      "severity": 2.0,
+      "attack_cost": 2.0,
+      "collapsed": false,
+      "integral_instability": 2.0,
+      "genome": [[[0.6, 0.6]]]
+    },
+    {
+      "severity": 4.0,
+      "attack_cost": 1.0,
+      "collapsed": false,
+      "integral_instability": 2.0,
+      "genome": [[[0.7, 0.7]]]
+    }
+  ]
+}

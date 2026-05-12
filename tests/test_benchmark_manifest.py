@@ -25,3 +25,5 @@ def test_build_benchmark_manifest_shape():
     assert art["pareto_front"] == "pareto-front-v1"
     assert "fragility-institutional-composite-v3" in art["institutional_composite"]
     assert m["explanation_dag"]["schema"] == "explanation-dag-v1"
+    pf = m["pareto_hypervolume_fixture"]
+    assert pf["path"].endswith("pinned_pareto_front_minimal.json")
