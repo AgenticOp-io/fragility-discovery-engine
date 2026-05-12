@@ -123,7 +123,29 @@ gcloud compute ssh INSTANCE --zone=ZONE --command='curl -fsSL https://raw.github
 
 **Private repo:** keep **`~/.ssh/gce_github_ed25519`** and the **`GIT_SSH_COMMAND`** pattern from §3—[`gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) sets that automatically when the key file exists.
 
-### 2. Optional: pytest-only refresh
+### Single VM (no `instances.list`, or name not in git)
+
+If the project has **only one** (or a known) VM, use **GCP Console → Compute Engine → VM instances**: the table shows **Name** and **Zone** even when `gcloud compute instances list` is denied. Copy those two values.
+
+**Windows — avoid retyping:** set user env vars (open a **new** terminal after `setx`):
+
+```powershell
+setx FRAGILITY_GCE_INSTANCE "YOUR_VM_NAME"
+setx FRAGILITY_GCE_ZONE "YOUR_ZONE"
+setx FRAGILITY_GCE_PROJECT "YOUR_PROJECT_ID"
+```
+
+Then from the repo root:
+
+```powershell
+pwsh -File scripts\gce_sync_vm.ps1
+```
+
+Or pass flags once: `pwsh -File scripts\gce_sync_vm.ps1 -Instance YOUR_VM_NAME -Zone YOUR_ZONE -Project YOUR_PROJECT_ID`.
+
+**IAM note:** `gcloud compute scp` / `ssh` still need **`compute.instances.get`** (and related) on that VM. Env vars replace **discovery**, not **authorization**.
+
+### 3. Optional: pytest-only refresh
 
 [`scripts/gce_pull_pytest.sh`](../scripts/gce_pull_pytest.sh) skips **ruff** but uses the same **perf gate** env vars as CI by default. Upload and run it the same way as `gce_pull_and_test.sh`.
 
