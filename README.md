@@ -134,7 +134,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
 | `scripts/gce_git_deploy.sh` | **Linux VM / GCE:** `git clone` or `git pull`, venv, `pip install -e ".[dev]"` — curl (public) or `scp` + [`gce_remote_git_deploy.sh`](scripts/gce_remote_git_deploy.sh) (private) |
-| `scripts/gce_create_minimal.ps1` / `scripts/gce_create_minimal.sh` | **Bootstrap:** enable Compute API + **e2-micro** Ubuntu 22.04 VM — needs Owner/Compute on target project ([`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)) |
+| `scripts/gce_create_minimal.ps1` / `scripts/gce_create_minimal.sh` | **Bootstrap:** enable Compute API + **e2-micro** Ubuntu **24.04** VM; default **startup** installs **git**, **Python 3.12**, shallow **clone** + **`pip install -e ".[dev]"`** ([`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)) |
 | `scripts/gce_remote_git_deploy.sh` | VM-side wrapper: SSH env + apt + runs **`/tmp/gce_git_deploy.sh`** (upload both scripts for private GitHub) |
 | `scripts/gce_pull_pytest.sh` | **On VM:** pull **`main`**, `pip install -e ".[dev]"`, **`python -m pytest -q`** only (deploy key env same as `gce_git_deploy.sh`) |
 | `scripts/gce_bootstrap_pull_latest_pytest.sh` | **Bootstrap:** `scp` to VM **`/tmp/`**, then **`bash /tmp/gce_bootstrap_pull_latest_pytest.sh`** — pulls commit that adds `gce_pull_pytest.sh`, then runs it |
