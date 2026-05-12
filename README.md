@@ -34,7 +34,7 @@ The **numerical core** is **deterministic** (fixed NumPy RNG seeds). LLM policie
 
 **Phase M (third domain narrative):** [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md) — `ServiceBacklogWorld` + `simulation_mode` **`service_backlog`**; gate + replay table: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Counterfactual cookbook: [`docs/service_backlog_counterfactual_example.md`](docs/service_backlog_counterfactual_example.md).
 
-**Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
+**Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`. **Local CI parity (Linux/macOS/WSL or Windows):** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — `bash scripts/ci_local.sh` or `pwsh -File scripts/ci_local.ps1` after activating a venv.
 
 **Paper-style walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
 
@@ -143,6 +143,8 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <bundle_id>`** (frozen suite IDs in [`benchmarks/README.md`](benchmarks/README.md)), **`--bundle-all`** (full suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade|service_backlog` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Frozen benchmark suite (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md), charter Phase H in [`BOUNDARIES.md`](BOUNDARIES.md) |
+| `scripts/ci_local.sh` | **Linux / macOS / WSL:** same **pip -e .[dev]**, **ruff**, **pytest** + perf gate env as `.github/workflows/ci.yml` (run with venv activated) |
+| `scripts/ci_local.ps1` | **Windows PowerShell:** same local CI parity as `ci_local.sh` |
 | `scripts/run_flagship_demo.py` | **Flagship bundle:** short GA + `pareto_front.json` + **`fragility-certificate-v1`** under `artifacts/flagship/output` (see [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md)) |
 | `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
 | `scripts/fragility_robustness_sweep.py` | Ensemble over **`graph_seed`** or **`--neighbor-json-list`**; physics **`--sweep-*`**; GA **`--ga-budget-sweep`**, **`--ga-population-sweep`** + **`--ga-fixed-generations`**, **`--ga-budget-2d`** — see [`benchmarks/README.md`](benchmarks/README.md) |

@@ -36,13 +36,25 @@ Optional acceleration (resource cascade): `pip install -e ".[accelerate]"` — s
 
 ### Linux / macOS
 
+**CI parity:** after activating a venv from this clone, run `bash scripts/ci_local.sh` (same **ruff** + **pytest** + perf gate env as `.github/workflows/ci.yml`). See [`INSTALLATION.md`](INSTALLATION.md) for dual-stack notes, distro packages, and WSL tips.
+
+**Debian / Ubuntu** (Python 3.12 in bookworm/backports or 24.04+; use `python3.11` on 22.04 if you prefer the LTS interpreter):
+
 ```bash
+sudo apt update
+sudo apt install -y git python3.12 python3.12-venv
 cd fragility-discovery-engine
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 python -m pytest -q
 ```
+
+**Fedora / RHEL-family:** `sudo dnf install -y git python3.12` (or `python3.11`), then the same `python3.12 -m venv .venv` pattern.
+
+**macOS:** install Python **≥ 3.11** via [python.org](https://www.python.org/downloads/) or Homebrew (`brew install python@3.12`), then create a venv with that interpreter’s full path if `python3` is ambiguous.
+
+Optional acceleration (resource cascade Numba): `pip install -e ".[accelerate]"` — see [`phase_k_acceleration.md`](phase_k_acceleration.md). Linux CI also runs `tests/test_resource_cascade_numba_parity.py` in a separate workflow job.
 
 ### Minimal smoke (no full test suite)
 
@@ -259,6 +271,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 | Viewer blank or errors on JSON | Confirm artifact type: replay viewer needs **replay** JSON, not composite or sweep payloads. |
 | Heavy sweeps / GA OOM or slow | Shrink `--nodes`, horizons, sweep lists, GA populations; read [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md). |
 | `git: 'credential-manager-core' is not a git command` (Windows) | Unset the global helper so Git for Windows’ `manager` is used: [`INSTALLATION.md` — Git credential helper](INSTALLATION.md#git-credential-helper-windows). |
+| Linux: `python3.12: command not found` | Install `python3.12` + `python3.12-venv` (or use **3.11** everywhere); see [`INSTALLATION.md` — Linux](INSTALLATION.md#linux-system-python-and-venv-packages). |
 
 ---
 
