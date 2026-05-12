@@ -258,6 +258,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 | `matplotlib` / plot scripts fail | `pip install -e ".[dev]"` or `".[viz]"`. |
 | Viewer blank or errors on JSON | Confirm artifact type: replay viewer needs **replay** JSON, not composite or sweep payloads. |
 | Heavy sweeps / GA OOM or slow | Shrink `--nodes`, horizons, sweep lists, GA populations; read [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md). |
+| `git: 'credential-manager-core' is not a git command` (Windows) | Unset the global helper so Git for Windows’ `manager` is used: [`INSTALLATION.md` — Git credential helper](INSTALLATION.md#git-credential-helper-windows). |
 
 ---
 
@@ -272,6 +273,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 | [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) | VM deploy keys |
 | [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Third-domain gate, coupled dynamics (non-goals) |
 | [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) | Third reference domain (`ServiceBacklogWorld`): checklist, replay table, exit tests |
+| [`INSTALLATION.md`](INSTALLATION.md) | Git on Windows (credential helper), optional multi-remote notes |
 
 ---
 
