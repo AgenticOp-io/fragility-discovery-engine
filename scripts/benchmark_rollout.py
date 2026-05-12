@@ -1,6 +1,6 @@
 """Wall-clock timing for representative rollouts (local profiling; not a regression gate).
 
-Use ``--bundle <id>`` or ``--bundle-all`` to time Phase H frozen bundles from ``fragility_engine.benchmarks.suite``.
+Use ``--bundle <id>`` or ``--bundle-all`` to time frozen bundles from ``fragility_engine.benchmarks.suite`` (Phase H charter in ``BOUNDARIES.md``).
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def main() -> None:
     p = argparse.ArgumentParser(
         description=(
             "Time aggregate, network, resource_cascade, or service_backlog rollouts (perf_counter). "
-            "Optional --bundle / --bundle-all run Phase H golden workloads (ignore --mode sizing)."
+            "Optional --bundle / --bundle-all time frozen suite rollouts (same templates as CI; --mode sizing ignored)."
         ),
     )
     _bundle_grp = p.add_mutually_exclusive_group()
@@ -53,7 +53,7 @@ def main() -> None:
         choices=BUNDLE_IDS,
         default=None,
         help=(
-            "Phase H bundle id: same genome seeds + templates as run_benchmark_suite.py "
+            "Frozen suite bundle id: same genome seeds + templates as run_benchmark_suite.py "
             f"(genome_seed={PINNED_GENOME_SEED}, rollout_seed={PINNED_ROLLOUT_SEED}). "
             "When set, --mode / --horizon / --seed / topology flags are ignored."
         ),

@@ -15,7 +15,7 @@ pip install -e ".[dev]"
 python scripts/run_flagship_demo.py --out-dir artifacts/flagship/output
 ```
 
-Use `--skip-validate` only for quick local iteration; for anything you might cite, **drop that flag** so Phase H golden validation runs first.
+Use `--skip-validate` only for quick local iteration; for anything you might cite, **drop that flag** so frozen benchmark validation (the Phase H gate in `BOUNDARIES.md`) runs first.
 
 ## 1. Phase H regression gate (optional but recommended before claims)
 

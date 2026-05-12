@@ -6,7 +6,7 @@ Generated files live under **`output/`** (gitignored). Regenerate:
 python scripts/run_flagship_demo.py --out-dir artifacts/flagship/output
 ```
 
-For a fast smoke without Phase H validation first:
+For a fast smoke without running frozen benchmark validation first:
 
 ```powershell
 python scripts/run_flagship_demo.py --out-dir artifacts/flagship/output --skip-validate

@@ -23,7 +23,7 @@ This document states **what scales how** and **what breaks reproducibility** if 
 - Default CI matrix stays on **NumPy** reference paths.
 - **Numba parity** is an optional job / local install (`[accelerate]`); see `.github/workflows/ci.yml` and `tests/test_resource_cascade_numba_parity.py`.
 
-## Benchmarks (Phase H)
+## Benchmarks (frozen suite, Phase H charter)
 
 - Golden bundles are **small** and intended for **regression**, not production-scale stress.
 - `benchmark_rollout.py` measures wall-clock; numbers are **machine-dependent**. Compare **relative** speedups under identical flags.

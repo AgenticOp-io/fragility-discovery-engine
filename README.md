@@ -24,11 +24,11 @@ CI builds **sdist + wheel** (`pip install build` then `python -m build`; artifac
 | `fragility_engine.network` | ``ContagionGraph`` + topology; contagion uses **neighbor lists** (**O(edges)** per step, dense adjacency storage unchanged). |
 | `fragility_engine.coevolution` | Alternating attacker/defender search; aggregate + network + `alternating_coevolution_rollout` hook for custom worlds. |
 
-Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out until the core loop is proven.
+The **numerical core** is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out until the core loop is proven.
 
 **Scope creep guardrail:** read [`BOUNDARIES.md`](BOUNDARIES.md) before adding agents, graph models, multi-objective fitness, UI, or defender loops.
 
-**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). **Normative gates:** [`BOUNDARIES.md`](BOUNDARIES.md) (Phase H bundle harness + exploration contracts). **Phase L** (narration + publication CLI): [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
+**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). **Normative gates:** [`BOUNDARIES.md`](BOUNDARIES.md) (frozen benchmark harness + exploration contracts; *Phase* labels there are charter section names). **Phase L** (narration + publication CLI): [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
 
 **Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 

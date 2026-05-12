@@ -1,6 +1,8 @@
-# Phase H benchmark bundles
+# Frozen benchmark bundles
 
 **New user?** Start with [`docs/HOW_TO_USE.md`](../docs/HOW_TO_USE.md) (install + tutorial paths), then return here for bundle IDs and exploration CLIs.
+
+These IDs are the **regression suite** named under **Phase H** in [`BOUNDARIES.md`](../BOUNDARIES.md); CI runs them via `run_benchmark_suite.py`.
 
 This folder documents **frozen deterministic bundles** implemented in code:
 

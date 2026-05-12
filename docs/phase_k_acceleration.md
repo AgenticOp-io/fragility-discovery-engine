@@ -5,7 +5,7 @@ Phase K is defined at a high level in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) (*
 ## Goals
 
 - Preserve **bitwise determinism per seed** for the NumPy reference path (current default).
-- Allow **optional** faster backends only behind explicit configuration, with **golden parity** against existing bundles (especially Phase H `*_rollout_v1` IDs in `fragility_engine.benchmarks.suite`).
+- Allow **optional** faster backends only behind explicit configuration, with **golden parity** against existing bundles (especially the frozen `*_rollout_v1` IDs in `fragility_engine.benchmarks.suite`, defined under Phase H in `BOUNDARIES.md`).
 - Document **batch / parallel evaluation** ordering if independent rollouts are evaluated concurrently (same seed ⇒ same result regardless of scheduling only when each rollout is isolated).
 
 ## Non-goals
@@ -76,7 +76,9 @@ Otherwise use the default NumPy rollout path, or run Numba parity in CI / Linux 
 
 Promotion in `BOUNDARIES.md` should stay tied to **honest** reporting: optional backends remain off by default in CI; relative timings are measured via the harness above (and parity tests when Numba is installed), not assumed from prose.
 
-## Named Phase H bundles (`--bundle`)
+## Named frozen bundles (`--bundle`)
+
+Same bundle IDs as **`fragility_engine.benchmarks.suite`** / Phase H in [`BOUNDARIES.md`](../BOUNDARIES.md).
 
 `scripts/benchmark_rollout.py --bundle <id>` times **exactly** the rollout body used by `fragility_engine.benchmarks.suite` / `run_benchmark_suite.py` (pinned genome + rollout seeds). Use this to document **relative** speedups when experimenting with optional backends—absolute ms vary by CPU/OS.
 

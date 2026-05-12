@@ -2,7 +2,7 @@
 
 `BOUNDARIES.md` Phase M asks for **one tracking issue per exit criterion**, each naming a single acceptance test. The criteria are already satisfied on `main`; this file is a **copy-paste** aid if you want labeled issues for audit or onboarding.
 
-**Created on repo (theorem6/fragility-discovery-engine):** [#1](https://github.com/theorem6/fragility-discovery-engine/issues/1) world + rollout + replay · [#2](https://github.com/theorem6/fragility-discovery-engine/issues/2) GA demo · [#3](https://github.com/theorem6/fragility-discovery-engine/issues/3) Phase H golden · [#4](https://github.com/theorem6/fragility-discovery-engine/issues/4) counterfactual / Pareto / sweeps.
+**Created on repo (theorem6/fragility-discovery-engine):** [#1](https://github.com/theorem6/fragility-discovery-engine/issues/1) world + rollout + replay · [#2](https://github.com/theorem6/fragility-discovery-engine/issues/2) GA demo · [#3](https://github.com/theorem6/fragility-discovery-engine/issues/3) frozen benchmark / golden row · [#4](https://github.com/theorem6/fragility-discovery-engine/issues/4) counterfactual / Pareto / sweeps.
 
 **Status:** All four were **closed** as retrospective audit issues (criteria were already met on `main` when the issues were filed).
 
@@ -24,10 +24,10 @@ gh issue create --title "Phase M: GA demo script smoke" --body "Acceptance: docu
 Primary script: \`scripts/run_service_backlog_ga_demo.py\` (see \`docs/phase_m_third_reference_domain.md\`)."
 ```
 
-## Issue 3 — Phase H golden bundle
+## Issue 3 — Frozen benchmark bundle + golden metrics
 
 ```bash
-gh issue create --title "Phase M: Phase H bundle + GOLDEN_METRICS" --body "Acceptance: frozen bundle \`service_backlog_rollout_v1\` + CI golden row.
+gh issue create --title "Phase M: frozen benchmark bundle + GOLDEN_METRICS" --body "Acceptance: frozen bundle \`service_backlog_rollout_v1\` + CI golden row.
 
 Primary tests: \`tests/test_benchmark_suite.py\`."
 ```
