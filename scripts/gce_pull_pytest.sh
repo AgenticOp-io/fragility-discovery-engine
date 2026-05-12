@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# VM / GCE: pull latest main, editable install, pytest only (no ruff).
+# VM / GCE: pull latest main, editable install, pytest (same perf gate env as CI by default).
 # Same deploy-key pattern as gce_pull_and_test.sh — see docs/GCE_DEPLOY_KEY.md.
 set -euo pipefail
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
@@ -15,5 +15,8 @@ git pull --ff-only origin main
 source .venv/bin/activate
 pip install -q -U pip setuptools wheel
 pip install -q -e ".[dev]"
+# Optional full CI parity: export FRAGILITY_PERF_GATE=1 before calling this script
+export FRAGILITY_PERF_GATE="${FRAGILITY_PERF_GATE:-1}"
+export FRAGILITY_PERF_GATE_MS="${FRAGILITY_PERF_GATE_MS:-240000}"
 python -m pytest -q
-echo "OK: pull + pytest"
+echo "OK: pull + pytest (FRAGILITY_PERF_GATE=${FRAGILITY_PERF_GATE})"

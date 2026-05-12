@@ -16,5 +16,8 @@ source .venv/bin/activate
 pip install -q -U pip setuptools wheel
 pip install -q -e ".[dev]"
 python -m ruff check .
+# Match .github/workflows/ci.yml test job (perf gate on benchmark suite)
+export FRAGILITY_PERF_GATE="${FRAGILITY_PERF_GATE:-1}"
+export FRAGILITY_PERF_GATE_MS="${FRAGILITY_PERF_GATE_MS:-240000}"
 python -m pytest -q
-echo "OK: pull + ruff + pytest"
+echo "OK: pull + ruff + pytest (FRAGILITY_PERF_GATE=${FRAGILITY_PERF_GATE})"

@@ -82,7 +82,10 @@ pip install -U pip setuptools wheel
 pip install -e ".[dev]"
 
 if [[ "${FRAGILITY_RUN_TESTS}" == "1" ]]; then
-  echo "==> python -m pytest"
+  echo "==> ruff + pytest (CI-like perf gate)"
+  python -m ruff check .
+  export FRAGILITY_PERF_GATE="${FRAGILITY_PERF_GATE:-1}"
+  export FRAGILITY_PERF_GATE_MS="${FRAGILITY_PERF_GATE_MS:-240000}"
   python -m pytest -q
 fi
 

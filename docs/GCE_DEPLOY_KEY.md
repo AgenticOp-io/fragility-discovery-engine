@@ -71,6 +71,44 @@ export FRAGILITY_REPO_URL='git@github.com:YOUR_ORG/fragility-discovery-engine.gi
 
 Subsequent updates: rerun `gce_git_deploy.sh` with the same env vars (it will `git pull`).
 
+## Sync latest `main` on an existing VM (Linux pull + test)
+
+The canonical repo is **GitHub**; the VM only needs **`git pull`**. Push from your laptop to **`origin/main`** as usual, then refresh the VM.
+
+### 0. Refresh `gcloud` credentials (when `invalid_grant` / `instances.list` fails)
+
+```bash
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+```
+
+Use **`gcloud config get-value project`** to see the active project.
+
+### 1. Pull + `ruff` + `pytest` (CI-like, including perf gate)
+
+Replace **`INSTANCE`** and **`ZONE`** with your VM (examples elsewhere in this doc use `acs-hss-server` / `us-central1-a`).
+
+From your **laptop** (this repository’s root):
+
+```bash
+gcloud compute scp scripts/gce_pull_and_test.sh INSTANCE:~/ --zone=ZONE
+gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_pull_and_test.sh'
+```
+
+[`scripts/gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) activates **`~/fragility-discovery-engine/.venv`** (override with **`FRAGILITY_DEPLOY_DIR`**), runs **`git pull`**, **`pip install -e ".[dev]"`**, **`python -m ruff check .`**, and **`python -m pytest`** with **`FRAGILITY_PERF_GATE=1`** and **`FRAGILITY_PERF_GATE_MS=240000`** (same defaults as `.github/workflows/ci.yml`).
+
+**Public repo — no `scp`:** if the VM already has a clone at **`~/fragility-discovery-engine`**, you can pipe the script from `raw.githubusercontent.com`:
+
+```bash
+gcloud compute ssh INSTANCE --zone=ZONE --command='curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_pull_and_test.sh | bash'
+```
+
+**Private repo:** keep **`~/.ssh/gce_github_ed25519`** and the **`GIT_SSH_COMMAND`** pattern from §3—[`gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) sets that automatically when the key file exists.
+
+### 2. Optional: pytest-only refresh
+
+[`scripts/gce_pull_pytest.sh`](../scripts/gce_pull_pytest.sh) skips **ruff** but uses the same **perf gate** env vars as CI by default. Upload and run it the same way as `gce_pull_and_test.sh`.
+
 ## Rotate / revoke
 
 - Remove the deploy key in GitHub **Settings → Deploy keys**.
