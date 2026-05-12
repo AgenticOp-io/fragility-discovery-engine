@@ -19,6 +19,8 @@ Use `--skip-validate` only for quick local iteration; for anything you might cit
 
 ## 1. Phase H regression gate (optional but recommended before claims)
 
+Run the frozen benchmark bundles (same checks as CI) before you treat outputs as cite-ready.
+
 ```powershell
 python scripts/run_benchmark_suite.py --validate
 ```

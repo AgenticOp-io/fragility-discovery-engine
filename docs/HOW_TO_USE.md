@@ -2,6 +2,8 @@
 
 This guide is the **hands-on entry point**: install, run your first artifacts, understand JSON outputs, and use the static viewers. Normative scope and non-goals live in [`BOUNDARIES.md`](../BOUNDARIES.md). Honest complexity and sweep costs: [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).
 
+**About “Phase” in docs:** those labels line up with sections in [`BOUNDARIES.md`](../BOUNDARIES.md). They record how work was gated and tested, not separate products or editions you install on their own.
+
 ---
 
 ## 1. What this software does
@@ -230,9 +232,9 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 
 ---
 
-## 7. Narration, plots, LLM prompt packs (Phase L)
+## 7. Narration, plots, optional LLM prompts
 
-- **Deterministic narration:** `scripts/narrate_frozen_json.py` — works on replay, Pareto, merge, epsilon-sweep, counterfactual bundles, **institutional composite v1/v2**, **`explanation-dag-v1`**.
+- **Deterministic narration:** `scripts/narrate_frozen_json.py` — works on replay, Pareto, merge, epsilon-sweep, counterfactual bundles, **institutional composite v1/v2/v3**, **`explanation-dag-v1`**.
 - **Machine-readable summary:** `--json-out narration.json`.
 - **Citation hook:** `--cite-digest` (SHA-256 of file bytes + path).
 - **Plots:** `scripts/plot_*.py` require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`). Index: [`phase_l_publication.md`](phase_l_publication.md).
@@ -263,13 +265,13 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 
 | Document | Purpose |
 |----------|---------|
-| [`BOUNDARIES.md`](../BOUNDARIES.md) | Phases, exit criteria, non-goals |
-| [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) | Aspirational directions |
+| [`BOUNDARIES.md`](../BOUNDARIES.md) | Charter: phases (internal section names), exit criteria, non-goals |
+| [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) | Possible next steps (not binding until promoted into `BOUNDARIES.md`) |
 | [`benchmarks/README.md`](../benchmarks/README.md) | Bundle IDs, robustness CLIs, composites |
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | One end-to-end reviewer path |
 | [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) | VM deploy keys |
 | [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Third-domain gate, coupled dynamics (non-goals) |
-| [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) | **Phase M** — third `World` flight (admission + replay template + exit criteria) |
+| [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) | Third reference domain (`ServiceBacklogWorld`): checklist, replay table, exit tests |
 
 ---
 

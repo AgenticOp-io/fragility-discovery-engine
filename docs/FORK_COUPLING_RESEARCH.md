@@ -12,7 +12,7 @@ Treat as a **fork** (or a clearly named sibling package):
 
 1. New `World` (or orchestrator) module with an explicit coupling contract.
 2. **Schema bump** for replay JSON (or a new top-level artifact) with migration notes and viewer guidance.
-3. New **Phase H–style** golden bundles; do **not** overload `fragility-institutional-composite-v*` JSON as if it were coupled physics.
+3. New **golden benchmark bundles** (same style as `*_rollout_v1` in `fragility_engine.benchmarks.suite`); do **not** overload `fragility-institutional-composite-v*` JSON as if it were coupled physics.
 4. Link back to this engine for **schedule encoding**, **search**, and **counterfactual** patterns where reuse is honest.
 
 ## Related shipped tooling

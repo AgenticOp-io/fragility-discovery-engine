@@ -2,9 +2,13 @@
 
 This document is **normative**: if an idea is not justified against these gates, default answer is **no** or **later**.
 
+## How to read “Phase” labels
+
+Words like **Phase A**, **Phase H**, or **Phase M** are **section headers in this charter**: they group requirements, exit tests, and non-goals for a slice of work. You do **not** need them to follow the tutorials in [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md). For future direction in plain language, see [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md).
+
 ## North star (what we are building)
 
-One sentence: **a deterministic engine that searches shock schedules (stress scenarios) to maximize explicit fragility metrics in modular discrete-time simulations, then documents outcomes with replay traces, minimization, and mechanical counterfactuals.**
+One sentence: **a deterministic engine that searches shock schedules (stress scenarios) to maximize explicit fragility metrics in modular discrete-time simulations, then documents outcomes with replay traces, minimization, and explicit counterfactuals.**
 
 We are **not** building: a generic “digital twin platform,” a blockchain product, an LLM roleplay sandbox, or a pretty dashboard without a frozen replay artifact contract.
 
@@ -14,7 +18,7 @@ We are **not** building: a generic “digital twin platform,” a blockchain pro
 2. **World/adversary separation** — worlds interpret physics only; “attacks” enter as explicit exogenous schedules or budgets, never as hidden hooks inside `World.step`.
 3. **Evidence before chrome** (audit-ready artifacts first: versioned JSON contracts + tests before product UI) — no web UI until replay JSON schema + tests are stable.
 4. **Few agent knobs** — archetypes stay thin (response functions + thresholds). No personalities, memory, language, or beliefs until topology + metrics are done.
-5. **Reference hierarchy** — the aggregate peg toy remains the **default tutorial anchor**; additional kernels (network contagion, resource cascade, service backlog) ship as **labeled reference domains** with their own Phase H bundles and docs—not unbounded parallel physics experiments without a charter.
+5. **Reference hierarchy** — the aggregate peg toy remains the **default tutorial anchor**; additional kernels (network contagion, resource cascade, service backlog) ship as **labeled reference domains** with their own frozen benchmark bundles in `fragility_engine.benchmarks.suite` and matching docs—not unbounded parallel physics experiments without a charter.
 6. **Third reference domain (Phase M) — single flight** — at most **one** new `world/` physics experiment under **Phase M** at a time; admission + exit criteria live in **Phase M** below and in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Aggregate + network + **Phase J** cascade bundles remain **regression oracles** unless a future charter change explicitly revises that split.
 
 ## Explicit non-goals (reject without guilt)
