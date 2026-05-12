@@ -6,7 +6,8 @@ This repository’s **public whitepaper** is the **[introduction whitepaper](WHI
 |------|----------|
 | Industry language ↔ repo terms | [Terminology in `WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#terminology-plain-language) |
 | Install, tutorials, viewers, CLI index | [`HOW_TO_USE.md`](HOW_TO_USE.md) |
-| Git / Windows credential helper | [`INSTALLATION.md`](INSTALLATION.md) |
+| After clone: CI parity, benchmarks, charter links | [`NEXT_STEPS.md`](NEXT_STEPS.md) |
+| Git / host tooling (credentials, dual-stack) | [`INSTALLATION.md`](INSTALLATION.md) |
 | Charter phases, non-goals, exit criteria | [`BOUNDARIES.md`](../BOUNDARIES.md) — [how to read “Phase” labels](../BOUNDARIES.md#how-to-read-phase-labels) |
 | Reviewer-style artifact walkthrough | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) |
 | Honest limits and wall-clock | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |

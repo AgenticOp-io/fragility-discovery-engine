@@ -1,6 +1,6 @@
 # Installation and tooling notes
 
-This page **supplements** [`HOW_TO_USE.md`](HOW_TO_USE.md). Use that guide for **Python**, venv, `pip install -e ".[dev]"`, tutorials, and static viewers. Use this page for **Git**, **OS-specific packages**, and other host-tooling edge cases that are not part of the Python package.
+This page **supplements** [`HOW_TO_USE.md`](HOW_TO_USE.md). Use that guide for **Python**, venv, `pip install -e ".[dev]"`, tutorials, and static viewers. Use this page for **Git**, **OS-specific packages**, and other host-tooling edge cases that are not part of the Python package. **Post-clone checklist** (CI scripts, frozen benchmarks): [`NEXT_STEPS.md`](NEXT_STEPS.md).
 
 ## Dual stack (Linux and Windows)
 

@@ -195,6 +195,8 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.md` only when you want them **normative**.
 
+**Local CI parity (shipped):** [`scripts/ci_local.sh`](../scripts/ci_local.sh) (Linux / macOS / WSL) and [`scripts/ci_local.ps1`](../scripts/ci_local.ps1) (Windows) mirror the default **test** job (`ruff` + `pytest` + perf gate env). Quick checklist: [`docs/NEXT_STEPS.md`](NEXT_STEPS.md).
+
 ### Benchmark layer (Phase H charter)
 
 | Track | Intent | Notes |

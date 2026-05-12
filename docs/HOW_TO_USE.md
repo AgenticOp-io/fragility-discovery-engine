@@ -286,7 +286,8 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 | [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) | VM deploy keys |
 | [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Third-domain gate, coupled dynamics (non-goals) |
 | [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) | Third reference domain (`ServiceBacklogWorld`): checklist, replay table, exit tests |
-| [`INSTALLATION.md`](INSTALLATION.md) | Git on Windows (credential helper), optional multi-remote notes |
+| [`INSTALLATION.md`](INSTALLATION.md) | Git on Windows (credential helper), Linux/macOS HTTPS, dual-stack notes |
+| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Post-clone checklist: local CI parity scripts, frozen benchmarks, where to read next |
 
 ---
 
