@@ -137,7 +137,8 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/gce_remote_git_deploy.sh` | VM-side wrapper: SSH env + apt + runs **`/tmp/gce_git_deploy.sh`** (upload both scripts for private GitHub) |
 | `scripts/gce_pull_pytest.sh` | **On VM:** pull **`main`**, `pip install -e ".[dev]"`, **`python -m pytest -q`** only (deploy key env same as `gce_git_deploy.sh`) |
 | `scripts/gce_bootstrap_pull_latest_pytest.sh` | **Bootstrap:** `scp` to VM **`/tmp/`**, then **`bash /tmp/gce_bootstrap_pull_latest_pytest.sh`** — pulls commit that adds `gce_pull_pytest.sh`, then runs it |
-| `scripts/gce_pull_and_test.sh` | **On VM:** pull **`main`**, **`ruff check`** + **`pytest`** |
+| `scripts/gce_pull_and_test.sh` | **On VM:** pull **`main`**, **`pip install -e ".[dev]"`**, **`ruff`**, **`pytest`** with CI perf gate (`FRAGILITY_PERF_GATE`) — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
+| `scripts/gce_sync_vm.ps1` | **From Windows laptop:** `scp` `gce_pull_and_test.sh` to VM + **`gcloud compute ssh`** run (optional **`-Project`** if default project is wrong) |
 | `scripts/generate_gce_deploy_key.ps1` | Create `.deploy/gce_github_ed25519` (+ `.pub`) for GitHub **Deploy keys** — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |

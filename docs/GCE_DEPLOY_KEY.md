@@ -102,6 +102,12 @@ Replace **`INSTANCE`** and **`ZONE`** with your VM (examples elsewhere in this d
 
 From your **laptop** (this repository’s root):
 
+```powershell
+pwsh -File scripts/gce_sync_vm.ps1 -Instance INSTANCE -Zone ZONE [-Project YOUR_PROJECT_ID]
+```
+
+Or manually:
+
 ```bash
 gcloud compute scp scripts/gce_pull_and_test.sh INSTANCE:~/ --zone=ZONE
 gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_pull_and_test.sh'
