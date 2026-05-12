@@ -23,7 +23,7 @@ BUNDLE_SCHEMA = "llm-prompt-bundle-v1"
 DEFAULT_TEMPLATE_ID = "frozen_artifact_narration"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
-PROMPT_PACK_IDS: tuple[str, ...] = ("narration_v1", "reviewer_memo_v1", "paper_appendix_v1")
+PROMPT_PACK_IDS: tuple[str, ...] = ("narration_v1", "reviewer_memo_v1", "paper_appendix_v1", "status_digest_v1")
 
 
 def _repo_root() -> Path:

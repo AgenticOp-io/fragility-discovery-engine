@@ -7,11 +7,11 @@
 - **Library:** `fragility_engine.explain.narration` — `load_frozen_json_artifact`, `narrate_frozen_artifact`
 - **CLI:** `scripts/narrate_frozen_json.py` — `--cite-digest`, `--json-out` → `narration-summary-v1`
 - **Fingerprints:** `scripts/frozen_json_digest.py`
-- **User guide:** [`HOW_TO_USE.md`](HOW_TO_USE.md) — first-run paths and which artifacts narrate cleanly (including **institutional composite** v1/v2 and **`explanation-dag-v1`**).
+- **User guide:** [`HOW_TO_USE.md`](HOW_TO_USE.md) — first-run paths and which artifacts narrate cleanly (including **institutional composite** v1/v2/**v3** and **`explanation-dag-v1`**).
 
 ## Optional LLM wrapper (external prose only)
 
-- **Versioned template packs** (`artifacts/llm_prompts/<pack>/`): **`narration_v1`** (general), **`reviewer_memo_v1`** (2–3 sentences), **`paper_appendix_v1`** (short appendix subsection).
+- **Versioned template packs** (`artifacts/llm_prompts/<pack>/`): **`narration_v1`** (general), **`reviewer_memo_v1`** (2–3 sentences), **`paper_appendix_v1`** (short appendix subsection), **`status_digest_v1`** (standup-style bullet checklist from the same frozen JSON + deterministic narration).
 - **CLI:** `scripts/export_llm_narration_prompt.py --prompt-pack <pack>` → **`llm-prompt-bundle-v1`** JSON (includes **`prompt_pack`** + **`template_version`** per pack).
 - **Optional invoke:** `--invoke-openai` `[--max-tokens N]` (stdlib HTTP; API key from env, default `OPENAI_API_KEY`). Model output is labeled **do not feed into simulation**.
 

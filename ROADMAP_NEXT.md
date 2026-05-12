@@ -38,7 +38,7 @@ If a feature weakens determinism, blurs world/adversary separation, or ships wit
 
 Work **does not start** on a phase until prior phases are green in CI **and** `BOUNDARIES.md` is updated to adopt that phase’s gates.
 
-**Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (manifest JSON, hypervolume proxies, scheduled workflows) remains optional backlog.
+**Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (scheduled CI, richer manifest fields, Pareto hypervolume on frozen search exports) remains optional backlog; the portable manifest already carries **golden digest**, **topology**, **provenance**, an **artifact schema index**, and a **frozen 2-D hypervolume regression fixture** (`build_benchmark_manifest`).
 
 **Phase I (network explanation grammar)** — see **`BOUNDARIES.md` (Phase I)** for shipped counterfactuals, ε-sweeps, merges, chains, and path traces.
 
@@ -159,7 +159,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 ---
 
-### Phase M — Third reference domain (**proposed**)
+### Phase M — Third reference domain (**adopted / shipped**)
 
 **Purpose:** Ship a **third** thin `World` that reuses the existing shock schedule encoding, exports replay JSON under a documented contract, and lands a **Phase H** golden bundle — proving another physics story on the same engine spine without coupling worlds.
 
@@ -192,7 +192,7 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 |-----------|----------------|-------------------------|
 | Robustness | Ensemble / sweeps / GA budgets / neighbor JSON bundles | Larger grids, richer theory, dashboard integration |
 | Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
-| Institutional composite | Decoupled twin (**v1**) + triple (**v2**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
+| Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
 
 ---
 

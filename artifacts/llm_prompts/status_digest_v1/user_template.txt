@@ -1,0 +1,14 @@
+Frozen deterministic simulation artifact (engine-export JSON summarized below).
+
+{citation_block}
+
+--- Deterministic narration (structure extracted without LLM) ---
+{deterministic_narration}
+---
+
+Task: Produce a **bullet checklist** (5–10 bullets) suitable for a weekly status or handoff:
+- First bullet: artifact kind (replay, Pareto, merge graph, sweep, composite, certificate, …).
+- Next bullets: collapse yes/no, headline scalars present (instability, cost, branch counts, sweep axes), schema identifiers if visible in the narration.
+- Final bullet: explicit reminder that this text is read-only commentary and must not be parsed back into simulator inputs.
+
+Plain text bullets only (no JSON, no markdown headings).

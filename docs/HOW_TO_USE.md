@@ -161,7 +161,7 @@ Wall-clock on named bundles: `python scripts/benchmark_rollout.py --bundle aggre
 python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json
 ```
 
-Includes per-bundle topology hints, `golden_metrics_sha256`, Python/NumPy/package versions, optional `git_commit`, and pointers to **2-D minimization hypervolume** (`fragility_engine.benchmarks.hypervolume`) plus **`explanation-dag-v1`** export.
+Includes per-bundle topology hints, `golden_metrics_sha256`, Python/NumPy/package versions, optional `git_commit`, a **frozen hypervolume regression fixture** (sanity for `hypervolume_2d_min`), an **artifact schema index** (Pareto, merges, institutional composite v1–v3, path traces), and pointers to **`explanation-dag-v1`** export.
 
 ### 4.9 Robustness sweeps, mechanism design, institutional composite
 
@@ -169,7 +169,7 @@ All documented with copy-paste examples in [`benchmarks/README.md`](../benchmark
 
 - `fragility_robustness_sweep.py` — ensembles, physics sweeps, GA budget modes, `--neighbor-json-list`.
 - `mechanism_design_policy_sweep.py` — defender presets + inner GA.
-- `institutional_composite_demo.py` — twin (**v1**) or `--triple` (**v2**) decoupled multi-kernel metrics.
+- `institutional_composite_demo.py` — twin (**v1**), `--triple` (**v2**), or `--quad` (**v3**) decoupled multi-kernel metrics.
 
 **Composite JSON is not a replay timeline** — use JSON tools, narration, or downstream analytics:
 

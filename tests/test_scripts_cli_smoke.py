@@ -591,6 +591,26 @@ def test_export_llm_narration_prompt_reviewer_pack_cli(py_exe: str, tmp_path: Pa
     assert "sentences" in data["user_prompt"]
 
 
+def test_export_llm_narration_prompt_status_digest_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    bundle_p = tmp_path / "llm_status.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_resource_cascade_replay.json"),
+            "--prompt-pack",
+            "status_digest_v1",
+            "--out",
+            str(bundle_p),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(bundle_p.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "status_digest_v1"
+    assert "checklist" in data["user_prompt"].lower() or "bullet" in data["user_prompt"].lower()
+
+
 def test_plot_counterfactual_bars_cli(py_exe: str, tmp_path: Path) -> None:
     cf = tmp_path / "cf.json"
     cf.write_text(

@@ -11,11 +11,16 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
 from fragility_engine.benchmarks.suite import BUNDLE_IDS, GOLDEN_METRICS, RESULT_SCHEMA
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, resource_cascade_backend_benchmark_meta
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 
 MANIFEST_SCHEMA = "benchmark-manifest-v2"
+
+# Frozen 2-objective minimization instance for digest drift detection (not golden bundle metrics).
+_HV_REGRESSION_POINTS = ((1.0, 4.0), (3.0, 2.0))
+_HV_REGRESSION_REF = (5.0, 6.0)
 
 _BUNDLE_TOPOLOGY: dict[str, dict[str, str]] = {
     "aggregate_rollout_v1": {"world": "StablecoinPegWorld", "topology": "scalar"},
@@ -62,6 +67,9 @@ def build_benchmark_manifest() -> dict[str, Any]:
     gold_keys = sorted(set().union(*(set(v.keys()) for v in GOLDEN_METRICS.values()))) if GOLDEN_METRICS else []
     rc_template = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=26)
     bundles = [{**{"bundle_id": bid}, **_BUNDLE_TOPOLOGY[bid]} for bid in BUNDLE_IDS]
+    hv_fixture_pts = [(float(a), float(b)) for a, b in _HV_REGRESSION_POINTS]
+    hv_fixture_ref = (float(_HV_REGRESSION_REF[0]), float(_HV_REGRESSION_REF[1]))
+    hv_expected = hypervolume_2d_min(hv_fixture_pts, hv_fixture_ref)
     return {
         "schema": MANIFEST_SCHEMA,
         "bundle_ids": list(BUNDLE_IDS),
@@ -82,10 +90,37 @@ def build_benchmark_manifest() -> dict[str, Any]:
             "module": "fragility_engine.benchmarks.hypervolume",
             "symbol": "hypervolume_2d_min",
             "note": "2-objective minimization hypervolume (Pareto tooling); not used on golden bundle scalars.",
+            "regression_fixture": {
+                "objective_axes": ["axis_a_min", "axis_b_min"],
+                "points": [list(p) for p in hv_fixture_pts],
+                "reference": list(hv_fixture_ref),
+                "expected_hypervolume": float(hv_expected),
+                "note": (
+                    "If this value changes, hypervolume_2d_min semantics or nondominated filter likely changed—"
+                    "update tests and any downstream digests."
+                ),
+            },
         },
         "explanation_dag": {
             "schema": "explanation-dag-v1",
             "module": "fragility_engine.explain.explanation_dag",
             "cli": "scripts/export_explanation_dag.py",
+        },
+        "artifact_schemas": {
+            "pareto_front": "pareto-front-v1",
+            "attribution_merge": "attribution-merge-v1",
+            "fragility_certificate": "fragility-certificate-v1",
+            "institutional_composite": [
+                "fragility-institutional-composite-v1",
+                "fragility-institutional-composite-v2",
+                "fragility-institutional-composite-v3",
+            ],
+            "mutation_chain_path_traces": [
+                "explanation-mutation-chain-path-v1",
+                "explanation-mutation-chain-path-resource-cascade-v1",
+                "explanation-mutation-chain-path-service-backlog-v1",
+            ],
+            "service_backlog_mutation_chain_spec": "service-backlog-mutation-chain-spec-v1",
+            "resource_cascade_mutation_chain_spec": "resource-cascade-mutation-chain-spec-v1",
         },
     }

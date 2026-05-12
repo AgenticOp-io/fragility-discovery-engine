@@ -21,7 +21,7 @@ JSON output (no validation):
 python scripts/run_benchmark_suite.py --json
 ```
 
-Portable inventory (`benchmark-manifest-v2`: per-bundle topology, provenance, `golden_metrics_sha256`, pointers to hypervolume + explanation DAG tooling):
+Portable inventory (`benchmark-manifest-v2`: per-bundle topology, provenance, `golden_metrics_sha256`, **frozen 2-D hypervolume regression fixture** (detects accidental HV API drift), **artifact schema index** (Pareto, merges, composites v1–v3, path-trace schemas), pointers to explanation DAG tooling):
 
 ```powershell
 python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifest.json
