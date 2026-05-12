@@ -27,7 +27,7 @@ Portable inventory (`benchmark-manifest-v2`: per-bundle topology, provenance, `g
 python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifest.json
 ```
 
-2-objective **minimization hypervolume** (for Pareto-style archives): `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min`. A **pinned** `pareto-front-v1` fixture for HV regression lives at `tests/fixtures/benchmarks/pinned_pareto_front_minimal.json` (`tests/test_pareto_front_hypervolume_fixture.py`). **Mechanical DAG** JSON: `scripts/export_explanation_dag.py` (from counterfactual JSON or a greedy minimization report — use `export_minimized_replay.py --minimization-report-out` to capture the latter).
+2-objective **minimization hypervolume** (for Pareto-style archives): `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min`. **Pinned** `pareto-front-v1` fixtures for HV regression: `tests/fixtures/benchmarks/pinned_pareto_front_minimal.json` (three-point front, ref `(5,5)` → HV **11**) and `pinned_pareto_front_two_branch.json` (two-point front, ref `(1,1)` → HV **0.28**; reference policy in `meta`) — `tests/test_pareto_front_hypervolume_fixture.py`. **Mechanical DAG** JSON: `scripts/export_explanation_dag.py` (from counterfactual JSON or a greedy minimization report — use `export_minimized_replay.py --minimization-report-out` to capture the latter).
 
 The manifest includes **`resource_cascade_backend`** (`resource_cascade_backend_env`, `resource_cascade_backend_effective`) for the same pinned `ResourceCascadeWorld` template as bundle `resource_cascade_rollout_v1`, matching `scripts/benchmark_rollout.py --json` semantics.
 

@@ -34,6 +34,25 @@ jobs:
           FRAGILITY_PERF_GATE_MS: "240000"
         run: python -m pytest -q
 
+      - name: Write benchmark manifest (artifact)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from fragility_engine.benchmarks.manifest import build_benchmark_manifest
+          Path("benchmark_manifest.json").write_text(
+              json.dumps(build_benchmark_manifest(), indent=2), encoding="utf-8"
+          )
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
+        with:
+          name: benchmark-manifest-ci-${{ github.sha }}
+          path: benchmark_manifest.json
+          retention-days: 30
+
   # Prove release artifacts install on both Linux and Windows (pure-Python wheel + platform deps).
   build:
     strategy:

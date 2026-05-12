@@ -1,0 +1,27 @@
+name: Repro bundle / benchmark drift
+description: CI failure, golden mismatch, or manifest / hypervolume regression — link logs and SHAs.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For **benchmark suite** or **manifest** drift, attach or link `benchmark_manifest.json` and the failing `pytest` output.
+  - type: textarea
+    id: context
+    attributes:
+      label: What failed?
+      description: Job name, test name, or tolerance mismatch.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Paste key log lines, link Actions run URL, or attach `benchmark_manifest.json`.
+    validations:
+      required: true
+  - type: input
+    id: sha
+    attributes:
+      label: Commit SHA
+    validations:
+      required: false

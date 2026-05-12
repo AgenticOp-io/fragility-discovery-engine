@@ -201,6 +201,7 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 1. Copy the **Purpose / In scope / Out of scope / Exit criteria** of an adopted phase into `BOUNDARIES.md`.
 2. Open a tracking issue per exit criterion with **one acceptance test** named up front.
 3. Prefer **small PRs** that close single criteria over mega-diffs.
+4. Use **[GitHub issue forms](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose)** (bug report / repro bundle) so repro steps and artifacts are structured.
 
 ---
 

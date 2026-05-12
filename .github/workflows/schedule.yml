@@ -1,5 +1,5 @@
 # Weekly regression on main (Ubuntu + Python 3.12) — complements push/PR CI matrix.
-# Uploads benchmark-manifest-v2 JSON for drift archaeology (retention: GitHub default).
+# Uploads benchmark-manifest-v2 JSON (artifact retention: 90 days).
 
 name: Scheduled regression
 
@@ -49,3 +49,4 @@ jobs:
         with:
           name: benchmark-manifest-${{ github.run_id }}
           path: benchmark_manifest.json
+          retention-days: 90

@@ -161,7 +161,9 @@ Wall-clock on named bundles: `python scripts/benchmark_rollout.py --bundle aggre
 python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json
 ```
 
-Includes per-bundle topology hints, `golden_metrics_sha256`, Python/NumPy/package versions, optional `git_commit`, a **frozen hypervolume regression fixture** (sanity for `hypervolume_2d_min`), an **artifact schema index** (Pareto, merges, institutional composite v1–v3, path traces), and pointers to **`explanation-dag-v1`** export.
+Includes per-bundle topology hints, `golden_metrics_sha256`, Python/NumPy/package versions, optional `git_commit`, a **frozen hypervolume regression fixture** (sanity for `hypervolume_2d_min`), an **artifact schema index** (Pareto, merges, institutional composite v1–v3, path traces), **registry entries for pinned Pareto HV fixtures** under `tests/fixtures/benchmarks/`, and pointers to **`explanation-dag-v1`** export.
+
+On **push/PR** CI (Ubuntu, Python **3.12** only), `benchmark_manifest.json` is uploaded as a workflow artifact (`benchmark-manifest-ci-<sha>`, **30** day retention). The **weekly** scheduled job uploads a manifest with **90** day retention (see `.github/workflows/`).
 
 ### 4.9 Robustness sweeps, mechanism design, institutional composite
 

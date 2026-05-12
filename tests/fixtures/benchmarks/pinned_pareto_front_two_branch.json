@@ -1,0 +1,26 @@
+{
+  "schema": "pareto-front-v1",
+  "best_fitness": 1.0,
+  "domain": "fixture",
+  "meta": {
+    "description": "Two-branch minimization front (severity vs attack_cost). Reference point (1,1) is strictly worse than both objectives on the ND set; expected hypervolume 0.28 matches tests/test_hypervolume.py::test_hypervolume_2d_min_two_points.",
+    "hypervolume_reference": [1.0, 1.0],
+    "hypervolume_policy": "Both objectives minimized; ref must strictly dominate the ideal (larger severity and larger attack_cost than any Pareto point)."
+  },
+  "archive": [
+    {
+      "severity": 0.2,
+      "attack_cost": 0.8,
+      "collapsed": false,
+      "integral_instability": 1.0,
+      "genome": [[[0.1, 0.9]]]
+    },
+    {
+      "severity": 0.8,
+      "attack_cost": 0.2,
+      "collapsed": false,
+      "integral_instability": 1.0,
+      "genome": [[[0.9, 0.1]]]
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml)
 
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Coupled multi-kernel research (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md)
+
 Autonomous **directed search** (Monte Carlo and **genetic-algorithm** exploration) over modular discrete-time simulations: perturb **shock schedules** (stress scenarios), maximize explicit **fragility objectives**, then export **minimal failing schedules** and **deterministic execution replays** (JSON traces) for audit and publication—plus mechanical **counterfactual** and **sensitivity** artifacts where applicable.
 
 **How to use this software (install, tutorials, viewers, artifacts):** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)

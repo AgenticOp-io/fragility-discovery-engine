@@ -19,4 +19,4 @@ If you pursue coupling, treat it as a **fork**: new world module, new replay sch
 - **Pareto archives** (`pareto-front-v1`) and search exports can be analyzed with **2-D minimization hypervolume** — `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min` (reference point must strictly dominate the front).
 - **Mechanical explanation DAG** (`explanation-dag-v1`) — `fragility_engine.explain.explanation_dag` and `scripts/export_explanation_dag.py` — edges are labeled from minimization reports or counterfactual bundles, not from LLM prose.
 
-See also [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) and [`HOW_TO_USE.md`](HOW_TO_USE.md).
+See also [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md), [`HOW_TO_USE.md`](HOW_TO_USE.md), and **[`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md)** (policy for coupled multi-kernel work outside this repo).

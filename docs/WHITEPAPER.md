@@ -9,5 +9,6 @@ This repository’s **public whitepaper** is the forwardable **[introduction whi
 | Phase gates, non-goals, exit criteria | [`BOUNDARIES.md`](../BOUNDARIES.md) |
 | Reviewer-style artifact walkthrough | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) |
 | Honest limits and wall-clock | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |
-
-**Canonical URL on GitHub:** [github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md](https://github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md)
+| Git tags / release notes | [`RELEASING.md`](../RELEASING.md) |
+| Coupled multi-kernel research (fork policy) | [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md) |
+| Bug reports (structured) | [New issue — choose a template](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose) | [github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md](https://github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md)
