@@ -84,6 +84,18 @@ gcloud config set project YOUR_PROJECT_ID
 
 Use **`gcloud config get-value project`** to see the active project.
 
+### 0b. `Required 'compute.instances.list' permission`
+
+Your Google account is signed in, but the **active project** may be wrong or your principal lacks **Compute Engine** permissions (e.g. Viewer / Instance Admin) on that project.
+
+```bash
+gcloud projects list
+gcloud config set project THE_PROJECT_THAT_OWNS_THE_VM
+gcloud compute instances list
+```
+
+Ask a project owner to grant a role that includes **`compute.instances.list`** (often **Compute Viewer** or **Compute Instance Admin (v1)**) on the target project.
+
 ### 1. Pull + `ruff` + `pytest` (CI-like, including perf gate)
 
 Replace **`INSTANCE`** and **`ZONE`** with your VM (examples elsewhere in this doc use `acs-hss-server` / `us-central1-a`).
