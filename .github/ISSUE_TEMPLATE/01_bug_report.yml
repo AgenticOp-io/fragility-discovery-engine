@@ -1,10 +1,10 @@
 name: Bug report
-description: Something broke or results look wrong — include seeds and artifacts when possible.
+description: Report incorrect behavior — include how to reproduce and attach or paste minimal JSON when you can.
 body:
   - type: markdown
     attributes:
       value: |
-        **Tip:** reproducible bugs close fastest when we have a **minimal JSON** (replay, Pareto, or counterfactual) plus **exact CLI** and **OS / Python version**.
+        Reproducible reports are fastest with a **short command line**, **seeds**, and a **small JSON** (replay, Pareto, or counterfactual) attached or pasted.
   - type: textarea
     id: summary
     attributes:

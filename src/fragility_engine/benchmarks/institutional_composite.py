@@ -1,4 +1,4 @@
-"""Moonshot: audit artifacts coupling one attacker genome to two, three, or four reference kernels (decoupled)."""
+"""Audit JSON: one attacker genome evaluated on two, three, or four reference kernels (not coupled)."""
 
 from __future__ import annotations
 

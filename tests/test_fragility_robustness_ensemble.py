@@ -1,4 +1,4 @@
-"""Ensemble robustness over graph seeds (moonshot)."""
+"""Ensemble robustness over graph seeds (Phase H)."""
 
 from __future__ import annotations
 

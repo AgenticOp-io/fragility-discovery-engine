@@ -1,5 +1,5 @@
 name: Repro bundle / benchmark drift
-description: CI failure, golden mismatch, or manifest / hypervolume regression — link logs and SHAs.
+description: CI or golden tests failed — paste the failing test name and link or attach logs.
 body:
   - type: markdown
     attributes:

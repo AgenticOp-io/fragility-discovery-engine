@@ -1,4 +1,4 @@
-"""Institutional composite artifacts (moonshot — decoupled kernels)."""
+"""Institutional composite JSON (decoupled kernels)."""
 
 from __future__ import annotations
 

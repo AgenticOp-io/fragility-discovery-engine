@@ -1,4 +1,4 @@
-"""Moonshot: composite JSON — twin (network + cascade), triple (+ peg), or quad (+ service backlog)."""
+"""CLI: write multi-kernel composite JSON (twin / triple / quad schedules; not coupled physics)."""
 
 from __future__ import annotations
 

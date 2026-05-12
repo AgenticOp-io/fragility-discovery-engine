@@ -1,10 +1,11 @@
 # Fragility Discovery Engine
 
 [![CI](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml)
+[![Scheduled regression](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/schedule.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/schedule.yml)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Coupled multi-kernel research (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md)
 
-Autonomous **directed search** (Monte Carlo and **genetic-algorithm** exploration) over modular discrete-time simulations: perturb **shock schedules** (stress scenarios), maximize explicit **fragility objectives**, then export **minimal failing schedules** and **deterministic execution replays** (JSON traces) for audit and publication—plus mechanical **counterfactual** and **sensitivity** artifacts where applicable.
+**Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations: vary **shock schedules** (stress scenarios), maximize stated **fragility metrics**, then export **small failing schedules**, **replay JSON** (traces you can re-run), and **counterfactual** / **sensitivity** outputs where applicable.
 
 **How to use this software (install, tutorials, viewers, artifacts):** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 
@@ -35,7 +36,7 @@ Phase 1 is **deterministic** (fixed NumPy RNG seeds). LLM policies stay out unti
 
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`.
 
-**Reviewer walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
+**Paper-style walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
 
 ## Quick start
 

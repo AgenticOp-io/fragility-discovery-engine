@@ -1,21 +1,21 @@
 # Next roadmap — after Phase G
 
-This document is **aspirational and directional**. It proposes where the project can become **genuinely novel** without confusing ambition with scope creep.
+This document is **aspirational and directional**: possible directions after the core engine is stable, without turning wish lists into scope creep.
 
 **Normative law still lives in [`BOUNDARIES.md`](BOUNDARIES.md):** hard gates, exit criteria, and non-goals override enthusiasm. Treat this file as **prioritized intent**; promote sections into `BOUNDARIES.md` only when you are ready to commit engineering + tests.
 
 ---
 
-## What “breathtaking” means here (operational)
+## What counts as a strong outcome (operational)
 
-Groundbreaking, for this codebase, is **not** a bigger dashboard or more graph models. It is:
+For this codebase, progress is **not** measured by a bigger dashboard or more graph models. It is:
 
 1. **Reproducible fragility claims** — any reported collapse or frontier comes with a **frozen artifact trail** (seeds, configs, replay JSON, hashes) that a third party can rerun and reconcile.
-2. **Structural explanations** — attributions tie collapse to **explicit interventions** (schedules, topology, defenses), not narrated vibes.
+2. **Explanations tied to explicit changes** — results link to **named interventions** (schedules, topology, defenses), not free-form story alone.
 3. **Honest scale** — performance and realism bounds are **stated and tested**; sparse/list topology and optional backends are admitted tradeoffs, not marketing.
 4. **Transfer without chaos** — a **second reference domain** proves the *engine pattern* generalizes while keeping one kernel “golden” for regression.
 
-If a feature weakens determinism, blurs world/adversary separation, or ships without tests, it is **not** on-brand—however impressive it sounds.
+If a feature weakens determinism, blurs world/adversary separation, or ships without tests, it is **outside the project rules**—however impressive it sounds.
 
 ---
 
@@ -207,4 +207,4 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 
 ## Relationship to the north star
 
-The one-sentence north star in `BOUNDARIES.md` stays valid. This roadmap adds what comes **after** the stablecoin + topology + economics + explanation + co-evolution spine: **certification-grade reproducibility**, **richer structural attribution**, **domain transfer**, **honest scale**, and **human-facing packaging**—each gated so “breathtaking” remains **defensible**, not cosmetic.
+The one-sentence north star in `BOUNDARIES.md` stays valid. This roadmap adds what comes **after** the stablecoin + topology + economics + explanation + co-evolution spine: **reproducibility others can check**, **clearer cause-and-effect exports**, **extra reference domains**, **honest performance notes**, and **readable outputs**—each gated so claims stay **grounded in tests and JSON**, not presentation alone.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fragility-engine"
 version = "0.4.0"
-description = "Deterministic adversarial search over emergent-system simulations (fragility fuzzing)."
+description = "Deterministic search and stress-style exploration over modular simulations, with JSON replay and benchmark checks."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26", "networkx>=3.2"]

@@ -6,7 +6,7 @@ import numpy as np
 
 
 class BehaviorArchetype(Protocol):
-    """Archetypes are deliberately dumb and fast — fuzzing-friendly."""
+    """Small, fast response rules so search can run many rollouts."""
 
     name: str
 

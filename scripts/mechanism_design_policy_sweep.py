@@ -1,4 +1,4 @@
-"""Moonshot: discrete defender policies with inner GA adversary (network world)."""
+"""CLI: discrete defender policies with an inner GA adversary (network world; Phase H exploration)."""
 
 from __future__ import annotations
 

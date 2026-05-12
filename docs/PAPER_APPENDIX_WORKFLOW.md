@@ -1,6 +1,6 @@
-# Paper-appendix workflow (reviewer-grade, mostly CLI)
+# Paper-appendix workflow (CLI-oriented, for citations)
 
-This is a **single path** from frozen bundles → search → replay → Pareto → optional counterfactuals → citation JSON. It matches the project charter: **audit-ready artifacts before product UI** ([`BOUNDARIES.md`](../BOUNDARIES.md) — “evidence before chrome”).
+This is a **single path** from frozen bundles → search → replay → Pareto → optional counterfactuals → citation JSON. It follows the project rule: **ship versioned JSON and tests before building a product UI** ([`BOUNDARIES.md`](../BOUNDARIES.md); internal shorthand: “evidence before chrome”).
 
 **Broader operator guide** (install, tutorials, artifact map, static viewers): [`HOW_TO_USE.md`](HOW_TO_USE.md).
 

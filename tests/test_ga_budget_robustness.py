@@ -1,4 +1,4 @@
-"""GA generation budget vs ensemble dispersion (moonshot follow-on)."""
+"""GA generation budget vs ensemble dispersion (Phase H robustness tests)."""
 
 from __future__ import annotations
 

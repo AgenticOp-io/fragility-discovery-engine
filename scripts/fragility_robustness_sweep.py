@@ -1,4 +1,4 @@
-"""Moonshot CLI: ensemble metrics over topology RNG seeds (deterministic per seed)."""
+"""CLI: ensemble metrics over topology RNG seeds (Phase H exploration; deterministic per seed)."""
 
 from __future__ import annotations
 
