@@ -1,6 +1,6 @@
-# Next roadmap — after Phase G
+# Next roadmap — after the H–M spine
 
-This document is **aspirational and directional**: possible directions after the core engine is stable, without turning wish lists into scope creep.
+This document is **aspirational and directional**: what to do **after** certificates, frozen benchmarks, network explanations, two extra reference worlds, acceleration hooks, narration, and the third domain are **shipped**—without turning wish lists into scope creep.
 
 **Normative law still lives in [`BOUNDARIES.md`](BOUNDARIES.md):** hard gates, exit criteria, and non-goals override enthusiasm. Treat this file as **prioritized intent**; promote sections into `BOUNDARIES.md` only when you are ready to commit engineering + tests.
 
@@ -13,7 +13,7 @@ For this codebase, progress is **not** measured by a bigger dashboard or more gr
 1. **Reproducible fragility claims** — any reported collapse or frontier comes with a **frozen artifact trail** (seeds, configs, replay JSON, hashes) that a third party can rerun and reconcile.
 2. **Explanations tied to explicit changes** — results link to **named interventions** (schedules, topology, defenses), not free-form story alone.
 3. **Honest scale** — performance and realism bounds are **stated and tested**; sparse/list topology and optional backends are admitted tradeoffs, not marketing.
-4. **Transfer without chaos** — a **second reference domain** proves the *engine pattern* generalizes while keeping one kernel “golden” for regression.
+4. **Transfer without chaos** — **second and third** reference domains prove the *engine pattern* generalizes while **aggregate + network + cascade + backlog** bundles stay frozen **regression oracles** unless the charter explicitly revises them.
 
 If a feature weakens determinism, blurs world/adversary separation, or ships without tests, it is **outside the project rules**—however impressive it sounds.
 
@@ -37,6 +37,8 @@ If a feature weakens determinism, blurs world/adversary separation, or ships wit
 ## Proposed phases (H onward)
 
 Work **does not start** on a phase until prior phases are green in CI **and** `BOUNDARIES.md` is updated to adopt that phase’s gates.
+
+**Phase N (fourth reference domain)** is drafted **below** as a named slot only—it is **not** normative until a matching section lands in `BOUNDARIES.md`.
 
 **Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (scheduled CI, richer manifest fields, Pareto hypervolume on frozen search exports) remains optional backlog; the portable manifest already carries **golden digest**, **topology**, **provenance**, an **artifact schema index**, and a **frozen 2-D hypervolume regression fixture** (`build_benchmark_manifest`).
 
@@ -161,9 +163,9 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 ### Phase M — Third reference domain (**adopted / shipped**)
 
-**Purpose:** Ship a **third** thin `World` that reuses the existing shock schedule encoding, exports replay JSON under a documented contract, and lands a **Phase H** golden bundle — proving another physics story on the same engine spine without coupling worlds.
+**Purpose:** Ship a **third** thin `World` that reuses the existing shock schedule encoding, exports replay JSON under a documented contract, and lands a **frozen benchmark bundle** under the Phase H gate — proving another physics story on the same engine spine without coupling worlds.
 
-**Normative gate:** [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase M) + checklist [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md).
+**Normative gate:** [`BOUNDARIES.md`](BOUNDARIES.md) (Phase M) + checklist [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md).
 
 **Status:** **Shipped** — `ServiceBacklogWorld` / `service_backlog` / `service_backlog_rollout_v1` + GA demo `scripts/run_service_backlog_ga_demo.py` + co-evolution / Pareto / MC / counterfactual / ε-sweep wiring (see [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) §4).
 
@@ -182,6 +184,72 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] “Why this domain” doc — [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md).
 - [x] Co-evolution / Pareto / counterfactuals / MC / ε-sweeps for `service_backlog` mode.
 
+**Follow-ups (non-gates):**
+
+- Narration / plot parity for **quad** institutional composite JSON where gaps remain (same rule as other artifacts: deterministic summaries only).
+- Optional **preset packs** for static viewers so flagship + composite demos load without hand-picking paths (still HTTP-served; no new runtime coupling to worlds).
+
+---
+
+## Near-term backlog (no new phase letter yet)
+
+Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.md` only when you want them **normative**.
+
+### Benchmark layer (Phase H charter)
+
+| Track | Intent | Notes |
+|--------|--------|--------|
+| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | Keeps `FRAGILITY_PERF_GATE` as **latency** guardrail; new checks stay **documented + loose tolerance** like `GOLDEN_METRICS` today |
+| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | Already partially there—stretch: **diff-friendly** excerpts in CI logs or a tiny “manifest summary” CLI |
+| **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | Fits existing `hypervolume_2d_min` + pinned fixtures; avoid unbounded archive sizes |
+| **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |
+
+### Explanation grammar (Phase I charter)
+
+| Track | Intent | Notes |
+|--------|--------|--------|
+| **Aggregate / network multi-knob chains** | Extend **cumulative** mutation chains where a single scalar shift is not enough—**still** behind explicit CLI and tests | `BOUNDARIES.md` Phase I already lists richer bundles as **backlog, not gates** |
+| **Interaction summaries** | More **merge** shapes (e.g. triple-branch institutional summaries) **without** claiming Shapley identification | Keep **`attribution-interaction-summary-v1`**-style disclaimers |
+
+### Narration & figures (Phase L charter)
+
+| Track | Intent | Notes |
+|--------|--------|--------|
+| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** variants | Version on disk; no model inside `World.step` |
+| **Plot types** | One new **plot script + style JSON** per PR where possible | Matplotlib stays optional extra |
+
+---
+
+### Phase N — Fourth reference domain (**charter slot — not open**)
+
+**Status:** **Not adopted** — there is **no** Phase N section in [`BOUNDARIES.md`](BOUNDARIES.md) yet. This block exists so a future “fourth `World`” flight has a **named home** before anyone codes physics.
+
+**Purpose:** If the project needs **another** thin `World` (same shock-schedule encoding, new physics story, new frozen bundle), **Phase N** would be the umbrella—**not** a silent expansion of Phase M.
+
+**Hard rules (draft — must be copied into `BOUNDARIES.md` before work starts):**
+
+- At most **one** new `world/` physics experiment under **Phase N** at a time; **max 3–5** archetypes (`BOUNDARIES.md` immutable principles).
+- Existing bundles (`aggregate_rollout_v1`, `network_*`, `resource_cascade_rollout_v1`, `service_backlog_rollout_v1`) remain **oracles** unless a charter revision explicitly replaces one.
+- **No** cross-`World` coupling inside `step()`; decoupled **composite** JSON remains the audit pattern for multi-kernel stress. Coupled dynamics stay **fork policy**: [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md).
+
+**Exit criteria (candidate — all unchecked until adoption):**
+
+- [ ] Admission memo (selected candidate, non-goals, replay contract row) checked into `docs/` and linked from `BOUNDARIES.md`.
+- [ ] `world/` + `runner` rollout + `rollout_to_replay_dict` compatibility table updated.
+- [ ] Determinism + replay contract tests + GA smoke CLI.
+- [ ] New **frozen** `*_rollout_v1` bundle id + `GOLDEN_METRICS` row + `tests/test_benchmark_suite.py` coverage.
+- [ ] “Why this domain” doc (≤ one page) + counterfactual / ε-sweep / co-evolution **parity** with the pattern used for Phase J / Phase M unless explicitly scoped down with documented reasons.
+
+---
+
+## Cross-cutting themes (post–M)
+
+These span multiple packages; pick **one thin slice** per PR.
+
+- **Observability of reproducibility:** make it trivial to answer “which bundle id, which commit, which Python/numpy” from a single JSON field or manifest subsection (certificate + manifest already move this direction).
+- **Contributor guardrails:** expand **CLI smoke** coverage for new scripts before they grow flags; keep `docs/HOW_TO_USE.md` the **single** tutorial index.
+- **Research honesty:** when a feature sounds like a “digital twin,” add a **non-goals** bullet beside it or push it to [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
+
 ---
 
 ## Exploration slices (post–Phase L or fork)
@@ -193,6 +261,11 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 | Robustness | Ensemble / sweeps / GA budgets / neighbor JSON bundles | Larger grids, richer theory, dashboard integration |
 | Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
 | Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
+| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | Per-bundle **metric regression** rows; manifest **diff** in CI |
+| Static viewers | Replay / Pareto / attribution UIs over HTTP | Curated **preset JSON** for demos; still no server-side simulation |
+| Certificates | `fragility-certificate-v1`, flagship demo | Optional **manifest digest** fields linking bundle ids to certificate inputs |
+| Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Same **narration** coverage as aggregate/network where gaps exist |
+| Fork experiments | [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) policy | Named sibling packages with **schema-bumped** replay or new top-level artifacts |
 
 ---
 
@@ -208,3 +281,5 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 ## Relationship to the north star
 
 The one-sentence north star in `BOUNDARIES.md` stays valid. This roadmap adds what comes **after** the stablecoin + topology + economics + explanation + co-evolution spine: **reproducibility others can check**, **clearer cause-and-effect exports**, **extra reference domains**, **honest performance notes**, and **readable outputs**—each gated so claims stay **grounded in tests and JSON**, not presentation alone.
+
+**Post–M emphasis:** the next wins are mostly **tightening**—richer manifests, stricter **artifact discipline**, optional **metric regression** on frozen bundles, and a **disciplined fourth domain** (Phase N) only if the charter opens—**not** a wider physics surface area by default.
