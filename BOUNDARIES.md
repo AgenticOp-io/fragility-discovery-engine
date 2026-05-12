@@ -181,7 +181,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Status:** `fragility_engine.benchmarks` + `scripts/run_benchmark_suite.py` + `benchmarks/README.md`; **`scripts/benchmark_rollout.py`** **`--bundle <id>`** or **`--bundle-all`** times the same frozen workloads as the suite ([`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)). **Citation / appendix:** **`fragility-certificate-v1`** (`fragility_engine.benchmarks.certificate`, `scripts/export_fragility_certificate.py`, `scripts/run_flagship_demo.py`) + guided path [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) and limits [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md).
 
-**Purpose:** portable, regression-tested **golden bundles** so fragility claims stay reproducible across time and machines.
+**Purpose:** portable, regression-tested **frozen benchmark bundles** so fragility claims stay reproducible across time and machines.
 
 **In scope:**
 
@@ -280,9 +280,9 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 ### Phase M — Third reference domain (**shipped**)
 
-**Status:** shipped — `ServiceBacklogWorld` (`fragility_engine.world.service_backlog`), `simulation_mode` **`service_backlog`**, rollout `rollout_service_backlog`, Phase **H** bundle **`service_backlog_rollout_v1`**, GA demo **`scripts/run_service_backlog_ga_demo.py`**, co-evolution / Pareto / MC / counterfactual / ε-sweep CLI parity with Phase J wiring. Normative doc: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Motivation: [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md). Research context: [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
+**Status:** shipped — `ServiceBacklogWorld` (`fragility_engine.world.service_backlog`), `simulation_mode` **`service_backlog`**, rollout `rollout_service_backlog`, frozen suite bundle **`service_backlog_rollout_v1`** (Phase **H** charter), GA demo **`scripts/run_service_backlog_ga_demo.py`**, co-evolution / Pareto / MC / counterfactual / ε-sweep CLI parity with Phase J wiring. Normative doc: [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md). Motivation: [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md). Research context: [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
 
-**Purpose:** Add a **third** thin reference `World` that reuses the **same** shock schedule encoding (`decode_schedule`, `schedule_attack_cost`) as aggregate / network / cascade, proves another physics story fits the engine, and ships with replay + tests + Phase **H** bundle parity — **without** coupling worlds inside one `step()` and without relaxing existing golden bundles.
+**Purpose:** Add a **third** thin reference `World` that reuses the **same** shock schedule encoding (`decode_schedule`, `schedule_attack_cost`) as aggregate / network / cascade, proves another physics story fits the engine, and ships with replay + tests + **frozen suite** parity under Phase **H** — **without** coupling worlds inside one `step()` and without relaxing existing frozen bundles.
 
 **Admission (all required before first merge under Phase M):**
 
@@ -294,7 +294,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 - New `fragility_engine/world/<name>.py` + `RolloutResult` integration + `runner.rollout_*` entry point.
 - `rollout_to_replay_dict` compatibility table (schema **0.4.x** unless a bump is justified) + `simulation_mode` string + `state_vector` / `metrics` semantics documented in the Phase M doc.
-- Determinism tests, replay contract tests, GA smoke CLI (pattern: `run_resource_cascade_ga_demo.py`), and **one** frozen Phase **H** bundle id in `benchmarks/suite.py` + `GOLDEN_METRICS` row.
+- Determinism tests, replay contract tests, GA smoke CLI (pattern: `run_resource_cascade_ga_demo.py`), and **one** new frozen `*_rollout_v1` bundle id in `benchmarks/suite.py` + `GOLDEN_METRICS` row (Phase **H** charter).
 - “Why this domain” ≤ 1 page (`docs/WHY_<DOMAIN>.md` or a section inside the Phase M doc).
 
 **Out of scope (Phase M charter):**
@@ -307,8 +307,12 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] World module + rollout wired; replay export matches documented contract.
 - [x] `tests/test_service_backlog_rollout.py` + `tests/test_replay_contract_service_backlog.py` cover determinism and replay keys.
 - [x] GA demo script `scripts/run_service_backlog_ga_demo.py` exercises search on the new world.
-- [x] Phase **H** golden bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` in CI (`tests/test_benchmark_suite.py`).
+- [x] Frozen suite bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` in CI (`tests/test_benchmark_suite.py`; Phase **H** charter).
 - [x] Counterfactual / co-evolution / Pareto / MC / ε-sweeps shipped as documented in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) §4.
+
+## Future charter slots (not adopted)
+
+A **draft** placeholder for a possible **fourth** reference domain (**Phase N**) exists only in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). It is **not** binding here until promoted into this document as a full section with admission rules and exit criteria (same pattern as Phase M).
 
 ## Fitness function discipline
 
