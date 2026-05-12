@@ -2,7 +2,7 @@
 
 This guide is the **hands-on entry point**: install, run your first artifacts, understand JSON outputs, and use the static viewers. Normative scope and non-goals live in [`BOUNDARIES.md`](../BOUNDARIES.md). Honest complexity and sweep costs: [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).
 
-**About “Phase” in docs:** those labels line up with sections in [`BOUNDARIES.md`](../BOUNDARIES.md). They record how work was gated and tested, not separate products or editions you install on their own.
+**About “Phase” in docs:** those labels line up with sections in [`BOUNDARIES.md`](../BOUNDARIES.md). They record how work was gated and tested, not separate products or editions you install on their own. Short charter primer: [How to read “Phase” labels](../BOUNDARIES.md#how-to-read-phase-labels).
 
 ---
 

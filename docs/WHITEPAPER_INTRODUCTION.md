@@ -25,7 +25,7 @@ It is **not** a live trading system, a blockchain product, or a calibrated forec
 | **Multi-objective analysis** | **Pareto** sets trading instability against **attack cost** (and related scalars). |
 | **Explainability / attribution** (narrow) | **Rule-based** interventions (e.g. remove shocks, change reset numbers, edit edges)—not neural “feature importance”. |
 | **Audit trail**, **provenance** | Schema-versioned JSON plus optional **`fragility-certificate-v1`** digests. |
-| **Regression testing** | Phase **H** golden bundles and CI (`pytest`). |
+| **Regression testing** | **Frozen** benchmark rows in CI (`fragility_engine.benchmarks.suite`, `pytest`; charter **Phase H** in [`BOUNDARIES.md`](../BOUNDARIES.md)). |
 
 ## 2. Problem framing
 
@@ -133,8 +133,8 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 
 | Field | Value |
 |--------|--------|
-| **Version** | 1.3 |
-| **Last updated** | 2026-05 — plain-language pass (docs + docstrings) |
+| **Version** | 1.4 |
+| **Last updated** | 2026-05 — terminology table + benchmark wording aligned with `BOUNDARIES` |
 | **Repo state** | Tracks `main`; cite commit when forwarding alongside frozen JSON. |
 | **Maintainer path** | Prefer **GitHub Issues** for accuracy and public record. |
 

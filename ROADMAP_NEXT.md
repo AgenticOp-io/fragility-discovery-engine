@@ -133,7 +133,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Exit criteria (candidate):**
 
-- [x] Reproducible wall-clock harness on **named** Phase H bundles (`benchmark_rollout.py --bundle <id>`, table in [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
+- [x] Reproducible wall-clock harness on **named** frozen suite bundles (`benchmark_rollout.py --bundle <id>`; Phase H charter, table in [`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)).
 - [x] Documented **speedup measurement** for resource cascade: paired bundle benchmarks vs NumPy + reference NumPy timing snapshot ([`docs/phase_k_acceleration.md`](docs/phase_k_acceleration.md)); Numba ratio is operator-measured after `[accelerate]` install.
 - [x] CI **`numba-parity`** job (Ubuntu, `[accelerate]`) runs `tests/test_resource_cascade_numba_parity.py`; main matrix stays NumPy-only.
 - [x] Fallback path always available (acceleration optional dependency; default NumPy `rollout_resource_cascade`, env `FRAGILITY_RESOURCE_CASCADE_BACKEND`).
@@ -178,7 +178,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 - [x] `world/` module + `runner` rollout + `rollout_to_replay_dict` row in compatibility doc.
 - [x] Determinism + replay contract tests.
 - [x] GA smoke CLI `run_service_backlog_ga_demo.py`.
-- [x] Phase **H** bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py`.
+- [x] Frozen suite bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py` (Phase H charter).
 - [x] “Why this domain” doc — [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md).
 - [x] Co-evolution / Pareto / counterfactuals / MC / ε-sweeps for `service_backlog` mode.
 
