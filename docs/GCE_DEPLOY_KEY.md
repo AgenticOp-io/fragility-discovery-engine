@@ -51,7 +51,7 @@ gcloud compute ssh acs-hss-server --zone=us-central1-a --command='ssh-keyscan gi
 From your laptop (repo root):
 
 ```bash
-gcloud compute scp scripts/gce_configure_git_ssh.sh INSTANCE:~/ --zone=ZONE
+gcloud compute scp scripts/gce_configure_git_ssh.sh INSTANCE:gce_configure_git_ssh.sh --zone=ZONE
 gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_configure_git_ssh.sh'
 ```
 
@@ -121,12 +121,15 @@ From your **laptop** (this repository’s root):
 pwsh -File scripts/gce_sync_vm.ps1 -Instance INSTANCE -Zone ZONE [-Project YOUR_PROJECT_ID]
 ```
 
-Or manually:
+Or manually (paths are **relative to the VM user's home**; avoid **`~/`** as the remote target on some Windows **`gcloud compute scp`** backends):
 
 ```bash
-gcloud compute scp scripts/gce_configure_git_ssh.sh scripts/gce_pull_and_test.sh INSTANCE:~/ --zone=ZONE
+gcloud compute scp scripts/gce_configure_git_ssh.sh INSTANCE:gce_configure_git_ssh.sh --zone=ZONE
+gcloud compute scp scripts/gce_pull_and_test.sh INSTANCE:gce_pull_and_test.sh --zone=ZONE
 gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_configure_git_ssh.sh && bash ~/gce_pull_and_test.sh'
 ```
+
+On **Windows**, prefer **`scripts/gce_sync_vm.ps1`**: it normalizes **LF** line endings before **`scp`** so the remote **`bash`** scripts are not saved with **`CRLF`**.
 
 [`scripts/gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) activates **`~/fragility-discovery-engine/.venv`** (override with **`FRAGILITY_DEPLOY_DIR`**), ensures GitHub SSH config when [`gce_configure_git_ssh.sh`](../scripts/gce_configure_git_ssh.sh) is available (see **§3b**), runs **`git pull`**, **`pip install -e ".[dev]"`**, **`python -m ruff check .`**, and **`python -m pytest`** with **`FRAGILITY_PERF_GATE=1`** and **`FRAGILITY_PERF_GATE_MS=240000`** (same defaults as `.github/workflows/ci.yml`).
 

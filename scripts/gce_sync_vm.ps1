@@ -46,16 +46,37 @@ if (-not (Test-Path $ScriptLocal)) {
   throw "Missing $ScriptLocal"
 }
 
+function Copy-GceShellScriptToVm {
+  param(
+    [Parameter(Mandatory = $true)][string]$LocalPath,
+    [Parameter(Mandatory = $true)][string]$Instance,
+    [Parameter(Mandatory = $true)][string]$Zone,
+    [Parameter(Mandatory = $true)][string]$RemoteName
+  )
+  # Worktrees on Windows may be CRLF; bash on Linux requires LF for `#!/` and line continuations.
+  $raw = [System.IO.File]::ReadAllText($LocalPath)
+  $unix = $raw -replace "`r`n", "`n" -replace "`r", "`n"
+  $tmp = Join-Path $env:TEMP ("gce-sync-{0}-{1}" -f $RemoteName, [Guid]::NewGuid().ToString("N"))
+  [System.IO.File]::WriteAllText($tmp, $unix, [System.Text.UTF8Encoding]::new($false))
+  try {
+    # Relative remote path is under the SSH user's home (pscp does not expand "~/" reliably on Windows).
+    gcloud compute scp $tmp "${Instance}:${RemoteName}" --zone=$Zone
+  }
+  finally {
+    Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+  }
+}
+
 if ($Project) {
   Write-Host "==> gcloud config set project $Project"
   gcloud config set project $Project
 }
 
-Write-Host "==> gcloud compute scp -> ${Instance}:~/gce_configure_git_ssh.sh (zone=$Zone)"
-gcloud compute scp $ConfigureLocal "${Instance}:~/gce_configure_git_ssh.sh" --zone=$Zone
+Write-Host "==> gcloud compute scp -> ${Instance}:gce_configure_git_ssh.sh (zone=$Zone)"
+Copy-GceShellScriptToVm -LocalPath $ConfigureLocal -Instance $Instance -Zone $Zone -RemoteName "gce_configure_git_ssh.sh"
 
-Write-Host "==> gcloud compute scp -> ${Instance}:~/gce_pull_and_test.sh (zone=$Zone)"
-gcloud compute scp $ScriptLocal "${Instance}:~/gce_pull_and_test.sh" --zone=$Zone
+Write-Host "==> gcloud compute scp -> ${Instance}:gce_pull_and_test.sh (zone=$Zone)"
+Copy-GceShellScriptToVm -LocalPath $ScriptLocal -Instance $Instance -Zone $Zone -RemoteName "gce_pull_and_test.sh"
 
 $remote = "bash ~/gce_configure_git_ssh.sh && bash ~/gce_pull_and_test.sh"
 Write-Host "==> gcloud compute ssh $Instance -- $remote"
