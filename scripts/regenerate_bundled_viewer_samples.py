@@ -29,6 +29,7 @@ _REPLAY_BUNDLE_MAP = {
     "sample_network_replay.json": "network_er_rollout_v1",
     "sample_resource_cascade_replay.json": "resource_cascade_rollout_v1",
     "sample_service_backlog_replay.json": "service_backlog_rollout_v1",
+    "sample_liquidity_ladder_replay.json": "liquidity_ladder_rollout_v1",
 }
 
 

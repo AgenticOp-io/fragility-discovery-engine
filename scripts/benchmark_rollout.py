@@ -31,11 +31,13 @@ from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     resource_cascade_backend_benchmark_meta,
     rollout_resource_cascade,
+    rollout_liquidity_ladder,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -69,7 +71,7 @@ def main() -> None:
     )
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
         default="network",
     )
     p.add_argument("--warmup", type=int, default=1, help="Ignored iterations before timing.")
@@ -101,6 +103,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[service_backlog] backlog at reset.",
+    )
+    p.add_argument(
+        "--initial-margin",
+        type=float,
+        default=0.06,
+        help="[liquidity_ladder] margin utilization at reset.",
     )
     p.add_argument("--json", action="store_true", help="Emit one JSON object on stdout.")
     p.add_argument(
@@ -381,7 +389,7 @@ def main() -> None:
                 initial_overload=float(args.initial_overload),
             )
 
-    else:
+    elif args.mode == "service_backlog":
         template = ServiceBacklogWorld(
             population=default_stablecoin_population(),
             max_steps=int(args.max_steps),
@@ -393,6 +401,20 @@ def main() -> None:
                 genome,
                 seed=int(args.seed),
                 initial_backlog=float(args.initial_backlog),
+            )
+
+    else:
+        template = LiquidityLadderWorld(
+            population=default_stablecoin_population(),
+            max_steps=int(args.max_steps),
+        )
+
+        def run_once() -> None:
+            rollout_liquidity_ladder(
+                template,
+                genome,
+                seed=int(args.seed),
+                initial_margin=float(args.initial_margin),
             )
 
     for _ in range(warmup):
@@ -414,6 +436,7 @@ def main() -> None:
         "nodes": n_report if args.mode == "network" else None,
         "initial_overload": float(args.initial_overload) if args.mode == "resource_cascade" else None,
         "initial_backlog": float(args.initial_backlog) if args.mode == "service_backlog" else None,
+        "initial_margin": float(args.initial_margin) if args.mode == "liquidity_ladder" else None,
         "max_steps": int(args.max_steps),
         "horizon": int(args.horizon),
         "seed": int(args.seed),

@@ -1440,8 +1440,8 @@ def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
     )
     suite = json.loads(proc.stdout)
     assert suite["workflow"] == "phase_h_bundle_suite"
-    assert suite["bundle_count"] == 5
-    assert len(suite["bundles"]) == 5
+    assert suite["bundle_count"] == 6
+    assert len(suite["bundles"]) == 6
     ids = [row["bundle_id"] for row in suite["bundles"]]
     assert ids == sorted(ids)
     assert suite["total_wall_clock_s"] >= 0.0
@@ -2073,7 +2073,7 @@ def test_run_benchmark_suite_bench_search_json(py_exe: str) -> None:
     data = json.loads(proc.stdout)
     assert data["workflow"] == "phase_h_bundle_search_microbench"
     assert data["eval_pool"] == "threads"
-    assert len(data["bundles"]) == 5
+    assert len(data["bundles"]) == 6
 
 
 def test_export_counterfactual_base_panic_shift_cli(py_exe: str, tmp_path: Path) -> None:

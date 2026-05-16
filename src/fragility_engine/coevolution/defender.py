@@ -5,6 +5,7 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -244,6 +245,46 @@ def build_defended_service_backlog_world(
         slack_recovery=float(overrides["panic_decay"]),
         rumor_slack_damage=float(overrides["rumor_panic_gain"]),
         recovery_slack=float(overrides["depeg_threshold"]),
+    )
+    return world, reserve_boost
+
+
+def clone_liquidity_ladder(template: LiquidityLadderWorld, **phys: Any) -> LiquidityLadderWorld:
+    """Clone ladder-world parameters with optional physics overrides."""
+
+    return LiquidityLadderWorld(
+        population=phys.get("population", template.population),
+        margin_call_gain=float(phys.get("margin_call_gain", template.margin_call_gain)),
+        haircut_damage=float(phys.get("haircut_damage", template.haircut_damage)),
+        delever_rate=float(phys.get("delever_rate", template.delever_rate)),
+        depth_recovery=float(phys.get("depth_recovery", template.depth_recovery)),
+        margin_collapse=float(phys.get("margin_collapse", template.margin_collapse)),
+        depth_floor_collapse=float(phys.get("depth_floor_collapse", template.depth_floor_collapse)),
+        recovery_depth=float(phys.get("recovery_depth", template.recovery_depth)),
+        max_steps=int(phys.get("max_steps", template.max_steps)),
+    )
+
+
+def build_defended_liquidity_ladder_world(
+    template: LiquidityLadderWorld,
+    defender_genome: np.ndarray | None,
+) -> tuple[LiquidityLadderWorld, float]:
+    """Four-knob defender: depth_recovery, haircut_damage, recovery_depth; reserve_boost damps initial margin."""
+
+    if defender_genome is None:
+        return clone_liquidity_ladder(template), 1.0
+
+    overrides, reserve_boost = decode_defender_genome_params(
+        defender_genome,
+        panic_decay=float(template.depth_recovery),
+        rumor_panic_gain=float(template.haircut_damage),
+        depeg_threshold=float(template.recovery_depth),
+    )
+    world = clone_liquidity_ladder(
+        template,
+        depth_recovery=float(overrides["panic_decay"]),
+        haircut_damage=float(overrides["rumor_panic_gain"]),
+        recovery_depth=float(overrides["depeg_threshold"]),
     )
     return world, reserve_boost
 

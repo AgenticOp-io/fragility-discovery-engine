@@ -12,17 +12,20 @@ from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
+    thread_safe_liquidity_ladder_clone,
     thread_safe_service_backlog_clone,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     rollout_resource_cascade,
+    rollout_liquidity_ladder,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
 )
 from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -110,6 +113,10 @@ def rollout_bundle_with_genome(
         template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=26)
         world = thread_safe_service_backlog_clone(template) if isolate else template
         return rollout_service_backlog(world, genome, seed=seed, initial_backlog=0.05)
+    if bundle_id == "liquidity_ladder_rollout_v1":
+        template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=26)
+        world = thread_safe_liquidity_ladder_clone(template) if isolate else template
+        return rollout_liquidity_ladder(world, genome, seed=seed, initial_margin=0.06)
     raise ValueError(f"unknown bundle_id {bundle_id!r}")
 
 
@@ -165,12 +172,18 @@ def run_service_backlog_rollout_v1() -> dict[str, Any]:
     return _rollout_snapshot("service_backlog_rollout_v1", r)
 
 
+def run_liquidity_ladder_rollout_v1() -> dict[str, Any]:
+    r = run_bundle_rollout_once("liquidity_ladder_rollout_v1")
+    return _rollout_snapshot("liquidity_ladder_rollout_v1", r)
+
+
 BUNDLE_RUNNERS: dict[str, Any] = {
     "aggregate_rollout_v1": run_aggregate_rollout_v1,
     "network_er_rollout_v1": run_network_er_rollout_v1,
     "network_neighbor_list_rollout_v1": run_network_neighbor_list_rollout_v1,
     "resource_cascade_rollout_v1": run_resource_cascade_rollout_v1,
     "service_backlog_rollout_v1": run_service_backlog_rollout_v1,
+    "liquidity_ladder_rollout_v1": run_liquidity_ladder_rollout_v1,
 }
 
 BUNDLE_IDS: tuple[str, ...] = tuple(sorted(BUNDLE_RUNNERS.keys()))
@@ -202,6 +215,11 @@ GOLDEN_METRICS: dict[str, dict[str, float | bool]] = {
         "attack_cost": 6.544042877815768,
         "collapsed": False,
     },
+    "liquidity_ladder_rollout_v1": {
+        "integral_instability": 0.6351509146369753,
+        "attack_cost": 6.544042877815768,
+        "collapsed": False,
+    },
 }
 
 # Slightly looser tolerances for bundles whose FP reductions differ across platforms (Linux CI).
@@ -219,6 +237,7 @@ BUNDLE_INTEGRAL_BANDS: dict[str, tuple[float, float]] = {
     "network_neighbor_list_rollout_v1": (1.5, 4.5),
     "resource_cascade_rollout_v1": (4.0, 8.5),
     "service_backlog_rollout_v1": (0.0, 2.0),
+    "liquidity_ladder_rollout_v1": (0.0, 2.5),
 }
 
 

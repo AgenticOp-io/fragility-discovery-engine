@@ -34,6 +34,7 @@ _BUNDLE_TOPOLOGY: dict[str, dict[str, str]] = {
     "network_neighbor_list_rollout_v1": {"world": "StablecoinNetworkWorld", "topology": "neighbor_lists"},
     "resource_cascade_rollout_v1": {"world": "ResourceCascadeWorld", "topology": "scalar"},
     "service_backlog_rollout_v1": {"world": "ServiceBacklogWorld", "topology": "scalar"},
+    "liquidity_ladder_rollout_v1": {"world": "LiquidityLadderWorld", "topology": "scalar"},
 }
 
 
@@ -132,6 +133,16 @@ def build_benchmark_manifest() -> dict[str, Any]:
             for bid, (lo, hi) in BUNDLE_INTEGRAL_BANDS.items()
         },
         "bundle_count": len(BUNDLE_IDS),
+        "repro_lookup": {
+            "manifest_schema": MANIFEST_SCHEMA,
+            "bundle_ids": list(BUNDLE_IDS),
+            "golden_metrics_sha256": _golden_metrics_digest(),
+            "git_commit": _try_git_head(),
+            "python_version": sys.version.split()[0],
+            "numpy_version": str(np.__version__),
+            "fragility_engine_version": _package_version(),
+            "replay_schema_version": REPLAY_SCHEMA_VERSION,
+        },
         "resource_cascade_backend": resource_cascade_backend_benchmark_meta(rc_template),
         "provenance": {
             "python_version": sys.version.split()[0],

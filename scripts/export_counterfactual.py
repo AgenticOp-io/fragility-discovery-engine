@@ -19,6 +19,7 @@ from fragility_engine.explain.counterfactual import (
     counterfactual_remove_steps_with_rollouts,
     counterfactual_resource_cascade_cascade_coupling_shift_with_rollouts,
     counterfactual_resource_cascade_initial_overload_shift_with_rollouts,
+    counterfactual_liquidity_ladder_initial_margin_shift_with_rollouts,
     counterfactual_service_backlog_initial_backlog_shift_with_rollouts,
     counterfactual_service_backlog_process_rate_shift_with_rollouts,
 )
@@ -26,12 +27,14 @@ from fragility_engine.network.network_world_cli import build_stablecoin_network_
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_resource_cascade,
+    rollout_liquidity_ladder,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
 
@@ -66,6 +69,7 @@ def main() -> None:
             "cascade_coupling_shift",
             "initial_backlog_shift",
             "process_rate_shift",
+            "initial_margin_shift",
             "base_panic_shift",
             "contagion_beta_shift",
             "edge_weight_shift",
@@ -110,7 +114,7 @@ def main() -> None:
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
         default="aggregate",
         help="aggregate = peg world; network = StablecoinNetworkWorld; resource_cascade = Phase J; "
         "service_backlog = Phase M third domain.",
@@ -151,6 +155,18 @@ def main() -> None:
         type=float,
         default=None,
         help="[service_backlog, process_rate_shift] counterfactual process_rate (baseline = template).",
+    )
+    ap.add_argument(
+        "--initial-margin",
+        type=float,
+        default=0.06,
+        help="[liquidity_ladder] baseline reset margin utilization.",
+    )
+    ap.add_argument(
+        "--variant-initial-margin",
+        type=float,
+        default=None,
+        help="[liquidity_ladder, initial_margin_shift] counterfactual reset margin.",
     )
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
@@ -203,6 +219,8 @@ def main() -> None:
         raise SystemExit("--intervention initial_backlog_shift requires --mode service_backlog.")
     if args.intervention == "process_rate_shift" and args.mode != "service_backlog":
         raise SystemExit("--intervention process_rate_shift requires --mode service_backlog.")
+    if args.intervention == "initial_margin_shift" and args.mode != "liquidity_ladder":
+        raise SystemExit("--intervention initial_margin_shift requires --mode liquidity_ladder.")
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
@@ -237,6 +255,11 @@ def main() -> None:
             raise SystemExit("--variant-initial-backlog required for --intervention initial_backlog_shift.")
         if args.intervention == "process_rate_shift" and args.variant_process_rate is None:
             raise SystemExit("--variant-process-rate required for --intervention process_rate_shift.")
+    if args.mode == "liquidity_ladder":
+        if args.intervention not in ("remove_steps", "initial_margin_shift"):
+            raise SystemExit("liquidity_ladder mode supports remove_steps or initial_margin_shift.")
+        if args.intervention == "initial_margin_shift" and args.variant_initial_margin is None:
+            raise SystemExit("--variant-initial-margin required for --intervention initial_margin_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -330,6 +353,32 @@ def main() -> None:
                 variant_process_rate=float(args.variant_process_rate),
                 rollout_seed=int(args.seed),
                 initial_backlog=float(args.initial_backlog),
+                continue_after_collapse=cont,
+            )
+    elif args.mode == "liquidity_ladder":
+        ms = max(args.horizon, 32)
+        template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=ms)
+        if args.intervention == "remove_steps":
+
+            def evaluator_ll(g: np.ndarray, s: int):
+                return rollout_liquidity_ladder(
+                    template,
+                    g,
+                    seed=s,
+                    initial_margin=float(args.initial_margin),
+                    continue_after_collapse=cont,
+                )
+
+            report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
+                genome, evaluator_ll, remove_timesteps=remove_ts, base_seed=args.seed
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_liquidity_ladder_initial_margin_shift_with_rollouts(
+                genome,
+                template,
+                baseline_initial_margin=float(args.initial_margin),
+                variant_initial_margin=float(args.variant_initial_margin),
+                rollout_seed=int(args.seed),
                 continue_after_collapse=cont,
             )
     else:
@@ -428,6 +477,8 @@ def main() -> None:
         payload["meta"]["initial_overload"] = float(args.initial_overload)
     if args.mode == "service_backlog":
         payload["meta"]["domain"] = "service_backlog"
+    if args.mode == "liquidity_ladder":
+        payload["meta"]["domain"] = "liquidity_ladder"
         payload["meta"]["initial_backlog"] = float(args.initial_backlog)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

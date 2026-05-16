@@ -32,6 +32,15 @@ def test_narrate_frozen_artifact_pareto() -> None:
     assert "archive_points: 1" in text
 
 
+def test_narrate_bundled_quad_composite_sample() -> None:
+    p = Path(__file__).resolve().parents[1] / "artifacts/composite_demo/sample_quad_composite.json"
+    data = load_frozen_json_artifact(p)
+    text = narrate_frozen_artifact(data, source=str(p))
+    assert "fragility-institutional-composite-v3" in text
+    for branch in ("aggregate", "network", "resource_cascade", "service_backlog"):
+        assert f"{branch}:" in text
+
+
 def test_narrate_bundled_twin_composite_sample() -> None:
     p = Path(__file__).resolve().parents[1] / "artifacts/composite_demo/sample_twin_composite.json"
     data = load_frozen_json_artifact(p)

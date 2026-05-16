@@ -8,16 +8,19 @@ import numpy as np
 
 from fragility_engine.coevolution.defender import (
     clone_resource_cascade,
+    clone_liquidity_ladder,
     clone_service_backlog,
     clone_stablecoin_network,
 )
 from fragility_engine.runner import (
     rollout_resource_cascade,
+    rollout_liquidity_ladder,
     rollout_service_backlog,
     rollout_stablecoin_network,
 )
 from fragility_engine.types import RolloutResult
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 
@@ -472,6 +475,82 @@ def counterfactual_service_backlog_process_rate_shift_with_rollouts(
     merged["intervention"] = "service_backlog_process_rate_shift"
     merged["baseline_process_rate"] = baseline_rate
     merged["variant_process_rate"] = float(variant_process_rate)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_liquidity_ladder_initial_margin_shift_with_rollouts(
+    genome: np.ndarray,
+    template: LiquidityLadderWorld,
+    *,
+    baseline_initial_margin: float,
+    variant_initial_margin: float,
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome and RNG seed; counterfactual changes **initial_margin** at reset."""
+
+    baseline = rollout_liquidity_ladder(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_margin=float(baseline_initial_margin),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    variant = rollout_liquidity_ladder(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_margin=float(variant_initial_margin),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "liquidity_ladder_initial_margin_shift"
+    merged["baseline_initial_margin"] = float(baseline_initial_margin)
+    merged["variant_initial_margin"] = float(variant_initial_margin)
+    merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
+    merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
+    return merged, baseline, variant
+
+
+def counterfactual_liquidity_ladder_delever_rate_shift_with_rollouts(
+    genome: np.ndarray,
+    template: LiquidityLadderWorld,
+    *,
+    variant_delever_rate: float,
+    rollout_seed: int,
+    initial_margin: float,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> tuple[dict[str, Any], RolloutResult, RolloutResult]:
+    """Same genome, seed, and reset margin; counterfactual swaps **delever_rate** via template clone."""
+
+    baseline_rate = float(template.delever_rate)
+    variant_tpl = clone_liquidity_ladder(template, delever_rate=float(variant_delever_rate))
+    baseline = rollout_liquidity_ladder(
+        template,
+        genome,
+        seed=int(rollout_seed),
+        initial_margin=float(initial_margin),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    variant = rollout_liquidity_ladder(
+        variant_tpl,
+        genome,
+        seed=int(rollout_seed),
+        initial_margin=float(initial_margin),
+        continue_after_collapse=bool(continue_after_collapse),
+        defender_genome=defender_genome,
+    )
+    merged = compare_rollouts(baseline, variant, label_base="baseline", label_variant="counterfactual")
+    merged["intervention"] = "liquidity_ladder_delever_rate_shift"
+    merged["baseline_delever_rate"] = baseline_rate
+    merged["variant_delever_rate"] = float(variant_delever_rate)
     merged["delta_attack_cost"] = float(baseline.attack_cost - variant.attack_cost)
     merged["delta_integral_instability"] = float(baseline.integral_instability - variant.integral_instability)
     return merged, baseline, variant

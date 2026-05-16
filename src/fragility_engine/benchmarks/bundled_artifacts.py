@@ -8,6 +8,7 @@ REPLAY_VIEWER_SAMPLES: tuple[str, ...] = (
     "artifacts/replay_viewer/sample_network_replay.json",
     "artifacts/replay_viewer/sample_resource_cascade_replay.json",
     "artifacts/replay_viewer/sample_service_backlog_replay.json",
+    "artifacts/replay_viewer/sample_liquidity_ladder_replay.json",
 )
 
 # Pareto viewer

@@ -15,18 +15,21 @@ from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
+    thread_safe_liquidity_ladder_clone,
     thread_safe_service_backlog_clone,
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
     rollout_resource_cascade,
+    rollout_liquidity_ladder,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import (
     StablecoinNetworkWorld,
@@ -53,13 +56,14 @@ def main() -> None:
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
         default="aggregate",
     )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] uniform panic at reset.")
     ap.add_argument("--initial-overload", type=float, default=0.05, help="[resource_cascade] reset overload [0,1].")
     ap.add_argument("--initial-backlog", type=float, default=0.05, help="[service_backlog] reset backlog.")
+    ap.add_argument("--initial-margin", type=float, default=0.06, help="[liquidity_ladder] reset margin utilization.")
     ap.add_argument(
         "--continue-after-collapse",
         action="store_true",
@@ -187,7 +191,7 @@ def main() -> None:
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
-    else:
+    elif args.mode == "service_backlog":
         template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=ms)
 
         def evaluator(genome: np.ndarray, seed: int):
@@ -197,6 +201,19 @@ def main() -> None:
                 genome,
                 seed=seed,
                 initial_backlog=float(args.initial_backlog),
+                continue_after_collapse=bool(args.continue_after_collapse),
+            )
+
+    else:
+        template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=ms)
+
+        def evaluator(genome: np.ndarray, seed: int):
+            world = thread_safe_liquidity_ladder_clone(template) if ew > 1 else template
+            return rollout_liquidity_ladder(
+                world,
+                genome,
+                seed=seed,
+                initial_margin=float(args.initial_margin),
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
@@ -233,6 +250,9 @@ def main() -> None:
     if args.mode == "service_backlog":
         payload["domain"] = "service_backlog"
         payload["initial_backlog"] = float(args.initial_backlog)
+    if args.mode == "liquidity_ladder":
+        payload["domain"] = "liquidity_ladder"
+        payload["initial_margin"] = float(args.initial_margin)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay is not None:
@@ -263,6 +283,9 @@ def main() -> None:
         if args.mode == "service_backlog":
             replay["meta"]["domain"] = "service_backlog"
             replay["meta"]["initial_backlog"] = float(args.initial_backlog)
+        if args.mode == "liquidity_ladder":
+            replay["meta"]["domain"] = "liquidity_ladder"
+            replay["meta"]["initial_margin"] = float(args.initial_margin)
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
 

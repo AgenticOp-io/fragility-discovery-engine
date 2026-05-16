@@ -222,9 +222,9 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 ---
 
-### Phase N — Fourth reference domain (**charter slot — not open**)
+### Phase N — Fourth reference domain (**shipped**)
 
-**Status:** **Not adopted** — there is **no** Phase N section in [`BOUNDARIES.md`](BOUNDARIES.md) yet. Draft admission memo: [`docs/phase_n_fourth_domain_admission.md`](docs/phase_n_fourth_domain_admission.md).
+**Status:** **Adopted / shipped** — [`BOUNDARIES.md`](BOUNDARIES.md) (Phase N), [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md), bundle **`liquidity_ladder_rollout_v1`**.
 
 **Purpose:** If the project needs **another** thin `World` (same shock-schedule encoding, new physics story, new frozen bundle), **Phase N** would be the umbrella—**not** a silent expansion of Phase M.
 
@@ -236,11 +236,10 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 **Exit criteria (candidate — all unchecked until adoption):**
 
-- [x] Admission memo (selected candidate, non-goals, replay contract row) checked into `docs/` and linked from `BOUNDARIES.md`.
-- [ ] `world/` + `runner` rollout + `rollout_to_replay_dict` compatibility table updated.
-- [ ] Determinism + replay contract tests + GA smoke CLI.
-- [ ] New **frozen** `*_rollout_v1` bundle id + `GOLDEN_METRICS` row + `tests/test_benchmark_suite.py` coverage.
-- [ ] “Why this domain” doc (≤ one page) + counterfactual / ε-sweep / co-evolution **parity** with the pattern used for Phase J / Phase M unless explicitly scoped down with documented reasons.
+- [x] Admission memo + Phase N section in `BOUNDARIES.md`.
+- [x] `LiquidityLadderWorld` + `rollout_liquidity_ladder` + replay contract tests.
+- [x] GA smoke `run_liquidity_ladder_ga_demo.py` + frozen bundle `liquidity_ladder_rollout_v1`.
+- [x] Pareto / MC / co-evolution / counterfactual (`initial_margin_shift`) wiring; mutation-chain export remains optional.
 
 ---
 

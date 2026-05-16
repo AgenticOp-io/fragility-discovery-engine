@@ -12,6 +12,7 @@ from fragility_engine.coevolution import (
     alternating_coevolution,
     alternating_coevolution_network,
     alternating_coevolution_resource_cascade,
+    alternating_coevolution_liquidity_ladder,
     alternating_coevolution_service_backlog,
 )
 from fragility_engine.coevolution.pareto_export import (
@@ -21,6 +22,7 @@ from fragility_engine.coevolution.pareto_export import (
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_to_replay_dict
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -34,7 +36,7 @@ def main() -> None:
     )
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
         default="aggregate",
     )
     p.add_argument("--max-steps", type=int, default=40, help="World horizon cap (all modes).")
@@ -49,6 +51,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[service_backlog] backlog at reset (defender reserve_boost damps effective backlog).",
+    )
+    p.add_argument(
+        "--initial-margin",
+        type=float,
+        default=0.06,
+        help="[liquidity_ladder] margin utilization at reset (defender reserve_boost damps effective margin).",
     )
 
     p.add_argument("--nodes", type=int, default=32)
@@ -228,12 +236,29 @@ def main() -> None:
             seed=int(args.seed),
             eval_workers=ew,
         )
-    else:
+    elif args.mode == "service_backlog":
         template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=int(args.max_steps))
         enriched_topo = {"domain": "service_backlog", "initial_backlog": float(args.initial_backlog)}
         summary = alternating_coevolution_service_backlog(
             template,
             initial_backlog=float(args.initial_backlog),
+            continue_after_collapse=bool(args.continue_after_collapse),
+            collect_attacker_pareto=collect_pareto,
+            attacker_horizon=int(args.attacker_horizon),
+            rounds=int(args.rounds),
+            attacker_generations=int(args.attacker_generations),
+            attacker_population=int(args.attacker_population),
+            defender_generations=int(args.defender_generations),
+            defender_population=int(args.defender_population),
+            seed=int(args.seed),
+            eval_workers=ew,
+        )
+    else:
+        template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=int(args.max_steps))
+        enriched_topo = {"domain": "liquidity_ladder", "initial_margin": float(args.initial_margin)}
+        summary = alternating_coevolution_liquidity_ladder(
+            template,
+            initial_margin=float(args.initial_margin),
             continue_after_collapse=bool(args.continue_after_collapse),
             collect_attacker_pareto=collect_pareto,
             attacker_horizon=int(args.attacker_horizon),

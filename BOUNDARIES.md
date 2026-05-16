@@ -310,9 +310,23 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] Frozen suite bundle `service_backlog_rollout_v1` + `GOLDEN_METRICS` in CI (`tests/test_benchmark_suite.py`; Phase **H** charter).
 - [x] Counterfactual / co-evolution / Pareto / MC / ε-sweeps shipped as documented in [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md) §4.
 
+### Phase N — Fourth reference domain (**shipped**)
+
+**Status:** shipped — `LiquidityLadderWorld` (`fragility_engine.world.liquidity_ladder`), `simulation_mode` **`liquidity_ladder`**, rollout `rollout_liquidity_ladder`, frozen suite bundle **`liquidity_ladder_rollout_v1`** (Phase **H** charter), GA demo **`scripts/run_liquidity_ladder_ga_demo.py`**, co-evolution / Pareto / MC / counterfactual / ε-sweep CLI parity with Phase M wiring. Normative doc: [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md). Motivation: [`docs/WHY_LIQUIDITY_LADDER.md`](docs/WHY_LIQUIDITY_LADDER.md). Admission memo: [`docs/phase_n_fourth_domain_admission.md`](docs/phase_n_fourth_domain_admission.md).
+
+**Purpose:** Add a **fourth** thin reference `World` (liquidity ladder / margin stress) on the same shock-schedule encoding, with a new frozen bundle, **without** coupling kernels in one `step()`.
+
+**Exit criteria (shipped):**
+
+- [x] World module + rollout wired; replay export matches documented contract.
+- [x] `tests/test_liquidity_ladder_rollout.py` + `tests/test_replay_contract_liquidity_ladder.py`.
+- [x] GA demo `scripts/run_liquidity_ladder_ga_demo.py`.
+- [x] Frozen suite bundle `liquidity_ladder_rollout_v1` + `GOLDEN_METRICS` in CI.
+- [x] Pareto / MC / co-evolution / scalar counterfactual + ε-sweep wiring (mutation-chain export optional follow-up).
+
 ## Future charter slots (not adopted)
 
-A **draft** placeholder for a possible **fourth** reference domain (**Phase N**) exists in [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) and the admission memo [`docs/phase_n_fourth_domain_admission.md`](docs/phase_n_fourth_domain_admission.md). It is **not** binding here until promoted into this document as a full section with admission rules and exit criteria (same pattern as Phase M).
+No fifth reference-domain slot is open under current charter rules.
 
 ## Fitness function discipline
 

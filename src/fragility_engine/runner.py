@@ -9,6 +9,7 @@ from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
     build_defended_network_world,
     build_defended_resource_cascade_world,
+    build_defended_liquidity_ladder_world,
     build_defended_service_backlog_world,
 )
 from fragility_engine.runner_resource_cascade_numba import (
@@ -246,6 +247,67 @@ def rollout_resource_cascade(
         seed=seed,
         attack_cost=attack_cost,
         simulation_mode="resource_cascade",
+        integral_instability=float(integral_instability),
+        recovery_timestep=recovery_timestep,
+    )
+
+
+def rollout_liquidity_ladder(
+    world_template: LiquidityLadderWorld,
+    genome: np.ndarray,
+    *,
+    seed: int,
+    initial_margin: float = 0.06,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> RolloutResult:
+    """Phase N reference rollout — same schedule decoding as other reference domains."""
+
+    world, reserve_boost = build_defended_liquidity_ladder_world(world_template, defender_genome)
+    world.reset(initial_margin=float(initial_margin), margin_scale=float(reserve_boost))
+    world.population.reset(initial_supply=1_000_000.0, rng=np.random.default_rng(seed ^ 0x9E3779B9))
+
+    schedule = decode_schedule(genome)
+    attack_cost = schedule_attack_cost(schedule)
+
+    trajectory: list[TrajectoryStep] = []
+    collapsed = False
+    collapse_timestep: int | None = None
+    peak_instability = 0.0
+    integral_instability = 0.0
+
+    for t in range(world.max_steps):
+        events = schedule.get(t, ())
+        step_rng = np.random.default_rng(seed + 19 * (t + 1))
+        step = world.step(events, step_rng)
+        trajectory.append(step)
+        inst = float(step.metrics["instability"])
+        peak_instability = max(peak_instability, inst)
+        integral_instability += inst
+
+        if world.is_collapsed():
+            if collapse_timestep is None:
+                collapse_timestep = t
+                collapsed = True
+            if not continue_after_collapse:
+                break
+
+    recovery_timestep = _recovery_timestep(
+        trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        continue_after_collapse=continue_after_collapse,
+        depeg_threshold=world.depeg_threshold,
+    )
+
+    return RolloutResult(
+        trajectory=trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        final_instability=peak_instability,
+        seed=seed,
+        attack_cost=attack_cost,
+        simulation_mode="liquidity_ladder",
         integral_instability=float(integral_instability),
         recovery_timestep=recovery_timestep,
     )

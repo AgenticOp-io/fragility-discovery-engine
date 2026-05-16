@@ -7,15 +7,21 @@ from typing import Any, Literal
 
 import numpy as np
 
-from fragility_engine.coevolution.defender import clone_service_backlog, clone_stablecoin_network
+from fragility_engine.coevolution.defender import (
+    clone_liquidity_ladder,
+    clone_service_backlog,
+    clone_stablecoin_network,
+)
 from fragility_engine.explain.counterfactual import neighbor_lists_explicit_weights, out_edge_index, rollout_snapshot
 from fragility_engine.runner import (
     rollout_resource_cascade,
+    rollout_liquidity_ladder,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -372,6 +378,55 @@ def sweep_service_backlog_process_rate(
         "mode": "service_backlog",
         "rollout_seed": int(rollout_seed),
         "fixed_initial_backlog": float(initial_backlog),
+        "runs": runs,
+        "summary": summary,
+    }
+
+
+def sweep_liquidity_ladder_initial_margin(
+    genome: np.ndarray,
+    template: LiquidityLadderWorld,
+    *,
+    values: list[float],
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+) -> dict[str, Any]:
+    """Phase N: vary ``initial_margin`` at reset; same genome and rollout seed."""
+
+    if not values:
+        raise ValueError("values must be non-empty")
+
+    runs: list[dict[str, Any]] = []
+    integrals: list[float] = []
+
+    for v in values:
+        im = float(max(0.0, float(v)))
+        r = rollout_liquidity_ladder(
+            template,
+            genome,
+            seed=int(rollout_seed),
+            initial_margin=im,
+            continue_after_collapse=bool(continue_after_collapse),
+        )
+        integrals.append(float(r.integral_instability))
+        runs.append({"initial_margin": im, **rollout_snapshot(r)})
+
+    arr = np.asarray(integrals, dtype=np.float64)
+    collapses = sum(1 for row in runs if row["collapsed"])
+
+    summary = {
+        "count": len(values),
+        "collapse_count": int(collapses),
+        "integral_instability_min": float(arr.min()),
+        "integral_instability_max": float(arr.max()),
+        "integral_instability_mean": float(arr.mean()),
+    }
+
+    return {
+        "schema": SCHEMA,
+        "axis": "initial_margin",
+        "mode": "liquidity_ladder",
+        "rollout_seed": int(rollout_seed),
         "runs": runs,
         "summary": summary,
     }

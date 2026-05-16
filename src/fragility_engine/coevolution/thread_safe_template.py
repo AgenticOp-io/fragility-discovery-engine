@@ -11,10 +11,12 @@ from __future__ import annotations
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution.defender import (
     clone_resource_cascade,
+    clone_liquidity_ladder,
     clone_service_backlog,
     clone_stablecoin_network,
 )
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -40,3 +42,7 @@ def thread_safe_resource_cascade_clone(template: ResourceCascadeWorld) -> Resour
 
 def thread_safe_service_backlog_clone(template: ServiceBacklogWorld) -> ServiceBacklogWorld:
     return clone_service_backlog(template, population=default_stablecoin_population())
+
+
+def thread_safe_liquidity_ladder_clone(template: LiquidityLadderWorld) -> LiquidityLadderWorld:
+    return clone_liquidity_ladder(template, population=default_stablecoin_population())

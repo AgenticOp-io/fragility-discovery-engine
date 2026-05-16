@@ -1,0 +1,30 @@
+{
+  "sample_pareto_front.json": {
+    "hypervolume_reference": [
+      4.983290325433314,
+      1.7013294034029787
+    ],
+    "expected_hypervolume": 0.15189931388370764
+  },
+  "sample_pareto_resource_cascade.json": {
+    "hypervolume_reference": [
+      3.3659602609288464,
+      1.4388990692627313
+    ],
+    "expected_hypervolume": 0.08792515950424878
+  },
+  "sample_pareto_service_backlog.json": {
+    "hypervolume_reference": [
+      0.041767545498956095,
+      4.673204207532063
+    ],
+    "expected_hypervolume": 0.008744191826265941
+  },
+  "sample_pareto_network.json": {
+    "hypervolume_reference": [
+      7.191174633850018,
+      3.1784702051782374
+    ],
+    "expected_hypervolume": 0.40070736432655746
+  }
+}

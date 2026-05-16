@@ -2,7 +2,9 @@ from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
     build_defended_network_world,
     build_defended_resource_cascade_world,
+    build_defended_liquidity_ladder_world,
     build_defended_service_backlog_world,
+    clone_liquidity_ladder,
     clone_resource_cascade,
     clone_service_backlog,
     clone_stablecoin_network,
@@ -16,11 +18,14 @@ __all__ = [
     "alternating_coevolution_network",
     "alternating_coevolution_resource_cascade",
     "alternating_coevolution_service_backlog",
+    "alternating_coevolution_liquidity_ladder",
     "alternating_coevolution_rollout",
     "build_defended_aggregate_world",
     "build_defended_network_world",
     "build_defended_resource_cascade_world",
+    "build_defended_liquidity_ladder_world",
     "build_defended_service_backlog_world",
+    "clone_liquidity_ladder",
     "clone_resource_cascade",
     "clone_service_backlog",
     "clone_stablecoin_network",
@@ -51,4 +56,8 @@ def __getattr__(name: str):
         from fragility_engine.coevolution.alternating import alternating_coevolution_service_backlog
 
         return alternating_coevolution_service_backlog
+    if name == "alternating_coevolution_liquidity_ladder":
+        from fragility_engine.coevolution.alternating import alternating_coevolution_liquidity_ladder
+
+        return alternating_coevolution_liquidity_ladder
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

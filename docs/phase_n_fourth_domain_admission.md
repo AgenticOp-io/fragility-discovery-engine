@@ -1,6 +1,6 @@
 # Phase N — fourth reference domain (admission memo, draft)
 
-**Status:** **Not adopted.** There is no Phase N section in [`BOUNDARIES.md`](../BOUNDARIES.md). Do not add a fourth `world/` physics line until this memo is promoted and exit criteria are checked in the charter.
+**Status:** **Adopted** — selected candidate **liquidity ladder / margin**; normative gate: [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase N), implementation: [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md).
 
 ## Purpose
 
@@ -16,7 +16,7 @@ Reserve a named slot for a **fourth** thin `World` on the same shock-schedule en
 
 **Recommendation:** choose the candidate that adds the **smallest** new state vector while still failing the “this is just aggregate with renamed labels” test.
 
-**Draft preference (not adopted):** **Liquidity ladder / margin** — scalar-friendly, distinct from peg/backlog/cascade narratives; keep scope to ≤5 archetypes and one frozen bundle if Phase N opens.
+**Selected candidate:** **Liquidity ladder / margin** — shipped as `LiquidityLadderWorld` + `liquidity_ladder_rollout_v1`.
 
 ## Non-goals (unchanged charter)
 
@@ -27,11 +27,11 @@ Reserve a named slot for a **fourth** thin `World` on the same shock-schedule en
 
 ## Exit criteria (must copy into `BOUNDARIES.md` before coding)
 
-- [ ] This admission memo linked from `BOUNDARIES.md` with selected candidate.
-- [ ] `world/` + `runner` + `rollout_to_replay_dict` compatibility row.
-- [ ] Determinism + replay contract tests + GA smoke CLI.
-- [ ] New frozen bundle id + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py`.
-- [ ] “Why this domain” doc (≤ one page) + counterfactual / ε-sweep / co-evolution parity **or** documented scope-down.
+- [x] This admission memo linked from `BOUNDARIES.md` with selected candidate.
+- [x] `world/` + `runner` + `rollout_to_replay_dict` compatibility row.
+- [x] Determinism + replay contract tests + GA smoke CLI.
+- [x] New frozen bundle id + `GOLDEN_METRICS` + `tests/test_benchmark_suite.py`.
+- [x] “Why this domain” doc + counterfactual / ε-sweep / co-evolution parity (mutation-chain spec scope-down).
 
 ## Relationship to shipped domains
 
@@ -41,3 +41,4 @@ Existing oracles stay frozen unless a charter revision explicitly replaces one:
 - `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`
 - `resource_cascade_rollout_v1` (Phase J)
 - `service_backlog_rollout_v1` (Phase M)
+- `liquidity_ladder_rollout_v1` (Phase N)
