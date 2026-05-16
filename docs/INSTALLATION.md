@@ -4,7 +4,7 @@ This page **supplements** [`HOW_TO_USE.md`](HOW_TO_USE.md). Use that guide for *
 
 ## Dual stack (Linux and Windows)
 
-**CI** runs the same checks on **Ubuntu** and **Windows** (Python **3.11** and **3.12**), plus optional **Numba** parity on both (`.github/workflows/ci.yml`). Weekly scheduled regression uses **Ubuntu + 3.12** only (`.github/workflows/schedule.yml`).
+**CI** runs the same checks on **Ubuntu** and **Windows** (Python **3.11** and **3.12**), plus optional **Numba** parity on both (`.github/workflows/ci.yml`). Weekly scheduled regression (`.github/workflows/schedule.yml`) runs the **test** job on **Ubuntu + 3.12** (ruff, pytest with perf gate, explicit **`run_benchmark_suite.py --validate`**, manifest artifact) and a separate **build** job (sdist/wheel + smoke import), mirroring PR CI.
 
 To reproduce the default **test** job locally after activating a venv:
 
@@ -13,7 +13,7 @@ To reproduce the default **test** job locally after activating a venv:
 | Linux, macOS, [WSL](https://learn.microsoft.com/windows/wsl/) | `bash scripts/ci_local.sh` |
 | Windows (PowerShell) | `pwsh -File scripts/ci_local.ps1` |
 
-Both scripts run `pip install -e ".[dev]"`, **ruff**, and **pytest** with `FRAGILITY_PERF_GATE=1` (same env as CI).
+Both scripts run `pip install -e ".[dev]"`, **ruff**, **pytest** with `FRAGILITY_PERF_GATE=1`, and **`python scripts/run_benchmark_suite.py --validate`** (frozen golden bundles). Set **`FRAGILITY_CI_LOCAL_BUILD=1`** to also run **`python -m build`** (optional parity with the CI **build** job).
 
 ---
 
