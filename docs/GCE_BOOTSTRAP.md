@@ -30,9 +30,9 @@ Defaults: **zone** `us-central1-a`, **name** `fragility-discovery-minimal`, **ma
 
 **What the startup script does** (runs automatically on first boot as **root**, log: **`/var/log/fragility-bootstrap.log`** on the VM):
 
-1. **`apt-get`** — `git`, `curl`, `ca-certificates`, `python3.12`, `python3.12-venv`, `python3-pip`, `build-essential`
-2. **`git clone`** — shallow **`main`** of `https://github.com/theorem6/fragility-discovery-engine.git` into **`/home/ubuntu/fragility-discovery-engine`** (override with **`-RepoUrl`** on create, or metadata `fragility_repo_url` from bash script)
-3. **`python3.12 -m venv .venv`** + **`pip install -e ".[dev]"`** as user **`ubuntu`**
+1. **`apt-get`** — `git`, `curl`, `ca-certificates`, `build-essential`, **`python3-venv`**, **`python3-pip`** (uses default **`python3`**, e.g. 3.11 on Debian 12 or 3.12 on Ubuntu 24.04).
+2. **`git clone`** — shallow **`main`** into **`/home/ubuntu/fragility-discovery-engine`**: HTTPS (non-interactive) by default, or **SSH** when metadata **`fragility_repo_url`** is **`git@…`** and **`/home/ubuntu/.ssh/gce_github_ed25519`** exists (private repos — provision key via image or post-boot `scp`).
+3. **`python3 -m venv .venv`** + **`pip install -e ".[dev]"`** as user **`ubuntu`**.
 
 Wait **~3–8 minutes** after `instances create` returns, then SSH and check the log:
 

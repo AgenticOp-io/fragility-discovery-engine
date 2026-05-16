@@ -28,7 +28,7 @@ Then optionally:
 python scripts/run_benchmark_suite.py --validate
 ```
 
-**Google Compute Engine (Linux VM):** after `gcloud auth login`, use [`docs/GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) — section **Sync latest `main` on an existing VM** — to `git pull`, `ruff`, and `pytest` with the same perf gate as CI.
+**Google Compute Engine (Linux VM):** after `gcloud auth login`, use [`docs/GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) — section **Sync latest `main` on an existing VM** — to `git pull`, `ruff`, and `pytest` with the same perf gate as CI. **Private repo:** copy **`~/.ssh/gce_github_ed25519`** to the VM, then run **`scripts/gce_clone_pull_and_test.sh`** (see [`GCE_BOOTSTRAP.md`](GCE_BOOTSTRAP.md)).
 
 ---
 
