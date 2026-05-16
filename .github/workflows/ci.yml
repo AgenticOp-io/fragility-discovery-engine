@@ -38,6 +38,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
         run: |
           python scripts/run_benchmark_suite.py --validate --manifest-out benchmark_manifest.json --manifest-summary
+          python scripts/check_manifest_digest.py
 
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}

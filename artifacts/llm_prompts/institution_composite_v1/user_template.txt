@@ -1,0 +1,15 @@
+Frozen institutional composite artifact (fragility-institutional-composite-v1/v2/v3).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: Write 4–7 sentences for a reviewer memo:
+- List each branch present (aggregate, network, resource_cascade, service_backlog) with collapse and integral_instability when given.
+- Note that attack_cost reflects the shared schedule encoding, not coupled physics.
+- State that branches are decoupled stress tests; do not claim joint equilibrium or Shapley attribution.
+- Remind the reader this is commentary only — not simulator input.
+
+Plain prose only.

@@ -2250,6 +2250,37 @@ def test_export_service_backlog_counterfactual_chain_cli(py_exe: str, tmp_path: 
     assert len(payload["path_trace"]["edges"]) == 2
 
 
+def test_export_aggregate_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    spec = ROOT / "tests" / "fixtures" / "chains" / "aggregate_panic_depeg_chain.json"
+    out = tmp_path / "cf_agg_chain.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_aggregate_counterfactual_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--horizon",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "9105",
+            "--genome-seed",
+            "54",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "aggregate_mutation_chain"
+    assert len(payload["mutation_steps"]) == 2
+    assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-aggregate-v1"
+    assert len(payload["path_trace"]["edges"]) == 2
+
+
 def test_export_service_backlog_joint_attribution_cli(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "merge_sb_cli.json"
     subprocess.run(

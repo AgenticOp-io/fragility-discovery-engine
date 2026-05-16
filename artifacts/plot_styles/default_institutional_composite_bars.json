@@ -1,0 +1,10 @@
+{
+  "schema": "fragility-plot-institutional-composite-style-v1",
+  "title": "Institutional composite — integral instability by branch",
+  "y_label": "integral_instability",
+  "bar_color": "#4a90c4",
+  "collapsed_color": "#c44e4e",
+  "width": 8,
+  "height": 4.5,
+  "dpi": 120
+}

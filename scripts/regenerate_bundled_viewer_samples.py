@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPLAY_VIEWER = ROOT / "artifacts" / "replay_viewer"
 ATTRIBUTION_VIEWER = ROOT / "artifacts" / "attribution_viewer"
 COMPOSITE_DEMO = ROOT / "artifacts" / "composite_demo"
+FLAGSHIP_BUNDLED = ROOT / "artifacts" / "flagship" / "bundled"
 
 _REPLAY_BUNDLE_MAP = {
     "sample_replay.json": "aggregate_rollout_v1",
@@ -94,10 +95,29 @@ def _write_quad_composite(py: str) -> None:
     print(f"wrote {out.relative_to(ROOT)}")
 
 
+def _write_flagship_bundled() -> None:
+    from fragility_engine.benchmarks.flagship import run_flagship_demo
+
+    FLAGSHIP_BUNDLED.mkdir(parents=True, exist_ok=True)
+    run_flagship_demo(
+        FLAGSHIP_BUNDLED,
+        validate_bundles_first=False,
+        horizon=10,
+        generations=2,
+        population_size=8,
+        ga_seed=424_242,
+        max_steps=28,
+        eval_workers=1,
+    )
+    rel = FLAGSHIP_BUNDLED.relative_to(ROOT)
+    print(f"wrote {rel} (best_replay.json, pareto_front.json, fragility_certificate.json)")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--skip-attribution", action="store_true", help="Skip attribution-merge sample.")
     ap.add_argument("--skip-composite", action="store_true", help="Skip quad composite sample.")
+    ap.add_argument("--skip-flagship", action="store_true", help="Skip flagship bundled GA artifacts.")
     args = ap.parse_args()
     py = sys.executable
     _write_replay_samples()
@@ -105,6 +125,8 @@ def main() -> None:
         _write_attribution_sample(py)
     if not args.skip_composite:
         _write_quad_composite(py)
+    if not args.skip_flagship:
+        _write_flagship_bundled()
     print(f"OK: regenerated bundled viewer samples ({len(BUNDLE_IDS)} replay bundles)")
 
 

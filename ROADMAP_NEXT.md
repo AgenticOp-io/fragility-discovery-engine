@@ -201,7 +201,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | **`BUNDLE_INTEGRAL_BANDS`** + `validate_benchmark_suite()`; manifest field **`bundle_integral_bands`** |
+| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | **`BUNDLE_INTEGRAL_BANDS`** + `validate_benchmark_suite()`; manifest **`bundle_integral_bands`**; digest pin via **`check_manifest_digest.py`** |
 | **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`python scripts/run_benchmark_suite.py --manifest-summary`** prints a log-friendly excerpt; **`--manifest-out`** unchanged |
 | **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | Fits existing `hypervolume_2d_min` + pinned fixtures; avoid unbounded archive sizes |
 | **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |
@@ -210,21 +210,21 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Aggregate / network multi-knob chains** | Extend **cumulative** mutation chains where a single scalar shift is not enough—**still** behind explicit CLI and tests | `BOUNDARIES.md` Phase I already lists richer bundles as **backlog, not gates** |
+| **Aggregate / network multi-knob chains** | Extend **cumulative** mutation chains where a single scalar shift is not enough—**still** behind explicit CLI and tests | **Aggregate:** `aggregate-mutation-chain-spec-v1`, `export_aggregate_counterfactual_chain.py`, path trace `explanation-mutation-chain-path-aggregate-v1` |
 | **Interaction summaries** | More **merge** shapes (e.g. triple-branch institutional summaries) **without** claiming Shapley identification | Keep **`attribution-interaction-summary-v1`**-style disclaimers |
 
 ### Narration & figures (Phase L charter)
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** variants | Version on disk; no model inside `World.step` |
-| **Plot types** | One new **plot script + style JSON** per PR where possible | Matplotlib stays optional extra |
+| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** variants | **`institution_composite_v1`** for quad/triple composite JSON |
+| **Plot types** | One new **plot script + style JSON** per PR where possible | **`plot_institutional_composite_bars.py`** + `fragility-plot-institutional-composite-style-v1` |
 
 ---
 
 ### Phase N — Fourth reference domain (**charter slot — not open**)
 
-**Status:** **Not adopted** — there is **no** Phase N section in [`BOUNDARIES.md`](BOUNDARIES.md) yet. This block exists so a future “fourth `World`” flight has a **named home** before anyone codes physics.
+**Status:** **Not adopted** — there is **no** Phase N section in [`BOUNDARIES.md`](BOUNDARIES.md) yet. Draft admission memo: [`docs/phase_n_fourth_domain_admission.md`](docs/phase_n_fourth_domain_admission.md).
 
 **Purpose:** If the project needs **another** thin `World` (same shock-schedule encoding, new physics story, new frozen bundle), **Phase N** would be the umbrella—**not** a silent expansion of Phase M.
 
@@ -263,7 +263,7 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 | Robustness | Ensemble / sweeps / GA budgets / neighbor JSON bundles | Larger grids, richer theory, dashboard integration |
 | Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
 | Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
-| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | Per-bundle **metric regression** rows; manifest **diff** in CI |
+| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | **`check_manifest_digest.py`** pins `golden_metrics_sha256`; integral bands in manifest |
 | Static viewers | Replay / Pareto / attribution UIs over HTTP | Curated **preset JSON** for demos (bundled **service_backlog** replay + Pareto sample); still no server-side simulation |
 | Certificates | `fragility-certificate-v1`, flagship demo | Optional **manifest digest** fields linking bundle ids to certificate inputs |
 | Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Same **narration** coverage as aggregate/network where gaps exist |

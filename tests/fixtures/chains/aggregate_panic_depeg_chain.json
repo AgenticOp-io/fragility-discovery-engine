@@ -1,0 +1,7 @@
+{
+  "schema": "aggregate-mutation-chain-spec-v1",
+  "steps": [
+    { "kind": "rumor_panic_gain", "value": 0.42 },
+    { "kind": "depeg_threshold", "value": 0.96 }
+  ]
+}

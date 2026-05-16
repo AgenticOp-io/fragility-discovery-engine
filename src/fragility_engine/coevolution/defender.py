@@ -137,6 +137,21 @@ def build_defended_network_world(
     return world, reserve_boost
 
 
+def clone_stablecoin_peg(template: StablecoinPegWorld, **phys: Any) -> StablecoinPegWorld:
+    """Clone peg parameters with optional physics overrides (counterfactual chains).
+
+    Optional ``population=`` replaces the template's ``population`` for concurrent evaluation safety.
+    """
+
+    return StablecoinPegWorld(
+        population=phys.get("population", template.population),
+        depeg_threshold=float(phys.get("depeg_threshold", template.depeg_threshold)),
+        panic_decay=float(phys.get("panic_decay", template.panic_decay)),
+        rumor_panic_gain=float(phys.get("rumor_panic_gain", template.rumor_panic_gain)),
+        max_steps=int(phys.get("max_steps", template.max_steps)),
+    )
+
+
 def clone_resource_cascade(template: ResourceCascadeWorld, **phys: Any) -> ResourceCascadeWorld:
     """Clone cascade parameters with optional physics overrides (counterfactuals, defenders).
 
