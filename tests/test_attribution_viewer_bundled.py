@@ -25,6 +25,13 @@ def test_bundled_triple_interaction_summary() -> None:
     assert obj.get("branch_count") == 3
 
 
+def test_bundled_resource_cascade_chain_path_trace() -> None:
+    p = ATTR / "sample_resource_cascade_chain_coupling_rumor.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("intervention") == "resource_cascade_mutation_chain"
+    assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-resource-cascade-v1"
+
+
 def test_bundled_aggregate_chain_path_trace() -> None:
     p = ATTR / "sample_aggregate_chain_rumor_depeg.json"
     obj = json.loads(p.read_text(encoding="utf-8"))

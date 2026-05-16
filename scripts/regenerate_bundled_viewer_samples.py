@@ -218,6 +218,34 @@ def _write_aggregate_chain_sample(py: str) -> None:
     print(f"wrote {out.relative_to(ROOT)}")
 
 
+def _write_resource_cascade_chain_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    chain_path = ROOT / "tests" / "fixtures" / "chains" / "resource_cascade_coupling_rumor_chain.json"
+    out = ATTRIBUTION_VIEWER / "sample_resource_cascade_chain_coupling_rumor.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_resource_cascade_counterfactual_chain.py"),
+            "--chain-json",
+            str(chain_path),
+            "--horizon",
+            "10",
+            "--seed",
+            "66801",
+            "--genome-seed",
+            "66802",
+            "--initial-overload",
+            "0.07",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {out.relative_to(ROOT)}")
+
+
 def _write_service_backlog_chain_sample(py: str) -> None:
     ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
     chain_path = ROOT / "tests" / "fixtures" / "chains" / "service_backlog_process_ingest_chain.json"
@@ -276,6 +304,7 @@ def main() -> None:
         _write_attribution_samples(py)
         _write_network_chain_sample(py)
         _write_aggregate_chain_sample(py)
+        _write_resource_cascade_chain_sample(py)
         _write_service_backlog_chain_sample(py)
     if not args.skip_composite:
         _write_composite_samples(py)

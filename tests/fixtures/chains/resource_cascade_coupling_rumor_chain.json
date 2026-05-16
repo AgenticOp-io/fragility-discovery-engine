@@ -1,0 +1,7 @@
+{
+  "schema": "resource-cascade-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "cascade_coupling", "value": 0.38},
+    {"kind": "rumor_gain", "value": 0.24}
+  ]
+}
