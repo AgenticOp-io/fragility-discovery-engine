@@ -7,6 +7,7 @@ from typing import Any
 from fragility_engine.explain.counterfactual import rollout_snapshot
 from fragility_engine.explain.counterfactual_chain import CHAIN_SPEC_SCHEMA, network_reset_panic_after_steps
 from fragility_engine.explain.counterfactual_chain_aggregate import AGGREGATE_CHAIN_SPEC_SCHEMA
+from fragility_engine.explain.counterfactual_chain_liquidity_ladder import LIQUIDITY_LADDER_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_resource_cascade import RESOURCE_CASCADE_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_service_backlog import SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.sweep import SCHEMA as EPSILON_SWEEP_SCHEMA
@@ -16,6 +17,7 @@ TRACE_SCHEMA = "explanation-trace-v1"
 CHAIN_PATH_TRACE_SCHEMA = "explanation-mutation-chain-path-v1"
 CHAIN_PATH_TRACE_RESOURCE_CASCADE_SCHEMA = "explanation-mutation-chain-path-resource-cascade-v1"
 CHAIN_PATH_TRACE_SERVICE_BACKLOG_SCHEMA = "explanation-mutation-chain-path-service-backlog-v1"
+CHAIN_PATH_TRACE_LIQUIDITY_LADDER_SCHEMA = "explanation-mutation-chain-path-liquidity-ladder-v1"
 CHAIN_PATH_TRACE_AGGREGATE_SCHEMA = "explanation-mutation-chain-path-aggregate-v1"
 
 
@@ -291,6 +293,71 @@ def mutation_chain_path_to_trace_service_backlog(
         "rollout_seed": int(rollout_seed),
         "baseline_initial_backlog": bib,
         "variant_initial_backlog": vib,
+        "nodes": nodes,
+        "edges": edges,
+    }
+
+
+def mutation_chain_path_to_trace_liquidity_ladder(
+    rollouts: list[RolloutResult],
+    steps: list[dict[str, Any]],
+    *,
+    rollout_seed: int,
+    baseline_initial_margin: float,
+    variant_initial_margin: float,
+) -> dict[str, Any]:
+    """Path trace for liquidity-ladder cumulative mutation prefixes."""
+
+    if len(rollouts) != len(steps) + 1:
+        raise ValueError("expected len(rollouts) == len(steps) + 1")
+    if not steps:
+        raise ValueError("steps must be non-empty")
+
+    bim = float(baseline_initial_margin)
+    vim = float(variant_initial_margin)
+
+    nodes: list[dict[str, Any]] = []
+    for i, r in enumerate(rollouts):
+        snap = rollout_snapshot(r)
+        margin_used = bim if i < len(rollouts) - 1 else vim
+        nodes.append(
+            {
+                "id": f"chain_{i}",
+                "index": i,
+                "mutations_applied": i,
+                "reset_initial_margin": margin_used,
+                **snap,
+            }
+        )
+
+    edges: list[dict[str, Any]] = []
+    for i in range(len(steps)):
+        a = rollouts[i]
+        b = rollouts[i + 1]
+        di = float(b.integral_instability - a.integral_instability)
+        dc = float(b.attack_cost - a.attack_cost)
+        margin_from = bim
+        margin_to = bim if i < len(steps) - 1 else vim
+        edges.append(
+            {
+                "from": f"chain_{i}",
+                "to": f"chain_{i + 1}",
+                "kind": "mutation_chain_step",
+                "step_index": i,
+                "step": dict(steps[i]),
+                "delta_integral_instability": di,
+                "delta_attack_cost": dc,
+                "reset_initial_margin_from": margin_from,
+                "reset_initial_margin_to": margin_to,
+            }
+        )
+
+    return {
+        "schema": CHAIN_PATH_TRACE_LIQUIDITY_LADDER_SCHEMA,
+        "source_chain_schema": LIQUIDITY_LADDER_CHAIN_SPEC_SCHEMA,
+        "rollout_seed": int(rollout_seed),
+        "baseline_initial_margin": bim,
+        "variant_initial_margin": vim,
         "nodes": nodes,
         "edges": edges,
     }

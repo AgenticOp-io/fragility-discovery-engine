@@ -1,8 +1,8 @@
 from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
+    build_defended_liquidity_ladder_world,
     build_defended_network_world,
     build_defended_resource_cascade_world,
-    build_defended_liquidity_ladder_world,
     build_defended_service_backlog_world,
     clone_liquidity_ladder,
     clone_resource_cascade,

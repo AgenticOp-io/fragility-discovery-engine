@@ -1,6 +1,6 @@
 from fragility_engine.world.base import WorldConfig
-from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import (
     StablecoinNetworkWorld,

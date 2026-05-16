@@ -33,6 +33,14 @@ def test_bundled_pareto_sample_has_archive() -> None:
     assert "integral_instability" in row
 
 
+def test_bundled_pareto_liquidity_ladder_sample_has_archive() -> None:
+    p = PARETO_VIEWER / "sample_pareto_liquidity_ladder.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("schema") == "pareto-front-v1"
+    assert obj.get("domain") == "liquidity_ladder"
+    assert len(obj.get("archive") or []) >= 1
+
+
 def test_bundled_pareto_network_sample_has_archive() -> None:
     p = PARETO_VIEWER / "sample_pareto_network.json"
     obj = json.loads(p.read_text(encoding="utf-8"))

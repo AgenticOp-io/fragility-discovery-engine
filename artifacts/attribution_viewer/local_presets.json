@@ -27,6 +27,10 @@
       "path": "sample_service_backlog_chain_process_ingest.json"
     },
     {
+      "label": "Bundled: liquidity_ladder chain (delever + haircut)",
+      "path": "sample_liquidity_ladder_chain_margin_haircut.json"
+    },
+    {
       "label": "Export: test_exports joint RC attribution",
       "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }

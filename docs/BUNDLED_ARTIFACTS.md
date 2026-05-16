@@ -23,6 +23,8 @@ python scripts/regenerate_bundled_viewer_samples.py
 | `sample_pareto_resource_cascade.json` | `--mode resource_cascade` |
 | `sample_pareto_service_backlog.json` | `--mode service_backlog` |
 | `sample_pareto_network.json` | `--mode network` (ER-12, short GA) |
+| `sample_pareto_liquidity_ladder.json` | `--mode liquidity_ladder` |
+| `sample_liquidity_ladder_chain_margin_haircut.json` | `export_liquidity_ladder_counterfactual_chain.py` |
 
 Preset also links `../flagship/bundled/pareto_front.json` (see flagship section).
 

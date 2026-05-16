@@ -2730,6 +2730,37 @@ def test_counterfactual_epsilon_sweep_service_backlog_cli(py_exe: str, tmp_path:
     assert data["summary"]["count"] == 3
 
 
+def test_counterfactual_epsilon_sweep_liquidity_ladder_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps_ll.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--axis",
+            "initial_margin",
+            "--values",
+            "0.04,0.08,0.12",
+            "--horizon",
+            "10",
+            "--rollout-seed",
+            "99551",
+            "--genome-seed",
+            "99552",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "counterfactual-epsilon-sweep-v1"
+    assert data["mode"] == "liquidity_ladder"
+    assert data["axis"] == "initial_margin"
+    assert data["summary"]["count"] == 3
+
+
 def test_counterfactual_epsilon_sweep_aggregate_and_trace_cli(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "eps_agg.json"
     subprocess.run(

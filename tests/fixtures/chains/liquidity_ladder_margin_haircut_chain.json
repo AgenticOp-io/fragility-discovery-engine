@@ -1,0 +1,7 @@
+{
+  "schema": "liquidity-ladder-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "delever_rate", "value": 0.28},
+    {"kind": "haircut_damage", "value": 0.19}
+  ]
+}

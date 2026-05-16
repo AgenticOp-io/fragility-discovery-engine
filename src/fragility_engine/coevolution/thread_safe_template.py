@@ -10,13 +10,13 @@ from __future__ import annotations
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution.defender import (
-    clone_resource_cascade,
     clone_liquidity_ladder,
+    clone_resource_cascade,
     clone_service_backlog,
     clone_stablecoin_network,
 )
-from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld

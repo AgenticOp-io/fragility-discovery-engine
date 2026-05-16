@@ -31,6 +31,7 @@ PROMPT_PACK_IDS: tuple[str, ...] = (
     "institution_composite_v1",
     "institutional_composite_triple_v1",
     "institutional_composite_twin_v1",
+    "institutional_composite_quad_v1",
 )
 
 

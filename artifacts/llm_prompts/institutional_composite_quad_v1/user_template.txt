@@ -1,0 +1,15 @@
+Quad institutional composite ({schema_hint}) — four decoupled branches, one shared shock schedule.
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 5–8 sentences for a paper appendix tone:
+- Cover **all four** branches present (aggregate, network, resource_cascade, service_backlog): collapse flag and integral_instability each.
+- Note attack_cost is the shared schedule encoding, not coupled cross-world physics.
+- Do not claim Shapley attribution, joint equilibrium, or regulatory sign-off.
+- Commentary only — not simulator input.
+
+Plain prose only.

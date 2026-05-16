@@ -9,10 +9,10 @@ import numpy as np
 from fragility_engine.adversary.fitness import severity_score
 from fragility_engine.adversary.search import genetic_search, genetic_vector_search
 from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_liquidity_ladder_clone,
     thread_safe_network_clone,
     thread_safe_peg_clone,
     thread_safe_resource_cascade_clone,
-    thread_safe_liquidity_ladder_clone,
     thread_safe_service_backlog_clone,
 )
 from fragility_engine.runner import (

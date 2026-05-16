@@ -52,6 +52,26 @@ def test_plot_institutional_composite_bars_triple_sample(py_exe: str, tmp_path: 
     assert out.stat().st_size > 100
 
 
+def test_export_llm_prompt_institutional_composite_quad_pack(py_exe: str, tmp_path: Path) -> None:
+    quad = ROOT / "artifacts" / "composite_demo" / "sample_quad_composite.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(quad),
+            "--prompt-pack",
+            "institutional_composite_quad_v1",
+            "--out",
+            str(tmp_path / "quad_bundle.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    bundle = json.loads((tmp_path / "quad_bundle.json").read_text(encoding="utf-8"))
+    assert bundle["prompt_pack"] == "institutional_composite_quad_v1"
+    assert "service_backlog" in bundle["user_prompt"]
+
+
 def test_export_llm_prompt_institutional_composite_twin_pack(py_exe: str, tmp_path: Path) -> None:
     twin = ROOT / "artifacts" / "composite_demo" / "sample_twin_composite.json"
     subprocess.run(

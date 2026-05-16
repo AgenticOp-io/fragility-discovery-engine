@@ -11,7 +11,7 @@
 
 ## Optional LLM wrapper (external prose only)
 
-- **Versioned template packs** (`artifacts/llm_prompts/<pack>/`): **`narration_v1`**, **`reviewer_memo_v1`**, **`paper_appendix_v1`**, **`status_digest_v1`**, **`institution_composite_v1`** (all composite schemas), **`institutional_composite_twin_v1`** (v1 twin), **`institutional_composite_triple_v1`** (v2/v3 appendix tone).
+- **Versioned template packs** (`artifacts/llm_prompts/<pack>/`): **`narration_v1`**, **`reviewer_memo_v1`**, **`paper_appendix_v1`**, **`status_digest_v1`**, **`institution_composite_v1`** (all composite schemas), **`institutional_composite_twin_v1`** (v1 twin), **`institutional_composite_triple_v1`** (v2/v3 appendix tone), **`institutional_composite_quad_v1`** (v3 quad, all four branches).
 - **CLI:** `scripts/export_llm_narration_prompt.py --prompt-pack <pack>` → **`llm-prompt-bundle-v1`** JSON (includes **`prompt_pack`** + **`template_version`** per pack).
 - **Optional invoke:** `--invoke-openai` `[--max-tokens N]` (stdlib HTTP; API key from env, default `OPENAI_API_KEY`). Model output is labeled **do not feed into simulation**.
 

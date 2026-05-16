@@ -10,9 +10,9 @@ from pathlib import Path
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution import (
     alternating_coevolution,
+    alternating_coevolution_liquidity_ladder,
     alternating_coevolution_network,
     alternating_coevolution_resource_cascade,
-    alternating_coevolution_liquidity_ladder,
     alternating_coevolution_service_backlog,
 )
 from fragility_engine.coevolution.pareto_export import (
@@ -21,8 +21,8 @@ from fragility_engine.coevolution.pareto_export import (
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_to_replay_dict
-from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
+from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld

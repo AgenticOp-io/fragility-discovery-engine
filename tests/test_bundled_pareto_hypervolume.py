@@ -23,6 +23,7 @@ FIXTURE = ROOT / "tests" / "fixtures" / "benchmarks" / "bundled_pareto_hypervolu
         "sample_pareto_resource_cascade.json",
         "sample_pareto_service_backlog.json",
         "sample_pareto_network.json",
+        "sample_pareto_liquidity_ladder.json",
     ],
 )
 def test_bundled_pareto_hypervolume_pin(filename: str) -> None:

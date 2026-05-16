@@ -7,9 +7,9 @@ import numpy as np
 from fragility_engine.adversary.encoding import decode_schedule, schedule_attack_cost
 from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
+    build_defended_liquidity_ladder_world,
     build_defended_network_world,
     build_defended_resource_cascade_world,
-    build_defended_liquidity_ladder_world,
     build_defended_service_backlog_world,
 )
 from fragility_engine.runner_resource_cascade_numba import (
@@ -18,6 +18,7 @@ from fragility_engine.runner_resource_cascade_numba import (
     should_attempt_resource_cascade_numba,
 )
 from fragility_engine.types import RolloutResult, TrajectoryStep
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld

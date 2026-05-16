@@ -12,6 +12,8 @@ import numpy as np
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.sweep import (
     sweep_aggregate_initial_panic,
+    sweep_liquidity_ladder_delever_rate,
+    sweep_liquidity_ladder_initial_margin,
     sweep_network_edge_weight,
     sweep_network_scalar_axis,
     sweep_resource_cascade_initial_overload,
@@ -20,6 +22,7 @@ from fragility_engine.explain.sweep import (
 )
 from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_peg import StablecoinPegWorld
@@ -38,14 +41,14 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
             "Sweep one scalar: aggregate initial_panic, resource_cascade initial_overload, service_backlog "
-            "initial_backlog / process_rate, or network "
+            "initial_backlog / process_rate, liquidity_ladder initial_margin / delever_rate, or network "
             "base_panic / contagion_beta / edge_weight on neighbor-list topology "
             "(fixed genome + rollout_seed). Optional linear explanation trace JSON."
         ),
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
         default="network",
     )
     ap.add_argument(
@@ -55,6 +58,8 @@ def main() -> None:
             "initial_overload",
             "initial_backlog",
             "process_rate",
+            "initial_margin",
+            "delever_rate",
             "base_panic",
             "contagion_beta",
             "edge_weight",
@@ -81,6 +86,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[service_backlog, axis process_rate] fixed reset backlog for each sweep row.",
+    )
+    ap.add_argument(
+        "--initial-margin",
+        type=float,
+        default=0.06,
+        help="[liquidity_ladder, axis delever_rate] fixed reset margin for each sweep row.",
     )
     ap.add_argument(
         "--continue-after-collapse",
@@ -126,6 +137,9 @@ def main() -> None:
     elif args.mode == "service_backlog":
         if args.axis not in ("initial_backlog", "process_rate"):
             raise SystemExit("--mode service_backlog requires --axis initial_backlog or process_rate.")
+    elif args.mode == "liquidity_ladder":
+        if args.axis not in ("initial_margin", "delever_rate"):
+            raise SystemExit("--mode liquidity_ladder requires --axis initial_margin or delever_rate.")
     elif args.axis == "initial_panic":
         raise SystemExit("--axis initial_panic requires --mode aggregate.")
     elif args.axis == "initial_overload":
@@ -134,6 +148,10 @@ def main() -> None:
         raise SystemExit("--axis initial_backlog requires --mode service_backlog.")
     elif args.axis == "process_rate":
         raise SystemExit("--axis process_rate requires --mode service_backlog.")
+    elif args.axis == "initial_margin":
+        raise SystemExit("--axis initial_margin requires --mode liquidity_ladder.")
+    elif args.axis == "delever_rate":
+        raise SystemExit("--axis delever_rate requires --mode liquidity_ladder.")
     elif args.axis == "edge_weight":
         if args.mode != "network":
             raise SystemExit("--axis edge_weight requires --mode network.")
@@ -195,6 +213,28 @@ def main() -> None:
                 values=vals,
                 rollout_seed=int(args.rollout_seed),
                 initial_backlog=float(args.initial_backlog),
+                continue_after_collapse=cont,
+            )
+    elif args.mode == "liquidity_ladder":
+        template = LiquidityLadderWorld(
+            population=default_stablecoin_population(),
+            max_steps=max(int(args.horizon), 32),
+        )
+        if args.axis == "initial_margin":
+            payload = sweep_liquidity_ladder_initial_margin(
+                genome,
+                template,
+                values=vals,
+                rollout_seed=int(args.rollout_seed),
+                continue_after_collapse=cont,
+            )
+        else:
+            payload = sweep_liquidity_ladder_delever_rate(
+                genome,
+                template,
+                values=vals,
+                rollout_seed=int(args.rollout_seed),
+                initial_margin=float(args.initial_margin),
                 continue_after_collapse=cont,
             )
     else:

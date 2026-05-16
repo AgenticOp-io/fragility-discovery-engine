@@ -37,4 +37,4 @@ Mutation-chain export remains **optional** follow-up; aggregate/network/cascade/
 - [x] Frozen bundle + `GOLDEN_METRICS` + integral band
 - [x] GA smoke + Pareto / MC / co-evolution wiring
 - [x] “Why” doc — [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md)
-- [ ] Dedicated mutation-chain spec (scope-down: counterfactual scalar shift only)
+- [x] Mutation-chain spec `liquidity-ladder-mutation-chain-spec-v1` + `export_liquidity_ladder_counterfactual_chain.py`
