@@ -1,6 +1,8 @@
 <#
 .SYNOPSIS
-  Push latest gce_pull_and_test.sh to a GCE VM and run it (git pull + pip + ruff + pytest with CI perf gate).
+  Push latest gce_configure_git_ssh.sh + gce_pull_and_test.sh to a GCE VM and run pull + test
+  (git pull + pip + ruff + pytest with CI perf gate). The SSH helper is idempotent: it writes
+  ~/.ssh/config so git to GitHub uses the deploy key without GIT_SSH_COMMAND.
 
 .DESCRIPTION
   Requires: gcloud CLI, network access, and IAM on the target project including
@@ -35,7 +37,11 @@ if (-not $Instance -or -not $Zone) {
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
+$ConfigureLocal = Join-Path $RepoRoot "scripts/gce_configure_git_ssh.sh"
 $ScriptLocal = Join-Path $RepoRoot "scripts/gce_pull_and_test.sh"
+if (-not (Test-Path $ConfigureLocal)) {
+  throw "Missing $ConfigureLocal"
+}
 if (-not (Test-Path $ScriptLocal)) {
   throw "Missing $ScriptLocal"
 }
@@ -45,10 +51,13 @@ if ($Project) {
   gcloud config set project $Project
 }
 
+Write-Host "==> gcloud compute scp -> ${Instance}:~/gce_configure_git_ssh.sh (zone=$Zone)"
+gcloud compute scp $ConfigureLocal "${Instance}:~/gce_configure_git_ssh.sh" --zone=$Zone
+
 Write-Host "==> gcloud compute scp -> ${Instance}:~/gce_pull_and_test.sh (zone=$Zone)"
 gcloud compute scp $ScriptLocal "${Instance}:~/gce_pull_and_test.sh" --zone=$Zone
 
-$remote = "bash ~/gce_pull_and_test.sh"
+$remote = "bash ~/gce_configure_git_ssh.sh && bash ~/gce_pull_and_test.sh"
 Write-Host "==> gcloud compute ssh $Instance -- $remote"
 gcloud compute ssh $Instance --zone=$Zone --command=$remote
 Write-Host "==> done."

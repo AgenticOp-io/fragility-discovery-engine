@@ -29,9 +29,43 @@ if [[ ! -d "${REPO_DIR}/.git" ]]; then
     fi
     chown ubuntu:ubuntu "${UBUNTU_KEY}"
     chmod 600 "${UBUNTU_KEY}"
-    sudo -u ubuntu mkdir -p /home/ubuntu/.ssh
-    sudo -u ubuntu bash -c "ssh-keyscan -H github.com >> /home/ubuntu/.ssh/known_hosts 2>/dev/null || true"
-    sudo -u ubuntu bash -c "export GIT_SSH_COMMAND=\"ssh -i ${UBUNTU_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new\"; git clone --depth 1 -b main \"${REPO_URL}\" \"${REPO_DIR}\""
+    sudo -u ubuntu bash <<'UBOOTSTRAP'
+set -euo pipefail
+export HOME=/home/ubuntu
+KEY="${HOME}/.ssh/gce_github_ed25519"
+MARK="# fragility-discovery-engine: gce-github-deploy"
+mkdir -p "${HOME}/.ssh"
+chmod 700 "${HOME}/.ssh"
+cfg="${HOME}/.ssh/config"
+if [[ -f "${cfg}" ]] && grep -qF "${MARK}" "${cfg}" 2>/dev/null; then
+  :
+else
+  key_abs="$(readlink -f "${KEY}" 2>/dev/null || realpath "${KEY}" 2>/dev/null || echo "${KEY}")"
+  umask 077
+  tmp="$(mktemp)"
+  {
+    echo "${MARK}"
+    echo "Host github.com"
+    echo "  HostName github.com"
+    echo "  User git"
+    echo "  IdentityFile ${key_abs}"
+    echo "  IdentitiesOnly yes"
+    echo "  StrictHostKeyChecking accept-new"
+    echo ""
+  } >"${tmp}"
+  if [[ -f "${cfg}" ]]; then
+    cat "${cfg}" >>"${tmp}"
+  fi
+  mv "${tmp}" "${cfg}"
+  chmod 600 "${cfg}"
+fi
+touch "${HOME}/.ssh/known_hosts"
+chmod 600 "${HOME}/.ssh/known_hosts"
+if ! ssh-keygen -F github.com -f "${HOME}/.ssh/known_hosts" >/dev/null 2>&1; then
+  ssh-keyscan -H github.com >>"${HOME}/.ssh/known_hosts" 2>/dev/null || true
+fi
+UBOOTSTRAP
+    sudo -u ubuntu -H git clone --depth 1 -b main "${REPO_URL}" "${REPO_DIR}"
   else
     sudo -u ubuntu git -c credential.helper= clone --depth 1 -b main "${REPO_URL}" "${REPO_DIR}"
   fi

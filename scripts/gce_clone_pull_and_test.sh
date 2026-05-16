@@ -4,6 +4,7 @@ set -euo pipefail
 export GIT_TERMINAL_PROMPT=0
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
+MARK="# fragility-discovery-engine: gce-github-deploy"
 # Private GitHub repos need a read deploy key at KEY + SSH remote; HTTPS prompts fail on headless VMs.
 if [[ -f "${KEY}" ]]; then
   REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:theorem6/fragility-discovery-engine.git}"
@@ -11,6 +12,20 @@ else
   REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/theorem6/fragility-discovery-engine.git}"
 fi
 PY="${FRAGILITY_PYTHON:-}"
+_self="${BASH_SOURCE[0]:-$0}"
+_self_dir="$(cd "$(dirname "${_self}")" && pwd)"
+
+if [[ -f "${HOME}/gce_configure_git_ssh.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "${HOME}/gce_configure_git_ssh.sh"
+  fragility_gce_ensure_github_ssh_config
+fi
+if [[ -f "${_self_dir}/gce_configure_git_ssh.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "${_self_dir}/gce_configure_git_ssh.sh"
+  fragility_gce_ensure_github_ssh_config
+fi
+
 pick_python() {
   if [[ -n "${PY}" ]] && command -v "${PY}" >/dev/null 2>&1; then echo "${PY}"; return 0; fi
   for c in python3.12 python3.11 python3; do
@@ -28,13 +43,21 @@ if [[ ! -d "${DEPLOY_DIR}/.git" ]]; then
   echo "==> clone ${REPO_URL} -> ${DEPLOY_DIR}"
   mkdir -p "$(dirname "${DEPLOY_DIR}")"
   rm -rf "${DEPLOY_DIR}"
-  if [[ -f "${KEY}" ]]; then
+  if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
     export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
   fi
   git -c credential.helper= clone --depth 1 -b main "${REPO_URL}" "${DEPLOY_DIR}"
 fi
 cd "${DEPLOY_DIR}"
-if [[ -f "${KEY}" ]]; then
+for _cfg in "${HOME}/gce_configure_git_ssh.sh" "${DEPLOY_DIR}/scripts/gce_configure_git_ssh.sh"; do
+  if [[ -f "${_cfg}" ]]; then
+    # shellcheck source=/dev/null
+    source "${_cfg}"
+    fragility_gce_ensure_github_ssh_config
+    break
+  fi
+done
+if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
   export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 fi
 git -c credential.helper= fetch origin main

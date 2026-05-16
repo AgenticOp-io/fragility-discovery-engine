@@ -134,13 +134,14 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/frozen_json_digest.py` | SHA-256 fingerprints for frozen JSON (`--json-out`) |
 | `scripts/compare_replays.py` | Print JSON diff of top-level replay metrics + **`metric_notes`** (price/headroom semantics); optional `--out` |
 | `scripts/gce_git_deploy.sh` | **Linux VM / GCE:** `git clone` or `git pull`, venv, `pip install -e ".[dev]"` — curl (public) or `scp` + [`gce_remote_git_deploy.sh`](scripts/gce_remote_git_deploy.sh) (private) |
-| `scripts/gce_clone_pull_and_test.sh` | **On VM:** clone (HTTPS or SSH if **`~/.ssh/gce_github_ed25519`** exists) + pull + **`ruff`** + **`pytest`** (CI perf gate) |
+| `scripts/gce_clone_pull_and_test.sh` | **On VM:** clone (HTTPS or SSH if **`~/.ssh/gce_github_ed25519`** exists) + **`~/.ssh/config`** helper when bundled + pull + **`ruff`** + **`pytest`** (CI perf gate) |
 | `scripts/gce_create_minimal.ps1` / `scripts/gce_create_minimal.sh` | **Bootstrap:** enable Compute API + **e2-micro** Ubuntu **24.04** VM; default **startup** installs **git**, **Python 3.12**, shallow **clone** + **`pip install -e ".[dev]"`** ([`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)) |
 | `scripts/gce_remote_git_deploy.sh` | VM-side wrapper: SSH env + apt + runs **`/tmp/gce_git_deploy.sh`** (upload both scripts for private GitHub) |
 | `scripts/gce_pull_pytest.sh` | **On VM:** pull **`main`**, `pip install -e ".[dev]"`, **`python -m pytest -q`** only (deploy key env same as `gce_git_deploy.sh`) |
 | `scripts/gce_bootstrap_pull_latest_pytest.sh` | **Bootstrap:** `scp` to VM **`/tmp/`**, then **`bash /tmp/gce_bootstrap_pull_latest_pytest.sh`** — pulls commit that adds `gce_pull_pytest.sh`, then runs it |
 | `scripts/gce_pull_and_test.sh` | **On VM:** pull **`main`**, **`pip install -e ".[dev]"`**, **`ruff`**, **`pytest`** with CI perf gate (`FRAGILITY_PERF_GATE`) — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
-| `scripts/gce_sync_vm.ps1` | **From Windows:** `scp` + **`gcloud compute ssh`** to run `gce_pull_and_test.sh`. Args **`-Instance`** / **`-Zone`** or env **`FRAGILITY_GCE_*`** (see [`GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) — single VM) |
+| `scripts/gce_configure_git_ssh.sh` | **On VM:** idempotent **`~/.ssh/config`** for **`github.com`** + deploy key (`~/.ssh/gce_github_ed25519`); avoids **`GIT_SSH_COMMAND`** on every pull — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
+| `scripts/gce_sync_vm.ps1` | **From Windows:** `scp` **`gce_configure_git_ssh.sh`** + **`gce_pull_and_test.sh`**, then **`gcloud compute ssh`** to run both. Args **`-Instance`** / **`-Zone`** or env **`FRAGILITY_GCE_*`** (see [`GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) — single VM) |
 | `scripts/generate_gce_deploy_key.ps1` | Create `.deploy/gce_github_ed25519` (+ `.pub`) for GitHub **Deploy keys** — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |

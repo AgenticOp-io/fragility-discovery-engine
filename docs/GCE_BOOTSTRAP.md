@@ -31,7 +31,7 @@ Defaults: **zone** `us-central1-a`, **name** `fragility-discovery-minimal`, **ma
 **What the startup script does** (runs automatically on first boot as **root**, log: **`/var/log/fragility-bootstrap.log`** on the VM):
 
 1. **`apt-get`** — `git`, `curl`, `ca-certificates`, `build-essential`, **`python3-venv`**, **`python3-pip`** (uses default **`python3`**, e.g. 3.11 on Debian 12 or 3.12 on Ubuntu 24.04).
-2. **`git clone`** — shallow **`main`** into **`/home/ubuntu/fragility-discovery-engine`**: HTTPS (non-interactive) by default, or **SSH** when metadata **`fragility_repo_url`** is **`git@…`** and **`/home/ubuntu/.ssh/gce_github_ed25519`** exists (private repos — provision key via image or post-boot `scp`).
+2. **`git clone`** — shallow **`main`** into **`/home/ubuntu/fragility-discovery-engine`**: HTTPS (non-interactive) by default, or **SSH** when metadata **`fragility_repo_url`** is **`git@…`** and **`/home/ubuntu/.ssh/gce_github_ed25519`** exists (private repos — provision key via image or post-boot `scp`). For SSH, the startup script writes **`~/.ssh/config`** for **`github.com`** (same marker as [`gce_configure_git_ssh.sh`](../scripts/gce_configure_git_ssh.sh)) so **`git`** does not rely on **`GIT_SSH_COMMAND`**.
 3. **`python3 -m venv .venv`** + **`pip install -e ".[dev]"`** as user **`ubuntu`**.
 
 Wait **~3–8 minutes** after `instances create` returns, then SSH and check the log:
@@ -71,7 +71,7 @@ New terminal, repo root:
 pwsh -File scripts\gce_sync_vm.ps1
 ```
 
-That uploads `gce_pull_and_test.sh` and runs **git pull**, **pip**, **ruff**, **pytest** (with the same perf gate env as CI).
+That uploads **`gce_configure_git_ssh.sh`** and **`gce_pull_and_test.sh`**, then runs **git pull**, **pip**, **ruff**, **pytest** (with the same perf gate env as CI).
 
 ## 4. Tighten security (recommended)
 

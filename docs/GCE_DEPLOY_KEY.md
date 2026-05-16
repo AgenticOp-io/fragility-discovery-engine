@@ -38,11 +38,26 @@ gcloud compute scp .deploy/gce_github_ed25519 acs-hss-server:~/.ssh/gce_github_e
 gcloud compute ssh acs-hss-server --zone=us-central1-a --command='chmod 600 ~/.ssh/gce_github_ed25519'
 ```
 
-Trust GitHub host key once:
+Trust GitHub host key once (optional if you use [`scripts/gce_configure_git_ssh.sh`](../scripts/gce_configure_git_ssh.sh), which also runs **`ssh-keyscan`** when **`github.com`** is missing from **`known_hosts`**):
 
 ```bash
 gcloud compute ssh acs-hss-server --zone=us-central1-a --command='ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null'
 ```
+
+### 3b. Persist GitHub SSH (no `GIT_SSH_COMMAND` on every pull)
+
+[`scripts/gce_configure_git_ssh.sh`](../scripts/gce_configure_git_ssh.sh) prepends a small **`Host github.com`** block to **`~/.ssh/config`** (marked with **`# fragility-discovery-engine: gce-github-deploy`**) so **`git`** uses **`~/.ssh/gce_github_ed25519`** with **`IdentitiesOnly yes`**. It is **idempotent** and safe to re-run.
+
+From your laptop (repo root):
+
+```bash
+gcloud compute scp scripts/gce_configure_git_ssh.sh INSTANCE:~/ --zone=ZONE
+gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_configure_git_ssh.sh'
+```
+
+[`scripts/gce_sync_vm.ps1`](../scripts/gce_sync_vm.ps1) uploads this script to **`~/`** automatically before running **`gce_pull_and_test.sh`**. [`scripts/gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) and [`scripts/gce_pull_pytest.sh`](../scripts/gce_pull_pytest.sh) also **source** the helper from **`~/`** or from the clone when present, and fall back to **`GIT_SSH_COMMAND`** only until **`~/.ssh/config`** contains that marker.
+
+**Override key path:** set **`FRAGILITY_GCE_DEPLOY_KEY`** before running the configure script.
 
 ## 4. Clone / deploy with SSH remote
 
@@ -109,11 +124,11 @@ pwsh -File scripts/gce_sync_vm.ps1 -Instance INSTANCE -Zone ZONE [-Project YOUR_
 Or manually:
 
 ```bash
-gcloud compute scp scripts/gce_pull_and_test.sh INSTANCE:~/ --zone=ZONE
-gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_pull_and_test.sh'
+gcloud compute scp scripts/gce_configure_git_ssh.sh scripts/gce_pull_and_test.sh INSTANCE:~/ --zone=ZONE
+gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_configure_git_ssh.sh && bash ~/gce_pull_and_test.sh'
 ```
 
-[`scripts/gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) activates **`~/fragility-discovery-engine/.venv`** (override with **`FRAGILITY_DEPLOY_DIR`**), runs **`git pull`**, **`pip install -e ".[dev]"`**, **`python -m ruff check .`**, and **`python -m pytest`** with **`FRAGILITY_PERF_GATE=1`** and **`FRAGILITY_PERF_GATE_MS=240000`** (same defaults as `.github/workflows/ci.yml`).
+[`scripts/gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) activates **`~/fragility-discovery-engine/.venv`** (override with **`FRAGILITY_DEPLOY_DIR`**), ensures GitHub SSH config when [`gce_configure_git_ssh.sh`](../scripts/gce_configure_git_ssh.sh) is available (see **§3b**), runs **`git pull`**, **`pip install -e ".[dev]"`**, **`python -m ruff check .`**, and **`python -m pytest`** with **`FRAGILITY_PERF_GATE=1`** and **`FRAGILITY_PERF_GATE_MS=240000`** (same defaults as `.github/workflows/ci.yml`).
 
 **Public repo — no `scp`:** if the VM already has a clone at **`~/fragility-discovery-engine`**, you can pipe the script from `raw.githubusercontent.com`:
 
@@ -121,7 +136,7 @@ gcloud compute ssh INSTANCE --zone=ZONE --command='bash ~/gce_pull_and_test.sh'
 gcloud compute ssh INSTANCE --zone=ZONE --command='curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_pull_and_test.sh | bash'
 ```
 
-**Private repo:** keep **`~/.ssh/gce_github_ed25519`** and the **`GIT_SSH_COMMAND`** pattern from §3—[`gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) sets that automatically when the key file exists.
+**Private repo:** install **`~/.ssh/gce_github_ed25519`** (§3), then use **`gce_configure_git_ssh.sh`** (§3b) or rely on **`GIT_SSH_COMMAND`** fallback in [`gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) until the marker is present in **`~/.ssh/config`**.
 
 ### Single VM (no `instances.list`, or name not in git)
 
@@ -147,7 +162,7 @@ Or pass flags once: `pwsh -File scripts\gce_sync_vm.ps1 -Instance YOUR_VM_NAME -
 
 ### 3. Optional: pytest-only refresh
 
-[`scripts/gce_pull_pytest.sh`](../scripts/gce_pull_pytest.sh) skips **ruff** but uses the same **perf gate** env vars as CI by default. Upload and run it the same way as `gce_pull_and_test.sh`.
+[`scripts/gce_pull_pytest.sh`](../scripts/gce_pull_pytest.sh) skips **ruff** but uses the same **perf gate** env vars as CI by default. Upload and run it the same way as **`gce_pull_and_test.sh`** (with **`gce_configure_git_ssh.sh`** first if you use manual **`scp`**).
 
 ## Rotate / revoke
 

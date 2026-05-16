@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
 # Run on GCE after scp: bash ~/gce_pull_and_test.sh
-# Uses deploy key if present (private repo); otherwise plain git pull.
+# Uses deploy key if present (private repo): ~/.ssh/config (see gce_configure_git_ssh.sh), else GIT_SSH_COMMAND fallback.
 set -euo pipefail
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
+MARK="# fragility-discovery-engine: gce-github-deploy"
+
+for _cfg in "${HOME}/gce_configure_git_ssh.sh" "${DEPLOY_DIR}/scripts/gce_configure_git_ssh.sh"; do
+  if [[ -f "${_cfg}" ]]; then
+    # shellcheck source=/dev/null
+    source "${_cfg}"
+    fragility_gce_ensure_github_ssh_config
+    break
+  fi
+done
+
 cd "${DEPLOY_DIR}"
-if [[ -f "${KEY}" ]]; then
+if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
   export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 fi
 git fetch origin main
