@@ -1,6 +1,7 @@
 """Wall-clock timing for representative rollouts (local profiling; not a regression gate).
 
-Use ``--bundle <id>`` or ``--bundle-all`` to time frozen bundles from ``fragility_engine.benchmarks.suite`` (Phase H charter in ``BOUNDARIES.md``).
+Use ``--bundle <id>`` or ``--bundle-all`` to time frozen bundles from
+``fragility_engine.benchmarks.suite`` (Phase H charter in ``BOUNDARIES.md``).
 """
 
 from __future__ import annotations
