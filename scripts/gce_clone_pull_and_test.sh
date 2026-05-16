@@ -4,7 +4,12 @@ set -euo pipefail
 export GIT_TERMINAL_PROMPT=0
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
-REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/theorem6/fragility-discovery-engine.git}"
+# Private GitHub repos need a read deploy key at KEY + SSH remote; HTTPS prompts fail on headless VMs.
+if [[ -f "${KEY}" ]]; then
+  REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:theorem6/fragility-discovery-engine.git}"
+else
+  REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/theorem6/fragility-discovery-engine.git}"
+fi
 PY="${FRAGILITY_PYTHON:-}"
 pick_python() {
   if [[ -n "${PY}" ]] && command -v "${PY}" >/dev/null 2>&1; then echo "${PY}"; return 0; fi

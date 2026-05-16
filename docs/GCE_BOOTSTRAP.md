@@ -18,6 +18,8 @@ gcloud config set project YOUR_NEW_PROJECT_ID
 
 ## 2. Create VM + first-boot install (one command)
 
+**Private repo:** GitHub may return **404** for anonymous **`curl`** / **`git clone https://…`**, or **`could not read Username`** on a headless VM. Install a **read-only deploy key** on the VM at **`~/.ssh/gce_github_ed25519`** (see [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md)). Scripts such as **`gce_clone_pull_and_test.sh`** default to **`git@github.com:theorem6/fragility-discovery-engine.git`** when that key exists.
+
 From this repo root on **Windows**:
 
 ```powershell
