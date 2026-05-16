@@ -34,6 +34,9 @@ jobs:
           FRAGILITY_PERF_GATE_MS: "240000"
         run: python -m pytest -q
 
+      - name: Frozen benchmark bundles (explicit CLI)
+        run: python scripts/run_benchmark_suite.py --validate
+
       - name: Write benchmark manifest + log summary
         run: |
           python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json --manifest-summary
@@ -43,3 +46,24 @@ jobs:
           name: benchmark-manifest-${{ github.run_id }}
           path: benchmark_manifest.json
           retention-days: 90
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build frontend
+        run: pip install build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Smoke install wheel (POSIX glob)
+        shell: bash
+        run: |
+          pip install dist/*.whl
+          python -c "import fragility_engine; print('import_ok', fragility_engine.__file__)"

@@ -32,7 +32,7 @@ def test_local_presets_schema_and_bundled_files_exist() -> None:
 
 
 def test_bundled_replay_samples_are_valid_json_with_trajectory() -> None:
-    for name in ("sample_replay.json", "sample_network_replay.json"):
+    for name in ("sample_replay.json", "sample_network_replay.json", "sample_resource_cascade_replay.json"):
         p = VIEWER_DIR / name
         obj = json.loads(p.read_text(encoding="utf-8"))
         assert isinstance(obj.get("trajectory"), list)

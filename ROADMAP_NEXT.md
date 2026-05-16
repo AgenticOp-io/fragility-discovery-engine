@@ -195,7 +195,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.md` only when you want them **normative**.
 
-**Local CI parity (shipped):** [`scripts/ci_local.sh`](../scripts/ci_local.sh) (Linux / macOS / WSL) and [`scripts/ci_local.ps1`](../scripts/ci_local.ps1) (Windows) mirror the default **test** job (`ruff` + `pytest` + perf gate env). Quick checklist: [`docs/NEXT_STEPS.md`](NEXT_STEPS.md).
+**Local CI parity (shipped):** [`scripts/ci_local.sh`](../scripts/ci_local.sh) (Linux / macOS / WSL) and [`scripts/ci_local.ps1`](../scripts/ci_local.ps1) (Windows) mirror the default **test** job (**ruff** + **pytest** + perf gate env) and run **`python scripts/run_benchmark_suite.py --validate`**. Optional **`FRAGILITY_CI_LOCAL_BUILD=1`** runs **`python -m build`** (CI **build** job). Quick checklist: [`docs/NEXT_STEPS.md`](NEXT_STEPS.md).
 
 ### Benchmark layer (Phase H charter)
 

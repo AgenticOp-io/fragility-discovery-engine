@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Local parity with .github/workflows/ci.yml "test" job (Linux/macOS/WSL Git Bash).
 # Activate your venv first, then from repo root:  bash scripts/ci_local.sh
+#
+# Optional: set FRAGILITY_CI_LOCAL_BUILD=1 to also run ``python -m build`` (matches CI ``build`` job).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -15,4 +17,9 @@ python -m ruff check .
 export FRAGILITY_PERF_GATE=1
 export FRAGILITY_PERF_GATE_MS="${FRAGILITY_PERF_GATE_MS:-240000}"
 python -m pytest -q
-echo "ci_local: OK (ruff + pytest with FRAGILITY_PERF_GATE=1)"
+python scripts/run_benchmark_suite.py --validate
+if [[ -n "${FRAGILITY_CI_LOCAL_BUILD:-}" ]]; then
+  python -m pip install -q build
+  python -m build
+fi
+echo "ci_local: OK (ruff + pytest + benchmark --validate with FRAGILITY_PERF_GATE=1)"

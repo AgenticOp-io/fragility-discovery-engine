@@ -15,7 +15,7 @@ Use this page as a **short checklist** before you change simulation code or open
 
 CI runs **Ubuntu + Windows** × Python **3.11 / 3.12** with **ruff**, **pytest**, and `FRAGILITY_PERF_GATE=1` (see `.github/workflows/ci.yml`).
 
-With your venv **activated**:
+With your venv **activated**, `ci_local` runs **ruff**, **pytest** (with the perf gate env), and **`python scripts/run_benchmark_suite.py --validate`** (frozen golden bundles). Set **`FRAGILITY_CI_LOCAL_BUILD=1`** before `ci_local` to also run **`python -m build`** (wheel/sdist smoke, same as the CI **build** job).
 
 | Platform | Command |
 |----------|---------|

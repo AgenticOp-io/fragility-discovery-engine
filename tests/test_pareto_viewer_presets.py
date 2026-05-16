@@ -31,3 +31,14 @@ def test_bundled_pareto_sample_has_archive() -> None:
     row = arch[0]
     assert "severity" in row and "attack_cost" in row
     assert "integral_instability" in row
+
+
+def test_bundled_pareto_service_backlog_sample_has_archive() -> None:
+    p = PARETO_VIEWER / "sample_pareto_service_backlog.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("schema") == "pareto-front-v1"
+    arch = obj.get("archive")
+    assert isinstance(arch, list) and len(arch) >= 1
+    row = arch[0]
+    assert "severity" in row and "attack_cost" in row
+    assert "integral_instability" in row

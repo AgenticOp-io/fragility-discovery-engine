@@ -3,6 +3,7 @@
 #   pwsh -File scripts/ci_local.ps1
 # or (Windows PowerShell 5):
 #   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ci_local.ps1
+# Optional: set env FRAGILITY_CI_LOCAL_BUILD=1 to also run ``python -m build`` (CI build job).
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path -Parent $PSScriptRoot)
 
@@ -16,4 +17,9 @@ python -m ruff check .
 $env:FRAGILITY_PERF_GATE = "1"
 if (-not $env:FRAGILITY_PERF_GATE_MS) { $env:FRAGILITY_PERF_GATE_MS = "240000" }
 python -m pytest -q
-Write-Host 'ci_local: OK (ruff + pytest with FRAGILITY_PERF_GATE=1)'
+python scripts/run_benchmark_suite.py --validate
+if ($env:FRAGILITY_CI_LOCAL_BUILD) {
+  python -m pip install -q build
+  python -m build
+}
+Write-Host 'ci_local: OK (ruff + pytest + benchmark --validate with FRAGILITY_PERF_GATE=1)'
