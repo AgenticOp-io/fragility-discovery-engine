@@ -1,6 +1,6 @@
 # Institutional composite demo (bundled JSON)
 
-**Not** a replay/Pareto viewer artifact — use **`scripts/narrate_frozen_json.py`** for human-readable summaries.
+**Not** a replay/Pareto timeline — use **`artifacts/composite_viewer/index.html`** (HTTP presets) or **`scripts/narrate_frozen_json.py`** for human-readable summaries.
 
 Bundled quad composite (`fragility-institutional-composite-v3`): same shock schedule on four decoupled kernels (aggregate peg, network, resource cascade, service backlog).
 

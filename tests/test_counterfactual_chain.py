@@ -17,6 +17,20 @@ from fragility_engine.network.contagion_graph import ContagionGraph
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
 
 
+def test_parse_chain_base_panic_step():
+    steps = parse_chain_spec_payload(
+        {
+            "schema": CHAIN_SPEC_SCHEMA,
+            "steps": [
+                {"kind": "contagion_beta", "value": 0.2},
+                {"kind": "base_panic", "value": 0.12},
+            ],
+        }
+    )
+    assert steps[1]["kind"] == "base_panic"
+    assert steps[1]["value"] == 0.12
+
+
 def test_parse_chain_edge_weights_patch():
     steps = parse_chain_spec_payload(
         {

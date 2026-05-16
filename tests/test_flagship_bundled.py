@@ -40,6 +40,14 @@ def test_flagship_bundled_pareto_hypervolume() -> None:
     assert hv == pytest.approx(_FLAGSHIP_PARETO_HV)
 
 
+def test_flagship_bundled_certificate_manifest_digest_matches_live() -> None:
+    from fragility_engine.benchmarks.manifest import build_benchmark_manifest
+
+    cert = json.loads((BUNDLED / "fragility_certificate.json").read_text(encoding="utf-8"))
+    live = build_benchmark_manifest()["golden_metrics_sha256"]
+    assert cert.get("benchmark_golden_metrics_sha256") == live
+
+
 def test_flagship_bundled_certificate_manifest_digest_link() -> None:
     cert = json.loads((BUNDLED / "fragility_certificate.json").read_text(encoding="utf-8"))
     assert cert.get("benchmark_golden_metrics_sha256") == cert["benchmark_manifest"]["golden_metrics_sha256"]

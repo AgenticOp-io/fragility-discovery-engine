@@ -2179,6 +2179,43 @@ def test_export_counterfactual_edge_weight_shift_cli(py_exe: str, tmp_path: Path
     assert payload["intervention"] == "network_neighbor_edge_weight_shift"
 
 
+def test_export_counterfactual_chain_base_panic_step_cli(py_exe: str, tmp_path: Path) -> None:
+    nb = tmp_path / "nl_bp.json"
+    nb.write_text("[[1],[0]]", encoding="utf-8")
+    spec = ROOT / "tests" / "fixtures" / "chains" / "network_contagion_base_panic_chain.json"
+    out = tmp_path / "cf_chain_bp.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--neighbor-json",
+            str(nb),
+            "--horizon",
+            "9",
+            "--seed",
+            "9102",
+            "--genome-seed",
+            "52",
+            "--base-panic",
+            "0.05",
+            "--variant-base-panic",
+            "0.99",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["variant_base_panic"] == 0.14
+    assert payload["path_trace"]["variant_base_panic"] == 0.14
+    kinds = [s["kind"] for s in payload["mutation_steps"]]
+    assert kinds == ["contagion_beta", "base_panic"]
+
+
 def test_export_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
     nb = tmp_path / "nl_chain.json"
     nb.write_text("[[1],[0]]", encoding="utf-8")

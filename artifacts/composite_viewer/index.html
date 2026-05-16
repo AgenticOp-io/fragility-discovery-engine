@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragility institutional composite viewer</title>
+  <style>
+    :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
+    body { margin: 0; padding: 16px; max-width: 960px; margin-inline: auto; }
+    h2 { font-size: 15px; margin: 18px 0 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; margin-bottom: 16px; }
+    th, td { border: 1px solid #8886; padding: 8px 10px; text-align: left; }
+    th { background: #2224; }
+    .btn { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #8886;
+      background: #2a2a30; color: #eee; cursor: pointer; }
+    .btn:hover { background: #3a3a44; }
+    #hint { font-size: 12px; opacity: 0.82; margin-bottom: 12px; line-height: 1.45; }
+    .collapsed-yes { color: #e88; }
+    .collapsed-no { color: #8c8; }
+  </style>
+</head>
+<body>
+  <strong>Institutional composite viewer</strong>
+  <div id="hint">
+    Load <code>fragility-institutional-composite-v1</code> / <strong>v2</strong> / <strong>v3</strong> JSON
+    (decoupled multi-kernel metrics, not a replay timeline). Narration:
+    <code>scripts/narrate_frozen_json.py</code>. Bar chart:
+    <code>scripts/plot_institutional_composite_bars.py</code>.
+    Replay / Pareto / attribution viewers live under <code>artifacts/replay_viewer</code>,
+    <code>artifacts/pareto_viewer</code>, <code>artifacts/attribution_viewer</code>.
+    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code>.
+  </div>
+  <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+    <button type="button" class="btn" id="btnPick">Choose JSON…</button>
+    <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <label for="presetSelect" style="font-size:13px;opacity:0.9">Presets (HTTP)</label>
+      <select id="presetSelect" aria-label="Load preset composite JSON" style="font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #8886;background:#252528;color:#eee;min-width:min(320px,100%)">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus" style="font-size:12px;opacity:0.8"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <div id="panel">Load JSON to begin.</div>
+
+  <script>
+    const BRANCH_KEYS = ['aggregate', 'network', 'resource_cascade', 'service_backlog'];
+    const panel = document.getElementById('panel');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function renderComposite(data) {
+      const sch = data.schema || '';
+      if (!String(sch).startsWith('fragility-institutional-composite-v')) {
+        panel.textContent = 'Expected fragility-institutional-composite-v1/v2/v3, got: ' + sch;
+        return;
+      }
+      const rows = [];
+      for (const k of BRANCH_KEYS) {
+        const b = data[k];
+        if (b && typeof b === 'object') rows.push([k, b]);
+      }
+      if (!rows.length) {
+        panel.textContent = 'No branch objects found in composite JSON.';
+        return;
+      }
+      let h = '<h2>' + esc(sch) + '</h2>';
+      h += '<p>genome_shape=' + esc(JSON.stringify(data.genome_shape)) + '</p>';
+      h += '<h2>Branches</h2><table><tr><th>kernel</th><th>simulation_mode</th><th>integral_instability</th><th>collapsed</th><th>attack_cost</th><th>collapse_timestep</th></tr>';
+      for (const [k, b] of rows) {
+        const col = b.collapsed ? 'collapsed-yes' : 'collapsed-no';
+        h += '<tr><td>' + esc(k) + '</td><td>' + esc(b.simulation_mode) + '</td><td>' + esc(b.integral_instability) +
+          '</td><td class="' + col + '">' + esc(b.collapsed) + '</td><td>' + esc(b.attack_cost) + '</td><td>' +
+          esc(b.collapse_timestep) + '</td></tr>';
+      }
+      h += '</table><h2>Seeds</h2><table><tr><th>field</th><th>value</th></tr>';
+      for (const [key, val] of Object.entries(data)) {
+        if (key.endsWith('_seed')) h += '<tr><td>' + esc(key) + '</td><td>' + esc(val) + '</td></tr>';
+      }
+      h += '</table>';
+      panel.innerHTML = h;
+    }
+
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try { renderComposite(JSON.parse(t)); }
+        catch (e) { panel.textContent = 'Invalid JSON: ' + e; }
+      });
+      fileInput.value = '';
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(new URL(path, document.location));
+        if (!res.ok) throw new Error(res.statusText);
+        renderComposite(await res.json());
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      try {
+        const res = await fetch('local_presets.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        presetRow.hidden = false;
+        for (const p of data.presets || []) {
+          const o = document.createElement('option');
+          o.value = p.path;
+          o.textContent = p.label;
+          presetSelect.appendChild(o);
+        }
+      } catch (_) { /* file:// */ }
+    }
+    boot();
+  </script>
+</body>
+</html>

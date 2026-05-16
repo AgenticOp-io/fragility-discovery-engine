@@ -152,6 +152,8 @@ python scripts/run_coevolution.py --mode aggregate --generations 2 --population-
 
 Open `artifacts/pareto_viewer/index.html` and load `pareto_front.json` / your `pareto.json` (see viewer folder for preset behavior).
 
+**Institutional composite** (multi-kernel metrics, not replays): `artifacts/composite_viewer/index.html` — bundled quad sample via presets; regenerate with `scripts/regenerate_bundled_viewer_samples.py`.
+
 ### 4.7 Counterfactuals and ε-sweeps
 
 ```bash

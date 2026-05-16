@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 from fragility_engine.benchmarks.suite import BUNDLE_IDS, run_bundle_rollout_once
+from fragility_engine.explain.interaction_summary import summarize_attribution_merge
 from fragility_engine.runner import rollout_to_replay_dict
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,6 +89,49 @@ def _write_attribution_samples(py: str) -> None:
         cwd=str(ROOT),
     )
     print(f"wrote {triple.relative_to(ROOT)}")
+    summary_path = ATTRIBUTION_VIEWER / "sample_triple_interaction_summary.json"
+    merge = json.loads(triple.read_text(encoding="utf-8"))
+    summary_path.write_text(
+        json.dumps(summarize_attribution_merge(merge), indent=2),
+        encoding="utf-8",
+    )
+    print(f"wrote {summary_path.relative_to(ROOT)}")
+
+
+def _write_network_chain_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    nl_path = ATTRIBUTION_VIEWER / "_regen_neighbor_list.json"
+    nl_path.write_text("[[1],[0]]", encoding="utf-8")
+    chain_path = ROOT / "tests" / "fixtures" / "chains" / "network_contagion_base_panic_chain.json"
+    out = ATTRIBUTION_VIEWER / "sample_network_chain_contagion_base_panic.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_counterfactual_chain.py"),
+            "--chain-json",
+            str(chain_path),
+            "--neighbor-json",
+            str(nl_path),
+            "--horizon",
+            "10",
+            "--seed",
+            "66501",
+            "--genome-seed",
+            "66502",
+            "--base-panic",
+            "0.05",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {out.relative_to(ROOT)}")
+    try:
+        nl_path.unlink()
+    except OSError:
+        pass
 
 
 def _write_quad_composite(py: str) -> None:
@@ -149,6 +193,7 @@ def main() -> None:
     _write_replay_samples()
     if not args.skip_attribution:
         _write_attribution_samples(py)
+        _write_network_chain_sample(py)
     if not args.skip_composite:
         _write_quad_composite(py)
     if not args.skip_flagship:

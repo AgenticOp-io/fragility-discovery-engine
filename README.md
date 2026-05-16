@@ -170,6 +170,8 @@ Static **Pareto** UI: `artifacts/pareto_viewer/index.html` — load `pareto_fron
 
 Static **attribution** UI: `artifacts/attribution_viewer/index.html` — `attribution-merge-v1` and mutation-chain path traces.
 
+Static **composite** UI: `artifacts/composite_viewer/index.html` — institutional composite v1–v3 branch metrics (HTTP presets).
+
 ## Extending
 
 - **Custom co-evolution:** implement a deterministic ``rollout_fn(schedule, seed, defender)`` and pass it to ``fragility_engine.coevolution.alternating_coevolution_rollout`` (see [`BOUNDARIES.md`](BOUNDARIES.md) Phase G).

@@ -11,6 +11,10 @@
       "path": "sample_attribution_merge_resource_cascade_triple.json"
     },
     {
+      "label": "Bundled: network chain (contagion_beta + base_panic)",
+      "path": "sample_network_chain_contagion_base_panic.json"
+    },
+    {
       "label": "Export: test_exports joint RC attribution",
       "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }
