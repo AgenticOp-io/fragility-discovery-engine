@@ -134,9 +134,34 @@ def _write_network_chain_sample(py: str) -> None:
         pass
 
 
-def _write_quad_composite(py: str) -> None:
+def _write_composite_samples(py: str) -> None:
     COMPOSITE_DEMO.mkdir(parents=True, exist_ok=True)
-    out = COMPOSITE_DEMO / "sample_quad_composite.json"
+    triple = COMPOSITE_DEMO / "sample_triple_composite.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--triple",
+            "--horizon",
+            "10",
+            "--genome-seed",
+            "334",
+            "--graph-seed",
+            "56",
+            "--aggregate-seed",
+            "7100",
+            "--network-seed",
+            "7101",
+            "--cascade-seed",
+            "7102",
+            "--out",
+            str(triple),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {triple.relative_to(ROOT)}")
+    quad = COMPOSITE_DEMO / "sample_quad_composite.json"
     subprocess.run(
         [
             py,
@@ -156,6 +181,62 @@ def _write_quad_composite(py: str) -> None:
             "7002",
             "--backlog-seed",
             "7003",
+            "--out",
+            str(quad),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {quad.relative_to(ROOT)}")
+
+
+def _write_aggregate_chain_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    chain_path = ROOT / "tests" / "fixtures" / "chains" / "aggregate_panic_depeg_chain.json"
+    out = ATTRIBUTION_VIEWER / "sample_aggregate_chain_rumor_depeg.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_aggregate_counterfactual_chain.py"),
+            "--chain-json",
+            str(chain_path),
+            "--horizon",
+            "10",
+            "--seed",
+            "66601",
+            "--genome-seed",
+            "66602",
+            "--initial-panic",
+            "0.05",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {out.relative_to(ROOT)}")
+
+
+def _write_service_backlog_chain_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    chain_path = ROOT / "tests" / "fixtures" / "chains" / "service_backlog_process_ingest_chain.json"
+    out = ATTRIBUTION_VIEWER / "sample_service_backlog_chain_process_ingest.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_service_backlog_counterfactual_chain.py"),
+            "--chain-json",
+            str(chain_path),
+            "--horizon",
+            "10",
+            "--seed",
+            "66701",
+            "--genome-seed",
+            "66702",
+            "--initial-backlog",
+            "0.065",
+            "--emit-path-trace",
             "--out",
             str(out),
         ],
@@ -194,8 +275,10 @@ def main() -> None:
     if not args.skip_attribution:
         _write_attribution_samples(py)
         _write_network_chain_sample(py)
+        _write_aggregate_chain_sample(py)
+        _write_service_backlog_chain_sample(py)
     if not args.skip_composite:
-        _write_quad_composite(py)
+        _write_composite_samples(py)
     if not args.skip_flagship:
         _write_flagship_bundled()
     print(f"OK: regenerated bundled viewer samples ({len(BUNDLE_IDS)} replay bundles)")

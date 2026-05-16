@@ -25,12 +25,12 @@
   <strong>Attribution graph viewer</strong>
   <div id="hint">
     Load <code>attribution-merge-v1</code> (<code>merge_counterfactual_attribution.py</code>) or
-    mutation-chain path traces: <code>explanation-mutation-chain-path-v1</code> (network panic) /
-    <code>explanation-mutation-chain-path-resource-cascade-v1</code> (overload), including embedded <code>path_trace</code>
-    from chain exports with <code>--emit-path-trace</code>.
-    Replay timelines: <code>artifacts/replay_viewer/index.html</code>. Pareto: <code>artifacts/pareto_viewer/index.html</code>.
-    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled merge sample; regenerate via <code>scripts/regenerate_bundled_viewer_samples.py</code>).
-    Quad composite narration: <code>artifacts/composite_demo/sample_quad_composite.json</code> + <code>narrate_frozen_json.py</code>.
+    mutation-chain path traces: network / resource-cascade / service-backlog / aggregate
+    (<code>explanation-mutation-chain-path-*-v1</code>), including embedded <code>path_trace</code> from
+    <code>--emit-path-trace</code> chain exports.
+    Replay: <code>artifacts/replay_viewer/</code>. Pareto: <code>artifacts/pareto_viewer/</code>.
+    Composite branches: <code>artifacts/composite_viewer/</code>.
+    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (regenerate: <code>scripts/regenerate_bundled_viewer_samples.py</code>).
   </div>
   <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
     <button type="button" class="btn" id="btnPick">Choose JSON…</button>

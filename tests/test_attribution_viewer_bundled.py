@@ -23,3 +23,17 @@ def test_bundled_triple_interaction_summary() -> None:
     obj = json.loads(p.read_text(encoding="utf-8"))
     assert obj.get("schema") == "attribution-interaction-summary-v1"
     assert obj.get("branch_count") == 3
+
+
+def test_bundled_aggregate_chain_path_trace() -> None:
+    p = ATTR / "sample_aggregate_chain_rumor_depeg.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("intervention") == "aggregate_mutation_chain"
+    assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-aggregate-v1"
+
+
+def test_bundled_service_backlog_chain_path_trace() -> None:
+    p = ATTR / "sample_service_backlog_chain_process_ingest.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("intervention") == "service_backlog_mutation_chain"
+    assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-service-backlog-v1"

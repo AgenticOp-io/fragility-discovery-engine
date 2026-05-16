@@ -3,6 +3,10 @@
   "note": "Paths relative to composite_viewer/. Serve repo root (python -m http.server), then open artifacts/composite_viewer/index.html. Regenerate quad sample: scripts/regenerate_bundled_viewer_samples.py",
   "presets": [
     {
+      "label": "Bundled: triple institutional composite (v2)",
+      "path": "../composite_demo/sample_triple_composite.json"
+    },
+    {
       "label": "Bundled: quad institutional composite (v3)",
       "path": "../composite_demo/sample_quad_composite.json"
     }

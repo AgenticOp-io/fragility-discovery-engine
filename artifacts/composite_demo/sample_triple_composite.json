@@ -1,0 +1,31 @@
+{
+  "schema": "fragility-institutional-composite-v2",
+  "aggregate": {
+    "integral_instability": 2.9225,
+    "collapsed": true,
+    "attack_cost": 6.22799800823889,
+    "collapse_timestep": 0,
+    "simulation_mode": "aggregate"
+  },
+  "network": {
+    "integral_instability": 2.9225,
+    "collapsed": true,
+    "attack_cost": 6.22799800823889,
+    "collapse_timestep": 0,
+    "simulation_mode": "network"
+  },
+  "resource_cascade": {
+    "integral_instability": 5.570021603013187,
+    "collapsed": true,
+    "attack_cost": 6.22799800823889,
+    "collapse_timestep": 4,
+    "simulation_mode": "resource_cascade"
+  },
+  "aggregate_seed": 7100,
+  "network_seed": 7101,
+  "resource_cascade_seed": 7102,
+  "genome_shape": [
+    10,
+    2
+  ]
+}

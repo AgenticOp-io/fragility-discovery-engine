@@ -15,6 +15,14 @@
       "path": "sample_network_chain_contagion_base_panic.json"
     },
     {
+      "label": "Bundled: aggregate chain (rumor + depeg)",
+      "path": "sample_aggregate_chain_rumor_depeg.json"
+    },
+    {
+      "label": "Bundled: service_backlog chain (process_rate + ingest)",
+      "path": "sample_service_backlog_chain_process_ingest.json"
+    },
+    {
       "label": "Export: test_exports joint RC attribution",
       "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }

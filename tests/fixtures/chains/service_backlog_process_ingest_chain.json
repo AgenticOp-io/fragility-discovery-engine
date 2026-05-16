@@ -1,0 +1,7 @@
+{
+  "schema": "service-backlog-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "process_rate", "value": 0.42},
+    {"kind": "ingest_gain", "value": 0.27}
+  ]
+}

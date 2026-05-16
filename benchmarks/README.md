@@ -32,7 +32,7 @@ python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifes
 
 Combine with **`--validate`** (and optional **`--manifest-summary`**) in one invocation so the manifest is built once and goldens are checked before CI uploads the JSON artifact.
 
-CI also runs **`python scripts/check_manifest_digest.py`** (`golden_metrics_sha256` vs `tests/fixtures/benchmarks/golden_metrics_sha256.txt`) and **`python scripts/check_manifest_inventory.py`** (bundle ids, integral bands, and digest subset vs `manifest_inventory_sha256.txt`). Update those fixtures when `GOLDEN_METRICS` or manifest inventory changes intentionally.
+CI also runs **`python scripts/check_manifest_digest.py`** (`golden_metrics_sha256` vs `tests/fixtures/benchmarks/golden_metrics_sha256.txt`), **`python scripts/check_manifest_inventory.py`** (bundle ids, integral bands, digest subset), and **`python scripts/check_flagship_bundled.py`** (checked-in `artifacts/flagship/bundled/` certificate + Pareto HV). Update fixtures when metrics or bundled flagship outputs change intentionally. CI uploads **`flagship-bundled-*`** artifacts (certificate, Pareto, best replay).
 
 One-line excerpt for CI logs or release notes (no full suite run):
 

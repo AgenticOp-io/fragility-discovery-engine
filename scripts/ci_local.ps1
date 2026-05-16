@@ -20,6 +20,7 @@ python -m pytest -q
 python scripts/run_benchmark_suite.py --validate
 python scripts/check_manifest_digest.py
 python scripts/check_manifest_inventory.py
+python scripts/check_flagship_bundled.py
 if ($env:FRAGILITY_CI_LOCAL_BUILD) {
   python -m pip install -q build
   python -m build
