@@ -1,6 +1,6 @@
 # Replay viewer (`index.html`)
 
-**Loads:** rollout JSON from `runner.rollout_to_replay_dict` (and CLIs that wrap it): `schema_version`, `trajectory`, `events_lane`, `meta`, …
+**Loads:** rollout JSON from `runner.rollout_to_replay_dict` (and CLIs that wrap it): `schema_version`, `trajectory`, `events_lane`, `meta`, … Bundled demos under this folder include **aggregate**, **network**, **resource_cascade**, and **service_backlog** (`sample_*_replay.json`) plus presets in `local_presets.json`.
 
 **Use a different surface** (this page will not chart them correctly):
 

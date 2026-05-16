@@ -34,10 +34,10 @@ jobs:
           FRAGILITY_PERF_GATE_MS: "240000"
         run: python -m pytest -q
 
-      - name: Write benchmark manifest + log summary
+      - name: Benchmark validate + manifest artifact
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
         run: |
-          python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json --manifest-summary
+          python scripts/run_benchmark_suite.py --validate --manifest-out benchmark_manifest.json --manifest-summary
 
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}

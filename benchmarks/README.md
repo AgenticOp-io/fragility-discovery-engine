@@ -29,6 +29,8 @@ Portable inventory (`benchmark-manifest-v2`: per-bundle topology, provenance, `g
 python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifest.json
 ```
 
+Combine with **`--validate`** (and optional **`--manifest-summary`**) in one invocation so the manifest is built once and goldens are checked before CI uploads the JSON artifact.
+
 One-line excerpt for CI logs or release notes (no full suite run):
 
 ```powershell

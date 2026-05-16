@@ -32,8 +32,31 @@ def test_local_presets_schema_and_bundled_files_exist() -> None:
 
 
 def test_bundled_replay_samples_are_valid_json_with_trajectory() -> None:
-    for name in ("sample_replay.json", "sample_network_replay.json", "sample_resource_cascade_replay.json"):
+    for name in (
+        "sample_replay.json",
+        "sample_network_replay.json",
+        "sample_resource_cascade_replay.json",
+        "sample_service_backlog_replay.json",
+    ):
         p = VIEWER_DIR / name
         obj = json.loads(p.read_text(encoding="utf-8"))
         assert isinstance(obj.get("trajectory"), list)
         assert obj.get("schema_version")
+
+
+def test_sample_service_backlog_replay_matches_frozen_bundle() -> None:
+    """Bundled JSON is the full replay for ``service_backlog_rollout_v1`` (pinned genome + seed)."""
+
+    from fragility_engine.benchmarks.suite import GOLDEN_METRICS, run_bundle_rollout_once
+    from fragility_engine.runner import rollout_to_replay_dict
+
+    p = VIEWER_DIR / "sample_service_backlog_replay.json"
+    on_disk = json.loads(p.read_text(encoding="utf-8"))
+    r = run_bundle_rollout_once("service_backlog_rollout_v1")
+    fresh = rollout_to_replay_dict(r)
+    assert on_disk["simulation_mode"] == "service_backlog"
+    assert on_disk["integral_instability"] == fresh["integral_instability"]
+    assert on_disk["collapsed"] == fresh["collapsed"]
+    gold = GOLDEN_METRICS["service_backlog_rollout_v1"]
+    assert on_disk["integral_instability"] == gold["integral_instability"]
+    assert on_disk["collapsed"] is gold["collapsed"]

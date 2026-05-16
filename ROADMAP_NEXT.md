@@ -264,7 +264,7 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 | Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
 | Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
 | Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | Per-bundle **metric regression** rows; manifest **diff** in CI |
-| Static viewers | Replay / Pareto / attribution UIs over HTTP | Curated **preset JSON** for demos; still no server-side simulation |
+| Static viewers | Replay / Pareto / attribution UIs over HTTP | Curated **preset JSON** for demos (bundled **service_backlog** replay + Pareto sample); still no server-side simulation |
 | Certificates | `fragility-certificate-v1`, flagship demo | Optional **manifest digest** fields linking bundle ids to certificate inputs |
 | Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Same **narration** coverage as aggregate/network where gaps exist |
 | Fork experiments | [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) policy | Named sibling packages with **schema-bumped** replay or new top-level artifacts |
