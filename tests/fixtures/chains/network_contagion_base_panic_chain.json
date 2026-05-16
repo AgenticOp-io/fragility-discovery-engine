@@ -1,0 +1,7 @@
+{
+  "schema": "network-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "contagion_beta", "value": 0.18},
+    {"kind": "base_panic", "value": 0.14}
+  ]
+}

@@ -144,7 +144,9 @@ python scripts/export_counterfactual_chain.py `
   --out artifacts/tmp_cf_chain.json
 ```
 
-Optional **`--variant-base-panic`** sets reset panic for the chain rollout only.
+Optional **`--variant-base-panic`** sets reset panic for the **final** rollout when the chain has **no** `base_panic` steps.
+
+**Multi-knob reset panic:** add a chain step `{"kind": "base_panic", "value": 0.14}` (topology unchanged). Steps apply in order; the final rollout uses the **last** `base_panic` step value. Example: [`tests/fixtures/chains/network_contagion_base_panic_chain.json`](../tests/fixtures/chains/network_contagion_base_panic_chain.json).
 
 **Path trace** (one rollout per cumulative prefix; schema **`explanation-mutation-chain-path-v1`**):
 
@@ -157,4 +159,4 @@ python scripts/export_counterfactual_chain.py `
   --out artifacts/tmp_cf_chain_trace.json
 ```
 
-Intermediate nodes use **`--base-panic`**; only the **final** node uses **`--variant-base-panic`** when set (edges record `reset_panic_from` / `reset_panic_to`).
+Intermediate nodes use baseline panic unless a prior `base_panic` step updated it; the final node uses the last `base_panic` step or **`--variant-base-panic`** when no `base_panic` steps exist (edges record `reset_panic_from` / `reset_panic_to`).

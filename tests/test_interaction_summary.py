@@ -41,3 +41,18 @@ def test_summarize_merge_sums_deltas():
 def test_summarize_merge_rejects_wrong_schema():
     with pytest.raises(ValueError, match="schema"):
         summarize_attribution_merge({"schema": "wrong"})
+
+
+def test_summarize_bundled_triple_branch_merge_sample() -> None:
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    merge = json.loads(
+        (
+            root / "artifacts/attribution_viewer/sample_attribution_merge_resource_cascade_triple.json"
+        ).read_text(encoding="utf-8")
+    )
+    s = summarize_attribution_merge(merge)
+    assert s["branch_count"] == 3
+    assert s["count_branches_with_integral_delta"] == 3

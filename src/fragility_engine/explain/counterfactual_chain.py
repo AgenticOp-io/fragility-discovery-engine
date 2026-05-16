@@ -22,6 +22,31 @@ from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 CHAIN_SPEC_SCHEMA = "network-mutation-chain-spec-v1"
 
 
+def network_reset_panic_after_steps(
+    steps: list[dict[str, Any]],
+    steps_applied: int,
+    baseline_base_panic: float,
+    *,
+    variant_base_panic: float | None = None,
+) -> float:
+    """Panic at reset after applying the first ``steps_applied`` chain steps (0 = baseline only).
+
+    ``base_panic`` steps update reset panic cumulatively (world clone unchanged). On the final
+    prefix, ``variant_base_panic`` applies only when the chain has no ``base_panic`` steps.
+    """
+
+    if steps_applied < 0 or steps_applied > len(steps):
+        raise ValueError("steps_applied out of range")
+    panic = float(baseline_base_panic)
+    for step in steps[:steps_applied]:
+        if step.get("kind") == "base_panic":
+            panic = float(step["value"])
+    if steps_applied == len(steps) and variant_base_panic is not None:
+        if not any(s.get("kind") == "base_panic" for s in steps):
+            panic = float(variant_base_panic)
+    return panic
+
+
 def parse_chain_spec_payload(obj: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Validate a chain-spec dict (typically loaded from JSON).
@@ -59,6 +84,13 @@ def parse_chain_spec_payload(obj: dict[str, Any]) -> list[dict[str, Any]]:
                     "weight": w,
                 }
             )
+        elif kind == "base_panic":
+            if "value" not in raw:
+                raise ValueError(f"steps[{i}] base_panic requires 'value'")
+            pv = float(raw["value"])
+            if pv < 0.0:
+                raise ValueError(f"steps[{i}] base_panic must be >= 0")
+            out.append({"kind": "base_panic", "value": pv})
         elif kind == "edge_weights_patch":
             edges = raw.get("edges")
             if not isinstance(edges, list) or not edges:
@@ -103,6 +135,8 @@ def apply_network_mutation_step(world: StablecoinNetworkWorld, step: dict[str, A
         base_w = neighbor_lists_explicit_weights(world)
         new_w = neighbor_edges_weight_patch_apply(base_w, nl, patches)
         return clone_stablecoin_network(world, neighbor_weights=new_w)
+    if kind == "base_panic":
+        return clone_stablecoin_network(world)
     raise ValueError(f"unknown mutation kind {kind!r}")
 
 
@@ -131,7 +165,8 @@ def counterfactual_network_mutation_chain_with_rollouts(
         raise ValueError("edge weight steps require neighbor_lists topology (not dense adjacency)")
 
     bp = float(base_panic)
-    vbp = bp if variant_base_panic is None else float(variant_base_panic)
+    vbp_opt = None if variant_base_panic is None else float(variant_base_panic)
+    vbp = network_reset_panic_after_steps(steps, len(steps), bp, variant_base_panic=vbp_opt)
 
     tv = clone_stablecoin_network(template)
     applied: list[dict[str, Any]] = []
@@ -191,7 +226,7 @@ def mutation_chain_path_rollouts(
         raise ValueError("edge weight steps require neighbor_lists topology (not dense adjacency)")
 
     bp = float(base_panic)
-    vbp = bp if variant_base_panic is None else float(variant_base_panic)
+    vbp_opt = None if variant_base_panic is None else float(variant_base_panic)
     cont = bool(continue_after_collapse)
     seed = int(rollout_seed)
 
@@ -200,14 +235,19 @@ def mutation_chain_path_rollouts(
             template,
             genome,
             seed=seed,
-            base_panic=bp,
+            base_panic=network_reset_panic_after_steps(steps, 0, bp),
             continue_after_collapse=cont,
         )
     ]
     tv = clone_stablecoin_network(template)
     for i, step in enumerate(steps):
         tv = apply_network_mutation_step(tv, step)
-        panic = bp if i < len(steps) - 1 else vbp
+        panic = network_reset_panic_after_steps(
+            steps,
+            i + 1,
+            bp,
+            variant_base_panic=vbp_opt,
+        )
         out.append(
             rollout_stablecoin_network(
                 tv,

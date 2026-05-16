@@ -18,8 +18,10 @@ $env:FRAGILITY_PERF_GATE = "1"
 if (-not $env:FRAGILITY_PERF_GATE_MS) { $env:FRAGILITY_PERF_GATE_MS = "240000" }
 python -m pytest -q
 python scripts/run_benchmark_suite.py --validate
+python scripts/check_manifest_digest.py
+python scripts/check_manifest_inventory.py
 if ($env:FRAGILITY_CI_LOCAL_BUILD) {
   python -m pip install -q build
   python -m build
 }
-Write-Host 'ci_local: OK (ruff + pytest + benchmark --validate with FRAGILITY_PERF_GATE=1)'
+Write-Host 'ci_local: OK (ruff + pytest + benchmark --validate + manifest pins; FRAGILITY_PERF_GATE=1)'

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fragility_engine.explain.counterfactual import rollout_snapshot
-from fragility_engine.explain.counterfactual_chain import CHAIN_SPEC_SCHEMA
+from fragility_engine.explain.counterfactual_chain import CHAIN_SPEC_SCHEMA, network_reset_panic_after_steps
 from fragility_engine.explain.counterfactual_chain_aggregate import AGGREGATE_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_resource_cascade import RESOURCE_CASCADE_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_service_backlog import SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA
@@ -97,10 +97,17 @@ def mutation_chain_path_to_trace(
     if not steps:
         raise ValueError("steps must be non-empty")
 
+    bp = float(baseline_base_panic)
+    vbp_opt = float(variant_base_panic)
     nodes: list[dict[str, Any]] = []
     for i, r in enumerate(rollouts):
         snap = rollout_snapshot(r)
-        panic_used = float(baseline_base_panic) if i < len(rollouts) - 1 else float(variant_base_panic)
+        panic_used = network_reset_panic_after_steps(
+            steps,
+            i,
+            bp,
+            variant_base_panic=vbp_opt if i == len(rollouts) - 1 else None,
+        )
         nodes.append(
             {
                 "id": f"chain_{i}",
@@ -112,15 +119,19 @@ def mutation_chain_path_to_trace(
         )
 
     edges: list[dict[str, Any]] = []
-    bp = float(baseline_base_panic)
-    vbp = float(variant_base_panic)
+    vbp_final = network_reset_panic_after_steps(steps, len(steps), bp, variant_base_panic=vbp_opt)
     for i in range(len(steps)):
         a = rollouts[i]
         b = rollouts[i + 1]
         di = float(b.integral_instability - a.integral_instability)
         dc = float(b.attack_cost - a.attack_cost)
-        panic_from = bp
-        panic_to = bp if i < len(steps) - 1 else vbp
+        panic_from = network_reset_panic_after_steps(steps, i, bp)
+        panic_to = network_reset_panic_after_steps(
+            steps,
+            i + 1,
+            bp,
+            variant_base_panic=vbp_opt if i + 1 == len(steps) else None,
+        )
         edges.append(
             {
                 "from": f"chain_{i}",
@@ -140,7 +151,7 @@ def mutation_chain_path_to_trace(
         "source_chain_schema": CHAIN_SPEC_SCHEMA,
         "rollout_seed": int(rollout_seed),
         "baseline_base_panic": bp,
-        "variant_base_panic": vbp,
+        "variant_base_panic": vbp_final,
         "nodes": nodes,
         "edges": edges,
     }

@@ -187,6 +187,51 @@ def test_mutation_chain_path_to_trace_smoke():
     assert tr["edges"][1]["step"]["kind"] == "edge_weight"
 
 
+def test_network_chain_contagion_beta_then_base_panic_step():
+    nl = [[1], [0]]
+    template = StablecoinNetworkWorld(
+        population=default_stablecoin_population(),
+        neighbor_lists=nl,
+        node_weights=default_whale_weights(2, whale_index=0, whale_frac=0.25),
+        contagion_beta=0.4,
+        max_steps=14,
+    )
+    genome = np.random.default_rng(21).uniform(size=(6, 2))
+    steps = [
+        {"kind": "contagion_beta", "value": 0.2},
+        {"kind": "base_panic", "value": 0.15},
+    ]
+    report, _, _ = counterfactual_network_mutation_chain_with_rollouts(
+        genome,
+        template,
+        steps=steps,
+        rollout_seed=909,
+        base_panic=0.05,
+        variant_base_panic=0.99,
+    )
+    assert report["baseline_base_panic"] == 0.05
+    assert report["variant_base_panic"] == 0.15
+    path = mutation_chain_path_rollouts(
+        genome,
+        template,
+        steps=steps,
+        rollout_seed=909,
+        base_panic=0.05,
+        variant_base_panic=0.99,
+    )
+    assert len(path) == 3
+    tr = mutation_chain_path_to_trace(
+        path,
+        steps,
+        rollout_seed=909,
+        baseline_base_panic=0.05,
+        variant_base_panic=0.99,
+    )
+    assert tr["variant_base_panic"] == 0.15
+    assert tr["edges"][1]["step"]["kind"] == "base_panic"
+    assert tr["edges"][1]["reset_panic_to"] == 0.15
+
+
 def test_mutation_chain_beta_then_edge_list_topology():
     nl = [[1], [0]]
     template = StablecoinNetworkWorld(

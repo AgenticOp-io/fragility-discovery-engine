@@ -38,6 +38,7 @@ jobs:
         run: |
           python scripts/run_benchmark_suite.py --validate --manifest-out benchmark_manifest.json --manifest-summary
           python scripts/check_manifest_digest.py
+          python scripts/check_manifest_inventory.py
 
       - uses: actions/upload-artifact@v4
         with:

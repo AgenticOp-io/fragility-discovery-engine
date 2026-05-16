@@ -338,6 +338,22 @@ def test_export_resource_cascade_triple_attribution_cli(py_exe: str, tmp_path: P
     assert len(merged["edges"]) == 3
 
 
+def test_narrate_frozen_json_service_backlog_replay_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_service_backlog_replay.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0
+    assert "service_backlog" in proc.stdout.lower() or "backlog" in proc.stdout.lower()
+
+
 def test_narrate_frozen_json_replay_cli(py_exe: str) -> None:
     proc = subprocess.run(
         [

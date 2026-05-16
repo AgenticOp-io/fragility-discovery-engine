@@ -228,7 +228,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **Static viewer (shipped):** `artifacts/attribution_viewer/index.html` for **`attribution-merge-v1`** and mutation-chain path traces.
 
-**Backlog (not gates yet):** formal Shapley-style decompositions; richer **aggregate/network** multi-step knob bundles beyond the shipped scalar shifts / merges (Phase J **resource-cascade** cumulative chains are shipped: `resource-cascade-mutation-chain-spec-v1`, `export_resource_cascade_counterfactual_chain.py`, path trace schema `explanation-mutation-chain-path-resource-cascade-v1`).
+**Backlog (not gates yet):** formal Shapley-style decompositions. **Shipped multi-knob chains:** aggregate `aggregate-mutation-chain-spec-v1`; network `network-mutation-chain-spec-v1` including **`base_panic`** steps; resource-cascade `resource-cascade-mutation-chain-spec-v1` (path traces per domain).
 
 **Earlier shipped backlog slices:**
 

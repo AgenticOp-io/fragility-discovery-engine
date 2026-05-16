@@ -18,8 +18,10 @@ export FRAGILITY_PERF_GATE=1
 export FRAGILITY_PERF_GATE_MS="${FRAGILITY_PERF_GATE_MS:-240000}"
 python -m pytest -q
 python scripts/run_benchmark_suite.py --validate
+python scripts/check_manifest_digest.py
+python scripts/check_manifest_inventory.py
 if [[ -n "${FRAGILITY_CI_LOCAL_BUILD:-}" ]]; then
   python -m pip install -q build
   python -m build
 fi
-echo "ci_local: OK (ruff + pytest + benchmark --validate with FRAGILITY_PERF_GATE=1)"
+echo "ci_local: OK (ruff + pytest + benchmark --validate + manifest pins; FRAGILITY_PERF_GATE=1)"
