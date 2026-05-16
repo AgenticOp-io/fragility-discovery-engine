@@ -140,6 +140,30 @@
       "reserve_loss": 0.0,
       "rumor": 0.0,
       "event_count": 0
+    },
+    {
+      "timestep": 22,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 23,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 24,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 25,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
     }
   ],
   "trajectory": [
@@ -617,9 +641,89 @@
         "paid_out": 0.0,
         "instability": 0.0
       }
+    },
+    {
+      "timestep": 22,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        23.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 23,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        24.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 24,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        25.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 25,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        26.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
     }
   ],
-  "steps_recorded": 22,
-  "mean_instability": 0.015286625231582047,
+  "steps_recorded": 26,
+  "mean_instability": 0.012934836734415579,
   "recovery_latency_steps": null
 }

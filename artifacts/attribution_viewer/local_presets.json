@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "note": "Paths relative to attribution_viewer/. Serve repo root (python -m http.server), then open artifacts/attribution_viewer/index.html. Regenerate bundled sample: python scripts/regenerate_bundled_viewer_samples.py",
+  "presets": [
+    {
+      "label": "Bundled: resource_cascade attribution merge",
+      "path": "sample_attribution_merge_resource_cascade.json"
+    },
+    {
+      "label": "Export: test_exports joint RC attribution",
+      "path": "../test_exports/counterfactual_resource_cascade_remove.json"
+    }
+  ]
+}

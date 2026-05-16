@@ -8,6 +8,7 @@ This folder documents **frozen deterministic bundles** implemented in code:
 
 - `fragility_engine.benchmarks.suite` — five bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, **`resource_cascade_rollout_v1`**, **`service_backlog_rollout_v1`** — Phase M third domain).
 - Golden scalars live beside the runners (`GOLDEN_METRICS`); CI asserts relaxed numerical agreement.
+- Loose **integral_instability** sanity bands (`BUNDLE_INTEGRAL_BANDS` in `suite.py`) catch gross regressions; bands are listed in `benchmark-manifest-v2` as `bundle_integral_bands`.
 
 ## Reproduce locally
 

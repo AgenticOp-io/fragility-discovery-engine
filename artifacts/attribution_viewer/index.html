@@ -29,9 +29,18 @@
     <code>explanation-mutation-chain-path-resource-cascade-v1</code> (overload), including embedded <code>path_trace</code>
     from chain exports with <code>--emit-path-trace</code>.
     Replay timelines: <code>artifacts/replay_viewer/index.html</code>. Pareto: <code>artifacts/pareto_viewer/index.html</code>.
+    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled merge sample; regenerate via <code>scripts/regenerate_bundled_viewer_samples.py</code>).
+    Quad composite narration: <code>artifacts/composite_demo/sample_quad_composite.json</code> + <code>narrate_frozen_json.py</code>.
   </div>
-  <div style="margin-bottom:12px">
+  <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
     <button type="button" class="btn" id="btnPick">Choose JSON…</button>
+    <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <label for="presetSelect" style="font-size:13px;opacity:0.9">Presets (HTTP)</label>
+      <select id="presetSelect" aria-label="Load preset attribution JSON" style="font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #8886;background:#252528;color:#eee;min-width:min(320px,100%)">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus" style="font-size:12px;opacity:0.8"></span>
+    </span>
     <input id="file" type="file" accept="application/json,.json" hidden />
   </div>
   <div id="panel">Load JSON to begin.</div>
@@ -39,12 +48,28 @@
   <script>
     const panel = document.getElementById('panel');
     const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
     document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
 
     function esc(s) {
       const d = document.createElement('div');
       d.textContent = s == null ? '' : String(s);
       return d.innerHTML;
+    }
+
+    function renderArtifact(data) {
+      const sch = data.schema;
+      if (sch === 'attribution-merge-v1') renderMerge(data);
+      else if (sch === 'explanation-mutation-chain-path-v1' || sch === 'explanation-mutation-chain-path-resource-cascade-v1')
+        renderChainPath(data);
+      else if (data.path_trace && (
+        data.path_trace.schema === 'explanation-mutation-chain-path-v1' ||
+        data.path_trace.schema === 'explanation-mutation-chain-path-resource-cascade-v1'))
+        renderChainPath(data.path_trace);
+      else panel.textContent = 'Unknown schema: ' + (sch || '(missing)') +
+        '. Expected attribution-merge-v1 or explanation-mutation-chain-path-v1 / explanation-mutation-chain-path-resource-cascade-v1.';
     }
 
     function renderMerge(data) {
@@ -73,7 +98,7 @@
     function renderChainPath(data) {
       const nodes = data.nodes || [];
       const edges = data.edges || [];
-      let h = '<h2>explanation-mutation-chain-path-v1</h2>';
+      let h = '<h2>' + esc(data.schema || 'mutation-chain-path') + '</h2>';
       h += '<p>rollout_seed=' + esc(data.rollout_seed) + ' · baseline panic=' + esc(data.baseline_base_panic) +
         ' · variant panic=' + esc(data.variant_base_panic) + '</p>';
       h += '<h2>Path</h2>';
@@ -96,23 +121,61 @@
       if (!f) return;
       f.text().then(t => {
         try {
-          const data = JSON.parse(t);
-          const sch = data.schema;
-          if (sch === 'attribution-merge-v1') renderMerge(data);
-          else if (sch === 'explanation-mutation-chain-path-v1' || sch === 'explanation-mutation-chain-path-resource-cascade-v1')
-            renderChainPath(data);
-          else if (data.path_trace && (
-            data.path_trace.schema === 'explanation-mutation-chain-path-v1' ||
-            data.path_trace.schema === 'explanation-mutation-chain-path-resource-cascade-v1'))
-            renderChainPath(data.path_trace);
-          else panel.textContent = 'Unknown schema: ' + (sch || '(missing)') +
-            '. Expected attribution-merge-v1 or explanation-mutation-chain-path-v1 / explanation-mutation-chain-path-resource-cascade-v1.';
+          renderArtifact(JSON.parse(t));
         } catch (e) {
           panel.textContent = 'Invalid JSON: ' + e;
         }
       });
       fileInput.value = '';
     });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(new URL(path, document.location));
+        if (!res.ok) throw new Error(res.statusText);
+        renderArtifact(await res.json());
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (!res.ok) return;
+        const cfg = await res.json();
+        const list = cfg.presets || [];
+        if (!list.length) return;
+        for (const p of list) {
+          if (!p.path || !p.label) continue;
+          const opt = document.createElement('option');
+          opt.value = p.path;
+          opt.textContent = p.label;
+          presetSelect.appendChild(opt);
+        }
+        presetRow.hidden = false;
+        presetRow.style.display = 'inline-flex';
+        for (let i = 0; i < list.length; i++) {
+          const path = list[i].path;
+          if (!path || !path.startsWith('sample_')) continue;
+          try {
+            const r = await fetch(new URL(path, document.location));
+            if (r.ok) {
+              renderArtifact(await r.json());
+              presetSelect.selectedIndex = i + 1;
+              presetStatus.textContent = 'Loaded';
+              return;
+            }
+          } catch (_) { /* try next */ }
+        }
+      } catch (_) { /* file:// */ }
+    }
+
+    boot();
   </script>
 </body>
 </html>

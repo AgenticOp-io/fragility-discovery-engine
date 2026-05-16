@@ -145,6 +145,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/generate_gce_deploy_key.ps1` | Create `.deploy/gce_github_ed25519` (+ `.pub`) for GitHub **Deploy keys** — see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md) |
 | `scripts/install_accelerate_windows.ps1` | Windows **amd64** CPython: `pip install -e ".[dev,accelerate]"` (finds x64 Python / `py -3.12-64`; WoA uses built-in x64 emulation — same wheels as x64 PCs) |
 | `scripts/regenerate_test_exports.ps1` / `scripts/regenerate_test_exports.sh` | Fill `artifacts/test_exports/` for browser QA (gitignored) |
+| `scripts/regenerate_bundled_viewer_samples.py` | Regenerate checked-in `artifacts/replay_viewer/sample_*`, attribution merge sample, quad composite demo JSON |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <bundle_id>`** (frozen suite IDs in [`benchmarks/README.md`](benchmarks/README.md)), **`--bundle-all`** (full suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade|service_backlog` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Frozen benchmark suite (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md), charter Phase H in [`BOUNDARIES.md`](BOUNDARIES.md) |
 | `scripts/ci_local.sh` | **Linux / macOS / WSL:** same **pip -e .[dev]**, **ruff**, **pytest** + perf gate env as `.github/workflows/ci.yml` (run with venv activated) |

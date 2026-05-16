@@ -12,7 +12,12 @@ import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
-from fragility_engine.benchmarks.suite import BUNDLE_IDS, GOLDEN_METRICS, RESULT_SCHEMA
+from fragility_engine.benchmarks.suite import (
+    BUNDLE_IDS,
+    BUNDLE_INTEGRAL_BANDS,
+    GOLDEN_METRICS,
+    RESULT_SCHEMA,
+)
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, resource_cascade_backend_benchmark_meta
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 
@@ -106,6 +111,10 @@ def build_benchmark_manifest() -> dict[str, Any]:
         "replay_schema_version": REPLAY_SCHEMA_VERSION,
         "golden_metric_field_union": gold_keys,
         "golden_metrics_sha256": _golden_metrics_digest(),
+        "bundle_integral_bands": {
+            bid: {"integral_instability_min": lo, "integral_instability_max": hi}
+            for bid, (lo, hi) in BUNDLE_INTEGRAL_BANDS.items()
+        },
         "bundle_count": len(BUNDLE_IDS),
         "resource_cascade_backend": resource_cascade_backend_benchmark_meta(rc_template),
         "provenance": {

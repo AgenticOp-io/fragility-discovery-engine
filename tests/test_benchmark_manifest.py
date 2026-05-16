@@ -23,6 +23,9 @@ def test_build_benchmark_manifest_shape():
     assert len(m["bundles"]) == len(m["bundle_ids"])
     assert all("topology" in b and "world" in b for b in m["bundles"])
     assert len(m["golden_metrics_sha256"]) == 64
+    bands = m["bundle_integral_bands"]
+    assert "service_backlog_rollout_v1" in bands
+    assert bands["service_backlog_rollout_v1"]["integral_instability_max"] == 2.0
     assert m["provenance"]["python_version"]
     assert m["provenance"]["fragility_engine_version"]
     assert "replay_schema_version" in m

@@ -187,7 +187,7 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 **Follow-ups (non-gates):**
 
 - Narration / plot parity for **quad** institutional composite JSON where gaps remain (same rule as other artifacts: deterministic summaries only).
-- Optional **preset packs** for static viewers so flagship + composite demos load without hand-picking paths (still HTTP-served; no new runtime coupling to worlds).
+- Optional **preset packs** for static viewers so flagship + composite demos load without hand-picking paths (still HTTP-served; no new runtime coupling to worlds). **Partial:** attribution viewer presets + `artifacts/composite_demo/sample_quad_composite.json`; regenerate via `scripts/regenerate_bundled_viewer_samples.py`.
 
 ---
 
@@ -201,7 +201,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | Keeps `FRAGILITY_PERF_GATE` as **latency** guardrail; new checks stay **documented + loose tolerance** like `GOLDEN_METRICS` today |
+| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | **`BUNDLE_INTEGRAL_BANDS`** + `validate_benchmark_suite()`; manifest field **`bundle_integral_bands`** |
 | **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`python scripts/run_benchmark_suite.py --manifest-summary`** prints a log-friendly excerpt; **`--manifest-out`** unchanged |
 | **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | Fits existing `hypervolume_2d_min` + pinned fixtures; avoid unbounded archive sizes |
 | **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |

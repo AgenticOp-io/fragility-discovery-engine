@@ -212,6 +212,31 @@ BUNDLE_GOLDEN_ATOL: dict[str, float] = {
     "resource_cascade_rollout_v1": 1e-6,
 }
 
+# Documented loose bands on integral_instability (not point goldens). Catches gross regressions.
+BUNDLE_INTEGRAL_BANDS: dict[str, tuple[float, float]] = {
+    "aggregate_rollout_v1": (1.5, 4.5),
+    "network_er_rollout_v1": (1.5, 4.5),
+    "network_neighbor_list_rollout_v1": (1.5, 4.5),
+    "resource_cascade_rollout_v1": (4.0, 8.5),
+    "service_backlog_rollout_v1": (0.0, 2.0),
+}
+
+
+def assert_bundle_integral_within_band(result: dict[str, Any]) -> None:
+    """Raise if ``integral_instability`` is outside :data:`BUNDLE_INTEGRAL_BANDS` for this bundle."""
+
+    bid = result["bundle_id"]
+    band = BUNDLE_INTEGRAL_BANDS.get(bid)
+    if band is None:
+        return
+    lo, hi = band
+    val = float(result["integral_instability"])
+    if not (lo <= val <= hi):
+        raise AssertionError(
+            f"{bid}: integral_instability {val} outside documented band [{lo}, {hi}] "
+            f"(golden point check uses GOLDEN_METRICS)"
+        )
+
 
 def run_benchmark_suite() -> list[dict[str, Any]]:
     """Execute every registered bundle (deterministic)."""
@@ -324,4 +349,5 @@ def run_phase_h_search_microbench(
 def validate_benchmark_suite(*, rtol: float = 1e-5, atol: float = 1e-7) -> None:
     for bid in BUNDLE_IDS:
         out = BUNDLE_RUNNERS[bid]()
+        assert_bundle_integral_within_band(out)
         assert_bundle_matches_golden(out, rtol=rtol, atol=atol)
