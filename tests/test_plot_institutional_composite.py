@@ -35,6 +35,26 @@ def test_plot_institutional_composite_bars_cli(py_exe: str, tmp_path: Path) -> N
     assert out.is_file() and out.stat().st_size > 100
 
 
+def test_export_llm_prompt_institutional_composite_triple_pack(py_exe: str, tmp_path: Path) -> None:
+    triple = ROOT / "artifacts" / "composite_demo" / "sample_triple_composite.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(triple),
+            "--prompt-pack",
+            "institutional_composite_triple_v1",
+            "--out",
+            str(tmp_path / "triple_bundle.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    bundle = json.loads((tmp_path / "triple_bundle.json").read_text(encoding="utf-8"))
+    assert bundle["prompt_pack"] == "institutional_composite_triple_v1"
+    assert "fragility-institutional-composite-v2" in bundle["user_prompt"]
+
+
 def test_export_llm_prompt_institution_composite_pack(py_exe: str, tmp_path: Path) -> None:
     proc = subprocess.run(
         [

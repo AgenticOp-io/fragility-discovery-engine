@@ -1,0 +1,15 @@
+Institutional composite export ({schema_hint}).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: In 5–8 sentences for an appendix reviewer:
+- Name the schema version and which kernels appear (aggregate, network, resource_cascade, service_backlog).
+- For each branch, note collapsed vs not and integral_instability; mention shared attack_cost is schedule encoding only.
+- Contrast branches that collapsed vs those that did not without claiming causal identification across branches.
+- State clearly this is descriptive commentary, not simulator configuration.
+
+Plain prose only.

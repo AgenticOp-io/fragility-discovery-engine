@@ -29,6 +29,7 @@ PROMPT_PACK_IDS: tuple[str, ...] = (
     "paper_appendix_v1",
     "status_digest_v1",
     "institution_composite_v1",
+    "institutional_composite_triple_v1",
 )
 
 
@@ -87,7 +88,13 @@ def build_prompt_bundle(
 
     system_prompt = _read_pack_file(pack_dir, "system.txt").strip()
     user_tpl = _read_pack_file(pack_dir, "user_template.txt")
-    user_prompt = user_tpl.format(citation_block=cite_prefix, deterministic_narration=narration.strip())
+    fmt: dict[str, str] = {
+        "citation_block": cite_prefix,
+        "deterministic_narration": narration.strip(),
+    }
+    if "{schema_hint}" in user_tpl:
+        fmt["schema_hint"] = str(data.get("schema", ""))
+    user_prompt = user_tpl.format(**fmt)
 
     disclaimer = (
         "LLM-generated prose is descriptive only. Do not parse model output into simulation inputs, "

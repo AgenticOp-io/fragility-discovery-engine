@@ -217,7 +217,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** variants | **`institution_composite_v1`** for quad/triple composite JSON |
+| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** variants | **`institution_composite_v1`** (all v1–v3); **`institutional_composite_triple_v1`** (v2/v3 appendix tone) |
 | **Plot types** | One new **plot script + style JSON** per PR where possible | **`plot_institutional_composite_bars.py`** + `fragility-plot-institutional-composite-style-v1` |
 
 ---

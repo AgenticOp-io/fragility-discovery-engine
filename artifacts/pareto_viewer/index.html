@@ -27,7 +27,8 @@
     Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code> (<code>--mode aggregate|network|resource_cascade</code>)
     or co-evolution via <code>run_coevolution.py --export-pareto-json</code> / <code>export_coevolution_pareto.py</code>.
     Axes: <strong>x = attack_cost</strong> (minimize), <strong>y = severity</strong> (maximize). Non-dominated points only (merged archive).
-    Bundled samples: <code>sample_pareto_front.json</code>, <code>sample_pareto_resource_cascade.json</code> (Phase J). <strong>Hover</strong> a point for archive index and metrics; click to pin, <kbd>←</kbd><kbd>→</kbd> to step.
+    Bundled samples: aggregate / resource_cascade / service_backlog Pareto JSON + flagship preset. Regenerate:
+    <code>python scripts/regenerate_bundled_viewer_samples.py</code> (or <code>--skip-pareto</code> to skip). <strong>Hover</strong> a point for archive index and metrics; click to pin, <kbd>←</kbd><kbd>→</kbd> to step.
     Optional URL hash (HTTP): <code>#src=sample_pareto_front.json&amp;archive=2</code> — path relative to this page; <code>archive</code> pins that index after load.
     Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled + <code>artifacts/test_exports/pareto_front.json</code> after regenerate).
     Replay trajectories: <code>artifacts/replay_viewer/index.html</code>.

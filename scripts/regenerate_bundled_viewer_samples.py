@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPLAY_VIEWER = ROOT / "artifacts" / "replay_viewer"
 ATTRIBUTION_VIEWER = ROOT / "artifacts" / "attribution_viewer"
 COMPOSITE_DEMO = ROOT / "artifacts" / "composite_demo"
+PARETO_VIEWER = ROOT / "artifacts" / "pareto_viewer"
 FLAGSHIP_BUNDLED = ROOT / "artifacts" / "flagship" / "bundled"
 
 _REPLAY_BUNDLE_MAP = {
@@ -296,6 +297,77 @@ def _write_service_backlog_chain_sample(py: str) -> None:
     print(f"wrote {out.relative_to(ROOT)}")
 
 
+def _write_pareto_samples(py: str) -> None:
+    """Small GA Pareto archives for static viewer demos (not golden bundle metrics)."""
+
+    PARETO_VIEWER.mkdir(parents=True, exist_ok=True)
+    specs = [
+        (
+            "sample_pareto_front.json",
+            [
+                "--mode",
+                "aggregate",
+                "--horizon",
+                "10",
+                "--generations",
+                "2",
+                "--population-size",
+                "10",
+                "--max-steps",
+                "28",
+                "--seed",
+                "60101",
+            ],
+        ),
+        (
+            "sample_pareto_resource_cascade.json",
+            [
+                "--mode",
+                "resource_cascade",
+                "--initial-overload",
+                "0.07",
+                "--horizon",
+                "10",
+                "--generations",
+                "2",
+                "--population-size",
+                "10",
+                "--max-steps",
+                "28",
+                "--seed",
+                "60201",
+            ],
+        ),
+        (
+            "sample_pareto_service_backlog.json",
+            [
+                "--mode",
+                "service_backlog",
+                "--initial-backlog",
+                "0.07",
+                "--horizon",
+                "10",
+                "--generations",
+                "2",
+                "--population-size",
+                "10",
+                "--max-steps",
+                "28",
+                "--seed",
+                "60301",
+            ],
+        ),
+    ]
+    for filename, extra in specs:
+        out = PARETO_VIEWER / filename
+        subprocess.run(
+            [py, str(ROOT / "scripts" / "export_pareto_front.py"), "--out", str(out), *extra],
+            check=True,
+            cwd=str(ROOT),
+        )
+        print(f"wrote {out.relative_to(ROOT)}")
+
+
 def _write_flagship_bundled() -> None:
     from fragility_engine.benchmarks.flagship import run_flagship_demo
 
@@ -319,6 +391,7 @@ def main() -> None:
     ap.add_argument("--skip-attribution", action="store_true", help="Skip attribution-merge sample.")
     ap.add_argument("--skip-composite", action="store_true", help="Skip quad composite sample.")
     ap.add_argument("--skip-flagship", action="store_true", help="Skip flagship bundled GA artifacts.")
+    ap.add_argument("--skip-pareto", action="store_true", help="Skip Pareto viewer bundled GA samples.")
     args = ap.parse_args()
     py = sys.executable
     _write_replay_samples()
@@ -330,6 +403,8 @@ def main() -> None:
         _write_service_backlog_chain_sample(py)
     if not args.skip_composite:
         _write_composite_samples(py)
+    if not args.skip_pareto:
+        _write_pareto_samples(py)
     if not args.skip_flagship:
         _write_flagship_bundled()
     print(f"OK: regenerated bundled viewer samples ({len(BUNDLE_IDS)} replay bundles)")
