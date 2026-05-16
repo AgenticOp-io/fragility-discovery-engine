@@ -26,6 +26,11 @@ def main() -> None:
         help="Write benchmark-manifest-v2 JSON (bundles + provenance + golden digest + tooling refs).",
     )
     ap.add_argument(
+        "--manifest-summary",
+        action="store_true",
+        help="Print a short manifest excerpt (bundle ids, golden digest prefix, provenance) to stdout.",
+    )
+    ap.add_argument(
         "--bench-search",
         choices=("mc", "ga"),
         default=None,
@@ -54,10 +59,14 @@ def main() -> None:
     )
     args = ap.parse_args()
 
-    if args.manifest_out is not None:
-        from fragility_engine.benchmarks.manifest import build_benchmark_manifest
+    if args.manifest_out is not None or args.manifest_summary:
+        from fragility_engine.benchmarks.manifest import build_benchmark_manifest, format_benchmark_manifest_summary
 
-        args.manifest_out.write_text(json.dumps(build_benchmark_manifest(), indent=2), encoding="utf-8")
+        manifest = build_benchmark_manifest()
+        if args.manifest_out is not None:
+            args.manifest_out.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        if args.manifest_summary:
+            print(format_benchmark_manifest_summary(manifest), end="")
 
     if args.validate:
         try:
@@ -90,6 +99,9 @@ def main() -> None:
         return
 
     if args.validate:
+        return
+
+    if args.manifest_summary and not args.json:
         return
 
     results = run_benchmark_suite()

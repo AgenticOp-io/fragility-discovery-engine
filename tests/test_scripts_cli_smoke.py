@@ -2453,6 +2453,19 @@ def test_run_benchmark_manifest_out_cli(py_exe: str, tmp_path: Path) -> None:
     assert m["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
 
+def test_run_benchmark_manifest_summary_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "run_benchmark_suite.py"), "--manifest-summary"],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert proc.stdout
+    assert "benchmark_manifest_summary" in proc.stdout
+    assert "golden_metrics_sha256=" in proc.stdout
+
+
 def test_frozen_json_digest_cli(py_exe: str, tmp_path: Path) -> None:
     j = tmp_path / "blob.json"
     j.write_text('{"x": 1}', encoding="utf-8")

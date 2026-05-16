@@ -202,7 +202,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 | Track | Intent | Notes |
 |--------|--------|--------|
 | **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | Keeps `FRAGILITY_PERF_GATE` as **latency** guardrail; new checks stay **documented + loose tolerance** like `GOLDEN_METRICS` today |
-| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | Already partially there—stretch: **diff-friendly** excerpts in CI logs or a tiny “manifest summary” CLI |
+| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`python scripts/run_benchmark_suite.py --manifest-summary`** prints a log-friendly excerpt; **`--manifest-out`** unchanged |
 | **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | Fits existing `hypervolume_2d_min` + pinned fixtures; avoid unbounded archive sizes |
 | **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |
 

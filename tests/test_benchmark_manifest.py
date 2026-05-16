@@ -1,5 +1,19 @@
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
-from fragility_engine.benchmarks.manifest import MANIFEST_SCHEMA, build_benchmark_manifest
+from fragility_engine.benchmarks.manifest import (
+    MANIFEST_SCHEMA,
+    build_benchmark_manifest,
+    format_benchmark_manifest_summary,
+)
+
+
+def test_format_benchmark_manifest_summary():
+    m = build_benchmark_manifest()
+    text = format_benchmark_manifest_summary(m)
+    assert "benchmark_manifest_summary" in text
+    assert MANIFEST_SCHEMA in text
+    assert "golden_metrics_sha256=" in text
+    assert "aggregate_rollout_v1" in text
+    assert "replay_schema_version=" in text
 
 
 def test_build_benchmark_manifest_shape():

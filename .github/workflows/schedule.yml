@@ -34,16 +34,9 @@ jobs:
           FRAGILITY_PERF_GATE_MS: "240000"
         run: python -m pytest -q
 
-      - name: Write benchmark manifest (artifact)
+      - name: Write benchmark manifest + log summary
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          from fragility_engine.benchmarks.manifest import build_benchmark_manifest
-          Path("benchmark_manifest.json").write_text(
-              json.dumps(build_benchmark_manifest(), indent=2), encoding="utf-8"
-          )
-          PY
+          python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json --manifest-summary
 
       - uses: actions/upload-artifact@v4
         with:

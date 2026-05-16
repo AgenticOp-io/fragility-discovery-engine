@@ -61,6 +61,34 @@ def _golden_metrics_digest() -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
+def format_benchmark_manifest_summary(m: dict[str, Any]) -> str:
+    """Short, log-friendly excerpt of ``build_benchmark_manifest()`` for CI / paper appendix checks."""
+
+    prov = m.get("provenance") or {}
+    gold = str(m.get("golden_metrics_sha256") or "")
+    gold_short = gold if len(gold) <= 20 else f"{gold[:16]}..."
+    rb = m.get("resource_cascade_backend") or {}
+    bids = m.get("bundle_ids") or []
+    bundle_line = ", ".join(str(b) for b in bids)
+    lines = [
+        f"benchmark_manifest_summary schema={m.get('schema')}",
+        f"  bundle_count={m.get('bundle_count')} bundles={bundle_line}",
+        f"  golden_metrics_sha256={gold_short}",
+        f"  git_commit={prov.get('git_commit') or 'unknown'}",
+        (
+            "  python={python_version} numpy={numpy_version} "
+            "fragility_engine={fragility_engine_version}"
+        ).format(
+            python_version=prov.get("python_version") or "?",
+            numpy_version=prov.get("numpy_version") or "?",
+            fragility_engine_version=prov.get("fragility_engine_version") or "?",
+        ),
+        f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
+        f"  replay_schema_version={m.get('replay_schema_version')}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def build_benchmark_manifest() -> dict[str, Any]:
     """Frozen bundle inventory + provenance for citations / CI dashboards (v2)."""
 
