@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Run on GCE (e.g. after scp): clone public repo if missing, then same as gce_pull_and_test.sh.
 set -euo pipefail
+export GIT_TERMINAL_PROMPT=0
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
 REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/theorem6/fragility-discovery-engine.git}"
@@ -25,15 +26,15 @@ if [[ ! -d "${DEPLOY_DIR}/.git" ]]; then
   if [[ -f "${KEY}" ]]; then
     export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
   fi
-  git clone --depth 1 -b main "${REPO_URL}" "${DEPLOY_DIR}"
+  git -c credential.helper= clone --depth 1 -b main "${REPO_URL}" "${DEPLOY_DIR}"
 fi
 cd "${DEPLOY_DIR}"
 if [[ -f "${KEY}" ]]; then
   export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 fi
-git fetch origin main
+git -c credential.helper= fetch origin main
 git checkout main
-git pull --ff-only origin main
+git -c credential.helper= pull --ff-only origin main
 PYBIN="$(pick_python)"
 if [[ ! -d .venv ]]; then
   "${PYBIN}" -m venv .venv
