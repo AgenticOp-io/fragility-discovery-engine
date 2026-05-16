@@ -202,7 +202,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 | Track | Intent | Notes |
 |--------|--------|--------|
 | **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | **`BUNDLE_INTEGRAL_BANDS`** + `validate_benchmark_suite()`; manifest **`bundle_integral_bands`**; digest pin via **`check_manifest_digest.py`** |
-| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`--manifest-summary`** + **`check_manifest_digest.py`** + **`check_manifest_inventory.py`** (bundle ids, integral bands, golden digest subset) |
+| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`check_manifest_summary.py`** pins log excerpt; inventory + digest checks; [`docs/BUNDLED_ARTIFACTS.md`](docs/BUNDLED_ARTIFACTS.md) |
 | **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | **Flagship bundled** `pareto_front.json` + `tests/test_flagship_bundled.py::test_flagship_bundled_pareto_hypervolume`; manifest registry entry |
 | **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |
 

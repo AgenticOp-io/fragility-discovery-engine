@@ -40,6 +40,8 @@ jobs:
           python scripts/check_manifest_digest.py
           python scripts/check_manifest_inventory.py
           python scripts/check_flagship_bundled.py
+          python scripts/check_manifest_summary.py
+          python scripts/validate_viewer_presets.py
 
       - uses: actions/upload-artifact@v4
         with:

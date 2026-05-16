@@ -21,6 +21,8 @@ python scripts/run_benchmark_suite.py --validate
 python scripts/check_manifest_digest.py
 python scripts/check_manifest_inventory.py
 python scripts/check_flagship_bundled.py
+python scripts/check_manifest_summary.py
+python scripts/validate_viewer_presets.py
 if [[ -n "${FRAGILITY_CI_LOCAL_BUILD:-}" ]]; then
   python -m pip install -q build
   python -m build

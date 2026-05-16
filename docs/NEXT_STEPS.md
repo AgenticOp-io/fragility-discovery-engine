@@ -15,7 +15,7 @@ Use this page as a **short checklist** before you change simulation code or open
 
 CI runs **Ubuntu + Windows** × Python **3.11 / 3.12** with **ruff**, **pytest**, and `FRAGILITY_PERF_GATE=1` (see `.github/workflows/ci.yml`).
 
-With your venv **activated**, `ci_local` runs **ruff**, **pytest** (with the perf gate env), **`run_benchmark_suite.py --validate`**, and manifest pins **`check_manifest_digest.py`** + **`check_manifest_inventory.py`**. Set **`FRAGILITY_CI_LOCAL_BUILD=1`** before `ci_local` to also run **`python -m build`** (wheel/sdist smoke, same as the CI **build** job).
+With your venv **activated**, `ci_local` runs **ruff**, **pytest** (with the perf gate env), **`run_benchmark_suite.py --validate`**, manifest pins (**`check_manifest_digest.py`**, **`check_manifest_inventory.py`**, **`check_manifest_summary.py`**), **`check_flagship_bundled.py`**, and **`validate_viewer_presets.py`**. Set **`FRAGILITY_CI_LOCAL_BUILD=1`** before `ci_local` to also run **`python -m build`** (wheel/sdist smoke, same as the CI **build** job). Bundled demo file map: [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md).
 
 | Platform | Command |
 |----------|---------|

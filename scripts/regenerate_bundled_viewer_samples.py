@@ -136,6 +136,28 @@ def _write_network_chain_sample(py: str) -> None:
 
 def _write_composite_samples(py: str) -> None:
     COMPOSITE_DEMO.mkdir(parents=True, exist_ok=True)
+    twin = COMPOSITE_DEMO / "sample_twin_composite.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--horizon",
+            "10",
+            "--genome-seed",
+            "335",
+            "--graph-seed",
+            "57",
+            "--network-seed",
+            "7200",
+            "--cascade-seed",
+            "7201",
+            "--out",
+            str(twin),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {twin.relative_to(ROOT)}")
     triple = COMPOSITE_DEMO / "sample_triple_composite.json"
     subprocess.run(
         [

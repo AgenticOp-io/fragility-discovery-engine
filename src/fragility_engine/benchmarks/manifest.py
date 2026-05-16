@@ -66,6 +66,13 @@ def _golden_metrics_digest() -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
+def manifest_summary_sha256(m: dict[str, Any] | None = None) -> str:
+    """SHA-256 of :func:`format_benchmark_manifest_summary` for CI drift detection."""
+
+    text = format_benchmark_manifest_summary(m if m is not None else build_benchmark_manifest())
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def format_benchmark_manifest_summary(m: dict[str, Any]) -> str:
     """Short, log-friendly excerpt of ``build_benchmark_manifest()`` for CI / paper appendix checks."""
 
@@ -161,7 +168,15 @@ def build_benchmark_manifest() -> dict[str, Any]:
             "aggregate_mutation_chain_spec": "aggregate-mutation-chain-spec-v1",
             "service_backlog_mutation_chain_spec": "service-backlog-mutation-chain-spec-v1",
             "resource_cascade_mutation_chain_spec": "resource-cascade-mutation-chain-spec-v1",
+            "network_mutation_chain_spec": "network-mutation-chain-spec-v1",
         },
+        "mutation_chain_fixtures": [
+            "tests/fixtures/chains/aggregate_panic_depeg_chain.json",
+            "tests/fixtures/chains/network_contagion_base_panic_chain.json",
+            "tests/fixtures/chains/resource_cascade_coupling_rumor_chain.json",
+            "tests/fixtures/chains/service_backlog_process_ingest_chain.json",
+        ],
+        "viewer_preset_checks": "scripts/validate_viewer_presets.py",
         "pareto_hypervolume_fixtures": [
             {
                 "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",
