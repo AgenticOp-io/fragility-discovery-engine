@@ -263,10 +263,10 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 | Robustness | Ensemble / sweeps / GA budgets / neighbor JSON bundles | Larger grids, richer theory, dashboard integration |
 | Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
 | Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
-| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | **`check_manifest_digest.py`** + **`check_manifest_inventory.py`**; integral bands in manifest |
+| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | Manifest pins + **`check_bundled_artifacts.py`** registry; flagship cert inventory check |
 | Static viewers | Replay / Pareto / attribution UIs over HTTP | **`composite_viewer/`** (v2 triple + v3 quad presets); attribution presets for network / aggregate / service_backlog chains; CI uploads **flagship-bundled** artifacts |
 | Certificates | `fragility-certificate-v1`, flagship demo | **`benchmark_golden_metrics_sha256`** + **`benchmark_bundle_ids`** on certificate when manifest embedded |
-| Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Same **narration** coverage as aggregate/network where gaps exist |
+| Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Narration + LLM packs for composite v1–v3; twin/triple prompt packs |
 | Fork experiments | [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) policy | Named sibling packages with **schema-bumped** replay or new top-level artifacts |
 
 ---

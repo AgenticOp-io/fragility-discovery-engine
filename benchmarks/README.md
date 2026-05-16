@@ -32,7 +32,7 @@ python scripts/run_benchmark_suite.py --manifest-out artifacts/benchmark_manifes
 
 Combine with **`--validate`** (and optional **`--manifest-summary`**) in one invocation so the manifest is built once and goldens are checked before CI uploads the JSON artifact.
 
-CI also runs **`check_manifest_digest.py`**, **`check_manifest_inventory.py`**, **`check_manifest_summary.py`**, **`check_flagship_bundled.py`**, and **`validate_viewer_presets.py`**. See [`docs/BUNDLED_ARTIFACTS.md`](../docs/BUNDLED_ARTIFACTS.md) for the checked-in demo file map. CI uploads **`flagship-bundled-*`** artifacts (certificate, Pareto, best replay).
+CI also runs **`check_manifest_digest.py`**, **`check_manifest_inventory.py`**, **`check_manifest_summary.py`**, **`check_flagship_bundled.py`**, **`validate_viewer_presets.py`**, and **`check_bundled_artifacts.py`**. See [`docs/BUNDLED_ARTIFACTS.md`](../docs/BUNDLED_ARTIFACTS.md) for the checked-in demo file map. CI uploads **`flagship-bundled-*`** artifacts (certificate, Pareto, best replay).
 
 One-line excerpt for CI logs or release notes (no full suite run):
 

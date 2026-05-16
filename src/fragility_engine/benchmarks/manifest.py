@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
+from fragility_engine.benchmarks.bundled_artifacts import BUNDLED_ARTIFACT_PATHS, CHAIN_FIXTURES
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
 from fragility_engine.benchmarks.suite import (
     BUNDLE_IDS,
@@ -67,13 +68,16 @@ def _golden_metrics_digest() -> str:
 
 
 def manifest_summary_sha256(m: dict[str, Any] | None = None) -> str:
-    """SHA-256 of :func:`format_benchmark_manifest_summary` for CI drift detection."""
+    """SHA-256 of pinned manifest summary excerpt (excludes ``git_commit`` for stable CI)."""
 
-    text = format_benchmark_manifest_summary(m if m is not None else build_benchmark_manifest())
+    text = format_benchmark_manifest_summary(
+        m if m is not None else build_benchmark_manifest(),
+        include_git=False,
+    )
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def format_benchmark_manifest_summary(m: dict[str, Any]) -> str:
+def format_benchmark_manifest_summary(m: dict[str, Any], *, include_git: bool = True) -> str:
     """Short, log-friendly excerpt of ``build_benchmark_manifest()`` for CI / paper appendix checks."""
 
     prov = m.get("provenance") or {}
@@ -86,18 +90,23 @@ def format_benchmark_manifest_summary(m: dict[str, Any]) -> str:
         f"benchmark_manifest_summary schema={m.get('schema')}",
         f"  bundle_count={m.get('bundle_count')} bundles={bundle_line}",
         f"  golden_metrics_sha256={gold_short}",
-        f"  git_commit={prov.get('git_commit') or 'unknown'}",
-        (
-            "  python={python_version} numpy={numpy_version} "
-            "fragility_engine={fragility_engine_version}"
-        ).format(
-            python_version=prov.get("python_version") or "?",
-            numpy_version=prov.get("numpy_version") or "?",
-            fragility_engine_version=prov.get("fragility_engine_version") or "?",
-        ),
-        f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
-        f"  replay_schema_version={m.get('replay_schema_version')}",
     ]
+    if include_git:
+        lines.append(f"  git_commit={prov.get('git_commit') or 'unknown'}")
+    lines.extend(
+        [
+            (
+                "  python={python_version} numpy={numpy_version} "
+                "fragility_engine={fragility_engine_version}"
+            ).format(
+                python_version=prov.get("python_version") or "?",
+                numpy_version=prov.get("numpy_version") or "?",
+                fragility_engine_version=prov.get("fragility_engine_version") or "?",
+            ),
+            f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
+            f"  replay_schema_version={m.get('replay_schema_version')}",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -170,13 +179,10 @@ def build_benchmark_manifest() -> dict[str, Any]:
             "resource_cascade_mutation_chain_spec": "resource-cascade-mutation-chain-spec-v1",
             "network_mutation_chain_spec": "network-mutation-chain-spec-v1",
         },
-        "mutation_chain_fixtures": [
-            "tests/fixtures/chains/aggregate_panic_depeg_chain.json",
-            "tests/fixtures/chains/network_contagion_base_panic_chain.json",
-            "tests/fixtures/chains/resource_cascade_coupling_rumor_chain.json",
-            "tests/fixtures/chains/service_backlog_process_ingest_chain.json",
-        ],
+        "mutation_chain_fixtures": list(CHAIN_FIXTURES),
+        "bundled_artifact_paths": list(BUNDLED_ARTIFACT_PATHS),
         "viewer_preset_checks": "scripts/validate_viewer_presets.py",
+        "bundled_artifact_checks": "scripts/check_bundled_artifacts.py",
         "pareto_hypervolume_fixtures": [
             {
                 "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",

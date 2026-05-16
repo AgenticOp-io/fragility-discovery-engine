@@ -35,6 +35,42 @@ def test_plot_institutional_composite_bars_cli(py_exe: str, tmp_path: Path) -> N
     assert out.is_file() and out.stat().st_size > 100
 
 
+def test_plot_institutional_composite_bars_triple_sample(py_exe: str, tmp_path: Path) -> None:
+    triple = ROOT / "artifacts" / "composite_demo" / "sample_triple_composite.json"
+    out = tmp_path / "triple_bars.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_institutional_composite_bars.py"),
+            str(triple),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert out.stat().st_size > 100
+
+
+def test_export_llm_prompt_institutional_composite_twin_pack(py_exe: str, tmp_path: Path) -> None:
+    twin = ROOT / "artifacts" / "composite_demo" / "sample_twin_composite.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(twin),
+            "--prompt-pack",
+            "institutional_composite_twin_v1",
+            "--out",
+            str(tmp_path / "twin_bundle.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    bundle = json.loads((tmp_path / "twin_bundle.json").read_text(encoding="utf-8"))
+    assert bundle["prompt_pack"] == "institutional_composite_twin_v1"
+
+
 def test_export_llm_prompt_institutional_composite_triple_pack(py_exe: str, tmp_path: Path) -> None:
     triple = ROOT / "artifacts" / "composite_demo" / "sample_triple_composite.json"
     subprocess.run(

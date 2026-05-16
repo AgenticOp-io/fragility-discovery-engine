@@ -16,6 +16,8 @@ Reserve a named slot for a **fourth** thin `World` on the same shock-schedule en
 
 **Recommendation:** choose the candidate that adds the **smallest** new state vector while still failing the “this is just aggregate with renamed labels” test.
 
+**Draft preference (not adopted):** **Liquidity ladder / margin** — scalar-friendly, distinct from peg/backlog/cascade narratives; keep scope to ≤5 archetypes and one frozen bundle if Phase N opens.
+
 ## Non-goals (unchanged charter)
 
 - No cross-`World` coupling inside `step()`.

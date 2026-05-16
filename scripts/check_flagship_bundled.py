@@ -8,6 +8,7 @@ from pathlib import Path
 
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
 from fragility_engine.benchmarks.manifest import build_benchmark_manifest
+from fragility_engine.benchmarks.manifest_inventory import manifest_inventory_sha256
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLED = ROOT / "artifacts" / "flagship" / "bundled"
@@ -31,6 +32,11 @@ def main() -> None:
         raise SystemExit(1)
     if cert["benchmark_manifest"]["golden_metrics_sha256"] != live_gold:
         print("embedded benchmark_manifest golden digest mismatch", file=sys.stderr)
+        raise SystemExit(1)
+    live_manifest = build_benchmark_manifest()
+    live_inv = manifest_inventory_sha256(live_manifest)
+    if manifest_inventory_sha256(cert["benchmark_manifest"]) != live_inv:
+        print("embedded benchmark_manifest inventory subset mismatch", file=sys.stderr)
         raise SystemExit(1)
 
     pareto = json.loads(pareto_path.read_text(encoding="utf-8"))

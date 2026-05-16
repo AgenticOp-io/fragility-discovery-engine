@@ -23,6 +23,7 @@ python scripts/check_manifest_inventory.py
 python scripts/check_flagship_bundled.py
 python scripts/check_manifest_summary.py
 python scripts/validate_viewer_presets.py
+python scripts/check_bundled_artifacts.py
 if ($env:FRAGILITY_CI_LOCAL_BUILD) {
   python -m pip install -q build
   python -m build

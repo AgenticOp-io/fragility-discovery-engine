@@ -5,6 +5,7 @@
     { "label": "Bundled: sample Pareto front", "path": "sample_pareto_front.json" },
     { "label": "Bundled: resource_cascade Pareto", "path": "sample_pareto_resource_cascade.json" },
     { "label": "Bundled: service_backlog Pareto", "path": "sample_pareto_service_backlog.json" },
+    { "label": "Bundled: network Pareto (ER-12)", "path": "sample_pareto_network.json" },
     { "label": "Flagship bundled: GA Pareto front", "path": "../flagship/bundled/pareto_front.json" },
     { "label": "Export: test_exports Pareto front", "path": "../test_exports/pareto_front.json" },
     { "label": "Export: test_exports Pareto (resource_cascade)", "path": "../test_exports/pareto_front_resource_cascade.json" }

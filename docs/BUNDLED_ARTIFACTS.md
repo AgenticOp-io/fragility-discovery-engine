@@ -22,6 +22,7 @@ python scripts/regenerate_bundled_viewer_samples.py
 | `sample_pareto_front.json` | `export_pareto_front.py --mode aggregate` (short GA) |
 | `sample_pareto_resource_cascade.json` | `--mode resource_cascade` |
 | `sample_pareto_service_backlog.json` | `--mode service_backlog` |
+| `sample_pareto_network.json` | `--mode network` (ER-12, short GA) |
 
 Preset also links `../flagship/bundled/pareto_front.json` (see flagship section).
 
@@ -57,5 +58,6 @@ Short GA run: `best_replay.json`, `pareto_front.json`, `fragility_certificate.js
 |--------|------|
 | `check_manifest_digest.py` | `GOLDEN_METRICS` digest |
 | `check_manifest_inventory.py` | bundle ids + integral bands + digest |
-| `check_manifest_summary.py` | log-friendly manifest summary text |
+| `check_manifest_summary.py` | pinned manifest summary excerpt (no `git_commit` in digest) |
 | `validate_viewer_presets.py` | bundled viewer preset paths exist |
+| `check_bundled_artifacts.py` | all paths in `bundled_artifacts.py` registry exist |

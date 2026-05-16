@@ -357,6 +357,27 @@ def _write_pareto_samples(py: str) -> None:
                 "60301",
             ],
         ),
+        (
+            "sample_pareto_network.json",
+            [
+                "--mode",
+                "network",
+                "--nodes",
+                "12",
+                "--horizon",
+                "10",
+                "--generations",
+                "2",
+                "--population-size",
+                "10",
+                "--max-steps",
+                "28",
+                "--seed",
+                "60401",
+                "--graph-seed",
+                "60402",
+            ],
+        ),
     ]
     for filename, extra in specs:
         out = PARETO_VIEWER / filename

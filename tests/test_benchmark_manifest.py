@@ -48,3 +48,6 @@ def test_build_benchmark_manifest_shape():
     assert pf[1]["path"].endswith("pinned_pareto_front_two_branch.json")
     assert pf[2]["path"].endswith("artifacts/flagship/bundled/pareto_front.json")
     assert pf[2]["case"] == "flagship_bundled_pareto_hypervolume"
+    bundled = m.get("bundled_artifact_paths")
+    assert isinstance(bundled, list) and len(bundled) >= 10
+    assert m.get("bundled_artifact_checks") == "scripts/check_bundled_artifacts.py"

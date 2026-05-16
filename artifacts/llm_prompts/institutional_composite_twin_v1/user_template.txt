@@ -1,0 +1,14 @@
+Twin institutional composite ({schema_hint}).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 3–5 sentences comparing the **network** and **resource_cascade** branches only.
+Note collapse and integral_instability per branch; shared attack_cost is schedule encoding.
+No claims about aggregate peg or service backlog (not in this export).
+Commentary only — not simulator input.
+
+Plain prose only.

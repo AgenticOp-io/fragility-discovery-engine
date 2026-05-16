@@ -161,7 +161,7 @@ python scripts/export_counterfactual.py --mode aggregate --intervention remove_s
 python scripts/counterfactual_epsilon_sweep.py --mode aggregate --axis initial_panic --json-out sweep.json
 ```
 
-Network / cascade modes and axes vary; see `export_counterfactual.py --help` and the counterfactual cookbooks in `docs/` ([`network_counterfactual_example.md`](network_counterfactual_example.md), [`aggregate_counterfactual_example.md`](aggregate_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md)).
+Network / cascade modes and axes vary; see `export_counterfactual.py --help` and the counterfactual cookbooks in `docs/` ([`network_counterfactual_example.md`](network_counterfactual_example.md), [`aggregate_counterfactual_example.md`](aggregate_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md)). Chain spec fixtures: [`CHAIN_FIXTURES.md`](CHAIN_FIXTURES.md). Bundled demo JSON map: [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md).
 
 ### 4.8 Benchmark harness (golden bundles)
 
