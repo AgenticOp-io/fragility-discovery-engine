@@ -40,15 +40,15 @@ def _write_replay_samples() -> None:
         print(f"wrote {out.relative_to(ROOT)}  integral={payload['integral_instability']:.6f}")
 
 
-def _write_attribution_sample(py: str) -> None:
+def _write_attribution_samples(py: str) -> None:
     ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
-    out = ATTRIBUTION_VIEWER / "sample_attribution_merge_resource_cascade.json"
+    joint = ATTRIBUTION_VIEWER / "sample_attribution_merge_resource_cascade.json"
     subprocess.run(
         [
             py,
             str(ROOT / "scripts" / "export_resource_cascade_joint_attribution.py"),
             "--out",
-            str(out),
+            str(joint),
             "--horizon",
             "10",
             "--seed",
@@ -61,7 +61,33 @@ def _write_attribution_sample(py: str) -> None:
         check=True,
         cwd=str(ROOT),
     )
-    print(f"wrote {out.relative_to(ROOT)}")
+    print(f"wrote {joint.relative_to(ROOT)}")
+    triple = ATTRIBUTION_VIEWER / "sample_attribution_merge_resource_cascade_triple.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_resource_cascade_triple_attribution.py"),
+            "--out",
+            str(triple),
+            "--horizon",
+            "10",
+            "--seed",
+            "66203",
+            "--genome-seed",
+            "66204",
+            "--initial-overload",
+            "0.07",
+            "--variant-initial-overload",
+            "0.11",
+            "--variant-cascade-coupling",
+            "0.35",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {triple.relative_to(ROOT)}")
 
 
 def _write_quad_composite(py: str) -> None:
@@ -122,7 +148,7 @@ def main() -> None:
     py = sys.executable
     _write_replay_samples()
     if not args.skip_attribution:
-        _write_attribution_sample(py)
+        _write_attribution_samples(py)
     if not args.skip_composite:
         _write_quad_composite(py)
     if not args.skip_flagship:

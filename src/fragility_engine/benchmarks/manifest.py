@@ -175,5 +175,11 @@ def build_benchmark_manifest() -> dict[str, Any]:
                 "pytest_module": "tests.test_pareto_front_hypervolume_fixture",
                 "case": "two_branch_front",
             },
+            {
+                "path": "artifacts/flagship/bundled/pareto_front.json",
+                "objectives_minimized": ["severity", "attack_cost"],
+                "pytest_module": "tests.test_flagship_bundled",
+                "case": "flagship_bundled_pareto_hypervolume",
+            },
         ],
     }

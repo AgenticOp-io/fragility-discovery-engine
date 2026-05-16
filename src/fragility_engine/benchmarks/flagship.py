@@ -85,11 +85,7 @@ def run_flagship_demo(
     }
     replay_path.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 
-    pareto_payload: dict[str, Any] = {
-        "schema": "pareto-front-v1",
-        "best_fitness": float(search.best_fitness),
-        "eval_workers": ew,
-        "archive": [
+    archive_rows = [
             {
                 "severity": float(p.severity),
                 "attack_cost": float(p.attack_cost),
@@ -98,8 +94,22 @@ def run_flagship_demo(
                 "genome": p.genome.tolist(),
             }
             for p in search.pareto_archive
-        ],
+    ]
+    # Fixed reference for pinned hypervolume regression (tests/test_flagship_bundled.py).
+    hv_ref: list[float] = [15.0, 15.0]
+    pareto_payload: dict[str, Any] = {
+        "schema": "pareto-front-v1",
+        "best_fitness": float(search.best_fitness),
+        "eval_workers": ew,
+        "archive": archive_rows,
         "domain": "aggregate_flagship",
+        "meta": {
+            "hypervolume_reference": hv_ref,
+            "hypervolume_policy": (
+                "Both objectives minimized (severity, attack_cost). Reference strictly worse than "
+                "archive maxima; pinned in tests/test_flagship_bundled.py."
+            ),
+        },
     }
     pareto_path.write_text(json.dumps(pareto_payload, indent=2), encoding="utf-8")
 

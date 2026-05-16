@@ -203,7 +203,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 |--------|--------|--------|
 | **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | **`BUNDLE_INTEGRAL_BANDS`** + `validate_benchmark_suite()`; manifest **`bundle_integral_bands`**; digest pin via **`check_manifest_digest.py`** |
 | **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`python scripts/run_benchmark_suite.py --manifest-summary`** prints a log-friendly excerpt; **`--manifest-out`** unchanged |
-| **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | Fits existing `hypervolume_2d_min` + pinned fixtures; avoid unbounded archive sizes |
+| **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | **Flagship bundled** `pareto_front.json` + `tests/test_flagship_bundled.py::test_flagship_bundled_pareto_hypervolume`; manifest registry entry |
 | **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |
 
 ### Explanation grammar (Phase I charter)
@@ -211,7 +211,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 | Track | Intent | Notes |
 |--------|--------|--------|
 | **Aggregate / network multi-knob chains** | Extend **cumulative** mutation chains where a single scalar shift is not enough—**still** behind explicit CLI and tests | **Aggregate:** `aggregate-mutation-chain-spec-v1`, `export_aggregate_counterfactual_chain.py`, path trace `explanation-mutation-chain-path-aggregate-v1` |
-| **Interaction summaries** | More **merge** shapes (e.g. triple-branch institutional summaries) **without** claiming Shapley identification | Keep **`attribution-interaction-summary-v1`**-style disclaimers |
+| **Interaction summaries** | More **merge** shapes (e.g. triple-branch institutional summaries) **without** claiming Shapley identification | **Triple-branch** RC merge: `export_resource_cascade_triple_attribution.py` + bundled `sample_attribution_merge_resource_cascade_triple.json`; `summarize_attribution_merge.py` unchanged |
 
 ### Narration & figures (Phase L charter)
 
@@ -236,7 +236,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 **Exit criteria (candidate — all unchecked until adoption):**
 
-- [ ] Admission memo (selected candidate, non-goals, replay contract row) checked into `docs/` and linked from `BOUNDARIES.md`.
+- [x] Admission memo (selected candidate, non-goals, replay contract row) checked into `docs/` and linked from `BOUNDARIES.md`.
 - [ ] `world/` + `runner` rollout + `rollout_to_replay_dict` compatibility table updated.
 - [ ] Determinism + replay contract tests + GA smoke CLI.
 - [ ] New **frozen** `*_rollout_v1` bundle id + `GOLDEN_METRICS` row + `tests/test_benchmark_suite.py` coverage.
@@ -265,7 +265,7 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 | Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
 | Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | **`check_manifest_digest.py`** pins `golden_metrics_sha256`; integral bands in manifest |
 | Static viewers | Replay / Pareto / attribution UIs over HTTP | Curated **preset JSON** for demos (bundled **service_backlog** replay + Pareto sample); still no server-side simulation |
-| Certificates | `fragility-certificate-v1`, flagship demo | Optional **manifest digest** fields linking bundle ids to certificate inputs |
+| Certificates | `fragility-certificate-v1`, flagship demo | **`benchmark_golden_metrics_sha256`** + **`benchmark_bundle_ids`** on certificate when manifest embedded |
 | Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Same **narration** coverage as aggregate/network where gaps exist |
 | Fork experiments | [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) policy | Named sibling packages with **schema-bumped** replay or new top-level artifacts |
 

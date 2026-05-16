@@ -87,7 +87,10 @@ def build_fragility_certificate(
         "artifact_sha256": digests,
     }
     if include_benchmark_manifest:
-        payload["benchmark_manifest"] = build_benchmark_manifest()
+        bm = build_benchmark_manifest()
+        payload["benchmark_manifest"] = bm
+        payload["benchmark_golden_metrics_sha256"] = bm.get("golden_metrics_sha256")
+        payload["benchmark_bundle_ids"] = list(bm.get("bundle_ids") or [])
     if benchmark_validation is not None:
         payload["benchmark_validation"] = benchmark_validation
     if flagship_run is not None:

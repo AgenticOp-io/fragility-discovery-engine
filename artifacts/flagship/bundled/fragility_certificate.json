@@ -3,7 +3,7 @@
   "fragility_engine_version": "0.4.0",
   "python_version": "3.12.10",
   "numpy_version": "2.4.4",
-  "git_commit": "c6fbf129308291d5f0347031ab2a38b6e7519cc6",
+  "git_commit": "7ea974579057a3e798a7dbf8b4a11435a6d5a008",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -11,7 +11,7 @@
     },
     {
       "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\pareto_front.json",
-      "sha256": "a162a8861a960698d391954b073061b00c9ce0d32534143f093628a6c2224560"
+      "sha256": "acedbc268694adc02a7cfc9698b8fd5e0aff2a2aa4956ca54e1217291cbe3030"
     }
   ],
   "benchmark_manifest": {
@@ -89,7 +89,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.4",
       "fragility_engine_version": "0.4.0",
-      "git_commit": "c6fbf129308291d5f0347031ab2a38b6e7519cc6"
+      "git_commit": "7ea974579057a3e798a7dbf8b4a11435a6d5a008"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -160,9 +160,26 @@
         ],
         "pytest_module": "tests.test_pareto_front_hypervolume_fixture",
         "case": "two_branch_front"
+      },
+      {
+        "path": "artifacts/flagship/bundled/pareto_front.json",
+        "objectives_minimized": [
+          "severity",
+          "attack_cost"
+        ],
+        "pytest_module": "tests.test_flagship_bundled",
+        "case": "flagship_bundled_pareto_hypervolume"
       }
     ]
   },
+  "benchmark_golden_metrics_sha256": "1fe44c9904007e7ac27e36c5021fb795fcbfd49e30eda382be54638de577c0bf",
+  "benchmark_bundle_ids": [
+    "aggregate_rollout_v1",
+    "network_er_rollout_v1",
+    "network_neighbor_list_rollout_v1",
+    "resource_cascade_rollout_v1",
+    "service_backlog_rollout_v1"
+  ],
   "flagship_run": {
     "mode": "aggregate_stablecoin_peg",
     "horizon": 10,
@@ -176,5 +193,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "e357effc3a3bc8cfec5e1949bbae7b8fd0fcd03493e10da46bbf79d3a8f65c4a"
+  "certificate_content_sha256": "765362b06628fd30a446e6abc31e7294321331aa1f7957fa9cefd088c6bdba66"
 }

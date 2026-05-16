@@ -305,6 +305,39 @@ def test_export_resource_cascade_joint_attribution_coupling_second_branch_cli(py
     assert "resource_cascade_cascade_coupling_shift" in ivs
 
 
+def test_export_resource_cascade_triple_attribution_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "triple_rc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_resource_cascade_triple_attribution.py"),
+            "--out",
+            str(out_json),
+            "--horizon",
+            "10",
+            "--seed",
+            "66401",
+            "--genome-seed",
+            "66402",
+            "--initial-overload",
+            "0.07",
+            "--variant-initial-overload",
+            "0.11",
+            "--variant-cascade-coupling",
+            "0.35",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    merged = json.loads(out_json.read_text(encoding="utf-8"))
+    assert merged["schema"] == "attribution-merge-v1"
+    assert merged["branch_count"] == 3
+    assert merged["meta"]["branch_count"] == 3
+    assert len(merged["edges"]) == 3
+
+
 def test_narrate_frozen_json_replay_cli(py_exe: str) -> None:
     proc = subprocess.run(
         [

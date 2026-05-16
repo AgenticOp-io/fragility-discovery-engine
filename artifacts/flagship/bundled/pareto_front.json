@@ -292,5 +292,12 @@
       ]
     }
   ],
-  "domain": "aggregate_flagship"
+  "domain": "aggregate_flagship",
+  "meta": {
+    "hypervolume_reference": [
+      15.0,
+      15.0
+    ],
+    "hypervolume_policy": "Both objectives minimized (severity, attack_cost). Reference strictly worse than archive maxima; pinned in tests/test_flagship_bundled.py."
+  }
 }

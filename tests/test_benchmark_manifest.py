@@ -43,6 +43,8 @@ def test_build_benchmark_manifest_shape():
     assert "fragility-institutional-composite-v3" in art["institutional_composite"]
     assert m["explanation_dag"]["schema"] == "explanation-dag-v1"
     pf = m["pareto_hypervolume_fixtures"]
-    assert len(pf) == 2
+    assert len(pf) == 3
     assert pf[0]["path"].endswith("pinned_pareto_front_minimal.json")
     assert pf[1]["path"].endswith("pinned_pareto_front_two_branch.json")
+    assert pf[2]["path"].endswith("artifacts/flagship/bundled/pareto_front.json")
+    assert pf[2]["case"] == "flagship_bundled_pareto_hypervolume"

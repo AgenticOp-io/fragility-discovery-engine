@@ -18,6 +18,13 @@ def test_build_fragility_certificate_schema_and_self_hash(tmp_path: Path) -> Non
     assert len(c["certificate_content_sha256"]) == 64
 
 
+def test_build_fragility_certificate_links_benchmark_manifest_digest() -> None:
+    c = build_fragility_certificate(artifact_paths=None, include_benchmark_manifest=True)
+    bm = c["benchmark_manifest"]
+    assert c["benchmark_golden_metrics_sha256"] == bm["golden_metrics_sha256"]
+    assert c["benchmark_bundle_ids"] == bm["bundle_ids"]
+
+
 def test_build_fragility_certificate_roundtrip_deterministic(tmp_path: Path) -> None:
     p = tmp_path / "y.json"
     p.write_text('{"k":"v"}', encoding="utf-8")
