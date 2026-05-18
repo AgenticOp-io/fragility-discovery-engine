@@ -69,16 +69,19 @@ def _golden_metrics_digest() -> str:
 
 
 def manifest_summary_sha256(m: dict[str, Any] | None = None) -> str:
-    """SHA-256 of pinned manifest summary excerpt (excludes ``git_commit`` for stable CI)."""
+    """SHA-256 of pinned manifest summary excerpt (excludes environment-specific fields for stable CI)."""
 
     text = format_benchmark_manifest_summary(
         m if m is not None else build_benchmark_manifest(),
         include_git=False,
+        include_runtime=False,
     )
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def format_benchmark_manifest_summary(m: dict[str, Any], *, include_git: bool = True) -> str:
+def format_benchmark_manifest_summary(
+    m: dict[str, Any], *, include_git: bool = True, include_runtime: bool = True
+) -> str:
     """Short, log-friendly excerpt of ``build_benchmark_manifest()`` for CI / paper appendix checks."""
 
     prov = m.get("provenance") or {}
@@ -94,20 +97,21 @@ def format_benchmark_manifest_summary(m: dict[str, Any], *, include_git: bool = 
     ]
     if include_git:
         lines.append(f"  git_commit={prov.get('git_commit') or 'unknown'}")
-    lines.extend(
-        [
-            (
-                "  python={python_version} numpy={numpy_version} "
-                "fragility_engine={fragility_engine_version}"
-            ).format(
-                python_version=prov.get("python_version") or "?",
-                numpy_version=prov.get("numpy_version") or "?",
-                fragility_engine_version=prov.get("fragility_engine_version") or "?",
-            ),
-            f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
-            f"  replay_schema_version={m.get('replay_schema_version')}",
-        ]
-    )
+    if include_runtime:
+        lines.extend(
+            [
+                (
+                    "  python={python_version} numpy={numpy_version} "
+                    "fragility_engine={fragility_engine_version}"
+                ).format(
+                    python_version=prov.get("python_version") or "?",
+                    numpy_version=prov.get("numpy_version") or "?",
+                    fragility_engine_version=prov.get("fragility_engine_version") or "?",
+                ),
+                f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
+            ]
+        )
+    lines.append(f"  replay_schema_version={m.get('replay_schema_version')}")
     return "\n".join(lines) + "\n"
 
 
