@@ -240,6 +240,79 @@ def test_export_counterfactual_service_backlog_backlog_shift_cli(py_exe: str, tm
     assert payload["intervention"] == "service_backlog_initial_backlog_shift"
 
 
+def test_export_counterfactual_liquidity_ladder_remove_steps_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_ll_rm.json"
+    rep = tmp_path / "rep_ll"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--horizon",
+            "10",
+            "--remove",
+            "0,1",
+            "--seed",
+            "7801",
+            "--genome-seed",
+            "24",
+            "--initial-margin",
+            "0.065",
+            "--out",
+            str(out),
+            "--export-replay-dir",
+            str(rep),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["meta"]["mode"] == "liquidity_ladder"
+    assert payload["meta"]["domain"] == "liquidity_ladder"
+    assert payload["meta"]["initial_margin"] == pytest.approx(0.065)
+    b = json.loads((rep / "baseline.json").read_text(encoding="utf-8"))
+    assert b["simulation_mode"] == "liquidity_ladder"
+    assert b["meta"]["domain"] == "liquidity_ladder"
+    assert b["meta"]["initial_margin"] == pytest.approx(0.065)
+
+
+def test_export_counterfactual_liquidity_ladder_margin_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_ll_im.json"
+    rep = tmp_path / "rep_ll_im"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--horizon",
+            "11",
+            "--intervention",
+            "initial_margin_shift",
+            "--initial-margin",
+            "0.07",
+            "--variant-initial-margin",
+            "0.12",
+            "--seed",
+            "7802",
+            "--genome-seed",
+            "25",
+            "--out",
+            str(out),
+            "--export-replay-dir",
+            str(rep),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "liquidity_ladder_initial_margin_shift"
+    c = json.loads((rep / "counterfactual.json").read_text(encoding="utf-8"))
+    assert c["meta"]["baseline_initial_margin"] == pytest.approx(0.07)
+    assert c["meta"]["variant_initial_margin"] == pytest.approx(0.12)
+
+
 def test_export_resource_cascade_joint_attribution_cli(py_exe: str, tmp_path: Path) -> None:
     out_json = tmp_path / "joint_rc.json"
     subprocess.run(
@@ -881,6 +954,34 @@ def test_run_mc_demo_service_backlog_smoke(py_exe: str, tmp_path: Path) -> None:
     assert data["meta"]["initial_backlog"] == pytest.approx(0.055)
 
 
+def test_run_mc_demo_liquidity_ladder_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "mc_ll.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_mc_demo.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--samples",
+            "8",
+            "--horizon",
+            "9",
+            "--seed",
+            "9292",
+            "--initial-margin",
+            "0.064",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "liquidity_ladder"
+    assert data["meta"]["simulation_mode"] == "liquidity_ladder"
+    assert data["meta"]["initial_margin"] == pytest.approx(0.064)
+
+
 def test_run_mc_demo_eval_workers_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "mc_par.json"
     subprocess.run(
@@ -1095,6 +1196,34 @@ def test_run_service_backlog_ga_demo_exports_replay(py_exe: str, tmp_path: Path)
     assert data["simulation_mode"] == "service_backlog"
     assert data["meta"]["cli"] == "run_service_backlog_ga_demo"
     assert data["meta"]["domain"] == "service_backlog"
+    assert data["trajectory"]
+
+
+def test_run_liquidity_ladder_ga_demo_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "ll_ga.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_liquidity_ladder_ga_demo.py"),
+            "--generations",
+            "2",
+            "--population-size",
+            "8",
+            "--seed",
+            "939",
+            "--initial-margin",
+            "0.066",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "liquidity_ladder"
+    assert data["meta"]["cli"] == "run_liquidity_ladder_ga_demo"
+    assert data["meta"]["domain"] == "liquidity_ladder"
+    assert data["meta"]["initial_margin"] == pytest.approx(0.066)
     assert data["trajectory"]
 
 
@@ -1448,6 +1577,37 @@ def test_benchmark_rollout_bundle_all_cli(py_exe: str) -> None:
     assert suite["resource_cascade_backend"]["resource_cascade_backend_effective"] in ("numpy", "numba")
 
 
+def test_benchmark_rollout_liquidity_ladder_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--max-steps",
+            "14",
+            "--horizon",
+            "9",
+            "--initial-margin",
+            "0.067",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["workflow"] == "ad_hoc"
+    assert data["mode"] == "liquidity_ladder"
+    assert data["initial_margin"] == pytest.approx(0.067)
+    assert data["nodes"] is None
+
+
 def test_export_replay_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "rc_rep.json"
     subprocess.run(
@@ -1504,6 +1664,35 @@ def test_export_replay_service_backlog_smoke(py_exe: str, tmp_path: Path) -> Non
     assert data["meta"]["cli"] == "export_replay"
     assert data["meta"]["domain"] == "service_backlog"
     assert data["meta"]["initial_backlog"] == pytest.approx(0.07)
+
+
+def test_export_replay_liquidity_ladder_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "ll_rep.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--out",
+            str(out),
+            "--horizon",
+            "11",
+            "--seed",
+            "551",
+            "--genome-seed",
+            "552",
+            "--initial-margin",
+            "0.072",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "liquidity_ladder"
+    assert data["meta"]["cli"] == "export_replay"
+    assert data["meta"]["domain"] == "liquidity_ladder"
+    assert data["meta"]["initial_margin"] == pytest.approx(0.072)
 
 
 def test_export_replay_network_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
@@ -1874,6 +2063,44 @@ def test_run_coevolution_service_backlog_exports_replay(py_exe: str, tmp_path: P
     assert data["meta"]["coevolution_mode"] == "service_backlog"
 
 
+def test_run_coevolution_liquidity_ladder_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "coev_ll.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "30",
+            "--initial-margin",
+            "0.065",
+            "--attacker-horizon",
+            "10",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "818818",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "liquidity_ladder"
+    assert data["meta"]["coevolution_mode"] == "liquidity_ladder"
+    assert data["meta"]["initial_margin"] == pytest.approx(0.065)
+
+
 def test_export_pareto_front_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "pf_rc.json"
     subprocess.run(
@@ -1936,6 +2163,44 @@ def test_export_pareto_front_service_backlog_smoke(py_exe: str, tmp_path: Path) 
     assert data["schema"] == "pareto-front-v1"
     assert data["domain"] == "service_backlog"
     assert data["initial_backlog"] == pytest.approx(0.07)
+
+
+def test_export_pareto_front_liquidity_ladder_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_ll.json"
+    replay = tmp_path / "pf_ll_replay.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--out",
+            str(out),
+            "--export-replay",
+            str(replay),
+            "--initial-margin",
+            "0.07",
+            "--horizon",
+            "10",
+            "--generations",
+            "2",
+            "--population-size",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "636636",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert data["domain"] == "liquidity_ladder"
+    assert data["initial_margin"] == pytest.approx(0.07)
+    replay_data = json.loads(replay.read_text(encoding="utf-8"))
+    assert replay_data["simulation_mode"] == "liquidity_ladder"
+    assert replay_data["meta"]["initial_margin"] == pytest.approx(0.07)
 
 
 def test_export_pareto_front_neighbor_json_smoke(py_exe: str, tmp_path: Path) -> None:
@@ -2334,6 +2599,52 @@ def test_export_service_backlog_counterfactual_chain_cli(py_exe: str, tmp_path: 
     assert len(payload["mutation_steps"]) == 2
     assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-service-backlog-v1"
     assert len(payload["path_trace"]["edges"]) == 2
+
+
+def test_export_liquidity_ladder_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    spec = tmp_path / "ll_chain.json"
+    spec.write_text(
+        '{"schema": "liquidity-ladder-mutation-chain-spec-v1", "steps": ['
+        '{"kind": "delever_rate", "value": 0.27}, '
+        '{"kind": "haircut_damage", "value": 0.16}'
+        "]}",
+        encoding="utf-8",
+    )
+    out = tmp_path / "cf_ll_chain.json"
+    rep = tmp_path / "ll_chain_replays"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_liquidity_ladder_counterfactual_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--horizon",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "9106",
+            "--genome-seed",
+            "55",
+            "--initial-margin",
+            "0.06",
+            "--variant-initial-margin",
+            "0.09",
+            "--emit-path-trace",
+            "--export-replay-dir",
+            str(rep),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "liquidity_ladder_mutation_chain"
+    assert len(payload["mutation_steps"]) == 2
+    assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-liquidity-ladder-v1"
+    baseline = json.loads((rep / "baseline.json").read_text(encoding="utf-8"))
+    assert baseline["simulation_mode"] == "liquidity_ladder"
 
 
 def test_export_aggregate_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
@@ -2758,6 +3069,41 @@ def test_counterfactual_epsilon_sweep_liquidity_ladder_cli(py_exe: str, tmp_path
     assert data["schema"] == "counterfactual-epsilon-sweep-v1"
     assert data["mode"] == "liquidity_ladder"
     assert data["axis"] == "initial_margin"
+    assert data["summary"]["count"] == 3
+
+
+def test_counterfactual_epsilon_sweep_liquidity_ladder_delever_rate_cli(
+    py_exe: str, tmp_path: Path
+) -> None:
+    out = tmp_path / "eps_ll_delever.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--axis",
+            "delever_rate",
+            "--values",
+            "0.08,0.16,0.24",
+            "--initial-margin",
+            "0.07",
+            "--horizon",
+            "10",
+            "--rollout-seed",
+            "99561",
+            "--genome-seed",
+            "99562",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "counterfactual-epsilon-sweep-v1"
+    assert data["mode"] == "liquidity_ladder"
+    assert data["axis"] == "delever_rate"
     assert data["summary"]["count"] == 3
 
 

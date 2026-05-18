@@ -26,10 +26,12 @@ Schema **0.4.x** unchanged unless a future bump is justified.
 | MC | `scripts/run_mc_demo.py --mode liquidity_ladder` |
 | Co-evolution | `scripts/run_coevolution.py --mode liquidity_ladder` |
 | Bench timing | `scripts/benchmark_rollout.py --mode liquidity_ladder` |
+| Replay export | `scripts/export_replay.py --mode liquidity_ladder` |
 | Counterfactual | `scripts/export_counterfactual.py` (`liquidity_ladder_initial_margin_shift`) |
 | ε-sweep | `scripts/counterfactual_epsilon_sweep.py` (`--mode liquidity_ladder`) |
+| Mutation chain | `scripts/export_liquidity_ladder_counterfactual_chain.py` (`liquidity-ladder-mutation-chain-spec-v1`) |
 
-Mutation-chain export remains **optional** follow-up; aggregate/network/cascade/backlog chain fixtures stay oracles.
+Aggregate/network/cascade/backlog chain fixtures stay oracles; liquidity-ladder chain exports now follow the same small-fixture pattern.
 
 ## Exit criteria
 
@@ -37,4 +39,4 @@ Mutation-chain export remains **optional** follow-up; aggregate/network/cascade/
 - [x] Frozen bundle + `GOLDEN_METRICS` + integral band
 - [x] GA smoke + Pareto / MC / co-evolution wiring
 - [x] “Why” doc — [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md)
-- [x] Mutation-chain spec `liquidity-ladder-mutation-chain-spec-v1` + `export_liquidity_ladder_counterfactual_chain.py`
+- [x] Mutation-chain spec `liquidity-ladder-mutation-chain-spec-v1` + `export_liquidity_ladder_counterfactual_chain.py` + path trace `explanation-mutation-chain-path-liquidity-ladder-v1`

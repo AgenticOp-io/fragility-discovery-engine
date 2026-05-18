@@ -239,7 +239,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 - [x] Admission memo + Phase N section in `BOUNDARIES.md`.
 - [x] `LiquidityLadderWorld` + `rollout_liquidity_ladder` + replay contract tests.
 - [x] GA smoke `run_liquidity_ladder_ga_demo.py` + frozen bundle `liquidity_ladder_rollout_v1`.
-- [x] Pareto / MC / co-evolution / counterfactual (`initial_margin_shift`) wiring; mutation-chain export remains optional.
+- [x] Pareto / MC / co-evolution / replay export / counterfactual (`initial_margin_shift`) wiring; mutation-chain export + path trace shipped as the same small-fixture pattern used by earlier domains.
 
 ---
 

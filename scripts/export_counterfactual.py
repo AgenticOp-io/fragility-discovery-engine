@@ -479,7 +479,7 @@ def main() -> None:
         payload["meta"]["domain"] = "service_backlog"
     if args.mode == "liquidity_ladder":
         payload["meta"]["domain"] = "liquidity_ladder"
-        payload["meta"]["initial_backlog"] = float(args.initial_backlog)
+        payload["meta"]["initial_margin"] = float(args.initial_margin)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay_dir is not None:
@@ -516,6 +516,9 @@ def main() -> None:
         elif args.intervention == "process_rate_shift":
             common_meta["baseline_process_rate"] = float(report["baseline_process_rate"])
             common_meta["variant_process_rate"] = float(report["variant_process_rate"])
+        elif args.intervention == "initial_margin_shift":
+            common_meta["baseline_initial_margin"] = float(args.initial_margin)
+            common_meta["variant_initial_margin"] = float(args.variant_initial_margin)
         else:
             common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:
@@ -526,6 +529,9 @@ def main() -> None:
         if args.mode == "service_backlog":
             common_meta["domain"] = "service_backlog"
             common_meta["initial_backlog"] = float(args.initial_backlog)
+        if args.mode == "liquidity_ladder":
+            common_meta["domain"] = "liquidity_ladder"
+            common_meta["initial_margin"] = float(args.initial_margin)
         br = rollout_to_replay_dict(baseline_rr)
         br["meta"] = {**common_meta, "variant": "baseline"}
         vr = rollout_to_replay_dict(variant_rr)
