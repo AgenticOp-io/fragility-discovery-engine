@@ -63,7 +63,7 @@ Each domain is a **separate** `World` with the **same** shock-schedule encoding.
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | One end-to-end reviewer path |
 | [`phase_l_publication.md`](phase_l_publication.md) | Narration, plots, LLM prompt packs |
 | [`WHITEPAPER.md`](WHITEPAPER.md) | Long-form technical narrative |
-| [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | Short intro for external readers |
+| [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | High-level code overview and end-user workflow |
 
 ---
 

@@ -1,125 +1,224 @@
 # Fragility Discovery Engine — Introduction Whitepaper
 
-**Purpose:** A concise overview for researchers, engineers, and program leads who work on **stress testing**, **scenario analysis**, **search over simulations**, **network contagion**, **resilience drills**, or **traceable explanation outputs**.
+**Purpose:** A high-level picture of what the code does and how you use it as an operator or reviewer—without reading the whole repository first.
 
 **Repository:** [github.com/AgenticOp-io/fragility-discovery-engine](https://github.com/AgenticOp-io/fragility-discovery-engine)  
-**Primary contact channel:** [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) on that repository (best for technical questions, collaboration, and reproducibility reports).
+**Hands-on guide:** [`HOW_TO_USE.md`](HOW_TO_USE.md) · **CLI / schema lookup:** [`REFERENCE.md`](REFERENCE.md) · **Package layout:** [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
 ---
 
-## 1. Executive summary
+## 1. What you use this for
 
-The **Fragility Discovery Engine** is an open-source Python stack built for **repeatable runs** (fixed seeds): it **searches** over **shock schedules** (Monte Carlo, genetic algorithms, co-evolution) in several **reference simulation models** (aggregate peg, network contagion, resource cascade, service backlog, liquidity ladder—each **separate**, not coupled), **maximizes stated instability metrics**, and writes **JSON outputs** you can archive and cite: replay traces, **small failing schedules**, **counterfactual** and **step-wise sensitivity (mutation-chain)** comparisons, **Pareto** tradeoff sets, and an optional **`fragility-certificate-v1`** digest of files and environment.
+You pick a **simulation mode** (a reference world model), run **search** or a **single rollout**, and receive **JSON files** you can archive, diff, plot, or cite:
 
-It is **not** a live trading system, a blockchain product, or a calibrated forecast of real institutions. It is a **research tool** for controlled fragility analysis with **versioned JSON schemas** and **frozen benchmark checks** (`fragility_engine.benchmarks.suite`, CI)—aimed at teams who want **clear, reproducible records** instead of slides-only summaries.
+- **Replay JSON** — timestep trajectory, events, collapse metrics.
+- **Pareto JSON** — tradeoffs between instability and attack cost after multi-objective search.
+- **Counterfactual / sweep JSON** — what changes if you remove shocks, shift a reset parameter, or edit the network.
+- **Certificate JSON** (optional) — SHA-256 digests of artifacts plus environment fingerprints for a paper appendix.
 
----
-
-### Terminology (plain language)
-
-| Common industry / research term | How it shows up here |
-|-----------------------------------|----------------------|
-| **Stress testing**, **scenario analysis** | Search and evaluation over **exogenous shock schedules** (same schedule encoding across reference worlds). |
-| **Sensitivity analysis** | Scalar **ε-sweeps** and one-axis counterfactuals with other parameters pinned. |
-| **Directed search** (related to fuzzing ideas) | Monte Carlo and **genetic algorithms (GA)** over schedules (same inputs + seeds ⇒ same outputs). |
-| **Multi-objective analysis** | **Pareto** sets trading instability against **attack cost** (and related scalars). |
-| **Explainability / attribution** (narrow) | **Rule-based** interventions (e.g. remove shocks, change reset numbers, edit edges)—not neural “feature importance”. |
-| **Audit trail**, **provenance** | Schema-versioned JSON plus optional **`fragility-certificate-v1`** digests. |
-| **Regression testing** | **Frozen** benchmark rows in CI (`fragility_engine.benchmarks.suite`, `pytest`; charter **Phase H** in [`BOUNDARIES.md`](../BOUNDARIES.md)). |
-
-## 2. Problem framing
-
-Across several communities, the same pattern appears: high-stakes systems are judged under **scenario stress** or **robustness testing**, but **traces** of *why* a run failed—what shocks, in what order, at what minimal sufficiency—are often informal slides or ad-hoc notebooks. That weakens **auditability**, **comparison across methods**, and **handoff** between modeling and assurance.
-
-Recent research underscores demand for:
-
-- **Robustness and fragility under stress** in learning and control (e.g. parameter and policy behavior under adversarial or distributional stress in RL safety literature).
-- **Standardized, reproducible evaluation** of post-hoc and counterfactual-style explanations (benchmark suites in the XAI / recourse literature emphasize fidelity, stability, and comparable protocols).
-
-This repository is one **codebase** where search, metrics, minimization, counterfactuals, light narration helpers, and **benchmark manifests** all use the same rollout contract—so a failure case is **frozen JSON** you can compare across runs, not a one-off plot.
+The engine is **deterministic**: same CLI flags and seeds produce the same outputs. It is a **research and engineering** tool—not a live market feed, a calibrated bank model, or a compliance sign-off product.
 
 ---
 
-## 3. What the software does (capabilities)
+## 2. How the code is organized (high level)
 
-| Layer | Role |
-|--------|------|
-| **World** | Domain physics only; no hidden “attack hooks” inside `World.step`. |
-| **Agents** | Thin archetypes: observe → decide → act. |
-| **Adversary** | **Search** over shock schedules: Monte Carlo, GA, and extensions (deterministic given seeds). |
-| **Explain** | Ablation, minimization, counterfactual bundles, mutation chains, path traces, joint merges, narration helpers. |
-| **Network** | Contagion on explicit graphs (`ContagionGraph`), neighbor-list–friendly updates. |
-| **Coevolution** | Alternating attacker/defender search; **Pareto** output for two-objective trade-offs. |
+You interact almost entirely through **`scripts/*.py`** at the repo root. Those scripts call the Python package **`fragility_engine`**, which is split so physics stays separate from search and explanation:
 
-**Domains shipped as reference kernels** (same shock-schedule encoding; different physics): aggregate **stablecoin peg** toy, **graph contagion** (`StablecoinNetworkWorld`), **resource cascade** (`ResourceCascadeWorld`; charter section **Phase J**), **service backlog / latency stress** (`ServiceBacklogWorld`; **Phase M**, `simulation_mode` **`service_backlog`**), and **liquidity ladder / margin stress** (`LiquidityLadderWorld`; **Phase N**, `simulation_mode` **`liquidity_ladder`**). Each domain documents explicit **non-goals** (see [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md), [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md), [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md)) so scope does not drift into generic “digital twin” platforms.
+```
+  You run:  python scripts/run_ga_demo.py  …
+                 │
+                 ▼
+  Search:   fragility_engine.adversary   (Monte Carlo, GA, Pareto, co-evolution)
+                 │
+                 ▼
+  Rollout:  fragility_engine.runner      (genome → shock schedule → trajectory)
+                 │
+                 ▼
+  Physics:  fragility_engine.world.*     (peg, network, cascade, backlog, margin)
+                 │
+                 ▼
+  Output:   replay / Pareto / counterfactual JSON  (+ optional plots, narration)
+```
 
-**Decoupled audit composites** bundle one attacker schedule across multiple kernels **without** cross-`World` coupling inside `step()`: `fragility-institutional-composite-v1` (network + cascade), **v2** (+ aggregate peg), **v3** (+ service backlog), **v4** (+ liquidity ladder). CLI: `scripts/institutional_composite_demo.py` (`--triple`, `--quad`, `--penta`).
+| Part of the package | What it does for you |
+|---------------------|----------------------|
+| **`world/`** | Runs the simulation: reset state, step forward, record instability. You choose the mode (`aggregate`, `network`, …). |
+| **`adversary/`** | Explores **shock schedules** (encoded as genomes). Monte Carlo samples random schedules; GA evolves better ones. |
+| **`runner/`** | One evaluation: decode genome → apply shocks each timestep → return metrics (`integral_instability`, `attack_cost`, `collapsed`, …). |
+| **`explain/`** | Compare runs: counterfactuals, ε-sweeps, mutation chains, merged attribution graphs, deterministic narration text. |
+| **`network/`** | Graph topology and contagion when `simulation_mode` is `network`. |
+| **`benchmarks/`** | Frozen “golden” runs in CI; `run_benchmark_suite.py --validate` checks your install matches expected metrics. |
 
-**Explanation outputs** include **minimal-collapse** reports, **counterfactual** bundles (`remove_steps`, scalar shifts, network patches), **ordered mutation chains** with optional **path traces** (network, resource cascade, service backlog, liquidity ladder), **merged attribution graphs** (`attribution-merge-v1`), **ε-sweeps** with trace export, and **explanation DAGs** built from data, not LLM prose. Cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md), [`liquidity_ladder_counterfactual_example.md`](liquidity_ladder_counterfactual_example.md).
-
-**Reproducibility:** fixed RNG seeds, CI workflows, Phase **H** golden bundles (`scripts/run_benchmark_suite.py --validate`), flagship demo (`scripts/run_flagship_demo.py`), ensemble / mechanism-design / robustness sweep CLIs (see [`benchmarks/README.md`](../benchmarks/README.md)), and **`fragility-certificate-v1`** (`scripts/export_fragility_certificate.py`). Pareto and replay JSON use schema-versioned contracts (see [`HOW_TO_USE.md`](HOW_TO_USE.md)).
-
----
-
-## 4. Who the natural audiences are
-
-These segments map to **public** research and engineering communities (venues, working papers, open benchmarks)—not to any endorsement by those organizations.
-
-### 4.1 Robustness, distribution shift, and strategic behavior (ML)
-
-Teams working on **adversarial robustness**, **distribution shift**, **strategic users**, or **reliable ML under imperfect data** often need **toy worlds** where attacks and metrics are explicit. NeurIPS-style **workshops** that publish calls for papers and non-archival tracks are a natural fit for **benchmark or systems** contributions derived from this repo.
-
-**Example venue (illustrative):** reliability / robustness workshops in the NeurIPS ecosystem (topics often include adversarial stress, strategic behavior, and benchmarks; follow the **current** workshop site and call for papers rather than this link alone).
-
-### 4.2 Counterfactual explanations, recourse, and XAI benchmarks
-
-Groups comparing **counterfactual explanations**, **algorithmic recourse**, or **faithfulness / stability** metrics benefit from **another controlled simulator** where ground-truth interventions are **mechanical** (shock schedules, topology, thresholds), not buried inside a proprietary model API. Adjacent benchmark traditions (e.g. libraries and surveys for counterfactual **recourse** and **open XAI** evaluation) are useful **conceptual peers**, not competitors.
-
-### 4.3 Financial stability and stress-testing methodology (research, not trading)
-
-Central banks, the IMF, and academic macro-finance produce **stress-testing** and **contagion** methodology (e.g. macro-prudential and multi-scenario frameworks). This repository’s **peg toy** is a **deliberately simplified** pedagogical kernel: appropriate for **methodology dialogue** and **toy validation** of search-and-explain pipelines, **not** for institution-specific calibration or policy claims.
-
-### 4.4 RL and safety-critical simulation labs
-
-Reinforcement learning and **safe RL** research increasingly stress **robustness** and **viability under perturbations**. Labs that already run **custom simulators** for assurance can embed or compare against this engine’s **artifact contracts** (replay JSON, Pareto JSON, certificate) rather than re-deriving export schemas.
-
-### 4.5 Internal platform / red-team engineering
-
-Product security and resilience teams sometimes need **repeatable** “find a small failing schedule” loops with **exportable evidence**. The CLI-first design matches **CI and audit** expectations; any future UI should remain a thin wrapper over the same APIs (per project boundaries).
+**Important:** worlds do **not** share state inside one timestep. A **five-domain institutional composite** JSON rolls the **same schedule** through five separate models for audit summaries—it is not coupled physics.
 
 ---
 
-## 5. How to evaluate the project quickly
+## 3. Simulation modes (what you choose)
 
-1. **Read boundaries:** [`BOUNDARIES.md`](../BOUNDARIES.md) — non-goals and phase gates.  
-2. **Run tests:** `python -m pytest` after `pip install -e ".[dev]"` (portable; `pytest.exe` is Windows-venv-only).  
-3. **Validate benchmarks:** `python scripts/run_benchmark_suite.py --validate` (see [`benchmarks/README.md`](../benchmarks/README.md)).  
-4. **Reviewer path:** [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md).  
-5. **Honest scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).  
-6. **Domain checklists:** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) (service backlog), [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md) (liquidity ladder).
-7. **Documentation hub:** [`README.md`](README.md).
-8. **One-shot bundle:** `python scripts/run_flagship_demo.py` (see README for defaults and output layout).
+Every mode uses the **same schedule encoding**; only the physics story changes.
 
----
+| Mode | What it models | Typical first script |
+|------|----------------|----------------------|
+| **`aggregate`** | Scalar stablecoin peg / panic | `python scripts/week1_smoke.py` |
+| **`network`** | Contagion on a graph | `python scripts/run_network_demo.py` |
+| **`resource_cascade`** | Overload and capacity cascade | `python scripts/run_resource_cascade_ga_demo.py` |
+| **`service_backlog`** | Ops backlog vs processing rate | `python scripts/run_service_backlog_ga_demo.py` |
+| **`liquidity_ladder`** | Margin stress vs funding ladder | `python scripts/run_liquidity_ladder_ga_demo.py` |
 
-## 6. References (external, illustrative)
-
-- Kpotufe et al., *Fragile, Robust, and Antifragile: A Perspective from Parameter Responses in Reinforcement Learning Under Stress* — [arXiv:2506.23036](https://arxiv.org/abs/2506.23036) (fragility / robustness framing in RL).  
-- IMF, *Macro-Prudential Stress Test Models: A Survey* — [IMF publications](https://www.imf.org/en/publications/wp/issues/2023/08/25/macro-prudential-stress-test-models-a-survey-537990) (macro stress-test context; **not** implied calibration to this toy).  
-- Workshop example: reliability / robustness workshops (see current NeurIPS / ICML workshop lists for URLs and chairs).  
-- XAI benchmarking (for **comparison norms**, not runtime dependencies): e.g. OpenXAI, CARLA recourse libraries — look up current URLs and citation keys when writing related work.
+Pass `--mode <name>` on scripts that support multiple domains (`export_replay.py`, `run_mc_demo.py`, `run_coevolution.py`, `export_counterfactual.py`, etc.). Full flag matrix: [`REFERENCE.md`](REFERENCE.md).
 
 ---
 
-## 9. Document control
+## 4. End-user workflow
+
+### 4.1 Install
+
+Requires **CPython ≥ 3.11**. From a clone or release tag:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+```
+
+Tagged release without PyPI: [`RELEASING.md`](../RELEASING.md) or `bash scripts/install_release.sh v0.4.0`. Verify: `python -m pytest -q` or `bash scripts/ci_local.sh`.
+
+### 4.2 Run search or one rollout
+
+**Quick smoke (aggregate, ~1 min):**
+
+```bash
+python scripts/week1_smoke.py --export-replay replay.json
+```
+
+**Genetic search (find harsh schedules):**
+
+```bash
+python scripts/run_ga_demo.py --export-replay best.json --generations 4 --population-size 12 --seed 42
+```
+
+**Other domains:** swap in `run_network_demo.py`, `run_liquidity_ladder_ga_demo.py`, etc. (see [`HOW_TO_USE.md`](HOW_TO_USE.md) §4).
+
+**Reviewer bundle (certificate + Pareto + replay in one go):**
+
+```bash
+python scripts/run_flagship_demo.py
+```
+
+### 4.3 Inspect outputs
+
+| Output | How you view it |
+|--------|------------------|
+| **Replay** | Static viewer: `artifacts/replay_viewer/index.html` (serve repo with `python -m http.server`, load your JSON). |
+| **Pareto** | `artifacts/pareto_viewer/index.html` |
+| **Attribution / counterfactual merges** | `artifacts/attribution_viewer/index.html` |
+| **Institutional composite** | `artifacts/composite_viewer/index.html` |
+| **Text summary** | `python scripts/narrate_frozen_json.py replay.json` |
+| **Plots** | `python scripts/plot_replay_timeline.py replay.json --out timeline.png` |
+
+Bundled samples ship under `artifacts/` for demos without rerunning search. Map: [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md).
+
+### 4.4 Explain a result
+
+After you have a baseline rollout (pinned seeds):
+
+```bash
+# Remove shocks vs baseline
+python scripts/export_counterfactual.py --mode aggregate --intervention remove_steps --export-replay-dir ./cf_out
+
+# Sweep one scalar (e.g. initial panic)
+python scripts/counterfactual_epsilon_sweep.py --mode aggregate --axis initial_panic --out sweep.json
+```
+
+Domain-specific cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`liquidity_ladder_counterfactual_example.md`](liquidity_ladder_counterfactual_example.md), and related files in `docs/`.
+
+### 4.5 Reproducibility check
+
+```bash
+python scripts/run_benchmark_suite.py --validate
+```
+
+Confirms six frozen bundles match golden metrics. For citations, add digests:
+
+```bash
+python scripts/export_fragility_certificate.py --out cite.json --digest-json replay.json pareto.json
+```
+
+Step-by-step appendix path: [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md).
+
+---
+
+## 5. Main artifacts (what files mean)
+
+| Artifact | Schema (typical) | You use it to… |
+|----------|------------------|----------------|
+| Replay | `schema_version` + `trajectory` + `events_lane` | See *when* shocks hit and how instability evolved. |
+| Pareto front | `pareto-front-v1` | Compare severity vs cost across search archive. |
+| Counterfactual pair | baseline + variant blocks | Quantify effect of one intervention. |
+| Attribution merge | `attribution-merge-v1` | Compare multiple branches on one graph. |
+| Institutional composite | `fragility-institutional-composite-v4` (penta) | Summarize five domains on one schedule. |
+| Certificate | `fragility-certificate-v1` | Pin file hashes and environment for a paper or audit packet. |
+
+LLM prompt export (`scripts/export_llm_narration_prompt.py`) builds **optional** prose prompts from frozen JSON; it does **not** drive the simulator.
+
+---
+
+## 6. Common tasks (cheat sheet)
+
+| I want to… | Start here |
+|------------|------------|
+| First run, minimal setup | `week1_smoke.py` → replay viewer |
+| Stress-test schedules automatically | `run_ga_demo.py` or `run_mc_demo.py --mode …` |
+| Network with custom topology | `run_network_demo.py --neighbor-json topo.json` |
+| Attacker vs defender | `run_coevolution.py --mode …` |
+| Multi-domain audit JSON | `institutional_composite_demo.py --penta` |
+| Compare “what if” scenarios | `export_counterfactual.py` / `counterfactual_epsilon_sweep.py` |
+| Publication-ready bundle | `run_flagship_demo.py` + `PAPER_APPENDIX_WORKFLOW.md` |
+| Confirm install matches CI | `run_benchmark_suite.py --validate` |
+
+---
+
+## 7. Terminology (plain language)
+
+| You might say… | In this repo… |
+|----------------|---------------|
+| Stress test / scenario | Search or rollout over **shock schedules** |
+| Sensitivity analysis | **ε-sweep** or scalar counterfactual on one axis |
+| Robustness search | Monte Carlo or **GA** over schedules |
+| Multi-objective tradeoff | **Pareto** archive (instability vs attack cost) |
+| Explanation | Rule-based **counterfactual** or mutation **chain**, not model SHAP |
+| Audit trail | Versioned JSON + optional **certificate** digests |
+
+---
+
+## 8. Limits and non-goals
+
+- **Toy reference domains** — pedagogical physics, not calibrated to a real institution.
+- **No coupled mega-model** — worlds do not exchange mass inside one `step()`; see [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md) for fork policy.
+- **CLI-first** — viewers are static HTML over JSON; there is no hosted SaaS.
+- **Charter scope** is complete on `main` ([`PROJECT_STATUS.md`](PROJECT_STATUS.md)); optional stretch ideas live in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md).
+
+Scale, wall-clock, and parallelism: [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md). Hard rules: [`BOUNDARIES.md`](../BOUNDARIES.md).
+
+---
+
+## 9. Where to read next
+
+| Document | When |
+|----------|------|
+| [`HOW_TO_USE.md`](HOW_TO_USE.md) | Tutorials, troubleshooting, full CLI tour |
+| [`REFERENCE.md`](REFERENCE.md) | Flags, env vars, schema names |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Deeper data-flow and module boundaries |
+| [`benchmarks/README.md`](../benchmarks/README.md) | Bundle IDs and manifest fields |
+| [`INSTALLATION.md`](INSTALLATION.md) | Git, GCE, host-specific setup |
+
+---
+
+## 10. Document control
 
 | Field | Value |
 |--------|--------|
-| **Version** | 1.4 |
-| **Last updated** | 2026-05 — terminology table + benchmark wording aligned with `BOUNDARIES` |
-| **Repo state** | Tracks `main`; cite commit when forwarding alongside frozen JSON. |
-| **Maintainer path** | Prefer **GitHub Issues** for accuracy and public record. |
-
----
-
-*End of introduction whitepaper.*
+| **Version** | 2.0 |
+| **Last updated** | 2026-05 — end-user / code overview rewrite |
+| **Repo state** | Tracks `main`; cite commit or tag `v0.4.0` with frozen JSON. |
+| **Questions** | [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) |

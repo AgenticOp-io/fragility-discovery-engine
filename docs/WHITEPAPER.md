@@ -1,10 +1,10 @@
 # Fragility Discovery Engine — Whitepaper
 
-This repository’s **public whitepaper** is the **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** (summary, [plain-language terms](WHITEPAPER_INTRODUCTION.md#terminology-plain-language), capability table, audiences, quick evaluation steps, and references).
+This repository’s **public whitepaper** is the **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** — high-level code overview, end-user workflow, simulation modes, and artifact guide. [Plain-language terms](WHITEPAPER_INTRODUCTION.md#7-terminology-plain-language) are in §7.
 
 | Need | Document |
 |------|----------|
-| Industry language ↔ repo terms | [Terminology in `WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#terminology-plain-language) |
+| Industry language ↔ repo terms | [Terminology in `WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#7-terminology-plain-language) |
 | Install, tutorials, viewers, CLI index | [`HOW_TO_USE.md`](HOW_TO_USE.md) |
 | After clone: CI parity, benchmarks, charter links | [`NEXT_STEPS.md`](NEXT_STEPS.md) |
 | Git / host tooling (credentials, dual-stack) | [`INSTALLATION.md`](INSTALLATION.md) |
