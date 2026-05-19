@@ -65,6 +65,30 @@ def _write_attribution_samples(py: str) -> None:
         cwd=str(ROOT),
     )
     print(f"wrote {joint.relative_to(ROOT)}")
+    sb_joint = ATTRIBUTION_VIEWER / "sample_attribution_merge_service_backlog.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_service_backlog_joint_attribution.py"),
+            "--out",
+            str(sb_joint),
+            "--horizon",
+            "11",
+            "--seed",
+            "66210",
+            "--genome-seed",
+            "66211",
+            "--initial-backlog",
+            "0.07",
+            "--variant-initial-backlog",
+            "0.02",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {sb_joint.relative_to(ROOT)}")
     triple = ATTRIBUTION_VIEWER / "sample_attribution_merge_resource_cascade_triple.json"
     subprocess.run(
         [

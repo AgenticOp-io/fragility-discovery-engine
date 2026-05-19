@@ -16,6 +16,16 @@ python scripts/export_counterfactual.py --mode liquidity_ladder --out cf_ll_remo
 
 Same genome + rollout seed; only reset margin changes.
 
+## 2b. Delever rate shift (physics clone)
+
+```bash
+python scripts/export_counterfactual.py --mode liquidity_ladder \
+  --intervention delever_rate_shift \
+  --variant-delever-rate 0.48 \
+  --initial-margin 0.07 \
+  --horizon 12 --seed 201 --genome-seed 202 --out cf_ll_dr.json
+```
+
 ```bash
 python scripts/export_counterfactual.py --mode liquidity_ladder \
   --intervention initial_margin_shift \

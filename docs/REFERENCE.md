@@ -12,7 +12,7 @@ Quick lookup for operators and contributors. Tutorials and narrative context are
 | `network` | `run_network_demo.py` | `remove_steps`, `base_panic_shift`, `contagion_beta_shift`, edge weights | `base_panic`, `contagion_beta`, `edge_weight` |
 | `resource_cascade` | `run_resource_cascade_ga_demo.py` | `remove_steps`, `initial_overload_shift`, `cascade_coupling_shift` | `initial_overload` |
 | `service_backlog` | `run_service_backlog_ga_demo.py` | `remove_steps`, `initial_backlog_shift`, `process_rate_shift` | `initial_backlog`, `process_rate` |
-| `liquidity_ladder` | `run_liquidity_ladder_ga_demo.py` | `remove_steps`, `initial_margin_shift` | `initial_margin`, `delever_rate` |
+| `liquidity_ladder` | `run_liquidity_ladder_ga_demo.py` | `remove_steps`, `initial_margin_shift`, `delever_rate_shift` | `initial_margin`, `delever_rate` |
 
 Shared flags across most mode-aware scripts:
 

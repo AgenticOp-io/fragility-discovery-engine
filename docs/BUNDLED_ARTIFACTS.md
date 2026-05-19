@@ -41,6 +41,7 @@ Preset also links `../flagship/bundled/pareto_front.json` (see flagship section)
 | `sample_service_backlog_chain_process_ingest.json` | `export_service_backlog_counterfactual_chain.py` |
 | `sample_liquidity_ladder_chain_margin_haircut.json` | `export_liquidity_ladder_counterfactual_chain.py` |
 | `sample_attribution_merge_liquidity_ladder.json` | `export_liquidity_ladder_joint_attribution.py` |
+| `sample_attribution_merge_service_backlog.json` | `export_service_backlog_joint_attribution.py` |
 
 ## Composite demo + viewer
 

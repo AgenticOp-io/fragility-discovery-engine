@@ -3961,3 +3961,234 @@ def test_export_llm_narration_prompt_penta_composite_pack_cli(py_exe: str, tmp_p
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["prompt_pack"] == "institutional_composite_penta_v1"
     assert "liquidity_ladder" in data["user_prompt"]
+
+
+def test_export_counterfactual_liquidity_ladder_delever_rate_shift_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "cf_ll_dr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--intervention",
+            "delever_rate_shift",
+            "--out",
+            str(out_json),
+            "--horizon",
+            "10",
+            "--seed",
+            "77301",
+            "--genome-seed",
+            "77302",
+            "--initial-margin",
+            "0.07",
+            "--variant-delever-rate",
+            "0.48",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "liquidity_ladder_delever_rate_shift"
+
+
+def test_export_service_backlog_joint_attribution_process_rate_branch_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "merge_sb_pr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_service_backlog_joint_attribution.py"),
+            "--out",
+            str(out_json),
+            "--second-branch",
+            "process_rate_shift",
+            "--variant-process-rate",
+            "0.50",
+            "--horizon",
+            "11",
+            "--seed",
+            "77401",
+            "--genome-seed",
+            "77402",
+            "--initial-backlog",
+            "0.07",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["meta"]["second_branch"] == "process_rate_shift"
+    interventions = {e["intervention"] for e in payload["edges"]}
+    assert "service_backlog_process_rate_shift" in interventions
+
+
+def test_counterfactual_epsilon_sweep_service_backlog_process_rate_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps_sb_pr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "service_backlog",
+            "--axis",
+            "process_rate",
+            "--values",
+            "0.36,0.44",
+            "--initial-backlog",
+            "0.07",
+            "--rollout-seed",
+            "77501",
+            "--horizon",
+            "10",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["mode"] == "service_backlog"
+    assert data["axis"] == "process_rate"
+
+
+def test_week1_smoke_continue_after_collapse_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "w_cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "week1_smoke.py"),
+            "--export-replay",
+            str(out),
+            "--continue-after-collapse",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["continue_after_collapse"] is True
+
+
+def test_export_replay_liquidity_ladder_continue_after_collapse_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "ll_cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--initial-margin",
+            "0.07",
+            "--horizon",
+            "12",
+            "--seed",
+            "77601",
+            "--continue-after-collapse",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["continue_after_collapse"] is True
+
+
+def test_narrate_frozen_json_penta_composite_cli(py_exe: str) -> None:
+    bundled = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not bundled.is_file():
+        pytest.skip("bundled penta composite missing; run regenerate_bundled_viewer_samples.py")
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(bundled),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert "fragility-institutional-composite-v4" in proc.stdout
+    assert "liquidity_ladder" in proc.stdout
+
+
+def test_plot_institutional_composite_bars_penta_bundled_cli(py_exe: str, tmp_path: Path) -> None:
+    bundled = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not bundled.is_file():
+        pytest.skip("bundled penta composite missing")
+    out = tmp_path / "penta_bars.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_institutional_composite_bars.py"),
+            str(bundled),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert out.stat().st_size > 100
+
+
+def test_export_llm_narration_prompt_paper_appendix_quad_cli(py_exe: str, tmp_path: Path) -> None:
+    quad = ROOT / "artifacts" / "composite_demo" / "sample_quad_composite.json"
+    out = tmp_path / "appendix_bundle.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(quad),
+            "--prompt-pack",
+            "paper_appendix_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "paper_appendix_v1"
+    assert data["schema"] == "llm-prompt-bundle-v1"
+
+
+def test_export_fragility_certificate_validate_bundles_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cert_val.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_fragility_certificate.py"),
+            "--out",
+            str(out),
+            "--validate-bundles",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "fragility-certificate-v1"
+    assert data["benchmark_validation"]["status"] == "passed"
+
+
+def test_summarize_attribution_merge_liquidity_ladder_cli(py_exe: str, tmp_path: Path) -> None:
+    merge_path = ROOT / "artifacts" / "attribution_viewer" / "sample_attribution_merge_liquidity_ladder.json"
+    if not merge_path.is_file():
+        pytest.skip("bundled liquidity merge missing")
+    out = tmp_path / "summary.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "summarize_attribution_merge.py"),
+            "--input",
+            str(merge_path),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "attribution-interaction-summary-v1"
