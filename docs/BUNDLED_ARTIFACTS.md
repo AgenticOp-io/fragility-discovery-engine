@@ -14,6 +14,7 @@ python scripts/regenerate_bundled_viewer_samples.py
 | `sample_network_replay.json` | `network_er_rollout_v1` |
 | `sample_resource_cascade_replay.json` | `resource_cascade_rollout_v1` |
 | `sample_service_backlog_replay.json` | `service_backlog_rollout_v1` |
+| `sample_liquidity_ladder_replay.json` | `liquidity_ladder_rollout_v1` |
 
 ## Pareto viewer (`artifacts/pareto_viewer/`)
 
@@ -24,7 +25,6 @@ python scripts/regenerate_bundled_viewer_samples.py
 | `sample_pareto_service_backlog.json` | `--mode service_backlog` |
 | `sample_pareto_network.json` | `--mode network` (ER-12, short GA) |
 | `sample_pareto_liquidity_ladder.json` | `--mode liquidity_ladder` |
-| `sample_liquidity_ladder_chain_margin_haircut.json` | `export_liquidity_ladder_counterfactual_chain.py` |
 
 Preset also links `../flagship/bundled/pareto_front.json` (see flagship section).
 
@@ -39,6 +39,7 @@ Preset also links `../flagship/bundled/pareto_front.json` (see flagship section)
 | `sample_aggregate_chain_rumor_depeg.json` | `export_aggregate_counterfactual_chain.py` |
 | `sample_resource_cascade_chain_coupling_rumor.json` | `export_resource_cascade_counterfactual_chain.py` |
 | `sample_service_backlog_chain_process_ingest.json` | `export_service_backlog_counterfactual_chain.py` |
+| `sample_liquidity_ladder_chain_margin_haircut.json` | `export_liquidity_ladder_counterfactual_chain.py` |
 
 ## Composite demo + viewer
 

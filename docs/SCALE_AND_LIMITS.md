@@ -16,6 +16,7 @@ This document states **what scales how** and **what breaks reproducibility** if 
 | `StablecoinPegWorld` | O(archetypes) | Aggregate reference. |
 | `ResourceCascadeWorld` | O(archetypes); optional Numba path | See `FRAGILITY_RESOURCE_CASCADE_BACKEND`. |
 | `ServiceBacklogWorld` | O(archetypes); NumPy rollout only | Same default population as other domains; `rollout_service_backlog`. |
+| `LiquidityLadderWorld` | O(archetypes); NumPy rollout only | `rollout_liquidity_ladder`; frozen bundle `liquidity_ladder_rollout_v1`. |
 | GA / MC inner loop | O(population × horizon × steps) | Wall-clock ∝ parallel `eval_workers` only when work is CPU-parallel **and** isolated. |
 
 ## CI vs optional jobs

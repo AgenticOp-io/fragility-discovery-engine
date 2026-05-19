@@ -35,7 +35,7 @@ python scripts/run_benchmark_suite.py --validate
 ## 3. Pick work that fits the charter
 
 - **Do not** weaken determinism or world/adversary separation — read [`BOUNDARIES.md`](../BOUNDARIES.md) first.
-- **Aspirational ideas** (benchmark metric floors, Phase N fourth domain, narration gaps): see [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) — especially **Near-term backlog** and **Phase N** (draft only until promoted into `BOUNDARIES.md`).
+- **Aspirational ideas** (benchmark metric floors, coupled kernels, narration gaps): see [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) — especially **Near-term backlog**. **Phase N** (`liquidity_ladder`) is **shipped**; gate details: [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md).
 - **Coupled multi-kernel physics:** out of charter here — [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
 
 ---

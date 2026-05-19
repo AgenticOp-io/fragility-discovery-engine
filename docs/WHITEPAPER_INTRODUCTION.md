@@ -9,7 +9,7 @@
 
 ## 1. Executive summary
 
-The **Fragility Discovery Engine** is an open-source Python stack built for **repeatable runs** (fixed seeds): it **searches** over **shock schedules** (Monte Carlo, genetic algorithms, co-evolution) in several **reference simulation models** (aggregate peg, network contagion, resource cascade, service backlog—each **separate**, not coupled), **maximizes stated instability metrics**, and writes **JSON outputs** you can archive and cite: replay traces, **small failing schedules**, **counterfactual** and **step-wise sensitivity (mutation-chain)** comparisons, **Pareto** tradeoff sets, and an optional **`fragility-certificate-v1`** digest of files and environment.
+The **Fragility Discovery Engine** is an open-source Python stack built for **repeatable runs** (fixed seeds): it **searches** over **shock schedules** (Monte Carlo, genetic algorithms, co-evolution) in several **reference simulation models** (aggregate peg, network contagion, resource cascade, service backlog, liquidity ladder—each **separate**, not coupled), **maximizes stated instability metrics**, and writes **JSON outputs** you can archive and cite: replay traces, **small failing schedules**, **counterfactual** and **step-wise sensitivity (mutation-chain)** comparisons, **Pareto** tradeoff sets, and an optional **`fragility-certificate-v1`** digest of files and environment.
 
 It is **not** a live trading system, a blockchain product, or a calibrated forecast of real institutions. It is a **research tool** for controlled fragility analysis with **versioned JSON schemas** and **frozen benchmark checks** (`fragility_engine.benchmarks.suite`, CI)—aimed at teams who want **clear, reproducible records** instead of slides-only summaries.
 
@@ -51,11 +51,11 @@ This repository is one **codebase** where search, metrics, minimization, counter
 | **Network** | Contagion on explicit graphs (`ContagionGraph`), neighbor-list–friendly updates. |
 | **Coevolution** | Alternating attacker/defender search; **Pareto** output for two-objective trade-offs. |
 
-**Domains shipped as reference kernels** (same shock-schedule encoding; different physics): aggregate **stablecoin peg** toy, **graph contagion** (`StablecoinNetworkWorld`), **resource cascade** (`ResourceCascadeWorld`; charter section **Phase J** in [`BOUNDARIES.md`](../BOUNDARIES.md)), and **service backlog / latency stress** (`ServiceBacklogWorld`; charter section **Phase M**, `simulation_mode` **`service_backlog`**). Each domain documents explicit **non-goals** (see also [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md), [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md)) so scope does not drift into generic “digital twin” platforms.
+**Domains shipped as reference kernels** (same shock-schedule encoding; different physics): aggregate **stablecoin peg** toy, **graph contagion** (`StablecoinNetworkWorld`), **resource cascade** (`ResourceCascadeWorld`; charter section **Phase J**), **service backlog / latency stress** (`ServiceBacklogWorld`; **Phase M**, `simulation_mode` **`service_backlog`**), and **liquidity ladder / margin stress** (`LiquidityLadderWorld`; **Phase N**, `simulation_mode` **`liquidity_ladder`**). Each domain documents explicit **non-goals** (see [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md), [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md), [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md)) so scope does not drift into generic “digital twin” platforms.
 
 **Decoupled audit composites** bundle one attacker schedule across multiple kernels **without** cross-`World` coupling inside `step()`: `fragility-institutional-composite-v1` (network + cascade), **v2** (+ aggregate peg), **v3** (+ service backlog). CLI: `scripts/institutional_composite_demo.py` (`--triple`, `--quad`).
 
-**Explanation outputs** include **minimal-collapse** reports, **counterfactual** bundles (`remove_steps`, scalar shifts, network patches), **ordered mutation chains** with optional **path traces** (network, resource cascade, service backlog), **merged attribution graphs** (`attribution-merge-v1`), **ε-sweeps** with trace export, and **explanation DAGs** built from data, not LLM prose. Cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
+**Explanation outputs** include **minimal-collapse** reports, **counterfactual** bundles (`remove_steps`, scalar shifts, network patches), **ordered mutation chains** with optional **path traces** (network, resource cascade, service backlog, liquidity ladder), **merged attribution graphs** (`attribution-merge-v1`), **ε-sweeps** with trace export, and **explanation DAGs** built from data, not LLM prose. Cookbooks: [`network_counterfactual_example.md`](network_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md), [`liquidity_ladder_counterfactual_example.md`](liquidity_ladder_counterfactual_example.md).
 
 **Reproducibility:** fixed RNG seeds, CI workflows, Phase **H** golden bundles (`scripts/run_benchmark_suite.py --validate`), flagship demo (`scripts/run_flagship_demo.py`), ensemble / mechanism-design / robustness sweep CLIs (see [`benchmarks/README.md`](../benchmarks/README.md)), and **`fragility-certificate-v1`** (`scripts/export_fragility_certificate.py`). Pareto and replay JSON use schema-versioned contracts (see [`HOW_TO_USE.md`](HOW_TO_USE.md)).
 
@@ -96,8 +96,9 @@ Product security and resilience teams sometimes need **repeatable** “find a sm
 3. **Validate benchmarks:** `python scripts/run_benchmark_suite.py --validate` (see [`benchmarks/README.md`](../benchmarks/README.md)).  
 4. **Reviewer path:** [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md).  
 5. **Honest scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).  
-6. **Service backlog domain checklist:** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md).  
-7. **One-shot bundle:** `python scripts/run_flagship_demo.py` (see README for defaults and output layout).
+6. **Domain checklists:** [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) (service backlog), [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md) (liquidity ladder).
+7. **Documentation hub:** [`README.md`](README.md).
+8. **One-shot bundle:** `python scripts/run_flagship_demo.py` (see README for defaults and output layout).
 
 ---
 
