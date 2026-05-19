@@ -77,7 +77,7 @@ Groups comparing **counterfactual explanations**, **algorithmic recourse**, or *
 
 ### 4.3 Financial stability and stress-testing methodology (research, not trading)
 
-Central banks, the IMF, and academic macro-finance produce **stress-testing** and **contagion** methodology (e.g. macro-prudential and multi-scenario frameworks). This repository’s **peg toy** is a **deliberately simplified** pedagogical kernel: appropriate for **methodology dialogue** and **toy validation** of search-and-explain pipelines, **not** for institution-specific calibration or policy claims. Outreach should be framed as **open science / tooling**, not governance-grade forecasting.
+Central banks, the IMF, and academic macro-finance produce **stress-testing** and **contagion** methodology (e.g. macro-prudential and multi-scenario frameworks). This repository’s **peg toy** is a **deliberately simplified** pedagogical kernel: appropriate for **methodology dialogue** and **toy validation** of search-and-explain pipelines, **not** for institution-specific calibration or policy claims.
 
 ### 4.4 RL and safety-critical simulation labs
 
@@ -102,26 +102,7 @@ Product security and resilience teams sometimes need **repeatable** “find a sm
 
 ---
 
-## 6. Outreach routing (public channels — not cold personal spam)
-
-Use **institutional or venue** entry points so messages reach the right desk. **Do not** infer private e-mail addresses from this document; use official directories.
-
-| Audience | Suggested routing |
-|----------|-------------------|
-| **Workshop / conference chairs** | Official workshop site → OpenReview group or listed organizers → **university or lab pages** linked from those profiles. |
-| **Open-source collaborators** | [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) with a minimal repro, seed, and artifact JSON if applicable. |
-| **Policy / macro stress-test research (high level)** | Publications portals (e.g. IMF working papers, ECB working papers, Fed research) — engage as **readers/citers** first; direct partnership requires institutional process. |
-| **Corporate research labs** | Public research blog contact or **open positions** pages; reference this repo as an **artifact** for exploratory collaboration. |
-
----
-
-## 7. Positioning statement (safe to paste into an e-mail)
-
-> We are sharing the **Fragility Discovery Engine** ([github.com/AgenticOp-io/fragility-discovery-engine](https://github.com/AgenticOp-io/fragility-discovery-engine)), an open-source **deterministic** simulation stack for **stress-style exploration** of shock schedules, clear **fragility metrics**, **small failing scenarios**, and **counterfactual** JSON exports—with **benchmark checks** and a **`fragility-certificate-v1`** path for file digests. It is **not** a production market or policy model; it is a **research tool** for careful comparisons. We welcome pointers to **workshops, benchmarks, or teams** where a **command-line, JSON-first** workflow fits.
-
----
-
-## 8. References (external, illustrative)
+## 6. References (external, illustrative)
 
 - Kpotufe et al., *Fragile, Robust, and Antifragile: A Perspective from Parameter Responses in Reinforcement Learning Under Stress* — [arXiv:2506.23036](https://arxiv.org/abs/2506.23036) (fragility / robustness framing in RL).  
 - IMF, *Macro-Prudential Stress Test Models: A Survey* — [IMF publications](https://www.imf.org/en/publications/wp/issues/2023/08/25/macro-prudential-stress-test-models-a-survey-537990) (macro stress-test context; **not** implied calibration to this toy).  

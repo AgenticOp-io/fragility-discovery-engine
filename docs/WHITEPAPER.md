@@ -1,6 +1,6 @@
 # Fragility Discovery Engine — Whitepaper
 
-This repository’s **public whitepaper** is the **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** (summary, [plain-language terms](WHITEPAPER_INTRODUCTION.md#terminology-plain-language), capability table, audiences, quick evaluation steps, outreach notes, short positioning blurb, and references).
+This repository’s **public whitepaper** is the **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** (summary, [plain-language terms](WHITEPAPER_INTRODUCTION.md#terminology-plain-language), capability table, audiences, quick evaluation steps, and references).
 
 | Need | Document |
 |------|----------|
