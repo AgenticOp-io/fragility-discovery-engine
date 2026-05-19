@@ -33,7 +33,7 @@ Each **slice** is one subprocess test that runs a real CLI with small budgets an
 | **Benchmarks** | `run_benchmark_suite`, `benchmark_rollout`, manifest out/summary, `frozen_json_digest` |
 | **Explain / narrate** | `export_explanation_dag`, `narrate_frozen_json`, `export_minimized_replay` + report |
 | **Publication** | `plot_*`, `export_llm_narration_prompt` packs, `export_fragility_certificate`, `run_flagship_demo` |
-| **Composite** | `institutional_composite_demo` (stdout + file, twin/triple/quad) |
+| **Composite** | `institutional_composite_demo` (stdout + file, twin/triple/quad/penta) |
 
 ---
 
@@ -58,3 +58,5 @@ Each **slice** is one subprocess test that runs a real CLI with small budgets an
 [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) “exploration slices” are **product features** (schemas + CLIs + charter tests). This file tracks **CLI subprocess smokes** only. A phase can be **shipped** in `BOUNDARIES.md` while new smokes are still added here for regression.
 
 There is **no** fixed list of exactly 100 roadmap slices to implement—**100** was the original CLI smoke target; the suite now exceeds that. Further work should target **uncovered behavior** (see table above), not inflate test count for its own sake.
+
+**Recent batches:** [`CLI_SLICES_BATCH3.md`](CLI_SLICES_BATCH3.md), [`CLI_SLICES_BATCH4.md`](CLI_SLICES_BATCH4.md).

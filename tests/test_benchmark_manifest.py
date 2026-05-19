@@ -41,6 +41,13 @@ def test_build_benchmark_manifest_shape():
     art = m["artifact_schemas"]
     assert art["pareto_front"] == "pareto-front-v1"
     assert "fragility-institutional-composite-v3" in art["institutional_composite"]
+    assert "fragility-institutional-composite-v4" in art["institutional_composite"]
+    cost_bands = m["bundle_attack_cost_bands"]
+    assert "liquidity_ladder_rollout_v1" in cost_bands
+    assert cost_bands["aggregate_rollout_v1"]["attack_cost_min"] == 4.0
+    collapsed = m["bundle_collapsed_expect"]
+    assert collapsed["service_backlog_rollout_v1"] is False
+    assert collapsed["aggregate_rollout_v1"] is True
     assert m["explanation_dag"]["schema"] == "explanation-dag-v1"
     pf = m["pareto_hypervolume_fixtures"]
     assert len(pf) == 3

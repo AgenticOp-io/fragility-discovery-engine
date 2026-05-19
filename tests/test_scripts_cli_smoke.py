@@ -4192,3 +4192,255 @@ def test_summarize_attribution_merge_liquidity_ladder_cli(py_exe: str, tmp_path:
     )
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["schema"] == "attribution-interaction-summary-v1"
+
+
+def test_export_counterfactual_liquidity_ladder_delever_export_replay_dir_cli(
+    py_exe: str, tmp_path: Path
+) -> None:
+    out_json = tmp_path / "cf_ll_dr_pair.json"
+    repdir = tmp_path / "pair"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--intervention",
+            "delever_rate_shift",
+            "--out",
+            str(out_json),
+            "--export-replay-dir",
+            str(repdir),
+            "--horizon",
+            "10",
+            "--seed",
+            "77701",
+            "--genome-seed",
+            "77702",
+            "--initial-margin",
+            "0.07",
+            "--variant-delever-rate",
+            "0.45",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert (repdir / "baseline.json").is_file()
+    base = json.loads((repdir / "baseline.json").read_text(encoding="utf-8"))
+    assert base["simulation_mode"] == "liquidity_ladder"
+
+
+def test_export_pareto_front_liquidity_replay_pareto_index_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_idx.json"
+    replay = tmp_path / "pf_idx_replay.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--out",
+            str(out),
+            "--export-replay",
+            str(replay),
+            "--replay-pareto-index",
+            "0",
+            "--initial-margin",
+            "0.07",
+            "--horizon",
+            "8",
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--seed",
+            "77801",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    arch = json.loads(out.read_text(encoding="utf-8"))["archive"]
+    assert len(arch) >= 1
+    assert json.loads(replay.read_text(encoding="utf-8"))["meta"]["pareto_index"] == 0
+
+
+def test_export_replay_service_backlog_continue_after_collapse_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "sb_cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "service_backlog",
+            "--initial-backlog",
+            "0.07",
+            "--horizon",
+            "12",
+            "--seed",
+            "77901",
+            "--continue-after-collapse",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["continue_after_collapse"] is True
+
+
+def test_export_replay_resource_cascade_continue_after_collapse_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "rc_cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_replay.py"),
+            "--mode",
+            "resource_cascade",
+            "--initial-overload",
+            "0.06",
+            "--horizon",
+            "12",
+            "--seed",
+            "77902",
+            "--continue-after-collapse",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["continue_after_collapse"] is True
+
+
+def test_export_llm_narration_prompt_paper_appendix_penta_cli(py_exe: str, tmp_path: Path) -> None:
+    penta = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not penta.is_file():
+        pytest.skip("bundled penta composite missing")
+    out = tmp_path / "appendix_penta.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(penta),
+            "--prompt-pack",
+            "paper_appendix_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "paper_appendix_v1"
+    assert "fragility-institutional-composite-v4" in data["user_prompt"]
+
+
+def test_summarize_attribution_merge_service_backlog_cli(py_exe: str, tmp_path: Path) -> None:
+    merge_path = ROOT / "artifacts" / "attribution_viewer" / "sample_attribution_merge_service_backlog.json"
+    if not merge_path.is_file():
+        pytest.skip("bundled service_backlog merge missing")
+    out = tmp_path / "sb_summary.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "summarize_attribution_merge.py"),
+            "--input",
+            str(merge_path),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "attribution-interaction-summary-v1"
+    assert data["branch_count"] == 2
+
+
+def test_export_fragility_certificate_digest_penta_composite_cli(py_exe: str, tmp_path: Path) -> None:
+    penta = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not penta.is_file():
+        pytest.skip("bundled penta composite missing")
+    out = tmp_path / "cert_digest.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_fragility_certificate.py"),
+            "--out",
+            str(out),
+            "--digest-json",
+            str(penta),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "fragility-certificate-v1"
+    assert len(data["artifact_sha256"]) == 1
+
+
+def test_run_network_demo_eval_workers_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "net_ew.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_network_demo.py"),
+            "--export-replay",
+            str(out),
+            "--nodes",
+            "10",
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--horizon",
+            "8",
+            "--eval-workers",
+            "2",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["eval_workers"] == 2
+
+
+def test_plot_institutional_composite_bars_twin_bundled_cli(py_exe: str, tmp_path: Path) -> None:
+    twin = ROOT / "artifacts" / "composite_demo" / "sample_twin_composite.json"
+    out = tmp_path / "twin_bars.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_institutional_composite_bars.py"),
+            str(twin),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert out.stat().st_size > 100
+
+
+def test_frozen_json_digest_penta_composite_bundled_cli(py_exe: str, tmp_path: Path) -> None:
+    penta = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not penta.is_file():
+        pytest.skip("bundled penta composite missing")
+    out = tmp_path / "penta_dig.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "frozen_json_digest.py"),
+            str(penta),
+            "--json-out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "frozen-json-digest-v1"
+    assert len(data["files"]) == 1
+    assert len(data["files"][0]["sha256"]) == 64
