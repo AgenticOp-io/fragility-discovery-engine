@@ -4,7 +4,7 @@ This repository’s **public whitepaper** is the **[introduction whitepaper](WHI
 
 | Need | Document |
 |------|----------|
-| Industry language ↔ repo terms | [Terminology in `WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#7-terminology-plain-language) |
+| What the engine is and when it fits | [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) |
 | Install, tutorials, viewers, CLI index | [`HOW_TO_USE.md`](HOW_TO_USE.md) |
 | After clone: CI parity, benchmarks, charter links | [`NEXT_STEPS.md`](NEXT_STEPS.md) |
 | Git / host tooling (credentials, dual-stack) | [`INSTALLATION.md`](INSTALLATION.md) |
