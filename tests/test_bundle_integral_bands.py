@@ -7,12 +7,11 @@ import pytest
 from fragility_engine.benchmarks import (
     BUNDLE_ATTACK_COST_BANDS,
     BUNDLE_COLLAPSED_EXPECT,
-    BUNDLE_INTEGRAL_BANDS,
     BUNDLE_IDS,
+    BUNDLE_INTEGRAL_BANDS,
     validate_benchmark_suite,
 )
 from fragility_engine.benchmarks.suite import (
-    assert_bundle_attack_cost_within_band,
     assert_bundle_integral_within_band,
     run_aggregate_rollout_v1,
 )
