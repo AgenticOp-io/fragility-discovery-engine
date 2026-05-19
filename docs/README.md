@@ -25,6 +25,7 @@ Normative scope (what the project promises, phase gates, non-goals) lives in [`B
 | [`HOW_TO_USE.md`](HOW_TO_USE.md) | Install, tutorials, viewers, artifact types, troubleshooting |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Packages, rollout pipeline, simulation modes, determinism |
 | [`REFERENCE.md`](REFERENCE.md) | CLI matrix by mode, environment variables, JSON schemas |
+| [`CLI_SLICES.md`](CLI_SLICES.md) | CLI subprocess smoke tests (slice inventory) |
 | [`INSTALLATION.md`](INSTALLATION.md) | OS packages, Git credentials, CI parity scripts |
 | [`NEXT_STEPS.md`](NEXT_STEPS.md) | Post-clone checklist and PR hygiene |
 | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) | Complexity, parallelism, sweep cost, what not to claim |

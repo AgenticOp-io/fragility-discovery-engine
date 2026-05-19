@@ -42,5 +42,5 @@ python scripts/run_benchmark_suite.py --validate
 
 ## 4. Open a PR
 
-- Prefer **one thin slice** per PR (tests + docs for the behavior you touched).
+- Prefer **one thin slice** per PR (tests + docs for the behavior you touched). CLI smokes: [`CLI_SLICES.md`](CLI_SLICES.md) (`tests/test_scripts_cli_smoke.py`).
 - Use **[issue templates](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose)** for bugs or reproducibility reports.

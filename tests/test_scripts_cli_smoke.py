@@ -3556,3 +3556,251 @@ def test_run_flagship_demo_cli(py_exe: str, tmp_path: Path) -> None:
     cert = json.loads((out_dir / "fragility_certificate.json").read_text(encoding="utf-8"))
     assert cert["schema"] == "fragility-certificate-v1"
     assert (out_dir / "best_replay.json").is_file()
+
+
+def test_find_cheap_collapse_exports_replay_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cheap.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "find_cheap_collapse.py"),
+            "--export-replay",
+            str(out),
+            "--eval-workers",
+            "1",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["cli"] == "find_cheap_collapse"
+    assert data["trajectory"]
+
+
+def test_run_network_demo_exports_replay_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "net_ga.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_network_demo.py"),
+            "--export-replay",
+            str(out),
+            "--nodes",
+            "12",
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--horizon",
+            "10",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "network"
+    assert data["meta"]["cli"] == "run_network_demo"
+
+
+def test_run_mc_demo_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "mc_rc.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_mc_demo.py"),
+            "--mode",
+            "resource_cascade",
+            "--samples",
+            "6",
+            "--horizon",
+            "10",
+            "--initial-overload",
+            "0.06",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "resource_cascade"
+
+
+def test_export_counterfactual_aggregate_remove_steps_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "cf_agg_rm.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "aggregate",
+            "--out",
+            str(out_json),
+            "--horizon",
+            "12",
+            "--remove",
+            "0",
+            "--seed",
+            "77001",
+            "--genome-seed",
+            "77002",
+            "--initial-panic",
+            "0.05",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["meta"]["mode"] == "aggregate"
+
+
+def test_export_minimized_replay_minimization_report_cli(py_exe: str, tmp_path: Path) -> None:
+    replay = tmp_path / "min_replay.json"
+    report = tmp_path / "min_report.json"
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_minimized_replay.py"),
+            "--out",
+            str(replay),
+            "--minimization-report-out",
+            str(report),
+            "--horizon",
+            "24",
+            "--max-tries",
+            "200",
+            "--genome-search-seed",
+            "17",
+        ],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode == 2:
+        pytest.skip("no collapsing schedule in random search window")
+    assert proc.returncode == 0, proc.stderr
+    assert report.is_file()
+    rep = json.loads(report.read_text(encoding="utf-8"))
+    assert "removed_indices" in rep or "minimal_genome" in rep
+
+
+def test_export_explanation_dag_from_minimization_report_cli(py_exe: str, tmp_path: Path) -> None:
+    report = tmp_path / "min_report.json"
+    dag_out = tmp_path / "dag.json"
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_minimized_replay.py"),
+            "--out",
+            str(tmp_path / "min_replay.json"),
+            "--minimization-report-out",
+            str(report),
+            "--horizon",
+            "24",
+            "--max-tries",
+            "200",
+            "--genome-search-seed",
+            "19",
+        ],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode == 2:
+        pytest.skip("no collapsing schedule in random search window")
+    assert proc.returncode == 0, proc.stderr
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_explanation_dag.py"),
+            "--from-minimization-report",
+            str(report),
+            "--out",
+            str(dag_out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    dag = json.loads(dag_out.read_text(encoding="utf-8"))
+    assert dag["schema"] == "explanation-dag-v1"
+
+
+def test_narrate_frozen_json_liquidity_ladder_replay_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_liquidity_ladder_replay.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert "liquidity_ladder" in proc.stdout
+
+
+def test_export_llm_narration_prompt_quad_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    composite = ROOT / "artifacts" / "composite_demo" / "sample_quad_composite.json"
+    assert composite.is_file()
+    out = tmp_path / "bundle.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(composite),
+            "--prompt-pack",
+            "institutional_composite_quad_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "llm-prompt-bundle-v1"
+    assert data["prompt_pack"] == "institutional_composite_quad_v1"
+
+
+def test_export_fragility_certificate_embeds_manifest_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cert.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_fragility_certificate.py"),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "fragility-certificate-v1"
+    assert "benchmark_manifest" in data
+
+
+def test_run_network_demo_neighbor_json_cli(py_exe: str, tmp_path: Path) -> None:
+    topo = tmp_path / "topo.json"
+    topo.write_text("[[1],[0]]", encoding="utf-8")
+    out = tmp_path / "net_nb.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_network_demo.py"),
+            "--neighbor-json",
+            str(topo),
+            "--export-replay",
+            str(out),
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "network"
+    assert data["meta"].get("topology_kind") == "neighbor_json" or "neighbor" in str(data["meta"])
