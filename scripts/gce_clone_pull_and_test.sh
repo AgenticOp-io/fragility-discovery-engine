@@ -7,9 +7,9 @@ KEY="${HOME}/.ssh/gce_github_ed25519"
 MARK="# fragility-discovery-engine: gce-github-deploy"
 # Private GitHub repos need a read deploy key at KEY + SSH remote; HTTPS prompts fail on headless VMs.
 if [[ -f "${KEY}" ]]; then
-  REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:theorem6/fragility-discovery-engine.git}"
+  REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:AgenticOp-io/fragility-discovery-engine.git}"
 else
-  REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/theorem6/fragility-discovery-engine.git}"
+  REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/AgenticOp-io/fragility-discovery-engine.git}"
 fi
 PY="${FRAGILITY_PYTHON:-}"
 _self="${BASH_SOURCE[0]:-$0}"

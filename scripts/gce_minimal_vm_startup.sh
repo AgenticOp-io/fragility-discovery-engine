@@ -15,7 +15,7 @@ apt-get install -y -qq git curl ca-certificates build-essential python3-pip pyth
 
 REPO_URL=$(curl -fsH "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/fragility_repo_url" 2>/dev/null || true)
 if [[ -z "${REPO_URL}" ]]; then
-  REPO_URL="https://github.com/theorem6/fragility-discovery-engine.git"
+  REPO_URL="https://github.com/AgenticOp-io/fragility-discovery-engine.git"
 fi
 REPO_DIR=/home/ubuntu/fragility-discovery-engine
 UBUNTU_KEY=/home/ubuntu/.ssh/gce_github_ed25519

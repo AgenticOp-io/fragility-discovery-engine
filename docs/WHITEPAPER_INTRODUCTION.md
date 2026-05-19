@@ -2,8 +2,8 @@
 
 **Purpose:** A concise overview for researchers, engineers, and program leads who work on **stress testing**, **scenario analysis**, **search over simulations**, **network contagion**, **resilience drills**, or **traceable explanation outputs**.
 
-**Repository:** [github.com/theorem6/fragility-discovery-engine](https://github.com/theorem6/fragility-discovery-engine)  
-**Primary contact channel:** [GitHub Issues](https://github.com/theorem6/fragility-discovery-engine/issues) on that repository (best for technical questions, collaboration, and reproducibility reports).
+**Repository:** [github.com/AgenticOp-io/fragility-discovery-engine](https://github.com/AgenticOp-io/fragility-discovery-engine)  
+**Primary contact channel:** [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) on that repository (best for technical questions, collaboration, and reproducibility reports).
 
 ---
 
@@ -109,7 +109,7 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 | Audience | Suggested routing |
 |----------|-------------------|
 | **Workshop / conference chairs** | Official workshop site → OpenReview group or listed organizers → **university or lab pages** linked from those profiles. |
-| **Open-source collaborators** | [GitHub Issues](https://github.com/theorem6/fragility-discovery-engine/issues) with a minimal repro, seed, and artifact JSON if applicable. |
+| **Open-source collaborators** | [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) with a minimal repro, seed, and artifact JSON if applicable. |
 | **Policy / macro stress-test research (high level)** | Publications portals (e.g. IMF working papers, ECB working papers, Fed research) — engage as **readers/citers** first; direct partnership requires institutional process. |
 | **Corporate research labs** | Public research blog contact or **open positions** pages; reference this repo as an **artifact** for exploratory collaboration. |
 
@@ -117,7 +117,7 @@ Use **institutional or venue** entry points so messages reach the right desk. **
 
 ## 7. Positioning statement (safe to paste into an e-mail)
 
-> We are sharing the **Fragility Discovery Engine** ([github.com/theorem6/fragility-discovery-engine](https://github.com/theorem6/fragility-discovery-engine)), an open-source **deterministic** simulation stack for **stress-style exploration** of shock schedules, clear **fragility metrics**, **small failing scenarios**, and **counterfactual** JSON exports—with **benchmark checks** and a **`fragility-certificate-v1`** path for file digests. It is **not** a production market or policy model; it is a **research tool** for careful comparisons. We welcome pointers to **workshops, benchmarks, or teams** where a **command-line, JSON-first** workflow fits.
+> We are sharing the **Fragility Discovery Engine** ([github.com/AgenticOp-io/fragility-discovery-engine](https://github.com/AgenticOp-io/fragility-discovery-engine)), an open-source **deterministic** simulation stack for **stress-style exploration** of shock schedules, clear **fragility metrics**, **small failing scenarios**, and **counterfactual** JSON exports—with **benchmark checks** and a **`fragility-certificate-v1`** path for file digests. It is **not** a production market or policy model; it is a **research tool** for careful comparisons. We welcome pointers to **workshops, benchmarks, or teams** where a **command-line, JSON-first** workflow fits.
 
 ---
 

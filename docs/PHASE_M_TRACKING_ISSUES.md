@@ -2,7 +2,7 @@
 
 `BOUNDARIES.md` Phase M asks for **one tracking issue per exit criterion**, each naming a single acceptance test. The criteria are already satisfied on `main`; this file is a **copy-paste** aid if you want labeled issues for audit or onboarding.
 
-**Created on repo (theorem6/fragility-discovery-engine):** [#1](https://github.com/theorem6/fragility-discovery-engine/issues/1) world + rollout + replay · [#2](https://github.com/theorem6/fragility-discovery-engine/issues/2) GA demo · [#3](https://github.com/theorem6/fragility-discovery-engine/issues/3) frozen benchmark / golden row · [#4](https://github.com/theorem6/fragility-discovery-engine/issues/4) counterfactual / Pareto / sweeps.
+**Created on repo (AgenticOp-io/fragility-discovery-engine):** [#1](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/1) world + rollout + replay · [#2](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/2) GA demo · [#3](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/3) frozen benchmark / golden row · [#4](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/4) counterfactual / Pareto / sweeps.
 
 **Status:** All four were **closed** as retrospective audit issues (criteria were already met on `main` when the issues were filed).
 

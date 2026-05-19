@@ -20,7 +20,7 @@ With your venv **activated**, `ci_local` runs **ruff**, **pytest** (with the per
 | Platform | Command |
 |----------|---------|
 | Linux, macOS, [WSL](https://learn.microsoft.com/windows/wsl/) | `bash scripts/ci_local.sh` |
-| Windows PowerShell | `pwsh -File scripts/ci_local.ps1` |
+| Windows PowerShell | `pwsh -File scripts/ci_local.ps1` (or `powershell -NoProfile -File scripts/ci_local.ps1` if `pwsh` is not installed) |
 
 Then optionally:
 
@@ -35,7 +35,8 @@ python scripts/run_benchmark_suite.py --validate
 ## 3. Pick work that fits the charter
 
 - **Do not** weaken determinism or world/adversary separation — read [`BOUNDARIES.md`](../BOUNDARIES.md) first.
-- **Aspirational ideas** (benchmark metric floors, coupled kernels, narration gaps): see [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) — especially **Near-term backlog**. **Phase N** (`liquidity_ladder`) is **shipped**; gate details: [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md).
+- **Charter is complete on `main`** — snapshot: [`PROJECT_STATUS.md`](PROJECT_STATUS.md). **Stretch / fork ideas** only: [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md).
+- **Tagged install** (no PyPI): [`RELEASING.md`](../RELEASING.md) or `scripts/install_release.sh v0.4.0`.
 - **Coupled multi-kernel physics:** out of charter here — [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
 
 ---
@@ -43,4 +44,4 @@ python scripts/run_benchmark_suite.py --validate
 ## 4. Open a PR
 
 - Prefer **one thin slice** per PR (tests + docs for the behavior you touched). CLI smokes: [`CLI_SLICES.md`](CLI_SLICES.md) (`tests/test_scripts_cli_smoke.py`).
-- Use **[issue templates](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose)** for bugs or reproducibility reports.
+- Use **[issue templates](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/new/choose)** for bugs or reproducibility reports.

@@ -1,9 +1,9 @@
 # Fragility Discovery Engine
 
-[![CI](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/ci.yml)
-[![Scheduled regression](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/schedule.yml/badge.svg)](https://github.com/theorem6/fragility-discovery-engine/actions/workflows/schedule.yml)
+[![CI](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/ci.yml)
+[![Scheduled regression](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/schedule.yml/badge.svg)](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/schedule.yml)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.4.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.4.0) (wheel on GitHub Releases; no PyPI) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations: vary **shock schedules** (stress scenarios), maximize stated **fragility metrics**, then export **small failing schedules**, **replay JSON** (traces you can re-run), and **counterfactual** / **sensitivity** outputs where applicable.
 
@@ -72,7 +72,7 @@ Use a small **Debian/Ubuntu** instance when you want Linux CI parity or heavier 
 
 ```bash
 sudo apt-get update && sudo apt-get install -y git curl python3.11 python3.11-venv
-curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
+curl -fsSL https://raw.githubusercontent.com/AgenticOp-io/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
 ```
 
 **Private repo:** `raw.githubusercontent.com` will **404** — copy both scripts from your laptop, then SSH (see [`docs/GCE_DEPLOY_KEY.md`](docs/GCE_DEPLOY_KEY.md)):
@@ -85,7 +85,7 @@ gcloud compute ssh acs-hss-server --zone=us-central1-a --command='bash /tmp/gce_
 Run tests after install:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | FRAGILITY_RUN_TESTS=1 bash
+curl -fsSL https://raw.githubusercontent.com/AgenticOp-io/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | FRAGILITY_RUN_TESTS=1 bash
 ```
 
 Or after the first clone: `FRAGILITY_RUN_TESTS=1 bash ~/fragility-discovery-engine/scripts/gce_git_deploy.sh`

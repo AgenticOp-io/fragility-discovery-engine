@@ -8,7 +8,7 @@ set -euo pipefail
 chmod 600 "${HOME}/.ssh/gce_github_ed25519"
 ssh-keyscan -H github.com >> "${HOME}/.ssh/known_hosts" 2>/dev/null || true
 export GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/gce_github_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
-export FRAGILITY_REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:theorem6/fragility-discovery-engine.git}"
+export FRAGILITY_REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:AgenticOp-io/fragility-discovery-engine.git}"
 
 sudo apt-get update -qq
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl git python3.11 python3.11-venv

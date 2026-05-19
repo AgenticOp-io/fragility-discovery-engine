@@ -13,4 +13,4 @@ This repository’s **public whitepaper** is the **[introduction whitepaper](WHI
 | Honest limits and wall-clock | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |
 | Git tags / release notes | [`RELEASING.md`](../RELEASING.md) |
 | Coupled multi-kernel research (fork policy) | [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md) |
-| Bug reports (structured) | [New issue — choose a template](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose) | [github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md](https://github.com/theorem6/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md)
+| Bug reports (structured) | [New issue — choose a template](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/new/choose) | [github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md](https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER.md)

@@ -3,14 +3,14 @@
 #
 # Public repo (default):
 #   sudo apt-get update && sudo apt-get install -y git python3.11 python3.11-venv
-#   curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/AgenticOp-io/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
 #
 # Private repo: set FRAGILITY_REPO_URL to an SSH remote or HTTPS with a token (do not commit secrets):
-#   export FRAGILITY_REPO_URL='git@github.com:theorem6/fragility-discovery-engine.git'
+#   export FRAGILITY_REPO_URL='git@github.com:AgenticOp-io/fragility-discovery-engine.git'
 #   bash scripts/gce_git_deploy.sh
 #
 # Env:
-#   FRAGILITY_REPO_URL   — git remote (default: https://github.com/theorem6/fragility-discovery-engine.git)
+#   FRAGILITY_REPO_URL   — git remote (default: https://github.com/AgenticOp-io/fragility-discovery-engine.git)
 #   FRAGILITY_DEPLOY_DIR — target directory (default: $HOME/fragility-discovery-engine)
 #   FRAGILITY_BRANCH     — branch (default: main)
 #   FRAGILITY_PYTHON     — python executable (default: first of python3.12, python3.11, python3 with version >= 3.11)
@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-FRAGILITY_REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/theorem6/fragility-discovery-engine.git}"
+FRAGILITY_REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/AgenticOp-io/fragility-discovery-engine.git}"
 FRAGILITY_DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 FRAGILITY_BRANCH="${FRAGILITY_BRANCH:-main}"
 FRAGILITY_PYTHON="${FRAGILITY_PYTHON:-}"

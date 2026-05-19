@@ -1,10 +1,10 @@
 # Project status (charter scope)
 
-**Last updated:** 2026-05-19 (branch `cursor/stable-manifest-summary-digest`)
+**Last updated:** 2026-05-19 · **`main`** · release **[v0.4.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.4.0)**
 
 ## Charter complete
 
-Phases **H–N** and **L** publication tooling described in [`BOUNDARIES.md`](../BOUNDARIES.md) are **shipped** for this repository:
+Phases **H–N** and **L** publication tooling described in [`BOUNDARIES.md`](../BOUNDARIES.md) are **shipped** on `main`:
 
 | Area | Status |
 |------|--------|
@@ -18,8 +18,9 @@ Phases **H–N** and **L** publication tooling described in [`BOUNDARIES.md`](..
 | **Bundled viewer samples + preset validation** | Shipped |
 | **Local / scheduled CI parity** | Shipped (`ci_local.*`, `.github/workflows/schedule.yml`) |
 | **CLI subprocess smokes** | 110+ slices; full suite **471** tests (3 skipped) |
+| **Release artifacts** | GitHub Release **v0.4.0** wheel + sdist; [`scripts/install_release.sh`](../scripts/install_release.sh) / [`.ps1`](../scripts/install_release.ps1) |
 
-**Verification command** (venv activated):
+**Verification** (venv activated):
 
 ```bash
 bash scripts/ci_local.sh          # Linux / macOS / WSL
@@ -29,19 +30,15 @@ powershell -NoProfile -File scripts/ci_local.ps1   # Windows
 
 Optional wheel smoke: `FRAGILITY_CI_LOCAL_BUILD=1` before `ci_local`.
 
+**Install a tagged release** (no PyPI): see [`RELEASING.md`](../RELEASING.md) or `bash scripts/install_release.sh v0.4.0`.
+
 ## Explicitly out of scope (by design)
 
-- **Coupled multi-kernel physics** in one `World.step()` — see [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
-- **Fifth reference domain** — charter closed; see [`BOUNDARIES.md`](../BOUNDARIES.md) “Future charter slots”.
+- **Coupled multi-kernel physics** in one `World.step()` — [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
+- **Fifth reference domain** — charter closed; [`BOUNDARIES.md`](../BOUNDARIES.md) “Future charter slots”.
 - **Production dashboards, live market feeds, regulatory certification claims**.
 - **LLM-driven simulation policy** inside rollouts.
 
-## Stretch / fork work (optional, not blocking “done”)
+## Optional follow-on (not charter blockers)
 
-Tracked aspirationally in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md): larger robustness grids, mechanism-design theory, coupled-institution forks, richer dashboards. None of these are required for the current charter exit.
-
-## Merge checklist
-
-1. Open PR: `cursor/stable-manifest-summary-digest` → `main`.
-2. Confirm CI green on Ubuntu + Windows matrix.
-3. Tag release per [`RELEASING.md`](../RELEASING.md) if publishing **0.4.0** artifacts.
+Aspirational items live in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) (larger grids, coupled forks, dashboards). Open a **new phase** in `BOUNDARIES.md` before expanding physics or bundle count.

@@ -73,9 +73,9 @@ gcloud compute ssh acs-hss-server --zone=us-central1-a --command='bash /tmp/gce_
 **Public repos** can use curl instead:
 
 ```bash
-export FRAGILITY_REPO_URL='git@github.com:theorem6/fragility-discovery-engine.git'
+export FRAGILITY_REPO_URL='git@github.com:AgenticOp-io/fragility-discovery-engine.git'
 export GIT_SSH_COMMAND='ssh -i ~/.ssh/gce_github_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new'
-curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
+curl -fsSL https://raw.githubusercontent.com/AgenticOp-io/fragility-discovery-engine/main/scripts/gce_git_deploy.sh | bash
 ```
 
 Or use a repo under another org:
@@ -136,7 +136,7 @@ On **Windows**, prefer **`scripts/gce_sync_vm.ps1`**: it normalizes **LF** line 
 **Public repo — no `scp`:** if the VM already has a clone at **`~/fragility-discovery-engine`**, you can pipe the script from `raw.githubusercontent.com`:
 
 ```bash
-gcloud compute ssh INSTANCE --zone=ZONE --command='curl -fsSL https://raw.githubusercontent.com/theorem6/fragility-discovery-engine/main/scripts/gce_pull_and_test.sh | bash'
+gcloud compute ssh INSTANCE --zone=ZONE --command='curl -fsSL https://raw.githubusercontent.com/AgenticOp-io/fragility-discovery-engine/main/scripts/gce_pull_and_test.sh | bash'
 ```
 
 **Private repo:** install **`~/.ssh/gce_github_ed25519`** (§3), then use **`gce_configure_git_ssh.sh`** (§3b) or rely on **`GIT_SSH_COMMAND`** fallback in [`gce_pull_and_test.sh`](../scripts/gce_pull_and_test.sh) until the marker is present in **`~/.ssh/config`**.

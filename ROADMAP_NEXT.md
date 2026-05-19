@@ -275,7 +275,7 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 1. Copy the **Purpose / In scope / Out of scope / Exit criteria** of an adopted phase into `BOUNDARIES.md`.
 2. Open a tracking issue per exit criterion with **one acceptance test** named up front.
 3. Prefer **small PRs** that close single criteria over mega-diffs.
-4. Use **[GitHub issue forms](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose)** (bug report / repro bundle) so repro steps and artifacts are structured.
+4. Use **[GitHub issue forms](https://github.com/AgenticOp-io/fragility-discovery-engine/issues/new/choose)** (bug report / repro bundle) so repro steps and artifacts are structured.
 
 ---
 
@@ -283,4 +283,4 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 
 The one-sentence north star in `BOUNDARIES.md` stays valid. This roadmap adds what comes **after** the stablecoin + topology + economics + explanation + co-evolution spine: **reproducibility others can check**, **clearer cause-and-effect exports**, **extra reference domains**, **honest performance notes**, and **readable outputs**—each gated so claims stay **grounded in tests and JSON**, not presentation alone.
 
-**Post–N emphasis (current):** charter-scope engineering for H–N + L is **complete** on `main` after merge of the stable-manifest / composite-v4 branch. Further work is **optional stretch** (see exploration table) or **fork** research—see [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md).
+**Post–N emphasis (current):** charter-scope engineering for H–N + L is **complete** on `main` ([**v0.4.0**](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.4.0)). Further work is **optional stretch** (see exploration table) or **fork** research—see [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md).

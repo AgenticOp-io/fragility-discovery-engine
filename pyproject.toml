@@ -24,8 +24,8 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/theorem6/fragility-discovery-engine"
-Issues = "https://github.com/theorem6/fragility-discovery-engine/issues"
+Repository = "https://github.com/AgenticOp-io/fragility-discovery-engine"
+Issues = "https://github.com/AgenticOp-io/fragility-discovery-engine/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8.0", "matplotlib>=3.8.0"]
