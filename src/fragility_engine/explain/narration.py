@@ -106,10 +106,11 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
         "fragility-institutional-composite-v1",
         "fragility-institutional-composite-v2",
         "fragility-institutional-composite-v3",
+        "fragility-institutional-composite-v4",
     ):
         lines.append("kind: institutional composite (decoupled kernels, one shock schedule)")
         lines.append(f"schema: {schema}")
-        for branch in ("aggregate", "network", "resource_cascade", "service_backlog"):
+        for branch in ("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"):
             b = data.get(branch)
             if isinstance(b, dict):
                 lines.append(
@@ -147,6 +148,9 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
         meta = data.get("meta")
         if isinstance(meta, dict) and meta.get("cli"):
             lines.append(f"meta.cli: {meta.get('cli')}")
+        if data.get("simulation_mode") == "liquidity_ladder" and isinstance(meta, dict):
+            if meta.get("initial_margin") is not None:
+                lines.append(f"meta.initial_margin: {meta.get('initial_margin')}")
         return "\n".join(lines)
 
     lines.append("kind: unknown JSON (no recognized schema)")

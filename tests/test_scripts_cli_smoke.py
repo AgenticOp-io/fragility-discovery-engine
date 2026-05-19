@@ -3372,6 +3372,20 @@ def test_mechanism_design_policy_sweep_json_cli(py_exe: str) -> None:
             ("aggregate", "service_backlog"),
             id="quad",
         ),
+        pytest.param(
+            [
+                "--penta",
+                "--aggregate-seed",
+                "6007",
+                "--backlog-seed",
+                "6008",
+                "--ladder-seed",
+                "6009",
+            ],
+            "fragility-institutional-composite-v4",
+            ("aggregate", "service_backlog", "liquidity_ladder"),
+            id="penta",
+        ),
     ],
 )
 def test_institutional_composite_demo_stdout_cli(
@@ -3418,6 +3432,27 @@ def test_institutional_composite_demo_stdout_cli(
             "fragility-institutional-composite-v3",
             ("aggregate", "network", "resource_cascade", "service_backlog"),
             id="quad-out",
+        ),
+        pytest.param(
+            [
+                "--penta",
+                "--aggregate-seed",
+                "6010",
+                "--backlog-seed",
+                "6011",
+                "--ladder-seed",
+                "6012",
+            ],
+            "composite_penta.json",
+            "fragility-institutional-composite-v4",
+            (
+                "aggregate",
+                "network",
+                "resource_cascade",
+                "service_backlog",
+                "liquidity_ladder",
+            ),
+            id="penta-out",
         ),
     ],
 )
@@ -3804,3 +3839,125 @@ def test_run_network_demo_neighbor_json_cli(py_exe: str, tmp_path: Path) -> None
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["simulation_mode"] == "network"
     assert data["meta"].get("topology_kind") == "neighbor_json" or "neighbor" in str(data["meta"])
+
+
+def test_export_liquidity_ladder_joint_attribution_cli(py_exe: str, tmp_path: Path) -> None:
+    out_json = tmp_path / "merge_ll.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_liquidity_ladder_joint_attribution.py"),
+            "--out",
+            str(out_json),
+            "--horizon",
+            "11",
+            "--seed",
+            "69201",
+            "--genome-seed",
+            "69202",
+            "--initial-margin",
+            "0.07",
+            "--variant-initial-margin",
+            "0.02",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["schema"] == "attribution-merge-v1"
+    assert payload["branch_count"] == 2
+    assert payload["meta"]["second_branch"] == "initial_margin_shift"
+
+
+def test_export_liquidity_ladder_joint_attribution_delever_second_branch_cli(
+    py_exe: str, tmp_path: Path
+) -> None:
+    out_json = tmp_path / "merge_ll_dr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_liquidity_ladder_joint_attribution.py"),
+            "--out",
+            str(out_json),
+            "--second-branch",
+            "delever_rate_shift",
+            "--variant-delever-rate",
+            "0.50",
+            "--horizon",
+            "11",
+            "--seed",
+            "69203",
+            "--genome-seed",
+            "69204",
+            "--initial-margin",
+            "0.07",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    interventions = {e["intervention"] for e in payload["edges"]}
+    assert "remove_steps" in interventions
+    assert "liquidity_ladder_delever_rate_shift" in interventions
+
+
+def test_export_llm_narration_prompt_liquidity_replay_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    replay = ROOT / "artifacts" / "replay_viewer" / "sample_liquidity_ladder_replay.json"
+    out = tmp_path / "ll_bundle.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(replay),
+            "--prompt-pack",
+            "liquidity_ladder_replay_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "liquidity_ladder_replay_v1"
+    assert "liquidity_ladder" in data["user_prompt"]
+
+
+def test_export_llm_narration_prompt_penta_composite_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--penta",
+            "--nodes",
+            "9",
+            "--horizon",
+            "8",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    composite_path = tmp_path / "penta.json"
+    composite_path.write_text(proc.stdout, encoding="utf-8")
+    out = tmp_path / "penta_bundle.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(composite_path),
+            "--prompt-pack",
+            "institutional_composite_penta_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "institutional_composite_penta_v1"
+    assert "liquidity_ladder" in data["user_prompt"]

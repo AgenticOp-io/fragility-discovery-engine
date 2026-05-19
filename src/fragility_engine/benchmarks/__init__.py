@@ -13,12 +13,15 @@ from fragility_engine.benchmarks.ensemble import (
 from fragility_engine.benchmarks.flagship import run_flagship_demo
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min, nondominated_points_min
 from fragility_engine.benchmarks.institutional_composite import (
+    penta_domain_rollout_artifact,
     quad_domain_rollout_artifact,
     triple_domain_rollout_artifact,
     twin_domain_rollout_artifact,
 )
 from fragility_engine.benchmarks.manifest import MANIFEST_SCHEMA, build_benchmark_manifest
 from fragility_engine.benchmarks.suite import (
+    BUNDLE_ATTACK_COST_BANDS,
+    BUNDLE_COLLAPSED_EXPECT,
     BUNDLE_IDS,
     BUNDLE_INTEGRAL_BANDS,
     GOLDEN_METRICS,
@@ -44,12 +47,16 @@ __all__ = [
     "nondominated_points_min",
     "build_fragility_certificate",
     "BUNDLE_IDS",
+    "BUNDLE_ATTACK_COST_BANDS",
+    "BUNDLE_COLLAPSED_EXPECT",
     "BUNDLE_INTEGRAL_BANDS",
     "GOLDEN_METRICS",
     "PINNED_GENOME_SEED",
     "PINNED_ROLLOUT_SEED",
     "PINNED_SCHEDULE_HORIZON",
     "RESULT_SCHEMA",
+    "assert_bundle_attack_cost_within_band",
+    "assert_bundle_collapsed_matches_expect",
     "assert_bundle_integral_within_band",
     "assert_bundle_matches_golden",
     "bundle_search_evaluator",
@@ -61,6 +68,7 @@ __all__ = [
     "robustness_ga_population_1d_sweep",
     "robustness_rollouts_neighbor_json_bundle",
     "robustness_rollouts_over_graph_seeds",
+    "penta_domain_rollout_artifact",
     "quad_domain_rollout_artifact",
     "triple_domain_rollout_artifact",
     "twin_domain_rollout_artifact",

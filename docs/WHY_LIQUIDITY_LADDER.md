@@ -34,7 +34,7 @@ Counterfactual cookbook: [`liquidity_ladder_counterfactual_example.md`](liquidit
 ## What we do not claim
 
 - No calibrated margin tables, Basel compliance, or live-market forecasts.
-- No cross-world coupling inside one `step()` — multi-kernel audits stay on decoupled composite JSON (`fragility-institutional-composite-v3` does not yet add liquidity as a fifth kernel; see [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md)).
+- No cross-world coupling inside one `step()` — multi-kernel audits use decoupled composite JSON (`fragility-institutional-composite-v4` adds a **fifth** branch via `institutional_composite_demo.py --penta`; still no shared state in `step()`).
 
 ---
 

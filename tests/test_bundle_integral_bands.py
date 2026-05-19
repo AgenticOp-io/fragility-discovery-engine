@@ -4,17 +4,30 @@ from __future__ import annotations
 
 import pytest
 
-from fragility_engine.benchmarks import BUNDLE_INTEGRAL_BANDS, validate_benchmark_suite
+from fragility_engine.benchmarks import (
+    BUNDLE_ATTACK_COST_BANDS,
+    BUNDLE_COLLAPSED_EXPECT,
+    BUNDLE_INTEGRAL_BANDS,
+    BUNDLE_IDS,
+    validate_benchmark_suite,
+)
 from fragility_engine.benchmarks.suite import (
+    assert_bundle_attack_cost_within_band,
     assert_bundle_integral_within_band,
     run_aggregate_rollout_v1,
 )
 
 
 def test_bundle_integral_bands_cover_all_bundle_ids():
-    from fragility_engine.benchmarks import BUNDLE_IDS
-
     assert set(BUNDLE_INTEGRAL_BANDS) == set(BUNDLE_IDS)
+
+
+def test_bundle_attack_cost_bands_cover_all_bundle_ids():
+    assert set(BUNDLE_ATTACK_COST_BANDS) == set(BUNDLE_IDS)
+
+
+def test_bundle_collapsed_expect_cover_all_bundle_ids():
+    assert set(BUNDLE_COLLAPSED_EXPECT) == set(BUNDLE_IDS)
 
 
 def test_validate_benchmark_suite_includes_integral_bands():

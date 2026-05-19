@@ -30,6 +30,8 @@ Schema **0.4.x** unchanged unless a future bump is justified.
 | Counterfactual | `scripts/export_counterfactual.py` (`liquidity_ladder_initial_margin_shift`) |
 | ε-sweep | `scripts/counterfactual_epsilon_sweep.py` (`--mode liquidity_ladder`) |
 | Mutation chain | `scripts/export_liquidity_ladder_counterfactual_chain.py` (`liquidity-ladder-mutation-chain-spec-v1`) |
+| Joint attribution | `scripts/export_liquidity_ladder_joint_attribution.py` (`attribution-merge-v1`) |
+| Penta composite | `scripts/institutional_composite_demo.py --penta` (`fragility-institutional-composite-v4`) |
 
 Aggregate/network/cascade/backlog chain fixtures stay oracles; liquidity-ladder chain exports now follow the same small-fixture pattern.
 

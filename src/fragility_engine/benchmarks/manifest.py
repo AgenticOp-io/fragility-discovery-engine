@@ -14,6 +14,8 @@ from fragility_engine.agents.stablecoin_agents import default_stablecoin_populat
 from fragility_engine.benchmarks.bundled_artifacts import BUNDLED_ARTIFACT_PATHS, CHAIN_FIXTURES
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
 from fragility_engine.benchmarks.suite import (
+    BUNDLE_ATTACK_COST_BANDS,
+    BUNDLE_COLLAPSED_EXPECT,
     BUNDLE_IDS,
     BUNDLE_INTEGRAL_BANDS,
     GOLDEN_METRICS,
@@ -136,6 +138,11 @@ def build_benchmark_manifest() -> dict[str, Any]:
             bid: {"integral_instability_min": lo, "integral_instability_max": hi}
             for bid, (lo, hi) in BUNDLE_INTEGRAL_BANDS.items()
         },
+        "bundle_attack_cost_bands": {
+            bid: {"attack_cost_min": lo, "attack_cost_max": hi}
+            for bid, (lo, hi) in BUNDLE_ATTACK_COST_BANDS.items()
+        },
+        "bundle_collapsed_expect": dict(BUNDLE_COLLAPSED_EXPECT),
         "bundle_count": len(BUNDLE_IDS),
         "repro_lookup": {
             "manifest_schema": MANIFEST_SCHEMA,
@@ -182,6 +189,7 @@ def build_benchmark_manifest() -> dict[str, Any]:
                 "fragility-institutional-composite-v1",
                 "fragility-institutional-composite-v2",
                 "fragility-institutional-composite-v3",
+                "fragility-institutional-composite-v4",
             ],
             "mutation_chain_path_traces": [
                 "explanation-mutation-chain-path-v1",

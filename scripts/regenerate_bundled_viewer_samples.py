@@ -212,6 +212,63 @@ def _write_composite_samples(py: str) -> None:
         cwd=str(ROOT),
     )
     print(f"wrote {quad.relative_to(ROOT)}")
+    penta = COMPOSITE_DEMO / "sample_penta_composite.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--penta",
+            "--horizon",
+            "10",
+            "--genome-seed",
+            "332",
+            "--graph-seed",
+            "54",
+            "--aggregate-seed",
+            "6900",
+            "--network-seed",
+            "6901",
+            "--cascade-seed",
+            "6902",
+            "--backlog-seed",
+            "6903",
+            "--ladder-seed",
+            "6904",
+            "--out",
+            str(penta),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {penta.relative_to(ROOT)}")
+
+
+def _write_liquidity_ladder_joint_attribution_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    out = ATTRIBUTION_VIEWER / "sample_attribution_merge_liquidity_ladder.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_liquidity_ladder_joint_attribution.py"),
+            "--out",
+            str(out),
+            "--horizon",
+            "11",
+            "--seed",
+            "69101",
+            "--genome-seed",
+            "69102",
+            "--initial-margin",
+            "0.07",
+            "--variant-initial-margin",
+            "0.02",
+            "--remove",
+            "0",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {out.relative_to(ROOT)}")
 
 
 def _write_aggregate_chain_sample(py: str) -> None:
@@ -471,6 +528,7 @@ def main() -> None:
         _write_resource_cascade_chain_sample(py)
         _write_service_backlog_chain_sample(py)
         _write_liquidity_ladder_chain_sample(py)
+        _write_liquidity_ladder_joint_attribution_sample(py)
     if not args.skip_composite:
         _write_composite_samples(py)
     if not args.skip_pareto:

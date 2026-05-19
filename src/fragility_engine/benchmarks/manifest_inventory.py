@@ -15,6 +15,8 @@ def manifest_inventory_subset(manifest: dict[str, Any]) -> dict[str, Any]:
         "bundle_ids": list(manifest.get("bundle_ids") or []),
         "bundle_count": manifest.get("bundle_count"),
         "bundle_integral_bands": manifest.get("bundle_integral_bands"),
+        "bundle_attack_cost_bands": manifest.get("bundle_attack_cost_bands"),
+        "bundle_collapsed_expect": manifest.get("bundle_collapsed_expect"),
         "golden_metrics_sha256": manifest.get("golden_metrics_sha256"),
     }
 

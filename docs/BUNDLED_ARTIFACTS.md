@@ -40,6 +40,7 @@ Preset also links `../flagship/bundled/pareto_front.json` (see flagship section)
 | `sample_resource_cascade_chain_coupling_rumor.json` | `export_resource_cascade_counterfactual_chain.py` |
 | `sample_service_backlog_chain_process_ingest.json` | `export_service_backlog_counterfactual_chain.py` |
 | `sample_liquidity_ladder_chain_margin_haircut.json` | `export_liquidity_ladder_counterfactual_chain.py` |
+| `sample_attribution_merge_liquidity_ladder.json` | `export_liquidity_ladder_joint_attribution.py` |
 
 ## Composite demo + viewer
 
@@ -48,6 +49,7 @@ Preset also links `../flagship/bundled/pareto_front.json` (see flagship section)
 | `composite_demo/sample_twin_composite.json` | v1 (network + resource_cascade) |
 | `composite_demo/sample_triple_composite.json` | v2 (+ aggregate) |
 | `composite_demo/sample_quad_composite.json` | v3 (+ service_backlog) |
+| `composite_demo/sample_penta_composite.json` | v4 (+ liquidity_ladder) |
 
 Open `artifacts/composite_viewer/index.html` over HTTP for presets.
 

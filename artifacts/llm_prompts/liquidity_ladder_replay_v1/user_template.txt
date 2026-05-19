@@ -1,0 +1,15 @@
+Liquidity ladder replay export (simulation_mode liquidity_ladder).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 4–7 sentences for engineering reviewers:
+- State simulation_mode, collapsed flag, integral_instability, attack_cost, and trajectory length if present.
+- Mention margin/ladder semantics only when supported by the narration (utilization vs depth).
+- Do not invent funding sources, Basel metrics, or live-market forecasts.
+- Commentary only — not simulator input.
+
+Plain prose only.

@@ -31,6 +31,10 @@
       "path": "sample_liquidity_ladder_chain_margin_haircut.json"
     },
     {
+      "label": "Bundled: liquidity_ladder attribution merge (2 branches)",
+      "path": "sample_attribution_merge_liquidity_ladder.json"
+    },
+    {
       "label": "Export: test_exports joint RC attribution",
       "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }

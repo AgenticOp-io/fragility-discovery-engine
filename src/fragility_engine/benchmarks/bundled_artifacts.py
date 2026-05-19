@@ -40,6 +40,8 @@ COMPOSITE_DEMO_SAMPLES: tuple[str, ...] = (
     "artifacts/composite_demo/sample_twin_composite.json",
     "artifacts/composite_demo/sample_triple_composite.json",
     "artifacts/composite_demo/sample_quad_composite.json",
+    "artifacts/composite_demo/sample_penta_composite.json",
+    "artifacts/attribution_viewer/sample_attribution_merge_liquidity_ladder.json",
 )
 
 CHAIN_FIXTURES: tuple[str, ...] = (

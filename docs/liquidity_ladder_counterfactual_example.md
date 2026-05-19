@@ -56,6 +56,28 @@ python scripts/export_replay.py --mode liquidity_ladder \
   --initial-margin 0.07 --horizon 14 --seed 9001 --out ll_replay.json
 ```
 
+## 4. Joint star-merge (two branches, one baseline)
+
+Combines **remove_steps** + **initial_margin_shift** (or **`--second-branch delever_rate_shift`** with **`--variant-delever-rate`**) into `attribution-merge-v1`.
+
+```bash
+python scripts/export_liquidity_ladder_joint_attribution.py --out merge_ll.json \
+  --horizon 11 --seed 401 --genome-seed 402 --initial-margin 0.07 \
+  --variant-initial-margin 0.02 --remove "0"
+
+python scripts/export_liquidity_ladder_joint_attribution.py --out merge_ll_dr.json \
+  --second-branch delever_rate_shift --variant-delever-rate 0.50 \
+  --horizon 11 --seed 403 --genome-seed 404 --initial-margin 0.07 --remove "0"
+```
+
+## 5. Institutional composite v4 (penta, includes liquidity_ladder)
+
+```bash
+python scripts/institutional_composite_demo.py --penta --horizon 10 --out sample_penta_composite.json
+```
+
+Open `artifacts/composite_viewer/index.html` for the bundled preset.
+
 ## 6. Regenerate bundled viewer samples
 
 ```bash

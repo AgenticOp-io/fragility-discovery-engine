@@ -28,3 +28,8 @@ def test_composite_viewer_presets_and_bundled_samples() -> None:
     quad = json.loads((COMPOSITE_DEMO / "sample_quad_composite.json").read_text(encoding="utf-8"))
     assert quad["schema"] == "fragility-institutional-composite-v3"
     assert "service_backlog" in quad
+    penta_path = COMPOSITE_DEMO / "sample_penta_composite.json"
+    if penta_path.is_file():
+        penta = json.loads(penta_path.read_text(encoding="utf-8"))
+        assert penta["schema"] == "fragility-institutional-composite-v4"
+        assert "liquidity_ladder" in penta
