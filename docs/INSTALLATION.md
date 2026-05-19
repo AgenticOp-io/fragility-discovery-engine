@@ -113,6 +113,8 @@ fragility-discovery-engine/
 
 Install the package in editable mode from the repo root: `pip install -e ".[dev]"`. Import name: `fragility_engine`.
 
+**Tagged release without PyPI:** use [`scripts/install_release.sh`](../scripts/install_release.sh) / [`scripts/install_release.ps1`](../scripts/install_release.ps1) or see [`RELEASING.md`](../RELEASING.md) (GitHub Release wheel, git tag, or editable checkout).
+
 ---
 
 ## Still stuck?
