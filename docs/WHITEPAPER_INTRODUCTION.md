@@ -9,9 +9,14 @@
 
 The **Fragility Discovery Engine** is an open-source Python framework for **systematically finding the conditions under which a simulated system breaks** — and then explaining *why* it broke in a form you can archive, reproduce, and compare.
 
-It is built around a single core question:
+It is built to answer questions like:
 
-> Given a model of some system, what is the **smallest or most severe sequence of external shocks** that drives it to collapse — and what changes when you intervene?
+- A stablecoin peg holds under normal conditions — at what point does a sequence of redemption shocks trigger a panic and break it?
+- A financial network is stable in isolation — which combination of node-level shocks causes contagion to cascade across the graph?
+- A service infrastructure runs within capacity — how does an overload in one layer propagate until the whole system fails?
+- A funding ladder is adequately margined — what reserve losses and rumor shocks erode the runway fast enough to cause a margin call spiral?
+
+In each case the engine searches for the shock sequences that matter, records exactly how the system responded, and produces controlled comparisons that show what would have changed under different conditions.
 
 The engine answers that question with **directed search** (genetic algorithms, Monte Carlo sampling, co-evolution) over discrete-time simulations, then exports structured JSON artifacts at every step so results are **deterministic, verifiable, and citable**.
 
