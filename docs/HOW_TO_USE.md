@@ -36,7 +36,7 @@ Typical workflow:
 
 This is a **research and engineering** tool: fixed seeds, explicit metrics, frozen benchmark rows in CI. It is **not** a live trading stack, a calibrated macro model, or a compliance certification product.
 
-Terminology mapping (stress testing, sensitivity analysis, audit trails): [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#terminology-plain-language).
+Terminology mapping (stress testing, sensitivity analysis, audit trails): [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#7-terminology-plain-language).
 
 ---
 
