@@ -1,0 +1,15 @@
+Penta institutional composite ({schema_hint}) — five decoupled branches, one shared shock schedule.
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 6–10 sentences for a paper appendix tone:
+- Cover **all five** branches present (aggregate, network, resource_cascade, service_backlog, liquidity_ladder): collapse flag and integral_instability each.
+- Note attack_cost reflects the shared schedule encoding, not cross-world coupling inside step().
+- Do not claim Shapley attribution, joint equilibrium, or regulatory sign-off.
+- Commentary only — not simulator input.
+
+Plain prose only.

@@ -115,6 +115,34 @@ def test_merge_carries_service_backlog_baseline_keys_on_edges():
     assert m["edges"][1]["variant_process_rate"] == 0.5
 
 
+def test_merge_carries_liquidity_ladder_baseline_keys_on_edges():
+    b0 = _snap(False, 1.0, 2.0)
+    m = merge_heterogeneous_counterfactuals(
+        [
+            {
+                "baseline": b0,
+                "counterfactual": _snap(False, 1.1, 2.0),
+                "intervention": "liquidity_ladder_initial_margin_shift",
+                "baseline_initial_margin": 0.07,
+                "variant_initial_margin": 0.02,
+                "delta_integral_instability": -0.1,
+            },
+            {
+                "baseline": b0,
+                "counterfactual": _snap(False, 1.2, 2.0),
+                "intervention": "liquidity_ladder_delever_rate_shift",
+                "baseline_delever_rate": 0.38,
+                "variant_delever_rate": 0.5,
+                "delta_integral_instability": -0.2,
+            },
+        ]
+    )
+    assert m["edges"][0]["baseline_initial_margin"] == 0.07
+    assert m["edges"][0]["variant_initial_margin"] == 0.02
+    assert m["edges"][1]["baseline_delever_rate"] == 0.38
+    assert m["edges"][1]["variant_delever_rate"] == 0.5
+
+
 def test_merge_remove_steps_infers_intervention():
     b0 = _snap(False, 1.0, 2.0)
     m = merge_heterogeneous_counterfactuals(

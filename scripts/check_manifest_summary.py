@@ -23,7 +23,7 @@ def main() -> None:
             f"  expected (fixture): {expected}\n"
             f"  current (code):     {current}\n"
             "Update tests/fixtures/benchmarks/manifest_summary_sha256.txt if pinned summary fields changed.\n"
-            "(Pinned digest excludes git_commit; CLI --manifest-summary still prints git.)\n"
+            "(Pinned digest excludes git_commit and runtime fields; CLI --manifest-summary still prints them.)\n"
             "Re-run: python -c \"from scripts.check_manifest_summary import manifest_summary_sha256; "
             "print(manifest_summary_sha256())\"",
             file=sys.stderr,

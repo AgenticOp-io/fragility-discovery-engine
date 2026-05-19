@@ -13,6 +13,10 @@
     {
       "label": "Bundled: quad institutional composite (v3)",
       "path": "../composite_demo/sample_quad_composite.json"
+    },
+    {
+      "label": "Bundled: penta institutional composite (v4)",
+      "path": "../composite_demo/sample_penta_composite.json"
     }
   ]
 }

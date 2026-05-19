@@ -12,12 +12,14 @@ from fragility_engine.agents.stablecoin_agents import default_stablecoin_populat
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
+    rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld, default_whale_weights
@@ -32,10 +34,10 @@ def main() -> None:
     p.add_argument("--genome-seed", type=int, default=42, help="RNG seed constructing random genome.")
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
         default="aggregate",
         help="aggregate=StablecoinPegWorld; network=contagion graph (B); resource_cascade=Phase J; "
-        "service_backlog=Phase M backlog/slack world.",
+        "service_backlog=Phase M; liquidity_ladder=Phase N.",
     )
     p.add_argument(
         "--continue-after-collapse",
@@ -65,6 +67,12 @@ def main() -> None:
         type=float,
         default=0.05,
         help="[service_backlog] backlog at reset.",
+    )
+    p.add_argument(
+        "--initial-margin",
+        type=float,
+        default=0.06,
+        help="[liquidity_ladder] margin utilization at reset.",
     )
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
     p.add_argument(
@@ -181,7 +189,7 @@ def main() -> None:
             initial_overload=float(args.initial_overload),
             continue_after_collapse=cont,
         )
-    else:
+    elif args.mode == "service_backlog":
         ms = max(int(args.horizon), 48)
         template = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=ms)
         result = rollout_service_backlog(
@@ -189,6 +197,16 @@ def main() -> None:
             genome,
             seed=int(args.seed),
             initial_backlog=float(args.initial_backlog),
+            continue_after_collapse=cont,
+        )
+    else:
+        ms = max(int(args.horizon), 48)
+        template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=ms)
+        result = rollout_liquidity_ladder(
+            template,
+            genome,
+            seed=int(args.seed),
+            initial_margin=float(args.initial_margin),
             continue_after_collapse=cont,
         )
 
@@ -209,9 +227,12 @@ def main() -> None:
     elif args.mode == "resource_cascade":
         meta["domain"] = "resource_cascade"
         meta["initial_overload"] = float(args.initial_overload)
-    else:
+    elif args.mode == "service_backlog":
         meta["domain"] = "service_backlog"
         meta["initial_backlog"] = float(args.initial_backlog)
+    else:
+        meta["domain"] = "liquidity_ladder"
+        meta["initial_margin"] = float(args.initial_margin)
     payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

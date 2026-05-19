@@ -52,6 +52,39 @@ def test_plot_institutional_composite_bars_triple_sample(py_exe: str, tmp_path: 
     assert out.stat().st_size > 100
 
 
+def test_plot_institutional_composite_bars_penta_from_demo(py_exe: str, tmp_path: Path) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--penta",
+            "--horizon",
+            "8",
+            "--nodes",
+            "9",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    composite = tmp_path / "penta.json"
+    composite.write_text(proc.stdout, encoding="utf-8")
+    out = tmp_path / "penta_bars.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_institutional_composite_bars.py"),
+            str(composite),
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert out.stat().st_size > 100
+
+
 def test_export_llm_prompt_institutional_composite_quad_pack(py_exe: str, tmp_path: Path) -> None:
     quad = ROOT / "artifacts" / "composite_demo" / "sample_quad_composite.json"
     subprocess.run(

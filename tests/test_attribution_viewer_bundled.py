@@ -44,3 +44,18 @@ def test_bundled_service_backlog_chain_path_trace() -> None:
     obj = json.loads(p.read_text(encoding="utf-8"))
     assert obj.get("intervention") == "service_backlog_mutation_chain"
     assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-service-backlog-v1"
+
+
+def test_bundled_liquidity_ladder_chain_path_trace() -> None:
+    p = ATTR / "sample_liquidity_ladder_chain_margin_haircut.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("intervention") == "liquidity_ladder_mutation_chain"
+    assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-liquidity-ladder-v1"
+
+
+def test_bundled_liquidity_ladder_merge_attribution_schema() -> None:
+    p = ATTR / "sample_attribution_merge_liquidity_ladder.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("schema") == "attribution-merge-v1"
+    assert obj.get("branch_count") == 2
+    assert obj.get("strict_baseline") is True

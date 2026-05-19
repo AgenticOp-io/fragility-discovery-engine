@@ -240,6 +240,16 @@ BUNDLE_INTEGRAL_BANDS: dict[str, tuple[float, float]] = {
     "liquidity_ladder_rollout_v1": (0.0, 2.5),
 }
 
+# Loose bands on attack_cost (shared schedule encoding across bundles; not point goldens).
+BUNDLE_ATTACK_COST_BANDS: dict[str, tuple[float, float]] = {
+    bid: (4.0, 9.0) for bid in BUNDLE_IDS
+}
+
+# Expected collapse bit per frozen bundle (regression on boolean outcome).
+BUNDLE_COLLAPSED_EXPECT: dict[str, bool] = {
+    bid: bool(GOLDEN_METRICS[bid]["collapsed"]) for bid in BUNDLE_IDS
+}
+
 
 def assert_bundle_integral_within_band(result: dict[str, Any]) -> None:
     """Raise if ``integral_instability`` is outside :data:`BUNDLE_INTEGRAL_BANDS` for this bundle."""
@@ -253,6 +263,32 @@ def assert_bundle_integral_within_band(result: dict[str, Any]) -> None:
     if not (lo <= val <= hi):
         raise AssertionError(
             f"{bid}: integral_instability {val} outside documented band [{lo}, {hi}] "
+            f"(golden point check uses GOLDEN_METRICS)"
+        )
+
+
+def assert_bundle_attack_cost_within_band(result: dict[str, Any]) -> None:
+    bid = result["bundle_id"]
+    band = BUNDLE_ATTACK_COST_BANDS.get(bid)
+    if band is None:
+        return
+    lo, hi = band
+    val = float(result["attack_cost"])
+    if not (lo <= val <= hi):
+        raise AssertionError(
+            f"{bid}: attack_cost {val} outside documented band [{lo}, {hi}] "
+            f"(golden point check uses GOLDEN_METRICS)"
+        )
+
+
+def assert_bundle_collapsed_matches_expect(result: dict[str, Any]) -> None:
+    bid = result["bundle_id"]
+    if bid not in BUNDLE_COLLAPSED_EXPECT:
+        return
+    expected = BUNDLE_COLLAPSED_EXPECT[bid]
+    if bool(result["collapsed"]) is not expected:
+        raise AssertionError(
+            f"{bid}: collapsed={result['collapsed']!r} expected {expected!r} "
             f"(golden point check uses GOLDEN_METRICS)"
         )
 
@@ -369,4 +405,6 @@ def validate_benchmark_suite(*, rtol: float = 1e-5, atol: float = 1e-7) -> None:
     for bid in BUNDLE_IDS:
         out = BUNDLE_RUNNERS[bid]()
         assert_bundle_integral_within_band(out)
+        assert_bundle_attack_cost_within_band(out)
+        assert_bundle_collapsed_matches_expect(out)
         assert_bundle_matches_golden(out, rtol=rtol, atol=atol)

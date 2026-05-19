@@ -22,7 +22,7 @@
 <body>
   <strong>Institutional composite viewer</strong>
   <div id="hint">
-    Load <code>fragility-institutional-composite-v1</code> / <strong>v2</strong> / <strong>v3</strong> JSON
+    Load <code>fragility-institutional-composite-v1</code> / <strong>v2</strong> / <strong>v3</strong> / <strong>v4</strong> JSON
     (decoupled multi-kernel metrics, not a replay timeline). Narration:
     <code>scripts/narrate_frozen_json.py</code>. Bar chart:
     <code>scripts/plot_institutional_composite_bars.py</code>.
@@ -44,7 +44,7 @@
   <div id="panel">Load JSON to begin.</div>
 
   <script>
-    const BRANCH_KEYS = ['aggregate', 'network', 'resource_cascade', 'service_backlog'];
+    const BRANCH_KEYS = ['aggregate', 'network', 'resource_cascade', 'service_backlog', 'liquidity_ladder'];
     const panel = document.getElementById('panel');
     const fileInput = document.getElementById('file');
     const presetRow = document.getElementById('presetRow');
@@ -61,7 +61,7 @@
     function renderComposite(data) {
       const sch = data.schema || '';
       if (!String(sch).startsWith('fragility-institutional-composite-v')) {
-        panel.textContent = 'Expected fragility-institutional-composite-v1/v2/v3, got: ' + sch;
+        panel.textContent = 'Expected fragility-institutional-composite-v1–v4, got: ' + sch;
         return;
       }
       const rows = [];

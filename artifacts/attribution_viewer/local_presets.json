@@ -7,6 +7,10 @@
       "path": "sample_attribution_merge_resource_cascade.json"
     },
     {
+      "label": "Bundled: service_backlog attribution merge (2 branches)",
+      "path": "sample_attribution_merge_service_backlog.json"
+    },
+    {
       "label": "Bundled: resource_cascade chain (coupling + rumor)",
       "path": "sample_resource_cascade_chain_coupling_rumor.json"
     },
@@ -29,6 +33,10 @@
     {
       "label": "Bundled: liquidity_ladder chain (delever + haircut)",
       "path": "sample_liquidity_ladder_chain_margin_haircut.json"
+    },
+    {
+      "label": "Bundled: liquidity_ladder attribution merge (2 branches)",
+      "path": "sample_attribution_merge_liquidity_ladder.json"
     },
     {
       "label": "Export: test_exports joint RC attribution",

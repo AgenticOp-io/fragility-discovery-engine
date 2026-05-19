@@ -5,12 +5,14 @@ from __future__ import annotations
 import numpy as np
 
 from fragility_engine.runner import (
+    rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
 )
 from fragility_engine.types import RolloutResult
+from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
@@ -192,5 +194,87 @@ def quad_domain_rollout_artifact(
         "network_seed": int(network_seed),
         "resource_cascade_seed": int(cascade_seed),
         "service_backlog_seed": int(backlog_seed),
+        "genome_shape": [int(x) for x in genome.shape],
+    }
+
+
+def penta_domain_rollout_artifact(
+    aggregate_template: StablecoinPegWorld,
+    network_template: StablecoinNetworkWorld,
+    resource_cascade_template: ResourceCascadeWorld,
+    service_backlog_template: ServiceBacklogWorld,
+    liquidity_ladder_template: LiquidityLadderWorld,
+    genome: np.ndarray,
+    *,
+    aggregate_seed: int,
+    network_seed: int,
+    cascade_seed: int,
+    backlog_seed: int,
+    liquidity_ladder_seed: int,
+    initial_panic: float = 0.05,
+    base_panic: float = 0.05,
+    initial_overload: float = 0.05,
+    initial_backlog: float = 0.05,
+    initial_margin: float = 0.06,
+    defender_genome_aggregate: np.ndarray | None = None,
+    defender_genome_network: np.ndarray | None = None,
+    defender_genome_cascade: np.ndarray | None = None,
+    defender_genome_backlog: np.ndarray | None = None,
+    defender_genome_liquidity_ladder: np.ndarray | None = None,
+) -> dict[str, object]:
+    """
+    Same schedule evaluated on **five** decoupled kernels (quad + liquidity ladder).
+
+    Schema **v4** — still no cross-world state inside ``step()``.
+    """
+
+    r_agg = rollout_stablecoin(
+        aggregate_template,
+        genome,
+        seed=int(aggregate_seed),
+        initial_panic=float(initial_panic),
+        defender_genome=defender_genome_aggregate,
+    )
+    r_net = rollout_stablecoin_network(
+        network_template,
+        genome,
+        seed=int(network_seed),
+        base_panic=float(base_panic),
+        defender_genome=defender_genome_network,
+    )
+    r_rc = rollout_resource_cascade(
+        resource_cascade_template,
+        genome,
+        seed=int(cascade_seed),
+        initial_overload=float(initial_overload),
+        defender_genome=defender_genome_cascade,
+    )
+    r_sb = rollout_service_backlog(
+        service_backlog_template,
+        genome,
+        seed=int(backlog_seed),
+        initial_backlog=float(initial_backlog),
+        defender_genome=defender_genome_backlog,
+    )
+    r_ll = rollout_liquidity_ladder(
+        liquidity_ladder_template,
+        genome,
+        seed=int(liquidity_ladder_seed),
+        initial_margin=float(initial_margin),
+        defender_genome=defender_genome_liquidity_ladder,
+    )
+
+    return {
+        "schema": "fragility-institutional-composite-v4",
+        "aggregate": _compact_rollout(r_agg),
+        "network": _compact_rollout(r_net),
+        "resource_cascade": _compact_rollout(r_rc),
+        "service_backlog": _compact_rollout(r_sb),
+        "liquidity_ladder": _compact_rollout(r_ll),
+        "aggregate_seed": int(aggregate_seed),
+        "network_seed": int(network_seed),
+        "resource_cascade_seed": int(cascade_seed),
+        "service_backlog_seed": int(backlog_seed),
+        "liquidity_ladder_seed": int(liquidity_ladder_seed),
         "genome_shape": [int(x) for x in genome.shape],
     }

@@ -299,6 +299,15 @@ def main() -> None:
         }
         if enriched_topo is not None:
             meta["topology"] = enriched_topo
+        if args.mode == "resource_cascade":
+            meta["domain"] = "resource_cascade"
+            meta["initial_overload"] = float(args.initial_overload)
+        if args.mode == "service_backlog":
+            meta["domain"] = "service_backlog"
+            meta["initial_backlog"] = float(args.initial_backlog)
+        if args.mode == "liquidity_ladder":
+            meta["domain"] = "liquidity_ladder"
+            meta["initial_margin"] = float(args.initial_margin)
         replay["meta"] = meta
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 

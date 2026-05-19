@@ -12,6 +12,7 @@ import numpy as np
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.counterfactual import (
     counterfactual_bundle_to_jsonable,
+    counterfactual_liquidity_ladder_delever_rate_shift_with_rollouts,
     counterfactual_liquidity_ladder_initial_margin_shift_with_rollouts,
     counterfactual_network_base_panic_with_rollouts,
     counterfactual_network_contagion_beta_with_rollouts,
@@ -70,6 +71,7 @@ def main() -> None:
             "initial_backlog_shift",
             "process_rate_shift",
             "initial_margin_shift",
+            "delever_rate_shift",
             "base_panic_shift",
             "contagion_beta_shift",
             "edge_weight_shift",
@@ -78,7 +80,8 @@ def main() -> None:
         default="remove_steps",
         help=(
             "remove_steps: zero shock rows; resource_cascade: initial_overload_shift or cascade_coupling_shift; "
-            "service_backlog: initial_backlog_shift or process_rate_shift; network-only: base_panic / contagion_beta / "
+            "service_backlog: initial_backlog_shift or process_rate_shift; liquidity_ladder: initial_margin_shift or "
+            "delever_rate_shift; network-only: base_panic / contagion_beta / "
             "edge weights (--neighbor-json for edge shifts); edge_weights_shift uses --edges-patch-json."
         ),
     )
@@ -168,6 +171,12 @@ def main() -> None:
         default=None,
         help="[liquidity_ladder, initial_margin_shift] counterfactual reset margin.",
     )
+    ap.add_argument(
+        "--variant-delever-rate",
+        type=float,
+        default=None,
+        help="[liquidity_ladder, delever_rate_shift] counterfactual delever_rate (baseline = template).",
+    )
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
         "--continue-after-collapse",
@@ -221,6 +230,8 @@ def main() -> None:
         raise SystemExit("--intervention process_rate_shift requires --mode service_backlog.")
     if args.intervention == "initial_margin_shift" and args.mode != "liquidity_ladder":
         raise SystemExit("--intervention initial_margin_shift requires --mode liquidity_ladder.")
+    if args.intervention == "delever_rate_shift" and args.mode != "liquidity_ladder":
+        raise SystemExit("--intervention delever_rate_shift requires --mode liquidity_ladder.")
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
@@ -256,10 +267,14 @@ def main() -> None:
         if args.intervention == "process_rate_shift" and args.variant_process_rate is None:
             raise SystemExit("--variant-process-rate required for --intervention process_rate_shift.")
     if args.mode == "liquidity_ladder":
-        if args.intervention not in ("remove_steps", "initial_margin_shift"):
-            raise SystemExit("liquidity_ladder mode supports remove_steps or initial_margin_shift.")
+        if args.intervention not in ("remove_steps", "initial_margin_shift", "delever_rate_shift"):
+            raise SystemExit(
+                "liquidity_ladder mode supports remove_steps, initial_margin_shift, or delever_rate_shift."
+            )
         if args.intervention == "initial_margin_shift" and args.variant_initial_margin is None:
             raise SystemExit("--variant-initial-margin required for --intervention initial_margin_shift.")
+        if args.intervention == "delever_rate_shift" and args.variant_delever_rate is None:
+            raise SystemExit("--variant-delever-rate required for --intervention delever_rate_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -372,13 +387,22 @@ def main() -> None:
             report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
                 genome, evaluator_ll, remove_timesteps=remove_ts, base_seed=args.seed
             )
-        else:
+        elif args.intervention == "initial_margin_shift":
             report, baseline_rr, variant_rr = counterfactual_liquidity_ladder_initial_margin_shift_with_rollouts(
                 genome,
                 template,
                 baseline_initial_margin=float(args.initial_margin),
                 variant_initial_margin=float(args.variant_initial_margin),
                 rollout_seed=int(args.seed),
+                continue_after_collapse=cont,
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_liquidity_ladder_delever_rate_shift_with_rollouts(
+                genome,
+                template,
+                variant_delever_rate=float(args.variant_delever_rate),
+                rollout_seed=int(args.seed),
+                initial_margin=float(args.initial_margin),
                 continue_after_collapse=cont,
             )
     else:
@@ -479,7 +503,7 @@ def main() -> None:
         payload["meta"]["domain"] = "service_backlog"
     if args.mode == "liquidity_ladder":
         payload["meta"]["domain"] = "liquidity_ladder"
-        payload["meta"]["initial_backlog"] = float(args.initial_backlog)
+        payload["meta"]["initial_margin"] = float(args.initial_margin)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay_dir is not None:
@@ -516,6 +540,12 @@ def main() -> None:
         elif args.intervention == "process_rate_shift":
             common_meta["baseline_process_rate"] = float(report["baseline_process_rate"])
             common_meta["variant_process_rate"] = float(report["variant_process_rate"])
+        elif args.intervention == "initial_margin_shift":
+            common_meta["baseline_initial_margin"] = float(args.initial_margin)
+            common_meta["variant_initial_margin"] = float(args.variant_initial_margin)
+        elif args.intervention == "delever_rate_shift":
+            common_meta["baseline_delever_rate"] = float(report["baseline_delever_rate"])
+            common_meta["variant_delever_rate"] = float(report["variant_delever_rate"])
         else:
             common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:
@@ -526,6 +556,9 @@ def main() -> None:
         if args.mode == "service_backlog":
             common_meta["domain"] = "service_backlog"
             common_meta["initial_backlog"] = float(args.initial_backlog)
+        if args.mode == "liquidity_ladder":
+            common_meta["domain"] = "liquidity_ladder"
+            common_meta["initial_margin"] = float(args.initial_margin)
         br = rollout_to_replay_dict(baseline_rr)
         br["meta"] = {**common_meta, "variant": "baseline"}
         vr = rollout_to_replay_dict(variant_rr)

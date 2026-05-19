@@ -98,8 +98,25 @@ Adding another remote (for example to fetch `main` from a second GitHub reposito
 
 ---
 
+## Repository layout (after clone)
+
+```
+fragility-discovery-engine/
+  src/fragility_engine/   # Library: world, adversary, explain, benchmarks, …
+  scripts/                # CLI tools (run from repo root)
+  tests/                  # Pytest suite (400+ tests; use `python -m pytest`)
+  artifacts/              # Checked-in demo JSON + static HTML viewers
+  benchmarks/             # Benchmark docs; golden rows in src/…/benchmarks/
+  docs/                   # Operator guides — start at docs/README.md
+  pyproject.toml          # Package `fragility-engine`, extras: dev, viz, accelerate
+```
+
+Install the package in editable mode from the repo root: `pip install -e ".[dev]"`. Import name: `fragility_engine`.
+
+---
+
 ## Still stuck?
 
 - **Authentication (Windows):** sign in once via the credential manager UI when Git prompts during `https://` push or fetch.
 - **Authentication (Linux/macOS):** use `gh auth login` or your distro’s Git credential documentation.
-- **Python / tests / viewers:** [`HOW_TO_USE.md`](HOW_TO_USE.md) and root [`README.md`](../README.md).
+- **Python / tests / viewers:** [`HOW_TO_USE.md`](HOW_TO_USE.md), [`docs/README.md`](README.md), root [`README.md`](../README.md).

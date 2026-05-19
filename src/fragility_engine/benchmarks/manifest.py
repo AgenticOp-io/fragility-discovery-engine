@@ -14,6 +14,8 @@ from fragility_engine.agents.stablecoin_agents import default_stablecoin_populat
 from fragility_engine.benchmarks.bundled_artifacts import BUNDLED_ARTIFACT_PATHS, CHAIN_FIXTURES
 from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
 from fragility_engine.benchmarks.suite import (
+    BUNDLE_ATTACK_COST_BANDS,
+    BUNDLE_COLLAPSED_EXPECT,
     BUNDLE_IDS,
     BUNDLE_INTEGRAL_BANDS,
     GOLDEN_METRICS,
@@ -69,16 +71,19 @@ def _golden_metrics_digest() -> str:
 
 
 def manifest_summary_sha256(m: dict[str, Any] | None = None) -> str:
-    """SHA-256 of pinned manifest summary excerpt (excludes ``git_commit`` for stable CI)."""
+    """SHA-256 of pinned manifest summary excerpt (excludes environment-specific fields for stable CI)."""
 
     text = format_benchmark_manifest_summary(
         m if m is not None else build_benchmark_manifest(),
         include_git=False,
+        include_runtime=False,
     )
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def format_benchmark_manifest_summary(m: dict[str, Any], *, include_git: bool = True) -> str:
+def format_benchmark_manifest_summary(
+    m: dict[str, Any], *, include_git: bool = True, include_runtime: bool = True
+) -> str:
     """Short, log-friendly excerpt of ``build_benchmark_manifest()`` for CI / paper appendix checks."""
 
     prov = m.get("provenance") or {}
@@ -94,20 +99,21 @@ def format_benchmark_manifest_summary(m: dict[str, Any], *, include_git: bool = 
     ]
     if include_git:
         lines.append(f"  git_commit={prov.get('git_commit') or 'unknown'}")
-    lines.extend(
-        [
-            (
-                "  python={python_version} numpy={numpy_version} "
-                "fragility_engine={fragility_engine_version}"
-            ).format(
-                python_version=prov.get("python_version") or "?",
-                numpy_version=prov.get("numpy_version") or "?",
-                fragility_engine_version=prov.get("fragility_engine_version") or "?",
-            ),
-            f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
-            f"  replay_schema_version={m.get('replay_schema_version')}",
-        ]
-    )
+    if include_runtime:
+        lines.extend(
+            [
+                (
+                    "  python={python_version} numpy={numpy_version} "
+                    "fragility_engine={fragility_engine_version}"
+                ).format(
+                    python_version=prov.get("python_version") or "?",
+                    numpy_version=prov.get("numpy_version") or "?",
+                    fragility_engine_version=prov.get("fragility_engine_version") or "?",
+                ),
+                f"  resource_cascade_backend_effective={rb.get('resource_cascade_backend_effective')}",
+            ]
+        )
+    lines.append(f"  replay_schema_version={m.get('replay_schema_version')}")
     return "\n".join(lines) + "\n"
 
 
@@ -132,6 +138,11 @@ def build_benchmark_manifest() -> dict[str, Any]:
             bid: {"integral_instability_min": lo, "integral_instability_max": hi}
             for bid, (lo, hi) in BUNDLE_INTEGRAL_BANDS.items()
         },
+        "bundle_attack_cost_bands": {
+            bid: {"attack_cost_min": lo, "attack_cost_max": hi}
+            for bid, (lo, hi) in BUNDLE_ATTACK_COST_BANDS.items()
+        },
+        "bundle_collapsed_expect": dict(BUNDLE_COLLAPSED_EXPECT),
         "bundle_count": len(BUNDLE_IDS),
         "repro_lookup": {
             "manifest_schema": MANIFEST_SCHEMA,
@@ -178,6 +189,7 @@ def build_benchmark_manifest() -> dict[str, Any]:
                 "fragility-institutional-composite-v1",
                 "fragility-institutional-composite-v2",
                 "fragility-institutional-composite-v3",
+                "fragility-institutional-composite-v4",
             ],
             "mutation_chain_path_traces": [
                 "explanation-mutation-chain-path-v1",

@@ -1,6 +1,6 @@
 # Next steps (after clone)
 
-Use this page as a **short checklist** before you change simulation code or open a PR. Deep tutorials stay in [`HOW_TO_USE.md`](HOW_TO_USE.md); normative rules stay in [`BOUNDARIES.md`](../BOUNDARIES.md); direction and backlog tables stay in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md).
+Use this page as a **short checklist** before you change simulation code or open a PR. Deep tutorials stay in [`HOW_TO_USE.md`](HOW_TO_USE.md); normative rules stay in [`BOUNDARIES.md`](../BOUNDARIES.md); direction and backlog tables stay in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md). **Charter completion snapshot:** [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
 ---
 
@@ -35,12 +35,12 @@ python scripts/run_benchmark_suite.py --validate
 ## 3. Pick work that fits the charter
 
 - **Do not** weaken determinism or world/adversary separation — read [`BOUNDARIES.md`](../BOUNDARIES.md) first.
-- **Aspirational ideas** (benchmark metric floors, Phase N fourth domain, narration gaps): see [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) — especially **Near-term backlog** and **Phase N** (draft only until promoted into `BOUNDARIES.md`).
+- **Aspirational ideas** (benchmark metric floors, coupled kernels, narration gaps): see [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) — especially **Near-term backlog**. **Phase N** (`liquidity_ladder`) is **shipped**; gate details: [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md).
 - **Coupled multi-kernel physics:** out of charter here — [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
 
 ---
 
 ## 4. Open a PR
 
-- Prefer **one thin slice** per PR (tests + docs for the behavior you touched).
+- Prefer **one thin slice** per PR (tests + docs for the behavior you touched). CLI smokes: [`CLI_SLICES.md`](CLI_SLICES.md) (`tests/test_scripts_cli_smoke.py`).
 - Use **[issue templates](https://github.com/theorem6/fragility-discovery-engine/issues/new/choose)** for bugs or reproducibility reports.

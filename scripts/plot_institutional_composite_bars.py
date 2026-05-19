@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 STYLE_SCHEMA = "fragility-plot-institutional-composite-style-v1"
-BRANCH_ORDER = ("aggregate", "network", "resource_cascade", "service_backlog")
+BRANCH_ORDER = ("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder")
 
 
 def _repo_root() -> Path:

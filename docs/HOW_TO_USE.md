@@ -1,19 +1,42 @@
 # How to use the Fragility Discovery Engine
 
-This guide is the **hands-on entry point**: install, run your first artifacts, understand JSON outputs, and use the static viewers. Normative scope and non-goals live in [`BOUNDARIES.md`](../BOUNDARIES.md). Honest complexity and sweep costs: [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md).
+This guide is the **hands-on entry point**: install, run your first artifacts, understand JSON outputs, and use the static viewers.
 
-**About “Phase” in docs:** those labels line up with sections in [`BOUNDARIES.md`](../BOUNDARIES.md). They record how work was gated and tested, not separate products or editions you install on their own. Short charter primer: [How to read “Phase” labels](../BOUNDARIES.md#how-to-read-phase-labels).
+| More detail | Document |
+|-------------|----------|
+| Documentation map | [`README.md`](README.md) |
+| Package layout and data flow | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| CLI / env / schema lookup | [`REFERENCE.md`](REFERENCE.md) |
+| Charter and non-goals | [`BOUNDARIES.md`](../BOUNDARIES.md) |
+| Cost and parallelism | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |
+
+**About “Phase” in docs:** labels such as Phase H or Phase N are **section names** in [`BOUNDARIES.md`](../BOUNDARIES.md) (how features were gated in CI). They are not separate products or install tiers. Primer: [How to read “Phase” labels](../BOUNDARIES.md#how-to-read-phase-labels).
 
 ---
 
 ## 1. What this software does
 
-- **Search** for shock schedules (Monte Carlo, genetic algorithms, co-evolution) over **modular worlds**: aggregate peg, network contagion, resource cascade, and **service backlog** (operations / latency stress).
-- **Score** runs with explicit metrics (`integral_instability`, collapse, `attack_cost`, …).
-- **Export** schema-versioned JSON: replays, Pareto archives, counterfactuals, certificates, robustness sweeps, institutional composites.
-- **Explain** with minimization, counterfactuals, optional deterministic **narration** and plot hooks—without claiming market calibration or regulatory compliance.
+The engine runs **discrete-time simulations** where an adversary supplies a **shock schedule** (one row per timestep). Search algorithms (Monte Carlo, genetic algorithms, co-evolution) explore schedules to maximize stated **fragility metrics**. Outputs are **versioned JSON** you can archive, diff, and cite.
 
-For how this maps to common terms (stress testing, sensitivity analysis, audit trails), see **[Terminology](WHITEPAPER_INTRODUCTION.md#terminology-plain-language)** in [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md).
+**Reference domains** (each is a separate world model; same schedule encoding):
+
+| Mode | What it models |
+|------|----------------|
+| `aggregate` | Scalar stablecoin peg / panic |
+| `network` | Contagion on a graph (synthetic or neighbor-list JSON) |
+| `resource_cascade` | Overload and capacity cascade |
+| `service_backlog` | Operations backlog and processing rate |
+| `liquidity_ladder` | Margin utilization vs funding ladder depth |
+
+Typical workflow:
+
+1. Run search or a single rollout → **replay JSON** or **Pareto JSON**.
+2. Run **counterfactuals** or **ε-sweeps** on pinned seeds.
+3. Optional: **certificate** digest, **narration**, plots, static viewers.
+
+This is a **research and engineering** tool: fixed seeds, explicit metrics, frozen benchmark rows in CI. It is **not** a live trading stack, a calibrated macro model, or a compliance certification product.
+
+Terminology mapping (stress testing, sensitivity analysis, audit trails): [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md#terminology-plain-language).
 
 ---
 
@@ -144,11 +167,33 @@ python scripts/run_service_backlog_ga_demo.py --export-replay sb.json --initial-
 
 Concepts: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md), narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md). Counterfactual cookbook: [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
 
+### 4.5c Liquidity ladder (fourth reference domain, Phase N)
+
+```bash
+python scripts/run_liquidity_ladder_ga_demo.py --export-replay ll.json --initial-margin 0.06
+python scripts/export_replay.py --mode liquidity_ladder --initial-margin 0.07 --out ll_replay.json
+python scripts/run_mc_demo.py --mode liquidity_ladder --samples 16 --export-replay ll_mc.json
+```
+
+Concepts: [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md), narrative: [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md). Counterfactual cookbook: [`liquidity_ladder_counterfactual_example.md`](liquidity_ladder_counterfactual_example.md).
+
+Validate the frozen bundle:
+
+```bash
+python scripts/run_benchmark_suite.py --validate
+# includes liquidity_ladder_rollout_v1
+```
+
 ### 4.6 Co-evolution and Pareto viewer
 
 ```bash
-python scripts/run_coevolution.py --mode aggregate --generations 2 --population-size 10 --export-replay --export-pareto-json pareto.json --json-summary summary.json
+python scripts/run_coevolution.py --mode aggregate \
+  --rounds 1 --attacker-generations 2 --attacker-population 10 \
+  --defender-generations 2 --defender-population 8 \
+  --export-replay coev.json --export-pareto-json pareto.json --json-summary summary.json
 ```
+
+Use `--mode liquidity_ladder` (with `--initial-margin`) or other modes the same way; see `run_coevolution.py --help`.
 
 Open `artifacts/pareto_viewer/index.html` and load `pareto_front.json` / your `pareto.json` (see viewer folder for preset behavior).
 
@@ -279,18 +324,19 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 
 ## 10. Further reading
 
+See [`README.md`](README.md) for the full documentation index. Highlights:
+
 | Document | Purpose |
 |----------|---------|
-| [`BOUNDARIES.md`](../BOUNDARIES.md) | Charter: phases (internal section names), exit criteria, non-goals |
-| [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) | Possible next steps (not binding until promoted into `BOUNDARIES.md`) |
-| [`benchmarks/README.md`](../benchmarks/README.md) | Bundle IDs, robustness CLIs, composites |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Layers, rollout pipeline, extension points |
+| [`REFERENCE.md`](REFERENCE.md) | Mode matrix, env vars, schema ids |
+| [`BOUNDARIES.md`](../BOUNDARIES.md) | Charter, phase exit criteria, non-goals |
+| [`benchmarks/README.md`](../benchmarks/README.md) | Bundle IDs, robustness sweeps, composites |
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | One end-to-end reviewer path |
-| [`GCE_DEPLOY_KEY.md`](GCE_DEPLOY_KEY.md) | VM deploy keys |
-| [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Third-domain gate, coupled dynamics (non-goals) |
-| [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md) | Third reference domain (`ServiceBacklogWorld`): checklist, replay table, exit tests |
-| [`INSTALLATION.md`](INSTALLATION.md) | Git on Windows (credential helper), Linux/macOS HTTPS, dual-stack notes |
-| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Post-clone checklist: local CI parity scripts, frozen benchmarks, where to read next |
+| [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) | Checked-in demo JSON |
+| [`INSTALLATION.md`](INSTALLATION.md) | Git, OS packages, CI scripts |
+| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Post-clone checklist |
 
 ---
 
-*This file is maintained as the primary **user-oriented** guide; the root [`README.md`](../README.md) stays the project overview and full script table.*
+*User-oriented guide. Root [`README.md`](../README.md) = overview + script index.*

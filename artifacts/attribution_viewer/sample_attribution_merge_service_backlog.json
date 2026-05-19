@@ -1,0 +1,89 @@
+{
+  "schema": "attribution-merge-v1",
+  "strict_baseline": true,
+  "branch_count": 2,
+  "nodes": [
+    {
+      "id": "baseline",
+      "kind": "root",
+      "rollout": {
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.05723145123395097,
+        "integral_instability": 0.26135497136208163,
+        "recovery_timestep": null,
+        "attack_cost": 6.220041673868222,
+        "mode": "service_backlog",
+        "horizon_steps": 28,
+        "seed": 66210
+      }
+    },
+    {
+      "id": "branch_0",
+      "kind": "counterfactual",
+      "bundle_index": 0,
+      "intervention": "remove_steps",
+      "rollout": {
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.05723145123395097,
+        "integral_instability": 0.26135497136208163,
+        "recovery_timestep": null,
+        "attack_cost": 6.1657557210770655,
+        "mode": "service_backlog",
+        "horizon_steps": 28,
+        "seed": 66210
+      }
+    },
+    {
+      "id": "branch_1",
+      "kind": "counterfactual",
+      "bundle_index": 1,
+      "intervention": "service_backlog_initial_backlog_shift",
+      "rollout": {
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.05723145123395097,
+        "integral_instability": 0.26135497136208163,
+        "recovery_timestep": null,
+        "attack_cost": 6.220041673868222,
+        "mode": "service_backlog",
+        "horizon_steps": 28,
+        "seed": 66210
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "baseline",
+      "to": "branch_0",
+      "intervention": "remove_steps",
+      "delta_integral_instability": 0.0,
+      "delta_attack_cost": 0.05428595279115633,
+      "removed_timesteps": [
+        0
+      ]
+    },
+    {
+      "from": "baseline",
+      "to": "branch_1",
+      "intervention": "service_backlog_initial_backlog_shift",
+      "delta_integral_instability": 0.0,
+      "delta_attack_cost": 0.0,
+      "baseline_initial_backlog": 0.07,
+      "variant_initial_backlog": 0.02
+    }
+  ],
+  "meta": {
+    "cli": "export_service_backlog_joint_attribution",
+    "domain": "service_backlog",
+    "second_branch": "initial_backlog_shift",
+    "baseline_initial_backlog": 0.07,
+    "removed_timesteps_branch": [
+      0
+    ],
+    "rollout_seed": 66210,
+    "genome_seed": 66211,
+    "variant_initial_backlog_branch": 0.02
+  }
+}

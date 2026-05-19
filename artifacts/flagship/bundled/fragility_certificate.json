@@ -3,8 +3,17 @@
   "fragility_engine_version": "0.4.0",
   "python_version": "3.12.10",
   "numpy_version": "2.4.4",
-  "git_commit": "5d638bcbac579b11a8cb50b73609eb0db7bcba93",
-  "artifact_sha256": [],
+  "git_commit": "cedabc646af142720b83b013d950030fd047109b",
+  "artifact_sha256": [
+    {
+      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
+      "sha256": "64ce3e89c8f19c2603d7e3eae9b04c0d0ce0ddfb879b879a329e19e8743ee46c"
+    },
+    {
+      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\pareto_front.json",
+      "sha256": "acedbc268694adc02a7cfc9698b8fd5e0aff2a2aa4956ca54e1217291cbe3030"
+    }
+  ],
   "benchmark_manifest": {
     "schema": "benchmark-manifest-v2",
     "bundle_ids": [
@@ -81,6 +90,40 @@
         "integral_instability_max": 2.5
       }
     },
+    "bundle_attack_cost_bands": {
+      "aggregate_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      },
+      "liquidity_ladder_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      },
+      "network_er_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      },
+      "network_neighbor_list_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      },
+      "resource_cascade_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      },
+      "service_backlog_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      }
+    },
+    "bundle_collapsed_expect": {
+      "aggregate_rollout_v1": true,
+      "liquidity_ladder_rollout_v1": false,
+      "network_er_rollout_v1": true,
+      "network_neighbor_list_rollout_v1": true,
+      "resource_cascade_rollout_v1": true,
+      "service_backlog_rollout_v1": false
+    },
     "bundle_count": 6,
     "repro_lookup": {
       "manifest_schema": "benchmark-manifest-v2",
@@ -93,7 +136,7 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "3e3f18fb20903302c22ebeb172fb34195e6bb9beaa3ab1fabb71f1ba0fda4caa",
-      "git_commit": "5d638bcbac579b11a8cb50b73609eb0db7bcba93",
+      "git_commit": "cedabc646af142720b83b013d950030fd047109b",
       "python_version": "3.12.10",
       "numpy_version": "2.4.4",
       "fragility_engine_version": "0.4.0",
@@ -107,7 +150,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.4",
       "fragility_engine_version": "0.4.0",
-      "git_commit": "5d638bcbac579b11a8cb50b73609eb0db7bcba93"
+      "git_commit": "cedabc646af142720b83b013d950030fd047109b"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -148,16 +191,19 @@
       "institutional_composite": [
         "fragility-institutional-composite-v1",
         "fragility-institutional-composite-v2",
-        "fragility-institutional-composite-v3"
+        "fragility-institutional-composite-v3",
+        "fragility-institutional-composite-v4"
       ],
       "mutation_chain_path_traces": [
         "explanation-mutation-chain-path-v1",
         "explanation-mutation-chain-path-resource-cascade-v1",
         "explanation-mutation-chain-path-service-backlog-v1",
+        "explanation-mutation-chain-path-liquidity-ladder-v1",
         "explanation-mutation-chain-path-aggregate-v1"
       ],
       "aggregate_mutation_chain_spec": "aggregate-mutation-chain-spec-v1",
       "service_backlog_mutation_chain_spec": "service-backlog-mutation-chain-spec-v1",
+      "liquidity_ladder_mutation_chain_spec": "liquidity-ladder-mutation-chain-spec-v1",
       "resource_cascade_mutation_chain_spec": "resource-cascade-mutation-chain-spec-v1",
       "network_mutation_chain_spec": "network-mutation-chain-spec-v1"
     },
@@ -165,7 +211,8 @@
       "tests/fixtures/chains/aggregate_panic_depeg_chain.json",
       "tests/fixtures/chains/network_contagion_base_panic_chain.json",
       "tests/fixtures/chains/resource_cascade_coupling_rumor_chain.json",
-      "tests/fixtures/chains/service_backlog_process_ingest_chain.json"
+      "tests/fixtures/chains/service_backlog_process_ingest_chain.json",
+      "tests/fixtures/chains/liquidity_ladder_margin_haircut_chain.json"
     ],
     "bundled_artifact_paths": [
       "artifacts/replay_viewer/sample_replay.json",
@@ -177,6 +224,7 @@
       "artifacts/pareto_viewer/sample_pareto_resource_cascade.json",
       "artifacts/pareto_viewer/sample_pareto_service_backlog.json",
       "artifacts/pareto_viewer/sample_pareto_network.json",
+      "artifacts/pareto_viewer/sample_pareto_liquidity_ladder.json",
       "artifacts/flagship/bundled/pareto_front.json",
       "artifacts/flagship/bundled/best_replay.json",
       "artifacts/flagship/bundled/fragility_certificate.json",
@@ -187,9 +235,13 @@
       "artifacts/attribution_viewer/sample_aggregate_chain_rumor_depeg.json",
       "artifacts/attribution_viewer/sample_resource_cascade_chain_coupling_rumor.json",
       "artifacts/attribution_viewer/sample_service_backlog_chain_process_ingest.json",
+      "artifacts/attribution_viewer/sample_liquidity_ladder_chain_margin_haircut.json",
       "artifacts/composite_demo/sample_twin_composite.json",
       "artifacts/composite_demo/sample_triple_composite.json",
-      "artifacts/composite_demo/sample_quad_composite.json"
+      "artifacts/composite_demo/sample_quad_composite.json",
+      "artifacts/composite_demo/sample_penta_composite.json",
+      "artifacts/attribution_viewer/sample_attribution_merge_liquidity_ladder.json",
+      "artifacts/attribution_viewer/sample_attribution_merge_service_backlog.json"
     ],
     "viewer_preset_checks": "scripts/validate_viewer_presets.py",
     "bundled_artifact_checks": "scripts/check_bundled_artifacts.py",
@@ -232,6 +284,18 @@
     "resource_cascade_rollout_v1",
     "service_backlog_rollout_v1"
   ],
-  "notes": "bundled CI pin refresh",
-  "certificate_content_sha256": "835571d1642325806cf5f9fe152ea1d532d88c4be39965c08d57b495e3da27e3"
+  "flagship_run": {
+    "mode": "aggregate_stablecoin_peg",
+    "horizon": 10,
+    "generations": 2,
+    "population_size": 8,
+    "ga_seed": 424242,
+    "best_fitness": 11.657778418114086,
+    "artifacts": {
+      "best_replay": "best_replay.json",
+      "pareto_front": "pareto_front.json"
+    }
+  },
+  "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
+  "certificate_content_sha256": "8e8ef969b0346104abe5ccf5b133c1f04262715fa7f3b4fe8d5f633b610cd3fe"
 }

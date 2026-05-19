@@ -283,6 +283,7 @@ def main() -> None:
         "mode": args.mode,
         "genome_seed": int(args.genome_seed),
         "horizon": int(args.horizon),
+        "continue_after_collapse": cont,
         "topology": topo_meta,
     }
     if args.emit_trace:
