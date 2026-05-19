@@ -1,6 +1,6 @@
 # Next steps (after clone)
 
-Use this page as a **short checklist** before you change simulation code or open a PR. Deep tutorials stay in [`HOW_TO_USE.md`](HOW_TO_USE.md); normative rules stay in [`BOUNDARIES.md`](../BOUNDARIES.md); direction and backlog tables stay in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md).
+Use this page as a **short checklist** before you change simulation code or open a PR. Deep tutorials stay in [`HOW_TO_USE.md`](HOW_TO_USE.md); normative rules stay in [`BOUNDARIES.md`](../BOUNDARIES.md); direction and backlog tables stay in [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md). **Charter completion snapshot:** [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
 
 ---
 

@@ -38,7 +38,7 @@ If a feature weakens determinism, blurs world/adversary separation, or ships wit
 
 Work **does not start** on a phase until prior phases are green in CI **and** `BOUNDARIES.md` is updated to adopt that phase’s gates.
 
-**Phase N (fourth reference domain)** is drafted **below** as a named slot only—it is **not** normative until a matching section lands in `BOUNDARIES.md`.
+**Phase N (fourth reference domain)** is **adopted** in [`BOUNDARIES.md`](BOUNDARIES.md) (Phase N) and [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md).
 
 **Phase H is adopted** — see **`BOUNDARIES.md` (Phase H)** for normative exit criteria. Further Phase H work (scheduled CI, richer manifest fields, Pareto hypervolume on frozen search exports) remains optional backlog; the portable manifest already carries **golden digest**, **topology**, **provenance**, an **artifact schema index**, and a **frozen 2-D hypervolume regression fixture** (`build_benchmark_manifest`).
 
@@ -186,8 +186,8 @@ Work **does not start** on a phase until prior phases are green in CI **and** `B
 
 **Follow-ups (non-gates):**
 
-- Narration / plot parity for **quad** institutional composite JSON where gaps remain (same rule as other artifacts: deterministic summaries only).
-- Optional **preset packs** for static viewers so flagship + composite demos load without hand-picking paths (still HTTP-served; no new runtime coupling to worlds). **Partial:** attribution viewer presets + `artifacts/composite_demo/sample_quad_composite.json`; regenerate via `scripts/regenerate_bundled_viewer_samples.py`.
+- [x] Narration / plot / LLM packs for **quad** and **penta** (v3/v4) institutional composite JSON.
+- [x] **Preset packs** for static viewers (replay, Pareto, attribution, composite including penta); regenerate via `scripts/regenerate_bundled_viewer_samples.py`.
 
 ---
 
@@ -201,10 +201,10 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (e.g. integral instability bands) for one or two bundles | **`BUNDLE_INTEGRAL_BANDS`** + `validate_benchmark_suite()`; manifest **`bundle_integral_bands`**; digest pin via **`check_manifest_digest.py`** |
-| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix: schema index, golden digest, topology hints | **`check_manifest_summary.py`** pins log excerpt; inventory + digest checks; [`docs/BUNDLED_ARTIFACTS.md`](docs/BUNDLED_ARTIFACTS.md) |
-| **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | **Flagship bundled** `pareto_front.json` + `tests/test_flagship_bundled.py::test_flagship_bundled_pareto_hypervolume`; manifest registry entry |
-| **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | Reduces “green locally, stale scheduled” surprises |
+| **Regression metrics beyond wall-clock** | Optional **floors / ceilings** on shipped scalars (integral, attack_cost, collapsed bit) | **Shipped:** `BUNDLE_INTEGRAL_BANDS`, `BUNDLE_ATTACK_COST_BANDS`, `BUNDLE_COLLAPSED_EXPECT`; manifest fields; `validate_benchmark_suite()` |
+| **Manifest as review artifact** | Treat `benchmark-manifest-v2` as the **inventory** for a paper appendix | **Shipped:** digest, inventory, summary pins; [`docs/BUNDLED_ARTIFACTS.md`](docs/BUNDLED_ARTIFACTS.md) |
+| **Pareto on frozen search exports** | Pin **one** small GA/MC export + **2-D hypervolume** expectation alongside replay bundles | **Shipped:** flagship bundled Pareto + `check_bundled_pareto_hypervolume.py` |
+| **Scheduled job coverage** | Align **weekly** workflow artifacts with the same validation path as PR CI | **Shipped:** `.github/workflows/schedule.yml` mirrors PR validate + manifest pins |
 
 ### Explanation grammar (Phase I charter)
 
@@ -217,7 +217,7 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 | Track | Intent | Notes |
 |--------|--------|--------|
-| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** variants | **`institution_composite_v1`** (all v1–v3); **`institutional_composite_triple_v1`** (v2/v3 appendix tone) |
+| **Prompt packs** | Additional **`llm-prompt-bundle-v1`** packs for **reviewer memo** / **appendix** / domain replay | **Shipped:** `institution_composite_v1`, twin/triple/quad/penta packs, `liquidity_ladder_replay_v1`, `paper_appendix_v1`, `reviewer_memo_v1` |
 | **Plot types** | One new **plot script + style JSON** per PR where possible | **`plot_institutional_composite_bars.py`** + `fragility-plot-institutional-composite-style-v1` |
 
 ---
@@ -261,11 +261,11 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 |-----------|----------------|-------------------------|
 | Robustness | Ensemble / sweeps / GA budgets / neighbor JSON bundles | Larger grids, richer theory, dashboard integration |
 | Mechanism design | Preset defenders + inner GA (`fragility-mechanism-design-outer-v1`) | General equilibrium / continuous policy search |
-| Institutional composite | Decoupled twin (**v1**) + triple (**v2**) + quad (**v3**), same schedule | Coupled “mega-institution” dynamics (out of charter today) |
-| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | Manifest pins + **`check_bundled_artifacts.py`** registry; flagship cert inventory check |
-| Static viewers | Replay / Pareto / attribution UIs over HTTP | **`composite_viewer/`** (v2 triple + v3 quad presets); attribution presets for network / aggregate / service_backlog chains; CI uploads **flagship-bundled** artifacts |
-| Certificates | `fragility-certificate-v1`, flagship demo | **`benchmark_golden_metrics_sha256`** + **`benchmark_bundle_ids`** on certificate when manifest embedded |
-| Third-domain ops | `ServiceBacklogWorld` + `service_backlog_rollout_v1` + cookbooks | Narration + LLM packs for composite v1–v3; twin/triple prompt packs |
+| Institutional composite | Decoupled twin (**v1**) through **penta (v4)**, five domains | Coupled “mega-institution” dynamics (out of charter today) |
+| Benchmark hygiene | `run_benchmark_suite.py --validate`, `--manifest-out`, `--bench-search`; scheduled workflow | **Shipped:** manifest pins + **`check_bundled_artifacts.py`**; attack/collapsed regression floors |
+| Static viewers | Replay / Pareto / attribution / composite UIs over HTTP | **Shipped:** presets incl. penta; CI uploads **flagship-bundled** artifacts |
+| Certificates | `fragility-certificate-v1`, flagship demo | **Shipped:** manifest + golden digest fields on embedded certificate |
+| Third-domain ops | All four extra domains + cookbooks + joint attribution | **Shipped:** Phase M/N narration, LLM packs, bundled merges |
 | Fork experiments | [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) policy | Named sibling packages with **schema-bumped** replay or new top-level artifacts |
 
 ---
@@ -283,4 +283,4 @@ Shipped as **thin vertical slices** (schemas + CLIs + tests), not full research 
 
 The one-sentence north star in `BOUNDARIES.md` stays valid. This roadmap adds what comes **after** the stablecoin + topology + economics + explanation + co-evolution spine: **reproducibility others can check**, **clearer cause-and-effect exports**, **extra reference domains**, **honest performance notes**, and **readable outputs**—each gated so claims stay **grounded in tests and JSON**, not presentation alone.
 
-**Post–M emphasis:** the next wins are mostly **tightening**—richer manifests, stricter **artifact discipline**, optional **metric regression** on frozen bundles, and a **disciplined fourth domain** (Phase N) only if the charter opens—**not** a wider physics surface area by default.
+**Post–N emphasis (current):** charter-scope engineering for H–N + L is **complete** on `main` after merge of the stable-manifest / composite-v4 branch. Further work is **optional stretch** (see exploration table) or **fork** research—see [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md).

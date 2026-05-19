@@ -31,6 +31,7 @@ Normative scope (what the project promises, phase gates, non-goals) lives in [`B
 | [`CLI_SLICES_BATCH5.md`](CLI_SLICES_BATCH5.md) | Ten-slice batch 5 (charter + Phase N publication parity) |
 | [`INSTALLATION.md`](INSTALLATION.md) | OS packages, Git credentials, CI parity scripts |
 | [`NEXT_STEPS.md`](NEXT_STEPS.md) | Post-clone checklist and PR hygiene |
+| [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Charter-scope completion snapshot (H–N + L) |
 | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) | Complexity, parallelism, sweep cost, what not to claim |
 
 ---
