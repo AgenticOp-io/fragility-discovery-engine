@@ -264,8 +264,8 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 **In scope:**
 
-- Deterministic narration library + CLI (`fragility_engine.explain.narration`, `scripts/narrate_frozen_json.py`, `--cite-digest` / `narration-summary-v1`); institutional composite **v1/v2** summaries for audit JSON.
-- Versioned **LLM prompt packs** (`artifacts/llm_prompts/narration_v1`, **`reviewer_memo_v1`**, **`paper_appendix_v1`**; `scripts/export_llm_narration_prompt.py --prompt-pack …`, schema **`llm-prompt-bundle-v1`**); optional OpenAI invoke is **stdout-only documentation**, never fed back into worlds.
+- Deterministic narration library + CLI (`fragility_engine.explain.narration`, `scripts/narrate_frozen_json.py`, `--cite-digest` / `narration-summary-v1`); institutional composite **v1–v4** summaries for audit JSON (twin → triple → quad → **penta** five-domain rollup including **`liquidity_ladder`**; schema **`fragility-institutional-composite-v4`**).
+- Versioned **LLM prompt packs** (`artifacts/llm_prompts/narration_v1`, **`reviewer_memo_v1`**, **`paper_appendix_v1`**, **`institutional_composite_penta_v1`**, **`liquidity_ladder_replay_v1`**; `scripts/export_llm_narration_prompt.py --prompt-pack …`, schema **`llm-prompt-bundle-v1`**); optional OpenAI invoke is **stdout-only documentation**, never fed back into worlds.
 - Matplotlib figure hooks: replay timelines, ε-sweeps, Pareto archives, fragility-surface CSV heatmaps, **counterfactual baseline/variant bars** (`scripts/plot_*.py`, pinned styles under `artifacts/plot_styles/`).
 
 **Out of scope:**
@@ -323,6 +323,7 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] GA demo `scripts/run_liquidity_ladder_ga_demo.py`.
 - [x] Frozen suite bundle `liquidity_ladder_rollout_v1` + `GOLDEN_METRICS` in CI.
 - [x] Pareto / MC / co-evolution / scalar counterfactual + ε-sweep wiring (mutation-chain export optional follow-up).
+- [x] **Five-domain institutional composite** (`scripts/institutional_composite_demo.py --penta`, bundled `artifacts/composite_demo/sample_penta_composite.json`) for cross-domain audit JSON without coupled physics.
 
 ## Future charter slots (not adopted)
 

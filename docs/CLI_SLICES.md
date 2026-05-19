@@ -59,4 +59,4 @@ Each **slice** is one subprocess test that runs a real CLI with small budgets an
 
 There is **no** fixed list of exactly 100 roadmap slices to implement—**100** was the original CLI smoke target; the suite now exceeds that. Further work should target **uncovered behavior** (see table above), not inflate test count for its own sake.
 
-**Recent batches:** [`CLI_SLICES_BATCH3.md`](CLI_SLICES_BATCH3.md), [`CLI_SLICES_BATCH4.md`](CLI_SLICES_BATCH4.md).
+**Recent batches:** [`CLI_SLICES_BATCH3.md`](CLI_SLICES_BATCH3.md), [`CLI_SLICES_BATCH4.md`](CLI_SLICES_BATCH4.md), [`CLI_SLICES_BATCH5.md`](CLI_SLICES_BATCH5.md).

@@ -4444,3 +4444,237 @@ def test_frozen_json_digest_penta_composite_bundled_cli(py_exe: str, tmp_path: P
     assert data["schema"] == "frozen-json-digest-v1"
     assert len(data["files"]) == 1
     assert len(data["files"][0]["sha256"]) == 64
+
+
+def test_narrate_frozen_json_aggregate_replay_bundled_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(ROOT / "artifacts" / "replay_viewer" / "sample_replay.json"),
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert "aggregate" in proc.stdout.lower()
+    assert "replay rollout" in proc.stdout
+
+
+def test_narrate_frozen_json_penta_composite_cite_digest_cli(py_exe: str, tmp_path: Path) -> None:
+    penta = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not penta.is_file():
+        pytest.skip("bundled penta composite missing")
+    out = tmp_path / "penta_narr.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "narrate_frozen_json.py"),
+            str(penta),
+            "--cite-digest",
+            "--json-out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "narration-summary-v1"
+    assert len(data["input_sha256"]) == 64
+
+
+def test_benchmark_rollout_liquidity_ladder_eval_pool_processes_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "liquidity_ladder_rollout_v1",
+            "--bench-search",
+            "ga",
+            "--eval-pool",
+            "processes",
+            "--eval-workers",
+            "2",
+            "--search-generations",
+            "1",
+            "--search-population",
+            "8",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(proc.stdout)
+    assert payload["eval_pool"] == "processes"
+    assert payload["bundles"][0]["bundle_id"] == "liquidity_ladder_rollout_v1"
+
+
+def test_export_llm_narration_prompt_reviewer_memo_penta_cli(py_exe: str, tmp_path: Path) -> None:
+    penta = ROOT / "artifacts" / "composite_demo" / "sample_penta_composite.json"
+    if not penta.is_file():
+        pytest.skip("bundled penta composite missing")
+    out = tmp_path / "review_penta.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(penta),
+            "--prompt-pack",
+            "reviewer_memo_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "reviewer_memo_v1"
+    assert "fragility-institutional-composite-v4" in data["user_prompt"]
+
+
+def test_plot_pareto_front_liquidity_ladder_bundled_cli(py_exe: str, tmp_path: Path) -> None:
+    src = ROOT / "artifacts" / "pareto_viewer" / "sample_pareto_liquidity_ladder.json"
+    if not src.is_file():
+        pytest.skip("bundled liquidity pareto missing")
+    png = tmp_path / "pf_ll.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_pareto_front.py"),
+            str(src),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    raw = png.read_bytes()
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+    assert len(raw) > 500
+
+
+def test_run_liquidity_ladder_ga_demo_eval_workers_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "ll_ga_ew.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_liquidity_ladder_ga_demo.py"),
+            "--export-replay",
+            str(out),
+            "--generations",
+            "1",
+            "--population-size",
+            "8",
+            "--eval-workers",
+            "2",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["eval_workers"] == 2
+
+
+def test_benchmark_rollout_liquidity_ladder_bench_search_mc_cli(py_exe: str) -> None:
+    proc = subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "benchmark_rollout.py"),
+            "--bundle",
+            "liquidity_ladder_rollout_v1",
+            "--bench-search",
+            "mc",
+            "--search-samples",
+            "4",
+            "--repeat",
+            "1",
+            "--warmup",
+            "0",
+            "--json",
+        ],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(proc.stdout)
+    assert payload["bench_search"] == "mc"
+    assert payload["bundles"][0]["bundle_id"] == "liquidity_ladder_rollout_v1"
+
+
+def test_plot_replay_timeline_liquidity_ladder_bundled_cli(py_exe: str, tmp_path: Path) -> None:
+    replay = ROOT / "artifacts" / "replay_viewer" / "sample_liquidity_ladder_replay.json"
+    png = tmp_path / "ll_timeline.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_replay_timeline.py"),
+            str(replay),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    assert png.stat().st_size > 500
+
+
+def test_counterfactual_epsilon_sweep_liquidity_ladder_continue_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "eps_ll_cont.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "liquidity_ladder",
+            "--axis",
+            "initial_margin",
+            "--values",
+            "0.05,0.09",
+            "--horizon",
+            "10",
+            "--rollout-seed",
+            "88001",
+            "--genome-seed",
+            "88002",
+            "--continue-after-collapse",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["mode"] == "liquidity_ladder"
+    assert data["meta"]["continue_after_collapse"] is True
+
+
+def test_export_llm_narration_prompt_institution_composite_quad_bundled_cli(
+    py_exe: str, tmp_path: Path
+) -> None:
+    quad = ROOT / "artifacts" / "composite_demo" / "sample_quad_composite.json"
+    out = tmp_path / "inst_quad.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(quad),
+            "--prompt-pack",
+            "institution_composite_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "institution_composite_v1"
+    assert "fragility-institutional-composite-v3" in data["user_prompt"]
