@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Run on GCE (e.g. after scp): clone public repo if missing, then same as gce_pull_and_test.sh.
+# Run on GCE (e.g. after scp): clone public repo if missing, then full ci_local parity + Phase O smokes.
 set -euo pipefail
 export GIT_TERMINAL_PROMPT=0
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
 MARK="# fragility-discovery-engine: gce-github-deploy"
-# Private GitHub repos need a read deploy key at KEY + SSH remote; HTTPS prompts fail on headless VMs.
 if [[ -f "${KEY}" ]]; then
   REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:AgenticOp-io/fragility-discovery-engine.git}"
 else
@@ -60,9 +59,9 @@ done
 if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
   export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 fi
-git -c credential.helper= fetch origin main
+git fetch origin main
 git checkout main
-git -c credential.helper= pull --ff-only origin main
+git pull --ff-only origin main
 PYBIN="$(pick_python)"
 if [[ ! -d .venv ]]; then
   "${PYBIN}" -m venv .venv
@@ -75,4 +74,15 @@ python -m ruff check .
 export FRAGILITY_PERF_GATE="${FRAGILITY_PERF_GATE:-1}"
 export FRAGILITY_PERF_GATE_MS="${FRAGILITY_PERF_GATE_MS:-240000}"
 python -m pytest -q
-echo "OK: clone/pull + ruff + pytest"
+python scripts/run_benchmark_suite.py --validate
+python scripts/check_manifest_digest.py
+python scripts/check_manifest_inventory.py
+python scripts/check_flagship_bundled.py
+python scripts/check_manifest_summary.py
+python scripts/validate_viewer_presets.py
+python scripts/check_bundled_artifacts.py
+python scripts/check_bundled_pareto_hypervolume.py
+python scripts/fragility_robustness_stretch.py --preset small --dry-run
+python scripts/export_static_dashboard.py --out artifacts/dashboard/index.html
+python scripts/institutional_composite_demo.py --hexa --horizon 6 | python -c "import json,sys; d=json.load(sys.stdin); assert d['schema']=='fragility-institutional-composite-v5'"
+echo "OK: clone/pull + full ci_local parity + Phase O smokes (FRAGILITY_PERF_GATE=${FRAGILITY_PERF_GATE})"

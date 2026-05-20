@@ -9,10 +9,12 @@ Run the same checks as **`scripts/ci_local.ps1`** on a Linux VM before tagging r
 3. Optional env (new terminal after `setx`):
 
 ```powershell
-setx FRAGILITY_GCE_INSTANCE "fragility-discovery-minimal"
+setx FRAGILITY_GCE_INSTANCE "chrysalis-test-vm"
 setx FRAGILITY_GCE_ZONE "us-central1-a"
 setx FRAGILITY_GCE_PROJECT "chrysalis-dev-f5x6qv"
 ```
+
+**Validated 2026-05-20** on `chrysalis-test-vm` (Debian, Python 3.11): **481 passed**, 7-bundle validate, manifest pins, Phase O smokes — via source tarball (`scripts/gce_run_tarball_test.sh`) after `python3.11-venv` install.
 
 ## Sync + test (one command)
 
@@ -37,4 +39,11 @@ See [`archive/GCE_BOOTSTRAP.md`](archive/GCE_BOOTSTRAP.md) — create `fragility
 
 ## Private repo
 
-Provision **`~/.ssh/gce_github_ed25519`** on the VM — [`archive/GCE_DEPLOY_KEY.md`](archive/GCE_DEPLOY_KEY.md).
+`git pull` on the VM needs a deploy key registered on GitHub — [`archive/GCE_DEPLOY_KEY.md`](archive/GCE_DEPLOY_KEY.md). If clone fails, use tarball deploy from laptop:
+
+```powershell
+tar --exclude=.venv --exclude=.git --exclude=build --exclude=dist -czf $env:TEMP\fragility-engine-src.tar.gz .
+gcloud compute scp $env:TEMP\fragility-engine-src.tar.gz chrysalis-test-vm:fragility-engine-src.tar.gz --zone=us-central1-a --project=chrysalis-dev-f5x6qv
+gcloud compute scp scripts/gce_run_tarball_test.sh chrysalis-test-vm:gce_run_tarball_test.sh --zone=us-central1-a --project=chrysalis-dev-f5x6qv
+gcloud compute ssh chrysalis-test-vm --zone=us-central1-a --project=chrysalis-dev-f5x6qv --command="sudo apt-get install -y python3.11-venv build-essential && bash ~/gce_run_tarball_test.sh"
+```
