@@ -1,0 +1,27 @@
+{
+  "schema": "attribution-interaction-summary-v1",
+  "source_merge_schema": "attribution-merge-v1",
+  "branch_count": 3,
+  "branches": [
+    {
+      "intervention": "remove_steps",
+      "delta_integral_instability": 0.0,
+      "delta_attack_cost": 0.0
+    },
+    {
+      "intervention": "resource_cascade_initial_overload_shift",
+      "delta_integral_instability": -0.22436851598809948,
+      "delta_attack_cost": 0.0
+    },
+    {
+      "intervention": "resource_cascade_cascade_coupling_shift",
+      "delta_integral_instability": -0.09066453575156697,
+      "delta_attack_cost": 0.0
+    }
+  ],
+  "sum_branch_delta_integral_instability": -0.31503305173966645,
+  "sum_branch_delta_attack_cost": 0.0,
+  "count_branches_with_integral_delta": 3,
+  "count_branches_with_cost_delta": 3,
+  "interpretation_hint": "Sum of per-branch deltas from one shared baseline; interaction / joint effects are not identified unless you also export a counterfactual that applies multiple interventions together."
+}

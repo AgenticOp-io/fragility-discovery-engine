@@ -658,7 +658,7 @@ def build(out: Path) -> dict[str, str]:
 git pull
 bash scripts/gce_publish_workbench.sh</pre>
       <p>From your laptop you can trigger the same publish after sync: <code>powershell -File scripts/gce_deploy_public_site.ps1</code> (runs build + validate on the VM).</p>
-      <p>Product by <a href="https://agenticop.io">AgenticOp</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
+      <p>Product by <a href="https://agenticops.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
     </article>""",
         ),
     )

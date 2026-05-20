@@ -228,7 +228,7 @@ def site_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">hosted on GCE · {html.escape(release)} · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOp</a></span>
+        <span class="fde-brand-sub">hosted on GCE · {html.escape(release)} · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">
@@ -251,7 +251,7 @@ def site_chrome_footer() -> str:
     return """  <footer class="fde-footer" id="fdeSiteFooter">
     <span>
       <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
-      <a href="https://agenticop.io">AgenticOp</a> · fragility engine · browser-only demos
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
     </span>
     <span>
       <a href="/">Workbench</a>

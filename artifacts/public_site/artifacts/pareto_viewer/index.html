@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragility Pareto viewer</title>
+    <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a class="fde-active" href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+  <main class="fde-main fde-viewer-main">
+<nav class="fde-viewer-strip" aria-label="Artifact viewers">
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a class="fde-active" href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+</nav>
+
+  <strong>Pareto viewer</strong>
+  <p>
+    Each dot is one attack the engine found. The picture shows the trade-off between how <em>expensive</em> the attack was and how much <em>damage</em> it caused. Use it to spot the cheap-but-nasty attacks — the bottom-right corner.
+  </p>
+
+  <details>
+    <summary><strong>How to read it</strong></summary>
+    <ul>
+      <li><strong>X axis — attack cost</strong> (lower is cheaper for the attacker).</li>
+      <li><strong>Y axis — severity</strong> (higher means a worse outcome for the system).</li>
+      <li>Only Pareto-optimal points are shown: each dot is the best severity reachable at that cost.</li>
+      <li><strong>Bottom-right</strong> dots are the most concerning — large damage for small effort.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary><strong>How to use it</strong></summary>
+    <ul>
+      <li>Pick a preset, or click <em>Choose pareto_front.json…</em> to load your own.</li>
+      <li><strong>Hover</strong> a dot to see its archive index, cost, and severity.</li>
+      <li><strong>Click</strong> a dot to pin it; use <kbd>←</kbd> <kbd>→</kbd> to step through the archive.</li>
+    </ul>
+  </details>
+
+  <p>
+    Bundled samples cover the aggregate, network, resource-cascade, service-backlog, and liquidity-ladder domains, plus the flagship preset.
+    Related views: <a href="../replay_viewer/index.html">Replay viewer</a> (play back one attack) ·
+    <a href="../attribution_viewer/index.html">Attribution viewer</a> (why an attack worked) ·
+    <a href="../composite_viewer/index.html">Composite viewer</a>.
+  </p>
+  <div>
+    <button type="button" class="btn" id="btnPick">Choose pareto_front.json…</button>
+    <span id="presetRow" hidden>
+      <label for="presetSelect">Presets (HTTP)</label>
+      <select id="presetSelect" aria-label="Load preset Pareto JSON">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <canvas id="cv" width="920" height="420" tabindex="0" aria-label="Pareto scatter, hover or keyboard explore"></canvas>
+  <pre id="meta">Load JSON to begin.</pre>
+
+  <script>
+    const cv = document.getElementById('cv');
+    const ctx = cv.getContext('2d');
+    const meta = document.getElementById('meta');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try {
+          const data = JSON.parse(t);
+          drawPareto(data);
+        } catch (e) {
+          meta.textContent = 'Invalid JSON: ' + e;
+        }
+      });
+      fileInput.value = '';
+    });
+
+    /** @type {{ data: object, arch: object[], pad: number, W: number, H: number, pw: number, ph: number, minC: number, maxC: number, minS: number, maxS: number, spanC: number, spanS: number } | null} */
+    let paretoBundle = null;
+    let hoverIndex = null;
+    /** @type {number | null} pinned archive index for keyboard */
+    let pinnedIndex = null;
+
+    function hashParams() {
+      const raw = location.hash.replace(/^#/, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    function applyHashArchivePin() {
+      if (!paretoBundle) return;
+      const arc = hashParams().get('archive');
+      if (arc === null || arc === '') return;
+      const i = Number.parseInt(arc, 10);
+      if (!Number.isFinite(i)) return;
+      const n = paretoBundle.arch.length;
+      pinnedIndex = Math.max(0, Math.min(n - 1, i));
+      redrawPareto();
+    }
+
+    window.addEventListener('hashchange', () => {
+      applyHashArchivePin();
+    });
+
+    function clientToCanvasXY(clientX, clientY) {
+      const rect = cv.getBoundingClientRect();
+      const scale = cv.width / rect.width;
+      return {
+        x: (clientX - rect.left) * scale,
+        y: (clientY - rect.top) * scale,
+      };
+    }
+
+    function nearestArchiveIndex(px, py) {
+      if (!paretoBundle) return null;
+      const { arch, pad, pw, ph, minC, maxC, minS, maxS, spanC, spanS } = paretoBundle;
+      const hitR = 22;
+      let best = null;
+      let bestD = Infinity;
+      arch.forEach((p, i) => {
+        const c = Number(p.attack_cost);
+        const s = Number(p.severity);
+        const x = pad + ((c - minC) / spanC) * pw;
+        const y = pad + (1 - (s - minS) / spanS) * ph;
+        const d = (px - x) ** 2 + (py - y) ** 2;
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      });
+      return bestD <= hitR * hitR ? best : null;
+    }
+
+    function formatMeta(data, arch, highlightIdx) {
+      const costs = arch.map(p => Number(p.attack_cost));
+      const sevs = arch.map(p => Number(p.severity));
+      const minC = Math.min(...costs);
+      const maxC = Math.max(...costs);
+      const minS = Math.min(...sevs);
+      const maxS = Math.max(...sevs);
+      let ctxLine = '';
+      if (data.domain) ctxLine += `\ndomain: ${data.domain}`;
+      if (data.initial_overload !== undefined && data.initial_overload !== null) {
+        ctxLine += `\ninitial_overload: ${data.initial_overload}`;
+      }
+      if (data.topology && typeof data.topology === 'object') {
+        const t = data.topology;
+        const tag = t.kind ?? t.storage ?? 'topology';
+        ctxLine += `\ntopology: ${tag}${t.n_nodes != null ? ` (n=${t.n_nodes})` : ''}`;
+      }
+      let block =
+        `schema: ${data.schema ?? '?'}\n` +
+        `best_fitness: ${data.best_fitness ?? '—'}\n` +
+        (data.eval_workers != null ? `eval_workers: ${data.eval_workers}\n` : '') +
+        `archive points: ${arch.length}\n` +
+        `cost [${minC.toFixed(4)}, ${maxC.toFixed(4)}]\n` +
+        `severity [${minS.toFixed(4)}, ${maxS.toFixed(4)}]` +
+        ctxLine;
+      const hi = highlightIdx;
+      if (hi !== null && hi !== undefined && arch[hi]) {
+        const p = arch[hi];
+        const extra = [];
+        if (p.integral_instability !== undefined) extra.push(`integral_instability=${p.integral_instability}`);
+        block +=
+          `\n\n--- focus archive[${hi}] ---\n` +
+          `severity=${p.severity}\nattack_cost=${p.attack_cost}\ncollapsed=${p.collapsed}\n` +
+          (extra.length ? `${extra.join('\n')}\n` : '') +
+          `genome_horizon=${Array.isArray(p.genome) ? p.genome.length : '—'}`;
+      }
+      return block;
+    }
+
+    function redrawPareto() {
+      if (!paretoBundle) return;
+      const { data, arch, pad, W, H, pw, ph, minC, maxC, minS, maxS, spanC, spanS } = paretoBundle;
+
+      function xc(c) {
+        return pad + ((c - minC) / spanC) * pw;
+      }
+      function yc(s) {
+        return pad + (1 - (s - minS) / spanS) * ph;
+      }
+
+      const focus =
+        pinnedIndex !== null && pinnedIndex >= 0 && pinnedIndex < arch.length
+          ? pinnedIndex
+          : hoverIndex;
+
+      ctx.fillStyle = '#1118';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = '#555';
+      ctx.strokeRect(pad, pad, pw, ph);
+
+      ctx.fillStyle = '#ccc';
+      ctx.font = '12px system-ui';
+      ctx.fillText('attack_cost →', W / 2 - 36, H - 12);
+      ctx.save();
+      ctx.translate(14, H / 2 + 36);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('severity →', 0, 0);
+      ctx.restore();
+
+      arch.forEach((p, i) => {
+        const x = xc(Number(p.attack_cost));
+        const y = yc(Number(p.severity));
+        const r = i === focus ? 7 : 5;
+        if (i === focus) {
+          ctx.strokeStyle = pinnedIndex === i ? '#fc4' : '#ee8';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, r + 3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.fillStyle = p.collapsed ? '#f84' : '#8af';
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#888';
+        ctx.font = '10px system-ui';
+        ctx.fillText(String(i), x + 7 + (i === focus ? 2 : 0), y + 3);
+      });
+
+      meta.textContent = formatMeta(data, arch, focus);
+    }
+
+    function drawPareto(data) {
+      const arch = data.archive;
+      hoverIndex = null;
+      pinnedIndex = null;
+      if (!Array.isArray(arch) || !arch.length) {
+        paretoBundle = null;
+        meta.textContent = 'Expected { archive: [ { severity, attack_cost, collapsed }, … ] }';
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        return;
+      }
+      const costs = arch.map(p => Number(p.attack_cost));
+      const sevs = arch.map(p => Number(p.severity));
+      const minC = Math.min(...costs);
+      const maxC = Math.max(...costs);
+      const minS = Math.min(...sevs);
+      const maxS = Math.max(...sevs);
+      const pad = 48;
+      const W = cv.width;
+      const H = cv.height;
+      const pw = W - 2 * pad;
+      const ph = H - 2 * pad;
+      const spanC = maxC - minC || 1;
+      const spanS = maxS - minS || 1;
+
+      paretoBundle = {
+        data,
+        arch,
+        pad,
+        W,
+        H,
+        pw,
+        ph,
+        minC,
+        maxC,
+        minS,
+        maxS,
+        spanC,
+        spanS,
+      };
+      redrawPareto();
+      applyHashArchivePin();
+      cv.focus({ preventScroll: true });
+    }
+
+    cv.addEventListener('mousemove', e => {
+      if (!paretoBundle) return;
+      const { x, y } = clientToCanvasXY(e.clientX, e.clientY);
+      hoverIndex = nearestArchiveIndex(x, y);
+      redrawPareto();
+    });
+
+    cv.addEventListener('mouseleave', () => {
+      if (!paretoBundle) return;
+      hoverIndex = null;
+      redrawPareto();
+    });
+
+    cv.addEventListener('click', e => {
+      if (!paretoBundle) return;
+      const { x, y } = clientToCanvasXY(e.clientX, e.clientY);
+      const idx = nearestArchiveIndex(x, y);
+      pinnedIndex = idx;
+      redrawPareto();
+    });
+
+    cv.addEventListener('keydown', e => {
+      if (!paretoBundle || !paretoBundle.arch.length) return;
+      const n = paretoBundle.arch.length - 1;
+      if (pinnedIndex === null) pinnedIndex = hoverIndex ?? 0;
+      if (e.key === 'ArrowLeft') pinnedIndex = Math.max(0, pinnedIndex - 1);
+      else if (e.key === 'ArrowRight') pinnedIndex = Math.min(n, pinnedIndex + 1);
+      else if (e.key === 'Escape') {
+        pinnedIndex = null;
+        redrawPareto();
+        return;
+      }
+      else return;
+      e.preventDefault();
+      redrawPareto();
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) {
+        presetStatus.textContent = '';
+        return;
+      }
+      presetStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(new URL(path, document.location));
+        if (!res.ok) {
+          presetStatus.textContent = `Missing (${res.status}) — run scripts/regenerate_test_exports`;
+          return;
+        }
+        drawPareto(await res.json());
+        presetStatus.textContent = 'Loaded';
+      } catch (_) {
+        presetStatus.textContent = 'Fetch failed — serve repo root over HTTP or use file picker';
+      }
+    });
+
+    async function boot() {
+      const hp = hashParams();
+      const src = hp.get('src');
+      if (src) {
+        presetStatus.textContent = 'Loading…';
+        try {
+          const res = await fetch(new URL(src, document.location));
+          if (res.ok) {
+            drawPareto(await res.json());
+            presetStatus.textContent = 'Loaded (hash)';
+            return;
+          }
+        } catch (_) { /* fall through */ }
+        presetStatus.textContent = 'hash src missing';
+      }
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (res.ok) {
+          const cfg = await res.json();
+          const list = cfg.presets || [];
+          if (list.length) {
+            for (const p of list) {
+              if (!p.path || !p.label) continue;
+              const opt = document.createElement('option');
+              opt.value = p.path;
+              opt.textContent = p.label;
+              presetSelect.appendChild(opt);
+            }
+            presetRow.hidden = false;
+            presetRow.style.display = 'inline-flex';
+            for (let i = 0; i < list.length; i++) {
+              const path = list[i].path;
+              if (!path) continue;
+              try {
+                const r = await fetch(new URL(path, document.location));
+                if (r.ok) {
+                  drawPareto(await r.json());
+                  presetSelect.selectedIndex = i + 1;
+                  presetStatus.textContent = 'Loaded';
+                  return;
+                }
+              } catch (_) { /* try next */ }
+            }
+          }
+        }
+      } catch (_) { /* file:// */ }
+      presetStatus.textContent = '';
+      fetch(new URL('sample_pareto_front.json', document.location))
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => {
+          if (d) drawPareto(d);
+        })
+        .catch(() => {});
+    }
+
+    void boot();
+  </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+</body>
+</html>

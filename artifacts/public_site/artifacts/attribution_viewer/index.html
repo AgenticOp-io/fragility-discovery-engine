@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragility attribution viewer</title>
+    <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a class="fde-active" href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+  <main class="fde-main fde-viewer-main">
+<nav class="fde-viewer-strip" aria-label="Artifact viewers">
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a class="fde-active" href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+</nav>
+
+  <strong>Attribution viewer</strong>
+  <p>
+    Answers the question <em>“which change actually caused the collapse?”</em> by walking a chain of small mutations from a baseline run to a collapse — and showing, at each step, how much that single change added to the instability and to the cost.
+  </p>
+
+  <details>
+    <summary><strong>What you’ll see</strong></summary>
+    <ul>
+      <li><strong>Nodes</strong> — successive states along the chain (the baseline run, plus each mutated variant).</li>
+      <li><strong>Edges</strong> — the single mutation applied between two nodes, with its Δ integral-instability and Δ attack-cost. Big positive Δ instability ⇒ that mutation is doing the damage.</li>
+      <li><strong>Merge artifacts</strong> (<code>attribution-merge-v1</code>) combine several chains so you can compare branches that all reach the same collapse.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary><strong>How to use it</strong></summary>
+    <ul>
+      <li>Pick a preset or click <em>Choose JSON…</em> to load a chain or a merge.</li>
+      <li>Read the Path list top-down: each step is one mutation added on top of the previous one.</li>
+      <li>Hand-rolled chains and engine exports both work — anything matching <code>attribution-merge-v1</code> or <code>explanation-mutation-chain-path-*-v1</code>.</li>
+    </ul>
+  </details>
+
+  <p>
+    Related views: <a href="../replay_viewer/index.html">Replay viewer</a> (play back one variant) ·
+    <a href="../pareto_viewer/index.html">Pareto viewer</a> (cost vs severity scatter) ·
+    <a href="../composite_viewer/index.html">Composite viewer</a>.
+  </p>
+  <div>
+    <button type="button" class="btn" id="btnPick">Choose JSON…</button>
+    <span id="presetRow" hidden>
+      <label for="presetSelect">Presets (HTTP)</label>
+      <select id="presetSelect" aria-label="Load preset attribution JSON">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <div id="panel">Load JSON to begin.</div>
+
+  <script>
+    const panel = document.getElementById('panel');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function renderArtifact(data) {
+      const sch = data.schema;
+      const pathSchemas = new Set([
+        'explanation-mutation-chain-path-v1',
+        'explanation-mutation-chain-path-resource-cascade-v1',
+        'explanation-mutation-chain-path-service-backlog-v1',
+        'explanation-mutation-chain-path-aggregate-v1',
+      ]);
+      if (sch === 'attribution-merge-v1') renderMerge(data);
+      else if (pathSchemas.has(sch)) renderChainPath(data);
+      else if (data.path_trace && pathSchemas.has(data.path_trace.schema)) renderChainPath(data.path_trace);
+      else panel.textContent = 'Unknown schema: ' + (sch || '(missing)') +
+        '. Expected attribution-merge-v1 or explanation-mutation-chain-path-*.v1.';
+    }
+
+    function renderMerge(data) {
+      const nodes = data.nodes || [];
+      const edges = data.edges || [];
+      let h = '<h2>attribution-merge-v1</h2>';
+      h += '<p>Branches: <strong>' + esc(data.branch_count) + '</strong> · strict_baseline: ' + esc(data.strict_baseline) + '</p>';
+      h += '<h2>Nodes</h2><table><tr><th>id</th><th>kind</th><th>collapsed</th><th>integral_instability</th><th>attack_cost</th></tr>';
+      for (const n of nodes) {
+        const r = n.rollout || {};
+        h += '<tr><td>' + esc(n.id) + '</td><td>' + esc(n.kind) + '</td><td>' + esc(r.collapsed) +
+          '</td><td>' + esc(r.integral_instability) + '</td><td>' + esc(r.attack_cost) + '</td></tr>';
+      }
+      h += '</table><h2>Edges</h2><table><tr><th>from→to</th><th>intervention</th><th>Δ integral</th><th>Δ cost</th><th>extra</th></tr>';
+      for (const e of edges) {
+        const extra = JSON.stringify(Object.fromEntries(
+          Object.entries(e).filter(([k]) => !['from','to','intervention','delta_integral_instability','delta_attack_cost'].includes(k))
+        ));
+        h += '<tr><td>' + esc(e.from) + ' → ' + esc(e.to) + '</td><td>' + esc(e.intervention) + '</td><td>' +
+          esc(e.delta_integral_instability) + '</td><td>' + esc(e.delta_attack_cost) + '</td><td><code>' + esc(extra) + '</code></td></tr>';
+      }
+      h += '</table>';
+      panel.innerHTML = h;
+    }
+
+    function renderChainPath(data) {
+      const nodes = data.nodes || [];
+      const edges = data.edges || [];
+      let h = '<h2>' + esc(data.schema || 'mutation-chain-path') + '</h2>';
+      h += '<p>rollout_seed=' + esc(data.rollout_seed) + ' · baseline panic=' + esc(data.baseline_base_panic) +
+        ' · variant panic=' + esc(data.variant_base_panic) + '</p>';
+      h += '<h2>Path</h2>';
+      for (const n of nodes) {
+        h += '<div class="path-step"><span class="chip">' + esc(n.id) + '</span> mutations=' + esc(n.mutations_applied) +
+          ' panic=' + esc(n.reset_panic) + ' II=' + esc(n.integral_instability) + ' cost=' + esc(n.attack_cost) + '</div>';
+      }
+      h += '<h2>Steps</h2><table><tr><th>edge</th><th>kind</th><th>step</th><th>Δ II</th><th>panic →</th></tr>';
+      for (const e of edges) {
+        h += '<tr><td>' + esc(e.from) + ' → ' + esc(e.to) + '</td><td>' + esc(e.kind) + '</td><td><code>' +
+          esc(JSON.stringify(e.step)) + '</code></td><td>' + esc(e.delta_integral_instability) + '</td><td>' +
+          esc(e.reset_panic_from) + '→' + esc(e.reset_panic_to) + '</td></tr>';
+      }
+      h += '</table>';
+      panel.innerHTML = h;
+    }
+
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try {
+          renderArtifact(JSON.parse(t));
+        } catch (e) {
+          panel.textContent = 'Invalid JSON: ' + e;
+        }
+      });
+      fileInput.value = '';
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(new URL(path, document.location));
+        if (!res.ok) throw new Error(res.statusText);
+        renderArtifact(await res.json());
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (!res.ok) return;
+        const cfg = await res.json();
+        const list = cfg.presets || [];
+        if (!list.length) return;
+        for (const p of list) {
+          if (!p.path || !p.label) continue;
+          const opt = document.createElement('option');
+          opt.value = p.path;
+          opt.textContent = p.label;
+          presetSelect.appendChild(opt);
+        }
+        presetRow.hidden = false;
+        presetRow.style.display = 'inline-flex';
+        for (let i = 0; i < list.length; i++) {
+          const path = list[i].path;
+          if (!path || !path.startsWith('sample_')) continue;
+          try {
+            const r = await fetch(new URL(path, document.location));
+            if (r.ok) {
+              renderArtifact(await r.json());
+              presetSelect.selectedIndex = i + 1;
+              presetStatus.textContent = 'Loaded';
+              return;
+            }
+          } catch (_) { /* try next */ }
+        }
+      } catch (_) { /* file:// */ }
+    }
+
+    boot();
+  </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+</body>
+</html>

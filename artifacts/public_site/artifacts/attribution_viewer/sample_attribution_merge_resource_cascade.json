@@ -1,0 +1,89 @@
+{
+  "schema": "attribution-merge-v1",
+  "strict_baseline": true,
+  "branch_count": 2,
+  "nodes": [
+    {
+      "id": "baseline",
+      "kind": "root",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.7710848772215089,
+        "integral_instability": 7.3470545989172855,
+        "recovery_timestep": null,
+        "attack_cost": 3.9474048848095613,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66201
+      }
+    },
+    {
+      "id": "branch_0",
+      "kind": "counterfactual",
+      "bundle_index": 0,
+      "intervention": "remove_steps",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.6984423798399453,
+        "integral_instability": 6.598619075775904,
+        "recovery_timestep": null,
+        "attack_cost": 3.591625238960469,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66201
+      }
+    },
+    {
+      "id": "branch_1",
+      "kind": "counterfactual",
+      "bundle_index": 1,
+      "intervention": "resource_cascade_initial_overload_shift",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.8027883934147702,
+        "integral_instability": 7.696570103127458,
+        "recovery_timestep": null,
+        "attack_cost": 3.9474048848095613,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66201
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "baseline",
+      "to": "branch_0",
+      "intervention": "remove_steps",
+      "delta_integral_instability": 0.7484355231413815,
+      "delta_attack_cost": 0.3557796458490925,
+      "removed_timesteps": [
+        0
+      ]
+    },
+    {
+      "from": "baseline",
+      "to": "branch_1",
+      "intervention": "resource_cascade_initial_overload_shift",
+      "delta_integral_instability": -0.3495155042101725,
+      "delta_attack_cost": 0.0,
+      "baseline_initial_overload": 0.07,
+      "variant_initial_overload": 0.12
+    }
+  ],
+  "meta": {
+    "cli": "export_resource_cascade_joint_attribution",
+    "domain": "resource_cascade",
+    "second_branch": "initial_overload_shift",
+    "baseline_initial_overload": 0.07,
+    "removed_timesteps_branch": [
+      0
+    ],
+    "rollout_seed": 66201,
+    "genome_seed": 66202,
+    "variant_initial_overload_branch": 0.12
+  }
+}

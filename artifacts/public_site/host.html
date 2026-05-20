@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>This host — Fragility Discovery Engine</title>
+  <meta name="description" content="GCE-hosted workbench; browser-only access." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a class="fde-active" href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<article class="fde-prose">
+      <h2>This deployment</h2>
+      <p>The <strong>Fragility Discovery Engine</strong> on this VM serves the workbench, bundled JSON artifacts, and interactive viewers. You only need a web browser pointed at this host.</p>
+      <ul>
+        <li><strong>Engine clone:</strong> <code>~/fragility-discovery-engine</code> (git + venv)</li>
+        <li><strong>Public web root:</strong> <code>/var/www/fragility/public</code></li>
+        <li><strong>Status:</strong> <a href="/status.json">/status.json</a> (benchmark validate snapshot)</li>
+      </ul>
+      <h3>Refresh workbench (operators, on the VM)</h3>
+      <pre class="fde-code-block">cd ~/fragility-discovery-engine
+git pull
+bash scripts/gce_publish_workbench.sh</pre>
+      <p>From your laptop you can trigger the same publish after sync: <code>powershell -File scripts/gce_deploy_public_site.ps1</code> (runs build + validate on the VM).</p>
+      <p>Product by <a href="https://agenticops.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
+    </article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

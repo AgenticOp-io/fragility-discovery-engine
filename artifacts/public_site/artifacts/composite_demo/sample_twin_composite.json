@@ -1,0 +1,23 @@
+{
+  "schema": "fragility-institutional-composite-v1",
+  "network": {
+    "integral_instability": 3.2020027184753745,
+    "collapsed": true,
+    "attack_cost": 3.6790031951592477,
+    "collapse_timestep": 5,
+    "simulation_mode": "network"
+  },
+  "resource_cascade": {
+    "integral_instability": 6.790675834148136,
+    "collapsed": true,
+    "attack_cost": 3.6790031951592477,
+    "collapse_timestep": 7,
+    "simulation_mode": "resource_cascade"
+  },
+  "network_seed": 7200,
+  "resource_cascade_seed": 7201,
+  "genome_shape": [
+    10,
+    2
+  ]
+}

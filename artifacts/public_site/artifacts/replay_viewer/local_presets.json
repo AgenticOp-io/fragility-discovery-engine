@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "note": "Paths are relative to this directory (replay_viewer). Serve the repo root, e.g. python -m http.server 8765, then open http://localhost:8765/artifacts/replay_viewer/index.html — fetch() needs HTTP(s). Run scripts/regenerate_test_exports.* to populate ../test_exports/.",
+  "presets": [
+    { "label": "Bundled: aggregate sample", "path": "sample_replay.json" },
+    { "label": "Bundled: network sample", "path": "sample_network_replay.json" },
+    { "label": "Bundled: resource_cascade sample", "path": "sample_resource_cascade_replay.json" },
+    { "label": "Bundled: service_backlog sample (frozen bundle replay)", "path": "sample_service_backlog_replay.json" },
+    { "label": "Flagship bundled: GA best replay", "path": "../flagship/bundled/best_replay.json" },
+    { "label": "Export: aggregate baseline", "path": "../test_exports/replay_aggregate.json" },
+    { "label": "Export: aggregate high initial panic", "path": "../test_exports/replay_aggregate_high_panic.json" },
+    { "label": "Export: aggregate continue-after-collapse", "path": "../test_exports/replay_aggregate_continue.json" },
+    { "label": "Export: network ER", "path": "../test_exports/replay_network_er.json" },
+    { "label": "Export: network Watts–Strogatz", "path": "../test_exports/replay_network_ws.json" },
+    { "label": "Export: network continue-after-collapse", "path": "../test_exports/replay_network_continue.json" },
+    { "label": "Export: resource_cascade replay", "path": "../test_exports/replay_resource_cascade.json" },
+    { "label": "Export: GA best", "path": "../test_exports/ga_best.json" },
+    { "label": "Export: GA minimized", "path": "../test_exports/ga_minimized.json" },
+    { "label": "Export: Monte Carlo best", "path": "../test_exports/mc_best.json" },
+    { "label": "Export: Monte Carlo continue", "path": "../test_exports/mc_continue.json" },
+    { "label": "Export: minimized standalone", "path": "../test_exports/minimized_standalone.json" },
+    { "label": "Export: counterfactual baseline", "path": "../test_exports/counterfactual_replays/baseline.json" },
+    { "label": "Export: counterfactual perturbed", "path": "../test_exports/counterfactual_replays/counterfactual.json" },
+    { "label": "Export: coevolution final (aggregate)", "path": "../test_exports/coevolution_final.json" },
+    { "label": "Export: coevolution network", "path": "../test_exports/coevolution_network.json" },
+    { "label": "Export: cheap collapse best", "path": "../test_exports/cheap_collapse_best.json" },
+    { "label": "Export: network GA best", "path": "../test_exports/network_ga_best.json" }
+  ]
+}

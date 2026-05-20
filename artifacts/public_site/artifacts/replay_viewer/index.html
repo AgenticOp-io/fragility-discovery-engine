@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragility replay viewer</title>
+    <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a class="fde-active" href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+  <main class="fde-main fde-viewer-main">
+<nav class="fde-viewer-strip" aria-label="Artifact viewers">
+<a class="fde-active" href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+</nav>
+
+  <header>
+    <strong>Replay viewer</strong>
+    <p>
+      Play back a single simulation run. Each replay is a frozen JSON file produced by the engine — load one to see what the system was doing and where it broke.
+    </p>
+
+    <details>
+      <summary><strong>What the chart shows</strong></summary>
+      <ul>
+        <li><span>Blue line</span> — the main health metric. For the peg / aggregate domain it is the <em>peg ratio</em> (1.0 = healthy). For the resource-cascade domain it is the <em>minimum layer headroom</em> (higher = more slack).</li>
+        <li><span>Orange line</span> — instability (how much stress the system is under right now).</li>
+        <li><span>Magenta marker</span> — the step where the run is marked as <em>collapsed</em>.</li>
+        <li><span>Cyan vertical line</span> — your scrub playhead (where the mouse is on the timeline).</li>
+        <li>Bottom strip — the shock lane: when and where the attacker injected shocks.</li>
+        <li>Dashed lines (network replays only) — extra contagion traces (e.g. max panic, panic spread).</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary><strong>How to use it</strong></summary>
+      <ul>
+        <li><strong>Load a replay</strong> — pick one from <em>Presets</em>, click <em>Choose replay file…</em>, or drag a <code>.json</code> file onto the dashed box.</li>
+        <li><strong>Scrub the timeline</strong> — move the mouse over the chart, or click and drag. The text panel under the chart updates with values at that step.</li>
+        <li><strong>Keyboard</strong> — click the chart once, then <kbd>←</kbd> <kbd>→</kbd> to step, <kbd>Home</kbd> / <kbd>End</kbd> to jump to the start or the end.</li>
+        <li><strong>Compare two replays</strong> — click <em>Compare second replay…</em>. The panel then shows the difference (Δ peg ratio or Δ headroom, Δ instability) between the two at the playhead. Useful for baseline vs. counterfactual.</li>
+        <li><strong>Choose folder</strong> (Chrome / Edge only) — remember a folder so the next file pick opens there.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary><strong>Bundled samples</strong></summary>
+      <ul>
+        <li><code>sample_replay.json</code> — aggregate peg run.</li>
+        <li><code>sample_network_replay.json</code> — graph contagion (adds the dashed panic traces).</li>
+        <li><code>sample_resource_cascade_replay.json</code> — capacity-overload cascade (blue line is headroom, not a peg).</li>
+        <li><code>sample_service_backlog_replay.json</code> — operations backlog run.</li>
+        <li><code>sample_liquidity_ladder_replay.json</code> — funding ladder stress.</li>
+      </ul>
+      <p>All samples are reproducible from frozen seeds; the panel under the chart shows the exact CLI that produced the file.</p>
+    </details>
+
+    <p>
+      Other tools: <a href="../pareto_viewer/index.html">Pareto viewer</a> (cost vs severity scatter) ·
+      <a href="../attribution_viewer/index.html">Attribution viewer</a> (counterfactual chains) ·
+      <a href="../composite_viewer/index.html">Composite viewer</a> (multi-domain audits).
+    </p>
+  </header>
+
+  <div class="btn-row">
+    <button type="button" class="btn primary" id="btnFolder" title="Chrome/Edge: remembers this folder for “Choose replay file”. Fallback: folder upload dialog lists JSON in subfolders too.">
+      Choose folder (show JSON files inside)…
+    </button>
+    <button type="button" class="btn" id="btnFile" title="Opens where you last granted via Choose folder (Chrome/Edge), otherwise the system default">
+      Choose replay file…
+    </button>
+    <button type="button" class="btn" id="btnCompare" title="Load a second replay; meta panel shows deltas at the scrub index">
+      Compare second replay…
+    </button>
+    <button type="button" class="btn" id="btnClearCompare" hidden>Clear comparison</button>
+  </div>
+  <div class="btn-row" id="presetRow" hidden>
+    <label for="presetSelect">Presets (HTTP)</label>
+    <select id="presetSelect" aria-label="Load preset replay from server">
+      <option value="">— select —</option>
+    </select>
+    <span id="presetStatus"></span>
+  </div>
+  <div id="folderList" class="folder-list" hidden></div>
+  <div id="drop">
+    <span class="drop-label">Or drag-and-drop a <code>.json</code> file here</span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+    <!-- Folder picker: separate from single-file input so OS dialog is “folder” vs “file”. -->
+    <input id="folderPick" type="file" webkitdirectory directory multiple hidden />
+    <input id="compareFile" type="file" accept="application/json,.json" hidden />
+  </div>
+  <canvas id="cv" width="1100" height="440" tabindex="0" aria-label="Replay timeline, mouse scrubs"></canvas>
+  <pre id="meta"></pre>
+
+  <script>
+    const cv = document.getElementById('cv');
+    const ctx = cv.getContext('2d');
+    const meta = document.getElementById('meta');
+    const drop = document.getElementById('drop');
+    const fileInput = document.getElementById('file');
+    const btnFolder = document.getElementById('btnFolder');
+    const btnFile = document.getElementById('btnFile');
+    const folderList = document.getElementById('folderList');
+    const folderPick = document.getElementById('folderPick');
+    const compareFile = document.getElementById('compareFile');
+    const btnCompare = document.getElementById('btnCompare');
+    const btnClearCompare = document.getElementById('btnClearCompare');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+
+    /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean, mode: string, maxPanic: number[], panicStd: number[], validNetworkPanic: boolean, yPanicAux: function } | null} */
+    let bundle = null;
+    /** @type {typeof bundle} */
+    let bundleB = null;
+    let scrubIndex = 0;
+    let pointerDown = false;
+
+    function normalizeLane(traj, rawLane) {
+      if (Array.isArray(rawLane) && rawLane.length === traj.length) return rawLane;
+      return traj.map(s => {
+        const evs = s.events || [];
+        let rl = 0, rum = 0;
+        evs.forEach(ev => {
+          const m = Number(ev.magnitude) || 0;
+          if (ev.kind === 'reserve_loss') rl = Math.max(rl, m);
+          if (ev.kind === 'rumor') rum = Math.max(rum, m);
+        });
+        return { timestep: s.timestep, reserve_loss: rl, rumor: rum, event_count: evs.length };
+      });
+    }
+
+    function buildBundle(data) {
+      const traj = data.trajectory || [];
+      const lane = normalizeLane(traj, data.events_lane);
+      const W = cv.width, H = cv.height;
+      const laneH = 52;
+      const pad = 28;
+      const mainBottom = H - pad - laneH;
+      const laneTop = mainBottom + 8;
+      const laneBot = H - 10;
+      const tmax = Math.max(traj.length - 1, 0);
+
+      const prices = traj.map(s => Number(s.metrics?.price ?? s.state_vector?.[2] ?? NaN));
+      const instab = traj.map(s => Number(s.metrics?.instability ?? NaN));
+      const validInst = instab.every(v => Number.isFinite(v));
+      const collapseT = Number.isFinite(data.collapse_timestep) ? data.collapse_timestep : null;
+      const mode = data.simulation_mode || 'aggregate';
+
+      let maxPanic = [];
+      let panicStd = [];
+      let validNetworkPanic = false;
+      if (mode === 'network' && traj.length && (traj[0].state_vector || []).length >= 7) {
+        maxPanic = traj.map(s => Number(s.state_vector[4]));
+        panicStd = traj.map(s => Number(s.state_vector[5]));
+        validNetworkPanic =
+          maxPanic.length === traj.length &&
+          panicStd.length === traj.length &&
+          maxPanic.every(Number.isFinite) &&
+          panicStd.every(Number.isFinite);
+      }
+
+      const minP = traj.length ? Math.min(...prices.filter(Number.isFinite)) : 1;
+      const maxP = traj.length ? Math.max(...prices.filter(Number.isFinite)) : 1;
+
+      const hiPanicAux = validNetworkPanic
+        ? Math.max(
+            ...maxPanic.filter(Number.isFinite),
+            ...panicStd.filter(Number.isFinite),
+            1e-9,
+          )
+        : 1;
+
+      function xScale(i) {
+        return pad + (i / Math.max(tmax, 1)) * (W - 2 * pad);
+      }
+      function yPrice(p) {
+        const lo = Math.min(minP, 0.85), hi = Math.max(maxP, 1.05);
+        const u = (p - lo) / (hi - lo + 1e-9);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
+      }
+      function yInst(q) {
+        const hi = Math.max(...instab.filter(Number.isFinite).concat([1]));
+        const u = q / (hi + 1e-9);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
+      }
+      function yPanicAux(q) {
+        const u = q / (hiPanicAux + 1e-9);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
+      }
+
+      return {
+        data, traj, lane, tmax, pad, W, H, mainBottom, laneTop, laneBot, laneH,
+        prices, instab, collapseT, xScale, yPrice, yInst, validInst,
+        mode, maxPanic, panicStd, validNetworkPanic, yPanicAux,
+      };
+    }
+
+    function clientXToIndex(clientX) {
+      if (!bundle) return 0;
+      const rect = cv.getBoundingClientRect();
+      const scale = cv.width / rect.width;
+      const mx = (clientX - rect.left) * scale;
+      const plotW = bundle.W - 2 * bundle.pad;
+      let u = (mx - bundle.pad) / plotW;
+      u = Math.max(0, Math.min(1, u));
+      return Math.round(u * bundle.tmax);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (!bundle || !bundle.traj.length) {
+        ctx.fillStyle = '#888';
+        ctx.fillText(bundle ? 'Empty trajectory' : 'Load a replay JSON', 12, 24);
+        updateMeta();
+        return;
+      }
+
+      const b = bundle;
+      const traj = b.traj;
+      const { pad, W, H, mainBottom, laneTop, laneBot, tmax, prices, instab, collapseT } = b;
+
+      const validPrice = prices.every(v => Number.isFinite(v));
+      if (!validPrice) {
+        ctx.fillStyle = '#f66';
+        ctx.fillText('Missing price metrics — regenerate replay with engine ≥ 0.3.0', 12, 24);
+      }
+
+      ctx.strokeStyle = '#8886';
+      ctx.beginPath();
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, mainBottom); ctx.lineTo(W - pad, mainBottom);
+      ctx.stroke();
+
+      if (collapseT !== null && collapseT >= 0 && collapseT <= tmax) {
+        const xc = b.xScale(collapseT);
+        ctx.save();
+        ctx.strokeStyle = '#e4e';
+        ctx.setLineDash([6, 6]);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(xc, pad);
+        ctx.lineTo(xc, mainBottom);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      traj.forEach((step, i) => {
+        const evs = step.events || [];
+        if (!evs.length) return;
+        const xc = b.xScale(i);
+        const yb = mainBottom + 6;
+        evs.forEach((ev, j) => {
+          const kind = ev.kind || '';
+          ctx.fillStyle = kind === 'reserve_loss' ? '#6f6' : kind === 'rumor' ? '#fc6' : '#ccc';
+          ctx.beginPath();
+          ctx.moveTo(xc + j * 5 - 4, yb);
+          ctx.lineTo(xc + j * 5 + 4, yb);
+          ctx.lineTo(xc + j * 5, yb - 7);
+          ctx.closePath();
+          ctx.fill();
+        });
+      });
+
+      ctx.strokeStyle = '#5cf';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      prices.forEach((p, i) => {
+        const x = b.xScale(i), y = b.yPrice(p);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      if (b.validInst) {
+        ctx.strokeStyle = '#f84';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        instab.forEach((q, i) => {
+          const x = b.xScale(i), y = b.yInst(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      if (b.validNetworkPanic) {
+        ctx.save();
+        ctx.strokeStyle = '#daf';
+        ctx.lineWidth = 1.25;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        b.maxPanic.forEach((q, i) => {
+          const x = b.xScale(i), y = b.yPanicAux(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.strokeStyle = '#9d8';
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath();
+        b.panicStd.forEach((q, i) => {
+          const x = b.xScale(i), y = b.yPanicAux(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.fillStyle = '#1a1a1e';
+      ctx.fillRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
+
+      b.lane.forEach((cell, i) => {
+        const x0 = b.xScale(i);
+        const x1 = b.xScale(i + 1);
+        const bw = Math.max(x1 - x0 - 1, 1);
+        const rl = Number(cell.reserve_loss) || 0;
+        const rum = Number(cell.rumor) || 0;
+        const hRl = (laneBot - laneTop) * 0.45 * rl;
+        const hRu = (laneBot - laneTop) * 0.45 * rum;
+        ctx.fillStyle = '#393';
+        ctx.fillRect(x0, laneBot - hRl, bw, hRl);
+        ctx.fillStyle = '#a61';
+        ctx.fillRect(x0, laneBot - hRl - hRu - 2, bw, hRu);
+      });
+
+      ctx.strokeStyle = '#555';
+      ctx.strokeRect(pad, laneTop, W - 2 * pad, laneBot - laneTop);
+
+      // scrub playhead (full height)
+      const si = Math.max(0, Math.min(scrubIndex, traj.length - 1));
+      const xp = b.xScale(si);
+      ctx.save();
+      ctx.strokeStyle = '#9ef';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(xp, pad);
+      ctx.lineTo(xp, laneBot);
+      ctx.stroke();
+      ctx.restore();
+
+      // playhead dots on series
+      if (validPrice) {
+        ctx.fillStyle = '#9ef';
+        ctx.beginPath();
+        ctx.arc(xp, b.yPrice(prices[si]), 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (b.validInst) {
+        ctx.strokeStyle = '#9ef';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xp, b.yInst(instab[si]), 5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      if (b.validNetworkPanic) {
+        ctx.fillStyle = '#daf';
+        ctx.beginPath();
+        ctx.arc(xp, b.yPanicAux(b.maxPanic[si]), 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#9d8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xp, b.yPanicAux(b.panicStd[si]), 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#ddd';
+      ctx.font = '12px system-ui';
+      const blueLabel =
+        b.mode === 'resource_cascade' ? 'min headroom (blue)' : 'price (blue)';
+      ctx.fillText(blueLabel, pad, 16);
+      ctx.fillText('instability (orange)', pad + (b.mode === 'resource_cascade' ? 168 : 110), 16);
+      ctx.fillText('collapse (magenta)', pad + (b.mode === 'resource_cascade' ? 352 : 260), 16);
+      let lx = pad + (b.mode === 'resource_cascade' ? 530 : 410);
+      ctx.fillText(`scrub: step ${si} / ${tmax}`, lx, 16);
+      if (b.validNetworkPanic) {
+        ctx.fillStyle = '#daf';
+        ctx.fillText('max panic', lx + 118, 16);
+        ctx.fillStyle = '#9d8';
+        ctx.fillText('σ panic', lx + 190, 16);
+      }
+
+      updateMeta(si);
+    }
+
+    function compareBlock(scrubI) {
+      if (!bundle || !bundleB) return '';
+      const ta = bundle.traj;
+      const tb = bundleB.traj;
+      if (!tb.length) return '\n--- compare B ---\n(empty trajectory)\n';
+      const ia = Math.max(0, Math.min(scrubI, ta.length - 1));
+      const ib = Math.max(0, Math.min(scrubI, tb.length - 1));
+      const ma = ta[ia]?.metrics || {};
+      const mb = tb[ib]?.metrics || {};
+      const pa = Number(ma.price);
+      const pb = Number(mb.price);
+      const qa = Number(ma.instability);
+      const qb = Number(mb.instability);
+      const dp = pa - pb;
+      const di = qa - qb;
+      const la = bundle.mode === 'resource_cascade' ? 'headroom' : 'price';
+      const lb = bundleB.mode === 'resource_cascade' ? 'headroom' : 'price';
+      const da = bundle.data;
+      let aSum = '';
+      if (da && da.mean_instability !== undefined) {
+        aSum =
+          `A summary: mean_instability=${da.mean_instability}  recovery_latency_steps=${da.recovery_latency_steps ?? 'null'}\n`;
+      }
+      const db = bundleB.data;
+      let bSum = '';
+      if (db && db.mean_instability !== undefined) {
+        bSum =
+          `B summary: mean_instability=${db.mean_instability}  recovery_latency_steps=${db.recovery_latency_steps ?? 'null'}\n`;
+      }
+      return (
+        `\n--- compare B (scrub ${scrubI}; B clamped to index ${ib}) ---\n` +
+        aSum +
+        bSum +
+        `A: ${la}=${ma.price ?? '—'}  instability=${ma.instability ?? '—'}\n` +
+        `B: ${lb}=${mb.price ?? '—'}  instability=${mb.instability ?? '—'}\n` +
+        `Δ(${la} A−${lb} B)=${Number.isFinite(dp) ? dp.toFixed(6) : '—'}  Δinstability=${Number.isFinite(di) ? di.toFixed(6) : '—'}\n`
+      );
+    }
+
+    function formatArtifactMeta(d) {
+      const m = d.meta;
+      if (!m || typeof m !== 'object') return '';
+      let lines = 'artifact_meta:\n';
+      for (const [k, v] of Object.entries(m)) {
+        lines += `  ${k}: ${typeof v === 'object' && v !== null ? JSON.stringify(v) : v}\n`;
+      }
+      return `${lines}\n`;
+    }
+
+    function updateMeta(scrubI) {
+      if (!bundle) {
+        meta.textContent = 'No replay loaded.';
+        return;
+      }
+      const d = bundle.data;
+      const traj = bundle.traj;
+      const metaHead = formatArtifactMeta(d);
+      let scrubBlock = '';
+      if (traj.length && scrubI !== undefined) {
+        const step = traj[scrubI];
+        const m = step.metrics || {};
+        const evs = step.events || [];
+        const sv = step.state_vector || [];
+        let svNote = '';
+        if ((d.simulation_mode || '') === 'network' && sv.length >= 7) {
+          svNote =
+            `state_vector: mean_p=${sv[3]?.toFixed?.(4) ?? sv[3]} max_p=${sv[4]?.toFixed?.(4) ?? sv[4]} std_p=${sv[5]?.toFixed?.(4) ?? sv[5]}\n`;
+        } else if ((d.simulation_mode || '') === 'resource_cascade' && sv.length >= 4) {
+          svNote =
+            `state_vector: h0=${sv[0]?.toFixed?.(4) ?? sv[0]} h1=${sv[1]?.toFixed?.(4) ?? sv[1]} overload=${sv[2]?.toFixed?.(4) ?? sv[2]} t=${sv[3]}\n`;
+        } else if (sv.length >= 5) {
+          svNote = `state_vector: panic=${sv[3]?.toFixed?.(4) ?? sv[3]} (aggregate layout)\n`;
+        }
+        const blueScrub = (d.simulation_mode || '') === 'resource_cascade' ? 'headroom (min layer)' : 'price';
+        scrubBlock =
+          `\n--- scrub (index ${scrubI}) ---\n` +
+          `timestep: ${step.timestep}\n` +
+          `${blueScrub}: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}\n` +
+          svNote +
+          `events: ${evs.length ? JSON.stringify(evs) : '(none)'}\n`;
+      }
+      meta.textContent =
+        metaHead +
+        `schema_version: ${d.schema_version}\n` +
+        `mode: ${d.simulation_mode}\n` +
+        `collapsed: ${d.collapsed} @ ${d.collapse_timestep}\n` +
+        `attack_cost: ${d.attack_cost}\n` +
+        `integral_instability: ${d.integral_instability}\n` +
+        `mean_instability: ${d.mean_instability ?? '—'}\n` +
+        `steps_recorded: ${d.steps_recorded ?? traj.length}\n` +
+        `recovery_timestep: ${d.recovery_timestep}\n` +
+        `recovery_latency_steps: ${d.recovery_latency_steps ?? 'null'}\n` +
+        `events_lane: ${Array.isArray(d.events_lane) ? d.events_lane.length : '(derived)'}\n` +
+        `steps: ${traj.length}` +
+        scrubBlock +
+        compareBlock(scrubI);
+    }
+
+    function loadReplay(data) {
+      bundle = buildBundle(data);
+      scrubIndex = 0;
+      draw();
+      cv.focus({ preventScroll: true });
+    }
+
+    const IDB_NAME = 'fragility-replay-viewer';
+    const IDB_STORE = 'handles';
+    const IDB_KEY_REPLAY_DIR = 'replayDir';
+
+    function openHandlesDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onerror = () => reject(req.error);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(IDB_STORE)) req.result.createObjectStore(IDB_STORE);
+        };
+        req.onsuccess = () => resolve(req.result);
+      });
+    }
+
+    async function saveReplayDirHandle(dirHandle) {
+      try {
+        const db = await openHandlesDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+          tx.objectStore(IDB_STORE).put(dirHandle, IDB_KEY_REPLAY_DIR);
+        });
+      } catch (_) {
+        /* private mode / blocked IDB */
+      }
+    }
+
+    async function loadReplayDirHandle() {
+      try {
+        const db = await openHandlesDb();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(IDB_STORE, 'readonly');
+          const g = tx.objectStore(IDB_STORE).get(IDB_KEY_REPLAY_DIR);
+          g.onsuccess = () => resolve(g.result ?? null);
+          g.onerror = () => reject(g.error);
+        });
+      } catch (_) {
+        return null;
+      }
+    }
+
+    /** Directory handle saved after “Choose folder” (FSA); used as showOpenFilePicker startIn. */
+    async function usableReplayDirHandleForStartIn() {
+      const h = await loadReplayDirHandle();
+      if (!h || typeof h.queryPermission !== 'function') return null;
+      let perm = await h.queryPermission({ mode: 'read' });
+      if (perm === 'prompt') {
+        try {
+          perm = await h.requestPermission({ mode: 'read' });
+        } catch (_) {
+          return null;
+        }
+      }
+      return perm === 'granted' ? h : null;
+    }
+
+    async function pickReplayFile() {
+      const startIn = await usableReplayDirHandleForStartIn();
+      if (window.showOpenFilePicker) {
+        try {
+          const opts = {
+            id: 'fragility-replay-json',
+            types: [
+              { description: 'Replay JSON', accept: { 'application/json': ['.json'], 'text/json': ['.json'] } },
+            ],
+          };
+          if (startIn) opts.startIn = startIn;
+          const [fh] = await window.showOpenFilePicker(opts);
+          const file = await fh.getFile();
+          folderList.hidden = true;
+          handleText(await file.text());
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+        }
+      }
+      folderList.hidden = true;
+      fileInput.click();
+    }
+
+    function renderJsonPickList(jsonFiles) {
+      folderList.innerHTML = '';
+      if (!jsonFiles.length) {
+        folderList.innerHTML =
+          '<p>No .json files under that folder (search includes subfolders).</p>';
+        folderList.hidden = false;
+        return;
+      }
+      const cap = 200;
+      const slice = jsonFiles.length > cap ? jsonFiles.slice(0, cap) : jsonFiles;
+      const h = document.createElement('h3');
+      h.textContent =
+        jsonFiles.length > cap
+          ? `JSON files — click to load (showing first ${cap} of ${jsonFiles.length})`
+          : `JSON files — click to load (${jsonFiles.length})`;
+      folderList.appendChild(h);
+      slice.forEach(f => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'json-pick';
+        const rel = f.webkitRelativePath || f.name;
+        b.textContent = rel;
+        b.title = rel;
+        b.addEventListener('click', () => {
+          f.text().then(handleText);
+        });
+        folderList.appendChild(b);
+      });
+      folderList.hidden = false;
+    }
+
+    folderPick.addEventListener('change', () => {
+      const files = folderPick.files;
+      if (!files?.length) return;
+      const jsonFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.json'));
+      jsonFiles.sort((a, b) => (a.webkitRelativePath || '').localeCompare(b.webkitRelativePath || ''));
+      renderJsonPickList(jsonFiles);
+      folderPick.value = '';
+    });
+
+    async function pickReplayFolder() {
+      if (window.showDirectoryPicker) {
+        try {
+          const dir = await window.showDirectoryPicker({ id: 'fragility-replay-folder' });
+          await saveReplayDirHandle(dir);
+          const handles = [];
+          for await (const ent of dir.values()) {
+            if (ent.kind === 'file' && ent.name.toLowerCase().endsWith('.json')) handles.push(ent);
+          }
+          handles.sort((a, b) => a.name.localeCompare(b.name));
+          folderList.innerHTML = '';
+          if (!handles.length) {
+            folderList.innerHTML =
+              '<p>No .json files in this folder (top level only — use fallback folder picker for subfolders).</p>';
+            folderList.hidden = false;
+            return;
+          }
+          const h = document.createElement('h3');
+          h.textContent = `JSON in folder (top level) — click to load (${handles.length})`;
+          folderList.appendChild(h);
+          handles.forEach(hnd => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'json-pick';
+            b.textContent = hnd.name;
+            b.title = hnd.name;
+            b.addEventListener('click', async () => {
+              const file = await hnd.getFile();
+              handleText(await file.text());
+            });
+            folderList.appendChild(b);
+          });
+          folderList.hidden = false;
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+        }
+      }
+      folderPick.click();
+    }
+
+    btnFolder.addEventListener('click', () => {
+      void pickReplayFolder();
+    });
+    btnFile.addEventListener('click', () => {
+      void pickReplayFile();
+    });
+
+    btnCompare.addEventListener('click', () => {
+      compareFile.click();
+    });
+    btnClearCompare.addEventListener('click', () => {
+      bundleB = null;
+      compareFile.value = '';
+      btnClearCompare.hidden = true;
+      draw();
+      updateMeta(scrubIndex);
+    });
+    compareFile.addEventListener('change', ev => {
+      const f = ev.target.files?.[0];
+      if (!f) return;
+      f.text().then(text => {
+        try {
+          const data = JSON.parse(text);
+          bundleB = buildBundle(data);
+          btnClearCompare.hidden = false;
+          draw();
+          updateMeta(scrubIndex);
+        } catch (e) {
+          bundleB = null;
+          btnClearCompare.hidden = true;
+          draw();
+          updateMeta(scrubIndex);
+          window.alert('Compare file invalid JSON: ' + e);
+        }
+      });
+    });
+
+    function handleText(text) {
+      try {
+        const data = JSON.parse(text);
+        loadReplay(data);
+      } catch (e) {
+        bundle = null;
+        meta.textContent = 'Invalid JSON: ' + e;
+        ctx.clearRect(0, 0, cv.width, cv.height);
+      }
+    }
+
+    cv.addEventListener('pointerdown', e => {
+      pointerDown = true;
+      scrubIndex = clientXToIndex(e.clientX);
+      draw();
+      try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    cv.addEventListener('pointermove', e => {
+      if (!bundle) return;
+      if (pointerDown || e.buttons === 1) {
+        scrubIndex = clientXToIndex(e.clientX);
+        draw();
+      }
+    });
+    cv.addEventListener('pointerup', e => {
+      pointerDown = false;
+      try { cv.releasePointerCapture(e.pointerId); } catch (_) {}
+    });
+    cv.addEventListener('pointercancel', () => { pointerDown = false; });
+
+    cv.addEventListener('mousemove', e => {
+      if (!bundle || pointerDown) return;
+      scrubIndex = clientXToIndex(e.clientX);
+      draw();
+    });
+
+    cv.addEventListener('keydown', e => {
+      if (!bundle || !bundle.traj.length) return;
+      const n = bundle.tmax;
+      if (e.key === 'ArrowLeft') scrubIndex = Math.max(0, scrubIndex - 1);
+      else if (e.key === 'ArrowRight') scrubIndex = Math.min(n, scrubIndex + 1);
+      else if (e.key === 'Home') scrubIndex = 0;
+      else if (e.key === 'End') scrubIndex = n;
+      else return;
+      e.preventDefault();
+      draw();
+    });
+
+    drop.addEventListener('dragover', ev => { ev.preventDefault(); });
+    drop.addEventListener('drop', ev => {
+      ev.preventDefault();
+      const f = ev.dataTransfer.files?.[0];
+      if (!f) return;
+      folderList.hidden = true;
+      f.text().then(handleText);
+    });
+    fileInput.addEventListener('change', ev => {
+      const f = ev.target.files?.[0];
+      if (!f) return;
+      folderList.hidden = true;
+      f.text().then(handleText);
+    });
+
+    async function applyReplayHashLoads() {
+      const raw = location.hash.replace(/^#/, '');
+      if (!raw) return;
+      const q = new URLSearchParams(raw);
+      const src = q.get('src');
+      const cmp = q.get('compare');
+      if (src) {
+        try {
+          const res = await fetch(new URL(src, document.location));
+          if (res.ok) {
+            handleText(await res.text());
+            presetStatus.textContent = 'Loaded (hash)';
+          }
+        } catch (_) { /* ignore */ }
+      }
+      if (cmp) {
+        try {
+          const res = await fetch(new URL(cmp, document.location));
+          if (res.ok) {
+            const data = JSON.parse(await res.text());
+            bundleB = buildBundle(data);
+            btnClearCompare.hidden = false;
+            draw();
+          }
+        } catch (_) { /* ignore */ }
+      }
+    }
+
+    window.addEventListener('hashchange', () => {
+      const q = new URLSearchParams(location.hash.replace(/^#/, ''));
+      if (!q.get('compare')) {
+        bundleB = null;
+        compareFile.value = '';
+        btnClearCompare.hidden = true;
+        if (bundle) draw();
+      }
+      void applyReplayHashLoads();
+    });
+
+    async function initPresets() {
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (!res.ok) return;
+        const cfg = await res.json();
+        const list = cfg.presets || [];
+        if (!list.length) return;
+        for (const p of list) {
+          if (!p.path || !p.label) continue;
+          const opt = document.createElement('option');
+          opt.value = p.path;
+          opt.textContent = p.label;
+          presetSelect.appendChild(opt);
+        }
+        presetRow.hidden = false;
+      } catch (_) {
+        /* file:// or blocked fetch */
+      }
+    }
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) {
+        presetStatus.textContent = '';
+        return;
+      }
+      presetStatus.textContent = 'Loading…';
+      try {
+        const url = new URL(path, document.location);
+        const res = await fetch(url);
+        if (!res.ok) {
+          presetStatus.textContent = `Missing (${res.status}) — run scripts/regenerate_test_exports`;
+          return;
+        }
+        handleText(await res.text());
+        presetStatus.textContent = 'Loaded';
+      } catch (_) {
+        presetStatus.textContent = 'Fetch failed — serve repo root over HTTP or use file picker';
+      }
+    });
+
+    (async () => {
+      await applyReplayHashLoads();
+      await initPresets();
+    })();
+
+    meta.textContent = 'Load a replay JSON to begin.';
+    ctx.fillStyle = '#888';
+    ctx.font = '14px system-ui';
+    ctx.fillText('Load a replay JSON…', 16, 40);
+  </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+</body>
+</html>

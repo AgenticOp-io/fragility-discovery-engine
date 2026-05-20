@@ -1,0 +1,132 @@
+{
+  "baseline": {
+    "collapsed": false,
+    "collapse_timestep": null,
+    "peak_instability": 0.06790245572849013,
+    "integral_instability": 0.14322193044936654,
+    "recovery_timestep": null,
+    "attack_cost": 3.5075513522332242,
+    "mode": "service_backlog",
+    "horizon_steps": 40,
+    "seed": 66701
+  },
+  "counterfactual": {
+    "collapsed": false,
+    "collapse_timestep": null,
+    "peak_instability": 0.029794612988620805,
+    "integral_instability": 0.05910026908909824,
+    "recovery_timestep": null,
+    "attack_cost": 3.5075513522332242,
+    "mode": "service_backlog",
+    "horizon_steps": 40,
+    "seed": 66701
+  },
+  "interpretation_hint": "Neither collapses under these pinned seeds.",
+  "intervention": "service_backlog_mutation_chain",
+  "mutation_steps": [
+    {
+      "kind": "process_rate",
+      "value": 0.42
+    },
+    {
+      "kind": "ingest_gain",
+      "value": 0.27
+    }
+  ],
+  "baseline_initial_backlog": 0.065,
+  "variant_initial_backlog": 0.065,
+  "delta_attack_cost": 0.0,
+  "delta_integral_instability": 0.0841216613602683,
+  "meta": {
+    "cli": "export_service_backlog_counterfactual_chain",
+    "base_seed": 66701,
+    "chain_schema": "service-backlog-mutation-chain-spec-v1",
+    "chain_json": "C:\\Users\\david\\projects\\fragility-discovery-engine\\tests\\fixtures\\chains\\service_backlog_process_ingest_chain.json",
+    "continue_after_collapse": false,
+    "max_steps": 40
+  },
+  "path_trace": {
+    "schema": "explanation-mutation-chain-path-service-backlog-v1",
+    "source_chain_schema": "service-backlog-mutation-chain-spec-v1",
+    "rollout_seed": 66701,
+    "baseline_initial_backlog": 0.065,
+    "variant_initial_backlog": 0.065,
+    "nodes": [
+      {
+        "id": "chain_0",
+        "index": 0,
+        "mutations_applied": 0,
+        "reset_initial_backlog": 0.065,
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.06790245572849013,
+        "integral_instability": 0.14322193044936654,
+        "recovery_timestep": null,
+        "attack_cost": 3.5075513522332242,
+        "mode": "service_backlog",
+        "horizon_steps": 40,
+        "seed": 66701
+      },
+      {
+        "id": "chain_1",
+        "index": 1,
+        "mutations_applied": 1,
+        "reset_initial_backlog": 0.065,
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.06319839730866458,
+        "integral_instability": 0.1290120495723286,
+        "recovery_timestep": null,
+        "attack_cost": 3.5075513522332242,
+        "mode": "service_backlog",
+        "horizon_steps": 40,
+        "seed": 66701
+      },
+      {
+        "id": "chain_2",
+        "index": 2,
+        "mutations_applied": 2,
+        "reset_initial_backlog": 0.065,
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.029794612988620805,
+        "integral_instability": 0.05910026908909824,
+        "recovery_timestep": null,
+        "attack_cost": 3.5075513522332242,
+        "mode": "service_backlog",
+        "horizon_steps": 40,
+        "seed": 66701
+      }
+    ],
+    "edges": [
+      {
+        "from": "chain_0",
+        "to": "chain_1",
+        "kind": "mutation_chain_step",
+        "step_index": 0,
+        "step": {
+          "kind": "process_rate",
+          "value": 0.42
+        },
+        "delta_integral_instability": -0.01420988087703795,
+        "delta_attack_cost": 0.0,
+        "reset_initial_backlog_from": 0.065,
+        "reset_initial_backlog_to": 0.065
+      },
+      {
+        "from": "chain_1",
+        "to": "chain_2",
+        "kind": "mutation_chain_step",
+        "step_index": 1,
+        "step": {
+          "kind": "ingest_gain",
+          "value": 0.27
+        },
+        "delta_integral_instability": -0.06991178048323035,
+        "delta_attack_cost": 0.0,
+        "reset_initial_backlog_from": 0.065,
+        "reset_initial_backlog_to": 0.065
+      }
+    ]
+  }
+}

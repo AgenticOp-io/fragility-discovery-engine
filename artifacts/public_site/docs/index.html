@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Documentation — Fragility Discovery Engine</title>
+  <meta name="description" content="Complete manual: overview, installation, tutorials, architecture, reference, and algorithms." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+    <div class="fde-hero-compact">
+      <h1>Documentation</h1>
+      <p>Complete manual for the Fragility Discovery Engine — from first run to algorithm internals.</p>
+    </div>
+    <p class="fde-section-title">Sections</p>
+      <div class="fde-docs-index-grid">
+        <a class="fde-card" href="/docs/overview.html">
+          <span class="fde-card-tag">introduction</span>
+          <h3>Overview</h3>
+          <p>What the engine is, what problem it solves, the five domains, and who it fits.</p>
+        </a>
+        <a class="fde-card" href="/docs/installation.html">
+          <span class="fde-card-tag">setup</span>
+          <h3>Installation</h3>
+          <p>Python, venv, platform notes (Windows / Linux / macOS / WSL), CI parity scripts.</p>
+        </a>
+        <a class="fde-card" href="/docs/how-to-use.html">
+          <span class="fde-card-tag">tutorials</span>
+          <h3>How to Use</h3>
+          <p>Step-by-step for all five domains: replay, counterfactuals, Pareto, co-evolution, benchmarks.</p>
+        </a>
+        <a class="fde-card" href="/docs/architecture.html">
+          <span class="fde-card-tag">internals</span>
+          <h3>Architecture</h3>
+          <p>Package layers, rollout pipeline, simulation modes, search mechanisms, and extension points.</p>
+        </a>
+        <a class="fde-card" href="/docs/reference.html">
+          <span class="fde-card-tag">reference</span>
+          <h3>Reference</h3>
+          <p>Complete CLI flag matrix, environment variables, JSON schema IDs, and script index.</p>
+        </a>
+        <a class="fde-card" href="/docs/algorithms.html">
+          <span class="fde-card-tag">provenance</span>
+          <h3>Algorithms</h3>
+          <p>Every algorithm used: what we wrote vs standard methods, with citations and code paths.</p>
+        </a>
+      </div>
+    <p class="fde-section-title" style="margin-top:2rem">Quick links</p>
+    <div class="fde-prose">
+      <ul>
+        <li><a href="/docs/how-to-use.html#install-and-verify">Install and verify</a> — Python + venv in under five minutes.</li>
+        <li><a href="/docs/how-to-use.html#tutorial-paths">Tutorial paths</a> — first replay, GA search, co-evolution, counterfactuals.</li>
+        <li><a href="/docs/reference.html#simulation-modes">Simulation modes at a glance</a> — aggregate, network, resource cascade, service backlog, liquidity ladder.</li>
+        <li><a href="/docs/reference.html#common-json-schemas">JSON schemas</a> — all artifact schema IDs and what produces them.</li>
+        <li><a href="/docs/algorithms.html">Algorithms &amp; provenance</a> — what we built vs what we borrowed.</li>
+        <li><a href="/run.html">Run a scenario</a> — submit a search run on this server right now.</li>
+      </ul>
+    </div>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

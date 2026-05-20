@@ -1,0 +1,132 @@
+{
+  "baseline": {
+    "collapsed": true,
+    "collapse_timestep": 2,
+    "peak_instability": 3.0537786721584865,
+    "integral_instability": 3.3577949286424884,
+    "recovery_timestep": null,
+    "attack_cost": 5.053047997676829,
+    "mode": "aggregate",
+    "horizon_steps": 3,
+    "seed": 66601
+  },
+  "counterfactual": {
+    "collapsed": true,
+    "collapse_timestep": 2,
+    "peak_instability": 3.122393156590184,
+    "integral_instability": 3.4714876643709864,
+    "recovery_timestep": null,
+    "attack_cost": 5.053047997676829,
+    "mode": "aggregate",
+    "horizon_steps": 3,
+    "seed": 66601
+  },
+  "interpretation_hint": "Both collapse \u2014 compare cost/timing for marginal attribution.",
+  "intervention": "aggregate_mutation_chain",
+  "mutation_steps": [
+    {
+      "kind": "rumor_panic_gain",
+      "value": 0.42
+    },
+    {
+      "kind": "depeg_threshold",
+      "value": 0.96
+    }
+  ],
+  "baseline_initial_panic": 0.05,
+  "variant_initial_panic": 0.05,
+  "delta_attack_cost": 0.0,
+  "delta_integral_instability": -0.11369273572849803,
+  "meta": {
+    "cli": "export_aggregate_counterfactual_chain",
+    "base_seed": 66601,
+    "chain_schema": "aggregate-mutation-chain-spec-v1",
+    "chain_json": "C:\\Users\\david\\projects\\fragility-discovery-engine\\tests\\fixtures\\chains\\aggregate_panic_depeg_chain.json",
+    "continue_after_collapse": false,
+    "max_steps": 40
+  },
+  "path_trace": {
+    "schema": "explanation-mutation-chain-path-aggregate-v1",
+    "source_chain_schema": "aggregate-mutation-chain-spec-v1",
+    "rollout_seed": 66601,
+    "baseline_initial_panic": 0.05,
+    "variant_initial_panic": 0.05,
+    "nodes": [
+      {
+        "id": "chain_0",
+        "index": 0,
+        "mutations_applied": 0,
+        "reset_initial_panic": 0.05,
+        "collapsed": true,
+        "collapse_timestep": 2,
+        "peak_instability": 3.0537786721584865,
+        "integral_instability": 3.3577949286424884,
+        "recovery_timestep": null,
+        "attack_cost": 5.053047997676829,
+        "mode": "aggregate",
+        "horizon_steps": 3,
+        "seed": 66601
+      },
+      {
+        "id": "chain_1",
+        "index": 1,
+        "mutations_applied": 1,
+        "reset_initial_panic": 0.05,
+        "collapsed": true,
+        "collapse_timestep": 2,
+        "peak_instability": 3.082393156590184,
+        "integral_instability": 3.4314876643709864,
+        "recovery_timestep": null,
+        "attack_cost": 5.053047997676829,
+        "mode": "aggregate",
+        "horizon_steps": 3,
+        "seed": 66601
+      },
+      {
+        "id": "chain_2",
+        "index": 2,
+        "mutations_applied": 2,
+        "reset_initial_panic": 0.05,
+        "collapsed": true,
+        "collapse_timestep": 2,
+        "peak_instability": 3.122393156590184,
+        "integral_instability": 3.4714876643709864,
+        "recovery_timestep": null,
+        "attack_cost": 5.053047997676829,
+        "mode": "aggregate",
+        "horizon_steps": 3,
+        "seed": 66601
+      }
+    ],
+    "edges": [
+      {
+        "from": "chain_0",
+        "to": "chain_1",
+        "kind": "mutation_chain_step",
+        "step_index": 0,
+        "step": {
+          "kind": "rumor_panic_gain",
+          "value": 0.42
+        },
+        "delta_integral_instability": 0.073692735728498,
+        "delta_attack_cost": 0.0,
+        "reset_initial_panic_from": 0.05,
+        "reset_initial_panic_to": 0.05
+      },
+      {
+        "from": "chain_1",
+        "to": "chain_2",
+        "kind": "mutation_chain_step",
+        "step_index": 1,
+        "step": {
+          "kind": "depeg_threshold",
+          "value": 0.96
+        },
+        "delta_integral_instability": 0.040000000000000036,
+        "delta_attack_cost": 0.0,
+        "reset_initial_panic_from": 0.05,
+        "reset_initial_panic_to": 0.05
+      }
+    ]
+  }
+}

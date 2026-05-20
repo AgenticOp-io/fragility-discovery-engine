@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fragility Discovery Engine — Workbench</title>
+  <meta name="description" content="Live replay and benchmark viewers with bundled frozen demos." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticops.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a class="fde-active" href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+    <div id="fde-status" class="fde-status-bar">Loading server status…</div>
+    <div class="fde-hero-compact">
+      <h1>Workbench</h1>
+      <p>Everything runs on <strong>this server</strong>. Use the viewers in your browser only — no install on your machine. Open a demo or use Presets inside each tool.</p>
+    </div>
+    <div class="fde-live">
+      <div class="fde-live-head">
+        <span>Live · flagship bundled replay</span>
+        <a href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Open full screen</a>
+      </div>
+      <iframe title="Replay viewer — flagship demo" src="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json"></iframe>
+    </div>
+    <p class="fde-section-title">Bundled demos</p>
+    <div class="fde-grid">
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Flagship GA replay</h3>
+        <p>Bundled best adversary schedule — collapse timeline.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Aggregate peg</h3>
+        <p>Scalar stablecoin peg reference domain.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_network_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Network contagion</h3>
+        <p>Graph shock propagation.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Resource cascade</h3>
+        <p>Overload capacity cascade.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Service backlog</h3>
+        <p>Ops backlog reference domain.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Liquidity ladder</h3>
+        <p>Funding ladder stress.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/composite_viewer/index.html">
+        <span class="fde-card-tag">composite</span>
+        <h3>Penta composite</h3>
+        <p>Five-domain audit JSON — use Presets dropdown.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/pareto_viewer/index.html">
+        <span class="fde-card-tag">pareto</span>
+        <h3>Pareto front</h3>
+        <p>Two-objective adversary archive.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/attribution_viewer/index.html">
+        <span class="fde-card-tag">attribution</span>
+        <h3>Attribution chains</h3>
+        <p>Counterfactual chain viewer.</p>
+      </a>
+    </div>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticops.io">AgenticOps</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>
