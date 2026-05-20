@@ -64,14 +64,42 @@ Write-Host "==> upload publish scripts"
 Copy-LfSh -Local $PublishSh -Remote "gce_publish_workbench.sh"
 Copy-LfSh -Local $InstallSh -Remote "gce_install_public_web.sh"
 
-$remote = "mkdir -p ~/fragility-discovery-engine/scripts; mv -f ~/gce_publish_workbench.sh ~/fragility-discovery-engine/scripts/; mv -f ~/gce_install_public_web.sh ~/fragility-discovery-engine/scripts/; chmod +x ~/fragility-discovery-engine/scripts/gce_publish_workbench.sh"
-if (-not $SkipGitPull) {
-  $remote += "; cd ~/fragility-discovery-engine; git pull --ff-only origin main 2>/dev/null || true"
+$remote = @'
+set -e
+REPO=~/fragility-discovery-engine
+mkdir -p "$REPO/scripts"
+for f in gce_publish_workbench.sh gce_install_public_web.sh; do
+  if [ -f ~/"$f" ]; then mv -f ~/"$f" "$REPO/scripts/$f"; chmod +x "$REPO/scripts/$f"; fi
+done
+cd "$REPO"
+if [ -f scripts/gce_git_auth.sh ]; then . scripts/gce_git_auth.sh; elif [ -f ~/gce_git_auth.sh ]; then . ~/gce_git_auth.sh; fi
+if declare -F fragility_gce_git >/dev/null 2>&1; then
+  fragility_gce_git fetch origin main
+  fragility_gce_git checkout main
+  fragility_gce_git pull --ff-only origin main
+else
+  git fetch origin main
+  git checkout main
+  git pull --ff-only origin main
+fi
+bash scripts/gce_publish_workbench.sh
+'@.Trim()
+if ($SkipGitPull) {
+  $remote = @'
+set -e
+REPO=~/fragility-discovery-engine
+mkdir -p "$REPO/scripts"
+for f in gce_publish_workbench.sh gce_install_public_web.sh; do
+  if [ -f ~/"$f" ]; then mv -f ~/"$f" "$REPO/scripts/$f"; chmod +x "$REPO/scripts/$f"; fi
+done
+cd "$REPO"
+bash scripts/gce_publish_workbench.sh
+'@.Trim()
 }
-$remote += "; cd ~/fragility-discovery-engine; bash scripts/gce_publish_workbench.sh"
 
 Write-Host "==> publish on VM (build + validate + nginx)"
 gcloud compute ssh $Instance --zone=$Zone --command=$remote
+if ($LASTEXITCODE -ne 0) { throw "gce_publish_workbench failed (exit $LASTEXITCODE)" }
 
 $ip = (gcloud compute instances describe $Instance --zone=$Zone --format="get(networkInterfaces[0].accessConfigs[0].natIP)").Trim()
 Write-Host "==> done. Browser-only workbench: http://${ip}/"
