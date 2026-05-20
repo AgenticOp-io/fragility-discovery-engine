@@ -125,10 +125,17 @@ def _nav_html(active: str) -> str:
 def viewer_chrome_head() -> str:
     """Head fragment injected into standalone viewer HTML.
 
-    Loads the product stylesheet, the shared fonts, and an inline palette
-    override so the viewer body inherits the same dark theme + typography as
-    the rest of the site (without breaking the viewer's own canvas / button
-    layout, which already uses a dark-friendly palette).
+    Loads the product stylesheet, the shared fonts, and an inline palette +
+    layout override so the viewer body matches the rest of the site:
+    - Dark surface (#0c0e14) and product text color.
+    - DM Sans body, JetBrains Mono for code/pre/kbd.
+    - Base font-size 0.95rem (≈15px) and line-height 1.5 — the same metrics
+      .fde-main uses on workbench / algorithms / run pages.
+    - max-width 1200px with 1.25rem padding, so the viewer's content column
+      lines up with every other product page.
+
+    The viewer's own #hint / #meta / h2 / table sizes are intentional and
+    left alone; this only normalizes the *body baseline*.
     """
 
     return (
@@ -139,8 +146,15 @@ def viewer_chrome_head() -> str:
         '  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>\n'
         "  <style>\n"
         "    :root { color-scheme: dark; }\n"
-        '    html, body { background: #0c0e14; color: #e8ecf4; }\n'
-        '    body { font-family: "DM Sans", system-ui, sans-serif; }\n'
+        "    html, body { background: #0c0e14; color: #e8ecf4; }\n"
+        "    body {\n"
+        '      font-family: "DM Sans", system-ui, sans-serif !important;\n'
+        "      font-size: 0.95rem !important;\n"
+        "      line-height: 1.5 !important;\n"
+        "      max-width: 1200px !important;\n"
+        "      margin: 0 auto !important;\n"
+        "      padding: 1.25rem !important;\n"
+        "    }\n"
         '    code, kbd, pre { font-family: "JetBrains Mono", ui-monospace, monospace; }\n'
         "    a { color: #6eb5f7; }\n"
         "  </style>\n"
