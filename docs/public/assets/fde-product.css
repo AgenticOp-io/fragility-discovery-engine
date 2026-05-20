@@ -342,7 +342,15 @@ body.fde-embedded .fde-main {
   margin: 0 0 1rem;
 }
 
-/* Secondary nav on viewer pages — quick hop between Replay / Pareto / … */
+/* Docs section index grid */
+.fde-docs-index-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  margin: 0 0 var(--fde-space-md);
+}
+
+/* Secondary nav on viewer pages and docs pages */
 .fde-viewer-strip {
   display: flex;
   flex-wrap: wrap;

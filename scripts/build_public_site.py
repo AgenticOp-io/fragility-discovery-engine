@@ -14,6 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from public_site_lib import (
+    docs_strip_html,
     md_to_html,
     product_shell,
     site_chrome_footer,
@@ -432,31 +433,139 @@ def build(out: Path) -> dict[str, str]:
         ),
     )
 
-    wp_md = (ROOT / "docs" / "WHITEPAPER_INTRODUCTION.md").read_text(encoding="utf-8")
     docs_dir = out / "docs"
     docs_dir.mkdir()
-    _write(
-        docs_dir / "whitepaper.html",
-        product_shell(
-            title="Fragility Discovery Engine — Overview",
-            page_id="docs",
-            description="Technical overview for researchers.",
-            main_html=f'<article class="fde-prose">{md_to_html(wp_md)}</article>',
-        ),
+
+    def _doc(*, filename: str, doc_id: str, title: str, description: str, md_filename: str) -> None:
+        """Read a markdown file and write a docs page with the shared strip nav."""
+        md_path = ROOT / "docs" / md_filename
+        if not md_path.is_file():
+            return
+        body = f'{docs_strip_html(doc_id)}\n<article class="fde-prose">{md_to_html(md_path.read_text(encoding="utf-8"))}</article>'
+        _write(
+            docs_dir / filename,
+            product_shell(title=title, page_id="docs", description=description, main_html=body),
+        )
+
+    # Docs index is generated below; the individual section pages come first.
+    _doc(
+        filename="overview.html",
+        doc_id="docs-index",
+        title="Overview — Fragility Discovery Engine",
+        description="What the engine is, what problems it solves, and who it fits.",
+        md_filename="WHITEPAPER_INTRODUCTION.md",
+    )
+    _doc(
+        filename="installation.html",
+        doc_id="docs-install",
+        title="Installation — Fragility Discovery Engine",
+        description="Setup instructions: Python, venv, platform notes, CI parity.",
+        md_filename="INSTALLATION.md",
+    )
+    _doc(
+        filename="how-to-use.html",
+        doc_id="docs-use",
+        title="How to Use — Fragility Discovery Engine",
+        description="Tutorials for all five domains, viewers, counterfactuals, and benchmarks.",
+        md_filename="HOW_TO_USE.md",
+    )
+    _doc(
+        filename="architecture.html",
+        doc_id="docs-arch",
+        title="Architecture — Fragility Discovery Engine",
+        description="Package layers, rollout pipeline, simulation modes, and extension points.",
+        md_filename="ARCHITECTURE.md",
+    )
+    _doc(
+        filename="reference.html",
+        doc_id="docs-ref",
+        title="Reference — Fragility Discovery Engine",
+        description="CLI flags, environment variables, JSON schemas, and script index.",
+        md_filename="REFERENCE.md",
     )
 
     algo_md_path = ROOT / "docs" / "ALGORITHMS.md"
     if algo_md_path.is_file():
         algo_md = algo_md_path.read_text(encoding="utf-8")
+        algo_body = f'{docs_strip_html("docs-algo")}\n<article class="fde-prose">{md_to_html(algo_md)}</article>'
         _write(
             docs_dir / "algorithms.html",
             product_shell(
                 title="Algorithms & provenance — Fragility Discovery Engine",
-                page_id="algorithms",
+                page_id="docs",
                 description="Catalog of search, attribution, and physics algorithms with provenance.",
-                main_html=f'<article class="fde-prose">{md_to_html(algo_md)}</article>',
+                main_html=algo_body,
             ),
         )
+
+    # Legacy redirect: /docs/whitepaper.html → /docs/overview.html
+    _write(
+        docs_dir / "whitepaper.html",
+        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/docs/overview.html"/>'
+        '<title>Redirect</title></head><body></body></html>',
+    )
+
+    # Docs landing page — card grid linking all sections.
+    docs_cards = """\
+      <div class="fde-docs-index-grid">
+        <a class="fde-card" href="/docs/overview.html">
+          <span class="fde-card-tag">introduction</span>
+          <h3>Overview</h3>
+          <p>What the engine is, what problem it solves, the five domains, and who it fits.</p>
+        </a>
+        <a class="fde-card" href="/docs/installation.html">
+          <span class="fde-card-tag">setup</span>
+          <h3>Installation</h3>
+          <p>Python, venv, platform notes (Windows / Linux / macOS / WSL), CI parity scripts.</p>
+        </a>
+        <a class="fde-card" href="/docs/how-to-use.html">
+          <span class="fde-card-tag">tutorials</span>
+          <h3>How to Use</h3>
+          <p>Step-by-step for all five domains: replay, counterfactuals, Pareto, co-evolution, benchmarks.</p>
+        </a>
+        <a class="fde-card" href="/docs/architecture.html">
+          <span class="fde-card-tag">internals</span>
+          <h3>Architecture</h3>
+          <p>Package layers, rollout pipeline, simulation modes, search mechanisms, and extension points.</p>
+        </a>
+        <a class="fde-card" href="/docs/reference.html">
+          <span class="fde-card-tag">reference</span>
+          <h3>Reference</h3>
+          <p>Complete CLI flag matrix, environment variables, JSON schema IDs, and script index.</p>
+        </a>
+        <a class="fde-card" href="/docs/algorithms.html">
+          <span class="fde-card-tag">provenance</span>
+          <h3>Algorithms</h3>
+          <p>Every algorithm used: what we wrote vs standard methods, with citations and code paths.</p>
+        </a>
+      </div>"""
+    docs_index_main = f"""\
+    <div class="fde-hero-compact">
+      <h1>Documentation</h1>
+      <p>Complete manual for the Fragility Discovery Engine — from first run to algorithm internals.</p>
+    </div>
+    <p class="fde-section-title">Sections</p>
+{docs_cards}
+    <p class="fde-section-title" style="margin-top:2rem">Quick links</p>
+    <div class="fde-prose">
+      <ul>
+        <li><a href="/docs/how-to-use.html#install-and-verify">Install and verify</a> — Python + venv in under five minutes.</li>
+        <li><a href="/docs/how-to-use.html#tutorial-paths">Tutorial paths</a> — first replay, GA search, co-evolution, counterfactuals.</li>
+        <li><a href="/docs/reference.html#simulation-modes">Simulation modes at a glance</a> — aggregate, network, resource cascade, service backlog, liquidity ladder.</li>
+        <li><a href="/docs/reference.html#common-json-schemas">JSON schemas</a> — all artifact schema IDs and what produces them.</li>
+        <li><a href="/docs/algorithms.html">Algorithms &amp; provenance</a> — what we built vs what we borrowed.</li>
+        <li><a href="/run.html">Run a scenario</a> — submit a search run on this server right now.</li>
+      </ul>
+    </div>"""
+    _write(
+        docs_dir / "index.html",
+        product_shell(
+            title="Documentation — Fragility Discovery Engine",
+            page_id="docs",
+            description="Complete manual: overview, installation, tutorials, architecture, reference, and algorithms.",
+            main_html=docs_index_main,
+        ),
+    )
 
     _write(
         out / "run.html",

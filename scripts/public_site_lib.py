@@ -15,12 +15,14 @@ __all__ = [
     "FONTS",
     "NAV",
     "VIEWER_NAV",
+    "DOCS_SECTIONS",
     "md_to_html",
     "product_shell",
     "site_chrome_footer",
     "site_chrome_head",
     "site_chrome_header",
     "viewer_strip_html",
+    "docs_strip_html",
 ]
 
 NAV = [
@@ -30,9 +32,17 @@ NAV = [
     ("pareto", "/artifacts/pareto_viewer/index.html", "Pareto"),
     ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
     ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
-    ("docs", "/docs/whitepaper.html", "Docs"),
-    ("algorithms", "/docs/algorithms.html", "Algorithms"),
+    ("docs", "/docs/", "Docs"),
     ("host", "/host.html", "This host"),
+]
+
+DOCS_SECTIONS = [
+    ("docs-index",    "/docs/",                     "Overview"),
+    ("docs-install",  "/docs/installation.html",    "Installation"),
+    ("docs-use",      "/docs/how-to-use.html",       "How to Use"),
+    ("docs-arch",     "/docs/architecture.html",    "Architecture"),
+    ("docs-ref",      "/docs/reference.html",       "Reference"),
+    ("docs-algo",     "/docs/algorithms.html",      "Algorithms"),
 ]
 
 VIEWER_NAV = [
@@ -141,6 +151,21 @@ def viewer_strip_html(active: str) -> str:
         parts.append(f"<a{attr} href=\"{href}\">{label}</a>")
     return (
         '<nav class="fde-viewer-strip" aria-label="Artifact viewers">\n'
+        + "\n".join(parts)
+        + "\n</nav>"
+    )
+
+
+def docs_strip_html(active: str) -> str:
+    """Secondary nav across all documentation sections."""
+
+    parts = []
+    for sec_id, href, label in DOCS_SECTIONS:
+        cls = "fde-active" if sec_id == active else ""
+        attr = f' class="{cls}"' if cls else ""
+        parts.append(f"<a{attr} href=\"{href}\">{label}</a>")
+    return (
+        '<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">\n'
         + "\n".join(parts)
         + "\n</nav>"
     )
