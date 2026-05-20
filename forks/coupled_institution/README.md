@@ -4,14 +4,16 @@ Sibling package for **coupled multi-kernel physics** — state exchange inside o
 
 ## Status
 
-Scaffold only: `CoupledInstitutionWorld` demonstrates a minimal two-scalar coupling (peg panic ↔ cascade overload) with a **schema-bumped** replay mode string `coupled_institution_v0`.
+**v0.1** — `CoupledInstitutionWorld` with `step(events, rng)`, fork replay schema `coupled_institution_v1` (`coupled-fork-0.1.0`), rollout + GA demo using main-engine schedule encoding.
 
 ## Install (editable)
 
 ```bash
 cd forks/coupled_institution
 pip install -e .
+pip install -e ../..   # optional: GA demo
 pytest -q
+python scripts/run_coupled_ga_demo.py --export-replay /tmp/coupled_demo.json
 ```
 
 ## Relationship to main engine

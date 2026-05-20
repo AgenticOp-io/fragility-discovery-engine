@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fragility Discovery Engine</title>
+  <style>
+    :root { --fg: #1a1a1a; --muted: #555; --link: #0969da; --bg: #fafafa; --card: #fff; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; background: var(--bg); color: var(--fg); line-height: 1.55; }
+    main { max-width: 42rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    h1 { font-size: 1.75rem; font-weight: 650; margin: 0 0 0.5rem; }
+    .tag { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    section { background: var(--card); border: 1px solid #e8e8e8; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+    h2 { font-size: 1.05rem; margin: 0 0 0.75rem; }
+    ul { margin: 0; padding-left: 1.25rem; }
+    a { color: var(--link); }
+    code { background: #f0f0f0; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Fragility Discovery Engine</h1>
+    <p class="tag">Open-source Python · six reference domains · deterministic replay JSON · release <strong>v0.5.0</strong></p>
+
+    <p>
+      A framework for <strong>finding when simulated systems break</strong> under shock schedules,
+      then explaining outcomes with reproducible artifacts you can archive and cite.
+    </p>
+
+    <section>
+      <h2>Start here</h2>
+      <ul>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER_INTRODUCTION.md">Whitepaper introduction</a></li>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md">How to use (install + CLI)</a></li>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0">Release v0.5.0</a> (wheel + sdist)</li>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source repository</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Flagship artifacts (in repo)</h2>
+      <ul>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/tree/main/artifacts/composite_demo">Institutional composite samples</a></li>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/tree/main/benchmarks">Frozen benchmark bundles</a></li>
+        <li>Local dashboard: <code>python scripts/export_static_dashboard.py</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Research fork</h2>
+      <p style="margin:0">
+        Coupled multi-kernel physics experiments live in
+        <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/tree/main/forks/coupled_institution"><code>forks/coupled_institution</code></a>
+        (not shipped in the main charter).
+      </p>
+    </section>
+
+    <section>
+      <h2>Feedback</h2>
+      <ul>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues/6">Feedback hub (issue #6)</a></li>
+        <li><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues/new?template=research_feedback.yml">New research feedback issue</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

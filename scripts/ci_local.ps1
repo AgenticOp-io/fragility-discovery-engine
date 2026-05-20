@@ -29,4 +29,10 @@ if ($env:FRAGILITY_CI_LOCAL_BUILD) {
   python -m pip install -q build
   python -m build
 }
+if ($env:FRAGILITY_CI_COUPLED_FORK) {
+  Push-Location (Join-Path $PSScriptRoot "..\forks\coupled_institution")
+  python -m pip install -e . -q
+  python -m pytest -q
+  Pop-Location
+}
 Write-Host 'ci_local: OK (ruff + pytest + benchmark --validate + manifest pins; FRAGILITY_PERF_GATE=1)'

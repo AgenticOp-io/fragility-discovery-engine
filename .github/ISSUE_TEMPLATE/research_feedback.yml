@@ -1,0 +1,60 @@
+name: Research feedback (six-domain harness)
+description: Feedback on benchmark design, domains, or reproducibility for researchers evaluating fit.
+title: "[feedback] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for evaluating the Fragility Discovery Engine. See the
+        [whitepaper introduction](https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER_INTRODUCTION.md)
+        and [HOW_TO_USE](https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md).
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Your role
+      options:
+        - Researcher / academic
+        - Engineer / practitioner
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: domains
+    attributes:
+      label: Domains you tried (or care about)
+      options:
+        - label: Aggregate peg
+        - label: Network contagion
+        - label: Resource cascade
+        - label: Service backlog
+        - label: Liquidity ladder
+        - label: Inventory buffer
+        - label: Institutional composite (hexa)
+        - label: Coupled fork only
+
+  - type: textarea
+    id: fit
+    attributes:
+      label: Fit for your problem
+      description: What matched or did not match your use case?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproducibility
+      description: Tag, manifest hash, or command you ran (if any).
+    validations:
+      required: false
+
+  - type: textarea
+    id: asks
+    attributes:
+      label: Requests (optional)
+      description: Benchmark gaps, docs, or API friction — no production/SaaS asks please.
+    validations:
+      required: false

@@ -8,15 +8,16 @@
 - [ ] Re-enable deploy key in GitHub org/repo settings (optional; token sync works today)
 - [ ] Optional: run `.github/workflows/pypi.yml` with `PYPI_API_TOKEN` if publishing to PyPI
 
-## 2. External visibility
+## 2. External visibility (Phase P)
 
-- [ ] Point **agenticop.io** (or site) at [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) + flagship demo path
-- [ ] Open one GitHub Discussion or issue: “feedback on six-domain benchmark harness”
+- [x] GitHub Pages landing ([`docs/public/index.html`](public/index.html), workflow `pages.yml`) — enable **Settings → Pages → GitHub Actions** once
+- [x] Research feedback issue template + pinned feedback issue on GitHub
+- [ ] Point **agenticop.io** DNS at Pages URL or repo (operator)
 
-## 3. Research fork (optional)
+## 3. Research fork
 
-- [ ] Flesh out `forks/coupled_institution/` — real `World.step()` coupling + schema bump + golden bundle
-- [ ] Or stop at scaffold and cite decoupled **hexa** composite only
+- [x] `forks/coupled_institution/` v0.1 — `step(events)`, replay `coupled_institution_v1`, GA demo ([`phase_p_visibility.md`](phase_p_visibility.md))
+- [ ] Golden bundle for coupled fork (fork-only; not `main` charter)
 
 ## 4. Not planned on `main`
 
