@@ -306,36 +306,96 @@ body.fde-embedded .fde-main { padding: var(--fde-space-sm); max-width: none; }
 .fde-status-ok   { color: var(--fde-ok); }
 .fde-status-warn { color: var(--fde-warn); }
 
-/* ─── 9. Workbench hero and live iframe strip ─── */
+/* ─── 9. Workbench hero and tool grid ─── */
 .fde-hero-compact { margin-bottom: 1.25rem; }
 .fde-hero-compact h1 { font-size: 1.35rem; }
 .fde-hero-compact p  { color: var(--fde-muted); max-width: 52rem; }
 
-.fde-live {
-  border: 1px solid var(--fde-border);
-  border-radius: var(--fde-radius-lg);
-  overflow: hidden;
-  background: #111;
+.fde-hero {
+  padding: 2rem 0 1.75rem;
+  border-bottom: 1px solid var(--fde-border);
   margin-bottom: 1.5rem;
 }
-.fde-live-head {
-  padding: 0.5rem 1rem;
-  font-size: var(--fde-size-xs);
+.fde-hero h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+}
+.fde-hero p {
+  font-size: var(--fde-size-base);
   color: var(--fde-muted);
-  border-bottom: 1px solid var(--fde-border);
+  max-width: 54rem;
+  margin: 0 0 1.25rem;
+}
+.fde-hero-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
-.fde-live iframe {
-  width: 100%;
-  height: min(62vh, 520px);
-  border: 0;
-  display: block;
-  background: #111;
+.fde-btn-primary,
+.fde-btn-secondary {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--fde-radius);
+  font-size: var(--fde-size-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.12s, border-color 0.12s;
 }
+.fde-btn-primary {
+  background: var(--fde-accent);
+  color: #0c0e14;
+  border: 1px solid var(--fde-accent);
+}
+.fde-btn-primary:hover {
+  background: #8ecaff;
+  border-color: #8ecaff;
+  text-decoration: none;
+  color: #0c0e14;
+}
+.fde-btn-secondary {
+  background: transparent;
+  color: var(--fde-text);
+  border: 1px solid var(--fde-border);
+}
+.fde-btn-secondary:hover {
+  border-color: var(--fde-accent);
+  color: var(--fde-accent);
+  text-decoration: none;
+}
+
+.fde-tool-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  margin-bottom: 0.5rem;
+}
+.fde-tool-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--fde-radius-lg);
+  border: 1px solid var(--fde-border);
+  background: var(--fde-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.12s, background 0.12s;
+}
+.fde-tool-card:hover {
+  border-color: var(--fde-accent);
+  background: var(--fde-surface-raised);
+  text-decoration: none;
+}
+.fde-tool-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  opacity: 0.85;
+}
+.fde-tool-card h3 { margin: 0 0 0.3rem; font-size: var(--fde-size-base); }
+.fde-tool-card p  { margin: 0; font-size: var(--fde-size-sm); color: var(--fde-muted); }
 
 /* ─── 10. Card grid ─── */
 .fde-grid {

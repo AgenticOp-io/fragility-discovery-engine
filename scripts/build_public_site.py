@@ -459,30 +459,121 @@ def build(out: Path) -> dict[str, str]:
             if page_id:
                 _inject_viewer_chrome(art_root / name / "index.html", page_id)
 
-    demo_cards = "\n".join(
-        f"""      <a class="fde-card" href="{href}">
-        <span class="fde-card-tag">{html.escape(tag)}</span>
-        <h3>{html.escape(title)}</h3>
-        <p>{html.escape(desc)}</p>
-      </a>"""
-        for title, tag, href, desc in DEMOS
-    )
+    index_main = """    <div id="fde-status" class="fde-status-bar" style="display:none"></div>
 
-    index_main = f"""    <div id="fde-status" class="fde-status-bar">Loading server status…</div>
-    <div class="fde-hero-compact">
-      <h1>Workbench</h1>
-      <p>Everything runs on <strong>this server</strong>. Use the viewers in your browser only — no install on your machine. Open a demo or use Presets inside each tool.</p>
-    </div>
-    <div class="fde-live">
-      <div class="fde-live-head">
-        <span>Live · flagship bundled replay</span>
-        <a href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Open full screen</a>
+    <div class="fde-hero">
+      <h1>Fragility Discovery Engine</h1>
+      <p>Run adversary search scenarios on live infrastructure, then explore results in the browser.
+         No install on your machine — everything executes on this server.</p>
+      <div class="fde-hero-actions">
+        <a class="fde-btn-primary" href="/run.html">Run a scenario</a>
+        <a class="fde-btn-secondary" href="/docs/">Read the docs</a>
       </div>
-      <iframe title="Replay viewer — flagship demo" src="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json"></iframe>
     </div>
-    <p class="fde-section-title">Bundled demos</p>
+
+    <p class="fde-section-title">Tools</p>
+    <div class="fde-tool-grid">
+      <a class="fde-tool-card" href="/run.html">
+        <span class="fde-tool-icon">⚡</span>
+        <div>
+          <h3>Run a scenario</h3>
+          <p>Submit a fragility search. Choose a domain, set parameters, and the engine finds the worst-case adversary schedule. Results open directly in the viewer.</p>
+        </div>
+      </a>
+      <a class="fde-tool-card" href="/artifacts/replay_viewer/index.html">
+        <span class="fde-tool-icon">▶</span>
+        <div>
+          <h3>Replay viewer</h3>
+          <p>Step through a scenario frame by frame. See how shocks propagate, when metrics cross thresholds, and what the system state looks like at each timestep.</p>
+        </div>
+      </a>
+      <a class="fde-tool-card" href="/artifacts/pareto_viewer/index.html">
+        <span class="fde-tool-icon">◎</span>
+        <div>
+          <h3>Pareto viewer</h3>
+          <p>Explore the attacker-defender trade-off frontier produced by a co-evolution run. Each point is a non-dominated adversary schedule on the archive.</p>
+        </div>
+      </a>
+      <a class="fde-tool-card" href="/artifacts/attribution_viewer/index.html">
+        <span class="fde-tool-icon">⛓</span>
+        <div>
+          <h3>Attribution viewer</h3>
+          <p>Counterfactual chains that show which shock interventions drove collapse. Trace causality from individual schedule steps back to the fragility score.</p>
+        </div>
+      </a>
+      <a class="fde-tool-card" href="/artifacts/composite_viewer/index.html">
+        <span class="fde-tool-icon">⊞</span>
+        <div>
+          <h3>Composite viewer</h3>
+          <p>Compare up to five fragility domains side by side in a single audit view. Load a composite JSON or use the built-in presets.</p>
+        </div>
+      </a>
+      <a class="fde-tool-card" href="/docs/">
+        <span class="fde-tool-icon">📖</span>
+        <div>
+          <h3>Documentation</h3>
+          <p>Installation guide, domain tutorials, algorithm provenance, CLI reference, and architecture overview — all in one place.</p>
+        </div>
+      </a>
+    </div>
+
+    <p class="fde-section-title">Sample scenarios</p>
     <div class="fde-grid">
-{demo_cards}
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">
+        <span class="fde-card-tag">replay · flagship</span>
+        <h3>Flagship GA replay</h3>
+        <p>Best adversary schedule from the bundled benchmark run — full collapse timeline.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Aggregate peg</h3>
+        <p>Scalar stablecoin peg under panic pressure.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_network_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Network contagion</h3>
+        <p>Panic propagation across a synthetic 32-node graph.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Resource cascade</h3>
+        <p>Two coupled capacity layers failing under overload.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Service backlog</h3>
+        <p>Operations queue growing faster than processing rate.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Liquidity ladder</h3>
+        <p>Margin utilization breaching a funding runway.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">
+        <span class="fde-card-tag">pareto</span>
+        <h3>Pareto front</h3>
+        <p>Two-objective adversary archive from a co-evolution search.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_resource_cascade.json">
+        <span class="fde-card-tag">pareto</span>
+        <h3>Pareto · Resource cascade</h3>
+        <p>Trade-off frontier for the resource cascade domain.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json">
+        <span class="fde-card-tag">attribution</span>
+        <h3>Aggregate attribution</h3>
+        <p>Rumor-to-depeg counterfactual chain for the aggregate domain.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_resource_cascade.json">
+        <span class="fde-card-tag">attribution</span>
+        <h3>Resource cascade attribution</h3>
+        <p>Merged attribution tree across two counterfactual branches.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/composite_viewer/index.html">
+        <span class="fde-card-tag">composite</span>
+        <h3>Composite audit</h3>
+        <p>Multi-domain fragility summary — load any of the penta/quad/triple presets.</p>
+      </a>
     </div>"""
 
     _write(
@@ -490,7 +581,7 @@ def build(out: Path) -> dict[str, str]:
         product_shell(
             title="Fragility Discovery Engine — Workbench",
             page_id="workbench",
-            description="Live replay and benchmark viewers with bundled frozen demos.",
+            description="Run adversary search scenarios and explore fragility results in the browser.",
             main_html=index_main,
         ),
     )
