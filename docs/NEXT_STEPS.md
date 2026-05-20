@@ -2,9 +2,9 @@
 
 ## 1. Release v0.5.0
 
-- [ ] `gcloud auth login` and confirm GCE sync passes ([`GCE_VALIDATION.md`](GCE_VALIDATION.md))
-- [ ] Tag: `git tag -a v0.5.0 -m "Phase O stretch"` && `git push origin v0.5.0`
-- [ ] `python -m build` and attach wheel/sdist to GitHub Release ([`RELEASING.md`](../RELEASING.md))
+- [x] GCE validation on `chrysalis-test-vm` ([`GCE_VALIDATION.md`](GCE_VALIDATION.md))
+- [x] Tag **v0.5.0** + [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel + sdist)
+- [ ] Register GCE deploy key on `AgenticOp-io/fragility-discovery-engine` so `gce_sync_vm.ps1` can `git pull` (see [`archive/GCE_DEPLOY_KEY.md`](archive/GCE_DEPLOY_KEY.md))
 - [ ] Optional: run `.github/workflows/pypi.yml` with `PYPI_API_TOKEN` if publishing to PyPI
 
 ## 2. External visibility

@@ -1,6 +1,6 @@
 # Project status (charter scope)
 
-**Last updated:** 2026-05-19 · **`main`** · release **[v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0)** (Phase O stretch)
+**Last updated:** 2026-05-20 · **`main`** · release **[v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0)** (Phase O stretch; GCE green)
 
 ## Charter + Phase O
 
@@ -17,8 +17,8 @@ Phases **H–N**, **L**, and **O** (post-charter stretch) described in [`BOUNDAR
 | **Narration + LLM prompt packs + plot CLIs** | Shipped (deterministic narration; LLM export only) |
 | **Bundled viewer samples + preset validation** | Shipped |
 | **Local / scheduled CI parity** | Shipped (`ci_local.*`, `.github/workflows/schedule.yml`) |
-| **CLI subprocess smokes** | 110+ slices; full suite **471** tests (3 skipped) |
-| **Release artifacts** | GitHub Release **v0.4.0** wheel + sdist; [`scripts/install_release.sh`](../scripts/install_release.sh) / [`.ps1`](../scripts/install_release.ps1) |
+| **CLI subprocess smokes** | 110+ slices; full suite **481** tests (3 skipped) |
+| **Release artifacts** | GitHub Release **v0.5.0** wheel + sdist; [`scripts/install_release.sh`](../scripts/install_release.sh) / [`.ps1`](../scripts/install_release.ps1) |
 
 **Verification** (venv activated):
 
@@ -30,7 +30,7 @@ powershell -NoProfile -File scripts/ci_local.ps1   # Windows
 
 Optional wheel smoke: `FRAGILITY_CI_LOCAL_BUILD=1` before `ci_local`.
 
-**Install a tagged release** (no PyPI): see [`RELEASING.md`](../RELEASING.md) or `bash scripts/install_release.sh v0.4.0`.
+**Install a tagged release** (no PyPI): see [`RELEASING.md`](../RELEASING.md) or `bash scripts/install_release.sh v0.5.0`.
 
 ## Explicitly out of scope (by design)
 
