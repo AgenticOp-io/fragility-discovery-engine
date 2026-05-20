@@ -10,6 +10,73 @@ This document lists every algorithm the Fragility Discovery Engine uses, who inv
 
 ---
 
+## 0. What we created (named, in one place)
+
+These are the algorithms and frameworks **originated by this project**. Each is fully documented in the relevant section below; this is a single index so the contribution is visible at a glance.
+
+### Methods
+
+1. **Schedule-mask counterfactual** *(§2.1)*
+   Given a simulator and an attacker schedule, re-run with selected shock timesteps deterministically zeroed and diff the rollouts to attribute outcome change to those steps. Builds on Pearl's `do`-calculus framing; the schedule-mask + replay-diff pipeline is ours.
+   `src/fragility_engine/explain/counterfactual.py`
+
+2. **Greedy shock-set minimization for collapse** *(§2.2)*
+   Position-greedy reduction of an attacker schedule to the smallest subset of shocks that still drives the world to collapse, with pinned rollout seeds throughout. Applies the delta-debugging idea (Zeller & Hildebrandt 2002) to adversarial simulation schedules — original application; our specific algorithm is greedy-by-timestep rather than ddmin.
+   `src/fragility_engine/explain/minimal_collapse.py`
+
+3. **Mutation-chain path trace** *(§2.3)*
+   Apply discrete world-physics mutations one at a time in a chosen order; record `Δ integral_instability` and `Δ attack_cost` at every step so you can read off per-mutation contribution along the chain. Analogous in spirit to integrated gradients / SHAP but defined directly over a discrete simulator rather than a differentiable model. Original.
+   `src/fragility_engine/explain/counterfactual_chain*.py`
+
+4. **Star-merge attribution graph** *(§2.4)*
+   Merge several single-branch counterfactual bundles that share one baseline into one graph (root = baseline, leaves = branches, edges carry Δ-metrics and the intervention label), with strict baseline-equality checking. Schema `attribution-merge-v1`. Original.
+   `src/fragility_engine/explain/merge_attribution.py`
+
+5. **Schedule-minimization explanation DAG** *(§2.5)*
+   Compact DAG (`explanation-dag-v1`) over a minimization report: `baseline → minimized` with the kept events on the edge — a tiny machine-readable "why did it still collapse?" record. Original.
+   `src/fragility_engine/explain/explanation_dag.py`
+
+6. **Institutional composite** *(§3.7)*
+   Run **the same** attacker schedule through several decoupled physics kernels and emit a side-by-side scorecard JSON (`fragility-institutional-composite-v1…v4`). Kernels never exchange state inside a step. Original framing.
+   `src/fragility_engine/benchmarks/institutional_composite.py`
+
+### Reproducibility framework
+
+7. **Frozen-benchmark golden-metric harness** *(§4.1)*
+   A small benchmark suite where each bundle pins `(genome_seed, rollout_seed)` and asserts scalar metrics (integral instability bands, collapsed/uncollapsed) on every CI run. Conceptually similar to MLPerf, but for adversarial search rather than model training. Original framework.
+   `src/fragility_engine/benchmarks/suite.py`, `scripts/run_benchmark_suite.py`
+
+8. **Manifest digest pinning** *(§4.2)*
+   SHA-256 over the benchmark inventory; CI fails if the digest drifts without an explicit bump. Standard hash, original workflow.
+   `src/fragility_engine/benchmarks/manifest.py`, `scripts/check_manifest_digest.py`
+
+9. **Fragility certificate** *(§4.3)*
+   Single JSON that bundles a flagship replay + Pareto front + environment fingerprint into one signed, citeable artifact — intended as a paper-appendix or audit attachment. Schema `fragility-certificate-v1`. Original.
+   `src/fragility_engine/benchmarks/certificate.py`
+
+### Physics kernels (deliberately simplified; not calibrated)
+
+10. **Aggregate peg kernel** *(§3.1)* — scalar reserves/supply with panic + redemption coupling.
+    `src/fragility_engine/world/stablecoin_peg.py`
+
+11. **Two-layer resource-cascade kernel** *(§3.3)* — coupled headrooms `(h₀, h₁)` with a shared overload state; reduces a Motter–Lai cascade to its smallest still-interesting form.
+    `src/fragility_engine/world/resource_cascade.py`
+
+12. **Service-backlog kernel** *(§3.4)* — backlog grows with demand, shrinks with process rate; collapse on sustained over-threshold backlog.
+    `src/fragility_engine/world/service_backlog.py`
+
+13. **Liquidity-ladder kernel** *(§3.5)* — margin utilization vs funding-ladder depth with deleveraging on haircut breach; reproduces the margin-call spiral mechanic in 4 state variables.
+    `src/fragility_engine/world/liquidity_ladder.py`
+
+14. **Inventory-buffer kernel** *(§3.6, fork)* — buffer drain under demand spikes.
+    `forks/coupled_institution/`
+
+All kernels share **one schedule encoding** (`adversary/encoding.py`), so any attacker genome found by search transfers across kernels unchanged — itself an intentional design choice of this project.
+
+Everything else listed in §1–§5 is textbook or library; we cite the original sources for those below.
+
+---
+
 ## 1. Adversary search
 
 ### 1.1 Monte Carlo random search — Standard
@@ -144,18 +211,26 @@ Margin utilization vs funding-ladder depth; reserve losses and rumor shocks erod
 
 Supply-buffer drain under demand spikes; outside the public site, available in `forks/coupled_institution/`.
 
+### 3.7 Institutional composite — Original framing
+
+Runs **the same** attacker schedule through several decoupled physics kernels (any subset of aggregate / network / resource_cascade / service_backlog / liquidity_ladder) and emits a side-by-side scorecard JSON. Kernels never exchange state inside a `step()` — this is a multi-kernel audit, not a multi-physics coupling.
+
+- **Originators:** Original to this project. The idea of applying a single stress through multiple decoupled views appears in regulatory stress-testing literature (e.g. EBA / Fed CCAR designs), but as a software primitive over a shared schedule encoding it is ours.
+- **Our code:** `benchmarks/institutional_composite.py` (schemas `fragility-institutional-composite-v1` through `v4`).
+- **Viewer:** `artifacts/composite_viewer/index.html`.
+
 ---
 
 ## 4. Benchmark and reproducibility
 
-### 4.1 Frozen benchmark bundles + golden metrics — Original framework
+### 4.1 Frozen-benchmark golden-metric harness — Original framework
 
 Six bundles with pinned `(genome_seed, rollout_seed)` and asserted scalar metrics (within tolerance bands).
 
 - **Originators:** Original to this project (the framework). Conceptually similar to MLPerf-style benchmark suites, but for adversarial search instead of model training.
 - **Our code:** `benchmarks/suite.py`, `benchmarks/manifest.py`, `scripts/run_benchmark_suite.py --validate`.
 
-### 4.2 Manifest digest pinning — Standard
+### 4.2 Manifest digest pinning — Standard hash, original workflow
 
 SHA-256 digest of the benchmark inventory; CI fails if digest drifts without an explicit bump.
 
