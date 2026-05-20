@@ -325,9 +325,38 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 - [x] Pareto / MC / co-evolution / scalar counterfactual + ε-sweep wiring (mutation-chain export optional follow-up).
 - [x] **Five-domain institutional composite** (`scripts/institutional_composite_demo.py --penta`, bundled `artifacts/composite_demo/sample_penta_composite.json`) for cross-domain audit JSON without coupled physics.
 
+### Phase O — Post-charter stretch (shipped)
+
+**Status:** shipped — sixth reference domain **`inventory_buffer`**, hexa institutional composite (**v5**), robustness stretch presets, defender strength lattice on mechanism-design sweep, local static dashboard index, coupled fork scaffold, PyPI publish workflow (manual).
+
+**Purpose:** Optional exploration after Phases H–N without reopening coupled physics in the main repo.
+
+**In scope:**
+
+- `InventoryBufferWorld` + bundle `inventory_buffer_rollout_v1` + `scripts/run_inventory_buffer_ga_demo.py`
+- `scripts/fragility_robustness_stretch.py` (preset caps documented in `SCALE_AND_LIMITS.md`)
+- `scripts/mechanism_design_policy_sweep.py --defender-strength-lattice`
+- `scripts/export_static_dashboard.py` (local HTML only — **not** hosted SaaS)
+- `forks/coupled_institution/` scaffold (schema `coupled_institution_v0`)
+- `.github/workflows/pypi.yml` (`workflow_dispatch` publish to PyPI)
+
+**Out of scope (unchanged):**
+
+- Coupled mega-model inside `fragility_engine.world` on `main`
+- LLM-driven rollout policy, live market feeds, regulatory certification claims
+
+**Exit criteria:**
+
+- [x] Seventh frozen benchmark bundle + CI golden row
+- [x] `fragility-institutional-composite-v5` (`--hexa`)
+- [x] Stretch / mechanism / dashboard CLIs + smoke tests
+- [x] Fork package tests pass in isolation
+
+Normative memo: [`docs/phase_o_stretch.md`](docs/phase_o_stretch.md). Domain narrative: [`docs/WHY_INVENTORY_BUFFER.md`](docs/WHY_INVENTORY_BUFFER.md).
+
 ## Future charter slots (not adopted)
 
-No fifth reference-domain slot is open under current charter rules.
+No seventh reference-domain slot is open under current charter rules.
 
 ## Fitness function discipline
 

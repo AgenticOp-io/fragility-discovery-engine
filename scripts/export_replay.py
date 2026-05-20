@@ -12,6 +12,7 @@ from fragility_engine.agents.stablecoin_agents import default_stablecoin_populat
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
@@ -34,10 +35,17 @@ def main() -> None:
     p.add_argument("--genome-seed", type=int, default=42, help="RNG seed constructing random genome.")
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
+        choices=(
+            "aggregate",
+            "network",
+            "resource_cascade",
+            "service_backlog",
+            "liquidity_ladder",
+            "inventory_buffer",
+        ),
         default="aggregate",
         help="aggregate=StablecoinPegWorld; network=contagion graph (B); resource_cascade=Phase J; "
-        "service_backlog=Phase M; liquidity_ladder=Phase N.",
+        "service_backlog=Phase M; liquidity_ladder=Phase N; inventory_buffer=Phase O.",
     )
     p.add_argument(
         "--continue-after-collapse",
@@ -73,6 +81,12 @@ def main() -> None:
         type=float,
         default=0.06,
         help="[liquidity_ladder] margin utilization at reset.",
+    )
+    p.add_argument(
+        "--initial-stock",
+        type=float,
+        default=0.88,
+        help="[inventory_buffer] stock level at reset.",
     )
     p.add_argument("--nodes", type=int, default=32, help="[network] graph order.")
     p.add_argument(
@@ -199,7 +213,7 @@ def main() -> None:
             initial_backlog=float(args.initial_backlog),
             continue_after_collapse=cont,
         )
-    else:
+    elif args.mode == "liquidity_ladder":
         ms = max(int(args.horizon), 48)
         template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=ms)
         result = rollout_liquidity_ladder(
@@ -207,6 +221,16 @@ def main() -> None:
             genome,
             seed=int(args.seed),
             initial_margin=float(args.initial_margin),
+            continue_after_collapse=cont,
+        )
+    else:
+        ms = max(int(args.horizon), 48)
+        template = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=ms)
+        result = rollout_inventory_buffer(
+            template,
+            genome,
+            seed=int(args.seed),
+            initial_stock=float(args.initial_stock),
             continue_after_collapse=cont,
         )
 
@@ -230,9 +254,12 @@ def main() -> None:
     elif args.mode == "service_backlog":
         meta["domain"] = "service_backlog"
         meta["initial_backlog"] = float(args.initial_backlog)
-    else:
+    elif args.mode == "liquidity_ladder":
         meta["domain"] = "liquidity_ladder"
         meta["initial_margin"] = float(args.initial_margin)
+    else:
+        meta["domain"] = "inventory_buffer"
+        meta["initial_stock"] = float(args.initial_stock)
     payload["meta"] = meta
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

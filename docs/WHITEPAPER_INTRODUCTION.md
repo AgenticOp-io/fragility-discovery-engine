@@ -1,7 +1,7 @@
 # Fragility Discovery Engine — Whitepaper
 
 **Repository:** [github.com/AgenticOp-io/fragility-discovery-engine](https://github.com/AgenticOp-io/fragility-discovery-engine)  
-**Version:** 3.0 · **Release:** v0.4.0 · **License:** open-source Python
+**Version:** 3.1 · **Release:** v0.5.0 · **License:** open-source Python
 
 ---
 
@@ -15,6 +15,7 @@ It is built to answer questions like:
 - A financial network is stable in isolation — which combination of node-level shocks causes contagion to cascade across the graph?
 - A service infrastructure runs within capacity — how does an overload in one layer propagate until the whole system fails?
 - A funding ladder is adequately margined — what reserve losses and rumor shocks erode the runway fast enough to cause a margin call spiral?
+- A supply buffer looks adequate — which demand spikes and fulfillment shocks drive stock to stockout?
 
 In each case the engine searches for the shock sequences that matter, records exactly how the system responded, and produces controlled comparisons that show what would have changed under different conditions.
 
@@ -24,7 +25,7 @@ The engine answers that question with **directed search** (genetic algorithms, M
 
 ## The core idea: shock schedules and fragility metrics
 
-Any system the engine studies is described as a **simulation world**: a state that resets to known initial conditions, steps forward one timestep at a time, and exposes a small set of scalar metrics. The engine does **not** try to build a single monolithic model of everything — it provides five thin reference worlds that each tell a different physics story.
+Any system the engine studies is described as a **simulation world**: a state that resets to known initial conditions, steps forward one timestep at a time, and exposes a small set of scalar metrics. The engine does **not** try to build a single monolithic model of everything — it provides six thin reference worlds that each tell a different physics story.
 
 What all worlds share is the **shock schedule**: an encoded sequence of external pressures applied at each timestep. The engine's adversary layer searches over possible schedules to find which ones are most damaging. This is analogous to fuzz testing for software — but for system-level fragility, with interpretable outputs instead of crash logs.
 
@@ -84,7 +85,7 @@ The engine includes an alternating search loop where an adversary tries to find 
 - **Not a calibrated model.** The domains are pedagogical. They do not have empirically fitted parameters from any real institution, market, or infrastructure system.
 - **Not a forecast or trading system.** The engine produces research artifacts for analysis, not predictions about real-world outcomes.
 - **Not a compliance tool.** Outputs are not regulatory-grade stress tests.
-- **Not a coupled multi-physics engine.** The five worlds never exchange state inside a timestep. "Institutional composite" outputs apply one schedule to multiple worlds independently and summarize results side by side — there is no cross-world coupling in the physics.
+- **Not a coupled multi-physics engine.** The six worlds never exchange state inside a timestep. "Institutional composite" outputs apply one schedule to multiple worlds independently and summarize results side by side — there is no cross-world coupling in the physics.
 - **Not a platform you deploy.** There is no server, database, or hosted service. It is a Python library and a set of CLI scripts you run locally or in CI.
 
 ---

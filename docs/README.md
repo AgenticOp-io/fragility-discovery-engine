@@ -30,13 +30,14 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) | Complexity, parallelism, sweep cost, determinism caveats |
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | End-to-end path from run to citable artifact bundle |
 | [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) | Checked-in JSON for viewers and CI pins |
-| [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Charter completion snapshot |
+| [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Charter + Phase O completion snapshot |
+| [`phase_o_stretch.md`](phase_o_stretch.md) | Post-charter stretch (robustness, hexa composite, fork, PyPI) |
 
 ---
 
 ## Simulation domains
 
-Five reference worlds share the same shock-schedule encoding but have different physics. They do not share state inside `step()`.
+Six reference worlds share the same shock-schedule encoding but have different physics. They do not share state inside `step()`.
 
 | Domain | `--mode` flag | Why this domain |
 |--------|---------------|-----------------|
@@ -45,6 +46,7 @@ Five reference worlds share the same shock-schedule encoding but have different 
 | Resource cascade | `resource_cascade` | [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md) |
 | Service backlog | `service_backlog` | [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md) |
 | Liquidity ladder | `liquidity_ladder` | [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md) |
+| Inventory buffer | `inventory_buffer` | [`WHY_INVENTORY_BUFFER.md`](WHY_INVENTORY_BUFFER.md) |
 
 **Counterfactual cookbooks** (copy-paste CLI commands):
 

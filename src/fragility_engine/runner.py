@@ -7,6 +7,7 @@ import numpy as np
 from fragility_engine.adversary.encoding import decode_schedule, schedule_attack_cost
 from fragility_engine.coevolution.defender import (
     build_defended_aggregate_world,
+    build_defended_inventory_buffer_world,
     build_defended_liquidity_ladder_world,
     build_defended_network_world,
     build_defended_resource_cascade_world,
@@ -18,6 +19,7 @@ from fragility_engine.runner_resource_cascade_numba import (
     should_attempt_resource_cascade_numba,
 )
 from fragility_engine.types import RolloutResult, TrajectoryStep
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -370,6 +372,67 @@ def rollout_service_backlog(
         seed=seed,
         attack_cost=attack_cost,
         simulation_mode="service_backlog",
+        integral_instability=float(integral_instability),
+        recovery_timestep=recovery_timestep,
+    )
+
+
+def rollout_inventory_buffer(
+    world_template: InventoryBufferWorld,
+    genome: np.ndarray,
+    *,
+    seed: int,
+    initial_stock: float = 0.88,
+    continue_after_collapse: bool = False,
+    defender_genome: np.ndarray | None = None,
+) -> RolloutResult:
+    """Phase O reference rollout — inventory / stockout stress."""
+
+    world, stock_scale = build_defended_inventory_buffer_world(world_template, defender_genome)
+    world.reset(initial_stock=float(initial_stock), stock_scale=float(stock_scale))
+    world.population.reset(initial_supply=1_000_000.0, rng=np.random.default_rng(seed ^ 0x9E3779B9))
+
+    schedule = decode_schedule(genome)
+    attack_cost = schedule_attack_cost(schedule)
+
+    trajectory: list[TrajectoryStep] = []
+    collapsed = False
+    collapse_timestep: int | None = None
+    peak_instability = 0.0
+    integral_instability = 0.0
+
+    for t in range(world.max_steps):
+        events = schedule.get(t, ())
+        step_rng = np.random.default_rng(seed + 19 * (t + 1))
+        step = world.step(events, step_rng)
+        trajectory.append(step)
+        inst = float(step.metrics["instability"])
+        peak_instability = max(peak_instability, inst)
+        integral_instability += inst
+
+        if world.is_collapsed():
+            if collapse_timestep is None:
+                collapse_timestep = t
+                collapsed = True
+            if not continue_after_collapse:
+                break
+
+    recovery_timestep = _recovery_timestep(
+        trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        continue_after_collapse=continue_after_collapse,
+        depeg_threshold=world.depeg_threshold,
+    )
+
+    return RolloutResult(
+        trajectory=trajectory,
+        collapsed=collapsed,
+        collapse_timestep=collapse_timestep,
+        final_instability=peak_instability,
+        seed=seed,
+        attack_cost=attack_cost,
+        simulation_mode="inventory_buffer",
         integral_instability=float(integral_instability),
         recovery_timestep=recovery_timestep,
     )

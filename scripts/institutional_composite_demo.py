@@ -11,12 +11,14 @@ import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.benchmarks.institutional_composite import (
+    hexa_domain_rollout_artifact,
     penta_domain_rollout_artifact,
     quad_domain_rollout_artifact,
     triple_domain_rollout_artifact,
     twin_domain_rollout_artifact,
 )
 from fragility_engine.network.contagion_graph import ContagionGraph
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -45,7 +47,15 @@ def main() -> None:
         action="store_true",
         help=(
             "Include quad kernels plus liquidity_ladder (schema v4). "
-            "Mutually exclusive with --triple and --quad."
+            "Mutually exclusive with --triple, --quad, and --hexa."
+        ),
+    )
+    ap.add_argument(
+        "--hexa",
+        action="store_true",
+        help=(
+            "Include penta kernels plus inventory_buffer (schema v5). "
+            "Mutually exclusive with --triple, --quad, and --penta."
         ),
     )
     ap.add_argument("--aggregate-seed", type=int, default=7000)
@@ -54,6 +64,8 @@ def main() -> None:
     ap.add_argument("--cascade-seed", type=int, default=7002)
     ap.add_argument("--backlog-seed", type=int, default=7003)
     ap.add_argument("--ladder-seed", type=int, default=7004)
+    ap.add_argument("--inventory-seed", type=int, default=7005)
+    ap.add_argument("--initial-stock", type=float, default=0.88)
     ap.add_argument("--initial-margin", type=float, default=0.06)
     ap.add_argument("--base-panic", type=float, default=0.05)
     ap.add_argument("--initial-overload", type=float, default=0.05)
@@ -66,9 +78,9 @@ def main() -> None:
     )
     args = ap.parse_args()
 
-    mode_flags = sum(bool(x) for x in (args.triple, args.quad, args.penta))
+    mode_flags = sum(bool(x) for x in (args.triple, args.quad, args.penta, args.hexa))
     if mode_flags > 1:
-        print("Choose at most one of --triple, --quad, and --penta.", file=sys.stderr)
+        print("Choose at most one of --triple, --quad, --penta, and --hexa.", file=sys.stderr)
         raise SystemExit(2)
 
     rng = np.random.default_rng(int(args.genome_seed))
@@ -85,7 +97,33 @@ def main() -> None:
     )
     rc_w = ResourceCascadeWorld(population=default_stablecoin_population(), max_steps=22)
 
-    if args.penta:
+    if args.hexa:
+        peg_w = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=24)
+        sb_w = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=22)
+        ll_w = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=22)
+        ib_w = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=22)
+        out = hexa_domain_rollout_artifact(
+            peg_w,
+            net_w,
+            rc_w,
+            sb_w,
+            ll_w,
+            ib_w,
+            genome,
+            aggregate_seed=int(args.aggregate_seed),
+            network_seed=int(args.network_seed),
+            cascade_seed=int(args.cascade_seed),
+            backlog_seed=int(args.backlog_seed),
+            liquidity_ladder_seed=int(args.ladder_seed),
+            inventory_buffer_seed=int(args.inventory_seed),
+            initial_panic=float(args.aggregate_initial_panic),
+            base_panic=float(args.base_panic),
+            initial_overload=float(args.initial_overload),
+            initial_backlog=float(args.initial_backlog),
+            initial_margin=float(args.initial_margin),
+            initial_stock=float(args.initial_stock),
+        )
+    elif args.penta:
         peg_w = StablecoinPegWorld(population=default_stablecoin_population(), max_steps=24)
         sb_w = ServiceBacklogWorld(population=default_stablecoin_population(), max_steps=22)
         ll_w = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=22)

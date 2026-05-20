@@ -10,11 +10,13 @@ from __future__ import annotations
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution.defender import (
+    clone_inventory_buffer,
     clone_liquidity_ladder,
     clone_resource_cascade,
     clone_service_backlog,
     clone_stablecoin_network,
 )
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -46,3 +48,7 @@ def thread_safe_service_backlog_clone(template: ServiceBacklogWorld) -> ServiceB
 
 def thread_safe_liquidity_ladder_clone(template: LiquidityLadderWorld) -> LiquidityLadderWorld:
     return clone_liquidity_ladder(template, population=default_stablecoin_population())
+
+
+def thread_safe_inventory_buffer_clone(template: InventoryBufferWorld) -> InventoryBufferWorld:
+    return clone_inventory_buffer(template, population=default_stablecoin_population())

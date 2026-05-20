@@ -289,5 +289,47 @@ def build_defended_liquidity_ladder_world(
     return world, reserve_boost
 
 
+def clone_inventory_buffer(template: "InventoryBufferWorld", **phys: Any) -> "InventoryBufferWorld":
+    from fragility_engine.world.inventory_buffer import InventoryBufferWorld
+
+    return InventoryBufferWorld(
+        population=phys.get("population", template.population),
+        demand_spike_gain=float(phys.get("demand_spike_gain", template.demand_spike_gain)),
+        fulfillment_erosion=float(phys.get("fulfillment_erosion", template.fulfillment_erosion)),
+        replenish_rate=float(phys.get("replenish_rate", template.replenish_rate)),
+        stock_recovery=float(phys.get("stock_recovery", template.stock_recovery)),
+        stockout_collapse=float(phys.get("stockout_collapse", template.stockout_collapse)),
+        fulfillment_floor_collapse=float(
+            phys.get("fulfillment_floor_collapse", template.fulfillment_floor_collapse)
+        ),
+        recovery_stock=float(phys.get("recovery_stock", template.recovery_stock)),
+        max_steps=int(phys.get("max_steps", template.max_steps)),
+    )
+
+
+def build_defended_inventory_buffer_world(
+    template: "InventoryBufferWorld",
+    defender_genome: np.ndarray | None,
+) -> tuple["InventoryBufferWorld", float]:
+    from fragility_engine.world.inventory_buffer import InventoryBufferWorld
+
+    if defender_genome is None:
+        return clone_inventory_buffer(template), 1.0
+
+    overrides, reserve_boost = decode_defender_genome_params(
+        defender_genome,
+        panic_decay=float(template.stock_recovery),
+        rumor_panic_gain=float(template.fulfillment_erosion),
+        depeg_threshold=float(template.recovery_stock),
+    )
+    world = clone_inventory_buffer(
+        template,
+        stock_recovery=float(overrides["panic_decay"]),
+        fulfillment_erosion=float(overrides["rumor_panic_gain"]),
+        recovery_stock=float(overrides["depeg_threshold"]),
+    )
+    return world, reserve_boost
+
+
 def random_defender_genome(rng: np.random.Generator) -> np.ndarray:
     return rng.uniform(size=(4,))

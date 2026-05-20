@@ -54,17 +54,33 @@ def main() -> None:
         default=1,
         help="Thread pool size for inner GA fitness eval (uses isolated world clones when >1).",
     )
+    ap.add_argument(
+        "--defender-strength-lattice",
+        type=str,
+        default=None,
+        help="Comma-separated scalars s in [0,1]; each policy uses genome s repeated 4x (Phase O grid).",
+    )
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
     ew = max(1, int(args.eval_workers))
 
-    names = [x.strip() for x in str(args.policies).split(",") if x.strip()]
+    names: list[str] = []
     defenders: list[np.ndarray] = []
-    for n in names:
-        key = n.lower()
-        if key not in _PRESETS:
-            raise SystemExit(f"Unknown policy {n!r}; choose from {sorted(_PRESETS)}.")
-        defenders.append(_PRESETS[key])
+    if args.defender_strength_lattice:
+        strengths = [float(x.strip()) for x in str(args.defender_strength_lattice).split(",") if x.strip()]
+        if not strengths:
+            raise SystemExit("--defender-strength-lattice requires at least one value.")
+        for s in strengths:
+            s_cl = float(np.clip(s, 0.0, 1.0))
+            names.append(f"lattice_{s_cl:.2f}")
+            defenders.append(np.full(4, s_cl, dtype=np.float64))
+    else:
+        names = [x.strip() for x in str(args.policies).split(",") if x.strip()]
+        for n in names:
+            key = n.lower()
+            if key not in _PRESETS:
+                raise SystemExit(f"Unknown policy {n!r}; choose from {sorted(_PRESETS)}.")
+            defenders.append(_PRESETS[key])
 
     graph = ContagionGraph.erdos_renyi(int(args.nodes), p=float(args.er_p), seed=int(args.graph_seed))
     nn = graph.n_nodes

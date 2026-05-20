@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from fragility_engine.runner import (
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
@@ -12,6 +13,7 @@ from fragility_engine.runner import (
     rollout_stablecoin_network,
 )
 from fragility_engine.types import RolloutResult
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -277,4 +279,72 @@ def penta_domain_rollout_artifact(
         "service_backlog_seed": int(backlog_seed),
         "liquidity_ladder_seed": int(liquidity_ladder_seed),
         "genome_shape": [int(x) for x in genome.shape],
+    }
+
+
+def hexa_domain_rollout_artifact(
+    aggregate_template: StablecoinPegWorld,
+    network_template: StablecoinNetworkWorld,
+    resource_cascade_template: ResourceCascadeWorld,
+    service_backlog_template: ServiceBacklogWorld,
+    liquidity_ladder_template: LiquidityLadderWorld,
+    inventory_buffer_template: InventoryBufferWorld,
+    genome: np.ndarray,
+    *,
+    aggregate_seed: int,
+    network_seed: int,
+    cascade_seed: int,
+    backlog_seed: int,
+    liquidity_ladder_seed: int,
+    inventory_buffer_seed: int,
+    initial_panic: float = 0.05,
+    base_panic: float = 0.05,
+    initial_overload: float = 0.05,
+    initial_backlog: float = 0.05,
+    initial_margin: float = 0.06,
+    initial_stock: float = 0.88,
+    defender_genome_aggregate: np.ndarray | None = None,
+    defender_genome_network: np.ndarray | None = None,
+    defender_genome_cascade: np.ndarray | None = None,
+    defender_genome_backlog: np.ndarray | None = None,
+    defender_genome_liquidity_ladder: np.ndarray | None = None,
+    defender_genome_inventory_buffer: np.ndarray | None = None,
+) -> dict[str, object]:
+    """Same schedule on **six** decoupled kernels (penta + inventory buffer). Schema **v5**."""
+
+    penta = penta_domain_rollout_artifact(
+        aggregate_template,
+        network_template,
+        resource_cascade_template,
+        service_backlog_template,
+        liquidity_ladder_template,
+        genome,
+        aggregate_seed=aggregate_seed,
+        network_seed=network_seed,
+        cascade_seed=cascade_seed,
+        backlog_seed=backlog_seed,
+        liquidity_ladder_seed=liquidity_ladder_seed,
+        initial_panic=initial_panic,
+        base_panic=base_panic,
+        initial_overload=initial_overload,
+        initial_backlog=initial_backlog,
+        initial_margin=initial_margin,
+        defender_genome_aggregate=defender_genome_aggregate,
+        defender_genome_network=defender_genome_network,
+        defender_genome_cascade=defender_genome_cascade,
+        defender_genome_backlog=defender_genome_backlog,
+        defender_genome_liquidity_ladder=defender_genome_liquidity_ladder,
+    )
+    r_ib = rollout_inventory_buffer(
+        inventory_buffer_template,
+        genome,
+        seed=int(inventory_buffer_seed),
+        initial_stock=float(initial_stock),
+        defender_genome=defender_genome_inventory_buffer,
+    )
+    return {
+        "schema": "fragility-institutional-composite-v5",
+        **{k: v for k, v in penta.items() if k != "schema"},
+        "inventory_buffer": _compact_rollout(r_ib),
+        "inventory_buffer_seed": int(inventory_buffer_seed),
     }

@@ -16,9 +16,10 @@ from fragility_engine.benchmarks.suite import (
 
 
 def test_benchmark_bundle_registry_has_expected_ids():
-    assert len(BUNDLE_IDS) == 6
+    assert len(BUNDLE_IDS) == 7
     assert "resource_cascade_rollout_v1" in BUNDLE_IDS
     assert "service_backlog_rollout_v1" in BUNDLE_IDS
+    assert "inventory_buffer_rollout_v1" in BUNDLE_IDS
 
 
 def test_validate_benchmark_suite_passes():

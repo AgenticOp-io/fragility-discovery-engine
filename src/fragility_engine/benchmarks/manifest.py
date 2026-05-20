@@ -37,6 +37,7 @@ _BUNDLE_TOPOLOGY: dict[str, dict[str, str]] = {
     "resource_cascade_rollout_v1": {"world": "ResourceCascadeWorld", "topology": "scalar"},
     "service_backlog_rollout_v1": {"world": "ServiceBacklogWorld", "topology": "scalar"},
     "liquidity_ladder_rollout_v1": {"world": "LiquidityLadderWorld", "topology": "scalar"},
+    "inventory_buffer_rollout_v1": {"world": "InventoryBufferWorld", "topology": "scalar"},
 }
 
 
@@ -190,7 +191,10 @@ def build_benchmark_manifest() -> dict[str, Any]:
                 "fragility-institutional-composite-v2",
                 "fragility-institutional-composite-v3",
                 "fragility-institutional-composite-v4",
+                "fragility-institutional-composite-v5",
             ],
+            "robustness_stretch": "fragility-robustness-stretch-v1",
+            "static_dashboard": "fragility-static-dashboard-v1",
             "mutation_chain_path_traces": [
                 "explanation-mutation-chain-path-v1",
                 "explanation-mutation-chain-path-resource-cascade-v1",
@@ -208,6 +212,14 @@ def build_benchmark_manifest() -> dict[str, Any]:
         "bundled_artifact_paths": list(BUNDLED_ARTIFACT_PATHS),
         "viewer_preset_checks": "scripts/validate_viewer_presets.py",
         "bundled_artifact_checks": "scripts/check_bundled_artifacts.py",
+        "phase_o_stretch": {
+            "sixth_domain": "inventory_buffer",
+            "benchmark_bundle": "inventory_buffer_rollout_v1",
+            "robustness_stretch_cli": "scripts/fragility_robustness_stretch.py",
+            "static_dashboard_cli": "scripts/export_static_dashboard.py",
+            "coupled_fork_path": "forks/coupled_institution",
+            "pypi_workflow": ".github/workflows/pypi.yml",
+        },
         "pareto_hypervolume_fixtures": [
             {
                 "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",

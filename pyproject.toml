@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fragility-engine"
-version = "0.4.0"
+version = "0.5.0"
 description = "Deterministic search and stress-style exploration over modular simulations, with JSON replay and benchmark checks."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,7 +24,9 @@ classifiers = [
 ]
 
 [project.urls]
+Homepage = "https://github.com/AgenticOp-io/fragility-discovery-engine"
 Repository = "https://github.com/AgenticOp-io/fragility-discovery-engine"
+Documentation = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER_INTRODUCTION.md"
 Issues = "https://github.com/AgenticOp-io/fragility-discovery-engine/issues"
 
 [project.optional-dependencies]

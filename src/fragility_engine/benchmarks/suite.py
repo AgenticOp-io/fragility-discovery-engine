@@ -9,6 +9,7 @@ import numpy as np
 
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_inventory_buffer_clone,
     thread_safe_liquidity_ladder_clone,
     thread_safe_network_clone,
     thread_safe_peg_clone,
@@ -17,6 +18,7 @@ from fragility_engine.coevolution.thread_safe_template import (
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
@@ -24,6 +26,7 @@ from fragility_engine.runner import (
     rollout_stablecoin_network,
 )
 from fragility_engine.types import RolloutResult
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -117,6 +120,10 @@ def rollout_bundle_with_genome(
         template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=26)
         world = thread_safe_liquidity_ladder_clone(template) if isolate else template
         return rollout_liquidity_ladder(world, genome, seed=seed, initial_margin=0.06)
+    if bundle_id == "inventory_buffer_rollout_v1":
+        template = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=26)
+        world = thread_safe_inventory_buffer_clone(template) if isolate else template
+        return rollout_inventory_buffer(world, genome, seed=seed, initial_stock=0.88)
     raise ValueError(f"unknown bundle_id {bundle_id!r}")
 
 
@@ -177,6 +184,11 @@ def run_liquidity_ladder_rollout_v1() -> dict[str, Any]:
     return _rollout_snapshot("liquidity_ladder_rollout_v1", r)
 
 
+def run_inventory_buffer_rollout_v1() -> dict[str, Any]:
+    r = run_bundle_rollout_once("inventory_buffer_rollout_v1")
+    return _rollout_snapshot("inventory_buffer_rollout_v1", r)
+
+
 BUNDLE_RUNNERS: dict[str, Any] = {
     "aggregate_rollout_v1": run_aggregate_rollout_v1,
     "network_er_rollout_v1": run_network_er_rollout_v1,
@@ -184,6 +196,7 @@ BUNDLE_RUNNERS: dict[str, Any] = {
     "resource_cascade_rollout_v1": run_resource_cascade_rollout_v1,
     "service_backlog_rollout_v1": run_service_backlog_rollout_v1,
     "liquidity_ladder_rollout_v1": run_liquidity_ladder_rollout_v1,
+    "inventory_buffer_rollout_v1": run_inventory_buffer_rollout_v1,
 }
 
 BUNDLE_IDS: tuple[str, ...] = tuple(sorted(BUNDLE_RUNNERS.keys()))
@@ -220,6 +233,11 @@ GOLDEN_METRICS: dict[str, dict[str, float | bool]] = {
         "attack_cost": 6.544042877815768,
         "collapsed": False,
     },
+    "inventory_buffer_rollout_v1": {
+        "integral_instability": 0.49879517944606666,
+        "attack_cost": 6.544042877815768,
+        "collapsed": True,
+    },
 }
 
 # Slightly looser tolerances for bundles whose FP reductions differ across platforms (Linux CI).
@@ -238,6 +256,7 @@ BUNDLE_INTEGRAL_BANDS: dict[str, tuple[float, float]] = {
     "resource_cascade_rollout_v1": (4.0, 8.5),
     "service_backlog_rollout_v1": (0.0, 2.0),
     "liquidity_ladder_rollout_v1": (0.0, 2.5),
+    "inventory_buffer_rollout_v1": (0.0, 2.5),
 }
 
 # Loose bands on attack_cost (shared schedule encoding across bundles; not point goldens).

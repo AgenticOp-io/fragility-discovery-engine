@@ -18,6 +18,7 @@
     "schema": "benchmark-manifest-v2",
     "bundle_ids": [
       "aggregate_rollout_v1",
+      "inventory_buffer_rollout_v1",
       "liquidity_ladder_rollout_v1",
       "network_er_rollout_v1",
       "network_neighbor_list_rollout_v1",
@@ -28,6 +29,11 @@
       {
         "bundle_id": "aggregate_rollout_v1",
         "world": "StablecoinPegWorld",
+        "topology": "scalar"
+      },
+      {
+        "bundle_id": "inventory_buffer_rollout_v1",
+        "world": "InventoryBufferWorld",
         "topology": "scalar"
       },
       {
@@ -63,7 +69,7 @@
       "collapsed",
       "integral_instability"
     ],
-    "golden_metrics_sha256": "3e3f18fb20903302c22ebeb172fb34195e6bb9beaa3ab1fabb71f1ba0fda4caa",
+    "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
     "bundle_integral_bands": {
       "aggregate_rollout_v1": {
         "integral_instability_min": 1.5,
@@ -88,10 +94,18 @@
       "liquidity_ladder_rollout_v1": {
         "integral_instability_min": 0.0,
         "integral_instability_max": 2.5
+      },
+      "inventory_buffer_rollout_v1": {
+        "integral_instability_min": 0.0,
+        "integral_instability_max": 2.5
       }
     },
     "bundle_attack_cost_bands": {
       "aggregate_rollout_v1": {
+        "attack_cost_min": 4.0,
+        "attack_cost_max": 9.0
+      },
+      "inventory_buffer_rollout_v1": {
         "attack_cost_min": 4.0,
         "attack_cost_max": 9.0
       },
@@ -118,25 +132,27 @@
     },
     "bundle_collapsed_expect": {
       "aggregate_rollout_v1": true,
+      "inventory_buffer_rollout_v1": true,
       "liquidity_ladder_rollout_v1": false,
       "network_er_rollout_v1": true,
       "network_neighbor_list_rollout_v1": true,
       "resource_cascade_rollout_v1": true,
       "service_backlog_rollout_v1": false
     },
-    "bundle_count": 6,
+    "bundle_count": 7,
     "repro_lookup": {
       "manifest_schema": "benchmark-manifest-v2",
       "bundle_ids": [
         "aggregate_rollout_v1",
+        "inventory_buffer_rollout_v1",
         "liquidity_ladder_rollout_v1",
         "network_er_rollout_v1",
         "network_neighbor_list_rollout_v1",
         "resource_cascade_rollout_v1",
         "service_backlog_rollout_v1"
       ],
-      "golden_metrics_sha256": "3e3f18fb20903302c22ebeb172fb34195e6bb9beaa3ab1fabb71f1ba0fda4caa",
-      "git_commit": "cedabc646af142720b83b013d950030fd047109b",
+      "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
+      "git_commit": "da26c1c087bab78b04a8351258eddcbc6b366718",
       "python_version": "3.12.10",
       "numpy_version": "2.4.4",
       "fragility_engine_version": "0.4.0",
@@ -150,7 +166,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.4",
       "fragility_engine_version": "0.4.0",
-      "git_commit": "cedabc646af142720b83b013d950030fd047109b"
+      "git_commit": "da26c1c087bab78b04a8351258eddcbc6b366718"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -192,8 +208,11 @@
         "fragility-institutional-composite-v1",
         "fragility-institutional-composite-v2",
         "fragility-institutional-composite-v3",
-        "fragility-institutional-composite-v4"
+        "fragility-institutional-composite-v4",
+        "fragility-institutional-composite-v5"
       ],
+      "robustness_stretch": "fragility-robustness-stretch-v1",
+      "static_dashboard": "fragility-static-dashboard-v1",
       "mutation_chain_path_traces": [
         "explanation-mutation-chain-path-v1",
         "explanation-mutation-chain-path-resource-cascade-v1",
@@ -245,6 +264,14 @@
     ],
     "viewer_preset_checks": "scripts/validate_viewer_presets.py",
     "bundled_artifact_checks": "scripts/check_bundled_artifacts.py",
+    "phase_o_stretch": {
+      "sixth_domain": "inventory_buffer",
+      "benchmark_bundle": "inventory_buffer_rollout_v1",
+      "robustness_stretch_cli": "scripts/fragility_robustness_stretch.py",
+      "static_dashboard_cli": "scripts/export_static_dashboard.py",
+      "coupled_fork_path": "forks/coupled_institution",
+      "pypi_workflow": ".github/workflows/pypi.yml"
+    },
     "pareto_hypervolume_fixtures": [
       {
         "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",
@@ -275,9 +302,10 @@
       }
     ]
   },
-  "benchmark_golden_metrics_sha256": "3e3f18fb20903302c22ebeb172fb34195e6bb9beaa3ab1fabb71f1ba0fda4caa",
+  "benchmark_golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
   "benchmark_bundle_ids": [
     "aggregate_rollout_v1",
+    "inventory_buffer_rollout_v1",
     "liquidity_ladder_rollout_v1",
     "network_er_rollout_v1",
     "network_neighbor_list_rollout_v1",

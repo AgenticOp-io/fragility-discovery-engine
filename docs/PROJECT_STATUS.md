@@ -1,16 +1,16 @@
 # Project status (charter scope)
 
-**Last updated:** 2026-05-19 · **`main`** · release **[v0.4.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.4.0)**
+**Last updated:** 2026-05-19 · **`main`** · release **[v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0)** (Phase O stretch)
 
-## Charter complete
+## Charter + Phase O
 
-Phases **H–N** and **L** publication tooling described in [`BOUNDARIES.md`](../BOUNDARIES.md) are **shipped** on `main`:
+Phases **H–N**, **L**, and **O** (post-charter stretch) described in [`BOUNDARIES.md`](../BOUNDARIES.md) are **shipped** on `main`:
 
 | Area | Status |
 |------|--------|
-| **Frozen benchmark harness** (6 bundles, golden metrics, manifest v2, validate CLI) | Shipped |
+| **Frozen benchmark harness** (7 bundles, golden metrics, manifest v2, validate CLI) | Shipped |
 | **Metric regression floors** (integral, attack_cost, collapsed expect) | Shipped |
-| **Five reference domains** (aggregate, network, resource_cascade, service_backlog, liquidity_ladder) | Shipped |
+| **Six reference domains** (+ inventory_buffer, Phase O) | Shipped |
 | **Explanation grammar** (counterfactuals, ε-sweeps, merges, chains, path traces) | Shipped per domain |
 | **Search parity** (MC, GA, Pareto, co-evolution, bench-search, eval_workers / eval_pool on bundles) | Shipped |
 | **Institutional composite** (twin → penta, schema **v4**) | Shipped |
@@ -35,7 +35,7 @@ Optional wheel smoke: `FRAGILITY_CI_LOCAL_BUILD=1` before `ci_local`.
 ## Explicitly out of scope (by design)
 
 - **Coupled multi-kernel physics** in one `World.step()` — [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
-- **Fifth reference domain** — charter closed; [`BOUNDARIES.md`](../BOUNDARIES.md) “Future charter slots”.
+- **Seventh reference domain** — Phase O closed sixth slot; [`BOUNDARIES.md`](../BOUNDARIES.md) “Future charter slots”.
 - **Production dashboards, live market feeds, regulatory certification claims**.
 - **LLM-driven simulation policy** inside rollouts.
 
