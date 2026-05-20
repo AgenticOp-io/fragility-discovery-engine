@@ -10,11 +10,27 @@ Lightweight outreach on `main` without hosted SaaS or new physics.
 | Research feedback issue template | [`.github/ISSUE_TEMPLATE/research_feedback.yml`](../.github/ISSUE_TEMPLATE/research_feedback.yml) |
 | Coupled fork v1 | [`forks/coupled_institution/`](../forks/coupled_institution/) — `coupled_institution_v1` replay + GA demo |
 
-## Enable GitHub Pages (once)
+## Public site (AgenticOps brand)
 
-Repo **Settings → Pages → Build and deployment → GitHub Actions** (enabled on this repo).
+| Host | URL |
+|------|-----|
+| **GCE** (nginx on `chrysalis-test-vm`) | http://34.61.255.147/ |
+| **GitHub Pages** | https://agenticop-io.github.io/fragility-discovery-engine/ |
 
-**Live URL:** https://agenticop-io.github.io/fragility-discovery-engine/
+**Build + deploy to GCE:**
+
+```powershell
+powershell -NoProfile -File scripts/gce_deploy_public_site.ps1
+```
+
+**Build only:**
+
+```bash
+python scripts/build_public_site.py
+# output: artifacts/public_site/
+```
+
+Vendored brand assets: `docs/public/assets/agenticops.css`, `logo.svg` (from [agenticop.io](https://agenticop.io)).
 
 ## Coupled fork quick start
 

@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - "docs/public/**"
+      - "docs/WHITEPAPER_INTRODUCTION.md"
+      - "scripts/build_public_site.py"
+      - "scripts/public_site_lib.py"
+      - "artifacts/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -25,9 +29,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build branded public site
+        run: python scripts/build_public_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/public
+          path: artifacts/public_site
       - id: deployment
         uses: actions/deploy-pages@v4

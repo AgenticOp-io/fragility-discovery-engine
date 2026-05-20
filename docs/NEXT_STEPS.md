@@ -11,8 +11,9 @@
 ## 2. External visibility (Phase P)
 
 - [x] GitHub Pages landing — https://agenticop-io.github.io/fragility-discovery-engine/
+- [x] GCE public site (AgenticOps brand) — `scripts/gce_deploy_public_site.ps1` → http://34.61.255.147/
 - [x] Research feedback issue template + pinned feedback issue on GitHub
-- [ ] Point **agenticop.io** DNS at Pages URL or repo (operator)
+- [ ] Point **agenticop.io** subdomain (e.g. `fragility.agenticop.io`) at GCE IP or Pages URL (operator DNS)
 
 ## 3. Research fork
 
