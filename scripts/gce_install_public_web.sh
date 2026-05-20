@@ -23,7 +23,7 @@ server {
     location / {
         try_files \$uri \$uri/ =404;
     }
-    add_header X-Fragility-Site "agenticop-branded" always;
+    add_header X-Fragility-Product "fde-workbench" always;
 }
 EOF
 

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Build AgenticOps-branded public site bundle for GCE / static hosting."""
+# ruff: noqa: E501
+"""Build public product site (working viewers + bundled demos) for GCE / static hosting."""
 
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import shutil
 import sys
@@ -11,11 +13,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from public_site_lib import md_to_html, page_shell
+from public_site_lib import md_to_html, product_shell
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC_SRC = ROOT / "docs" / "public"
+PUBLIC_ASSETS = ROOT / "docs" / "public" / "assets"
 DEFAULT_OUT = ROOT / "artifacts" / "public_site"
+RELEASE = "v0.5.0"
 
 ARTIFACT_DIRS = [
     "replay_viewer",
@@ -23,6 +26,64 @@ ARTIFACT_DIRS = [
     "attribution_viewer",
     "composite_viewer",
     "composite_demo",
+    "flagship",
+]
+
+DEMOS = [
+    (
+        "Flagship GA replay",
+        "replay",
+        "/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json",
+        "Bundled best adversary schedule — collapse timeline.",
+    ),
+    (
+        "Aggregate peg",
+        "replay",
+        "/artifacts/replay_viewer/index.html#src=sample_replay.json",
+        "Scalar stablecoin peg reference domain.",
+    ),
+    (
+        "Network contagion",
+        "replay",
+        "/artifacts/replay_viewer/index.html#src=sample_network_replay.json",
+        "Graph shock propagation.",
+    ),
+    (
+        "Resource cascade",
+        "replay",
+        "/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json",
+        "Overload capacity cascade.",
+    ),
+    (
+        "Service backlog",
+        "replay",
+        "/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json",
+        "Ops backlog reference domain.",
+    ),
+    (
+        "Liquidity ladder",
+        "replay",
+        "/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json",
+        "Funding ladder stress.",
+    ),
+    (
+        "Penta composite",
+        "composite",
+        "/artifacts/composite_viewer/index.html",
+        "Five-domain audit JSON — use Presets dropdown.",
+    ),
+    (
+        "Pareto front",
+        "pareto",
+        "/artifacts/pareto_viewer/index.html",
+        "Two-objective adversary archive.",
+    ),
+    (
+        "Attribution chains",
+        "attribution",
+        "/artifacts/attribution_viewer/index.html",
+        "Counterfactual chain viewer.",
+    ),
 ]
 
 
@@ -42,11 +103,9 @@ def build(out: Path) -> dict[str, str]:
         shutil.rmtree(out)
     out.mkdir(parents=True)
 
-    assets_src = PUBLIC_SRC / "assets"
     assets_dst = out / "assets"
-    _copytree(assets_src, assets_dst)
-    shutil.copy2(assets_src / "agenticops.css", out / "agenticops.css")
-    shutil.copy2(assets_src / "logo.svg", out / "logo.svg")
+    assets_dst.mkdir()
+    shutil.copy2(PUBLIC_ASSETS / "fde-product.css", assets_dst / "fde-product.css")
 
     art_root = out / "artifacts"
     art_root.mkdir()
@@ -55,163 +114,103 @@ def build(out: Path) -> dict[str, str]:
         if src.is_dir():
             _copytree(src, art_root / name)
 
-    wp_md = (ROOT / "docs" / "WHITEPAPER_INTRODUCTION.md").read_text(encoding="utf-8")
-    wp_body = md_to_html(wp_md)
-    _write(
-        out / "whitepaper.html",
-        page_shell(
-            title="Fragility Discovery Engine — Whitepaper",
-            page_id="whitepaper",
-            description="What the engine is, six domains, reproducibility.",
-            main_html=f"""    <section class="ao-section">
-      <div class="ao-wrap ao-md">
-        <p class="ao-kicker">Technical overview</p>
-        {wp_body}
+    demo_cards = "\n".join(
+        f"""      <a class="fde-card" href="{href}">
+        <span class="fde-card-tag">{html.escape(tag)}</span>
+        <h3>{html.escape(title)}</h3>
+        <p>{html.escape(desc)}</p>
+      </a>"""
+        for title, tag, href, desc in DEMOS
+    )
+
+    index_main = f"""    <div class="fde-hero-compact">
+      <h1>Workbench</h1>
+      <p>Interactive viewers over <strong>frozen benchmark artifacts</strong>. Open a demo below or use Presets inside each tool. Deterministic JSON only — no live feeds or hosted compute.</p>
+    </div>
+    <div class="fde-live">
+      <div class="fde-live-head">
+        <span>Live · flagship bundled replay</span>
+        <a href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Open full screen</a>
       </div>
-    </section>""",
+      <iframe title="Replay viewer — flagship demo" src="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json"></iframe>
+    </div>
+    <p class="fde-section-title">Bundled demos</p>
+    <div class="fde-grid">
+{demo_cards}
+    </div>"""
+
+    _write(
+        out / "index.html",
+        product_shell(
+            title="Fragility Discovery Engine — Workbench",
+            page_id="workbench",
+            description="Live replay and benchmark viewers with bundled frozen demos.",
+            main_html=index_main,
         ),
     )
 
-    viewers = [
-        ("Replay timeline", "/artifacts/replay_viewer/index.html", "Load replay JSON; scrub timelines."),
-        ("Pareto front", "/artifacts/pareto_viewer/index.html", "2-D adversary objectives."),
-        ("Attribution / chains", "/artifacts/attribution_viewer/index.html", "Counterfactual chains."),
-        ("Institutional composite", "/artifacts/composite_viewer/index.html", "Hexa / penta audit JSON."),
+    wp_md = (ROOT / "docs" / "WHITEPAPER_INTRODUCTION.md").read_text(encoding="utf-8")
+    docs_dir = out / "docs"
+    docs_dir.mkdir()
+    _write(
+        docs_dir / "whitepaper.html",
+        product_shell(
+            title="Fragility Discovery Engine — Overview",
+            page_id="docs",
+            description="Technical overview for researchers.",
+            main_html=f'<article class="fde-prose">{md_to_html(wp_md)}</article>',
+        ),
+    )
+
+    install_rows = [
+        (
+            "Install from release",
+            f"pip install https://github.com/AgenticOp-io/fragility-discovery-engine/releases/download/{RELEASE}/fragility_engine-0.5.0-py3-none-any.whl",
+        ),
+        ("Clone + dev", 'pip install -e ".[dev]"'),
+        ("Validate benchmarks", "python scripts/run_benchmark_suite.py --validate"),
+        ("Local CI parity", "bash scripts/ci_local.sh"),
+        ("Deploy this site to GCE", "powershell -File scripts/gce_deploy_public_site.ps1"),
     ]
-    cards = "\n".join(
-        f"""        <a class="ao-viewer-card" href="{href}">
-          <h3>{title}</h3>
-          <p>{desc}</p>
-        </a>"""
-        for title, href, desc in viewers
+    table = "\n".join(
+        f"<tr><td>{html.escape(a)}</td><td><code>{html.escape(b)}</code></td></tr>" for a, b in install_rows
+    )
+
+    _write(
+        out / "install.html",
+        product_shell(
+            title="Install — Fragility Discovery Engine",
+            page_id="install",
+            description="Install wheel, run benchmarks, deploy public workbench.",
+            main_html=f"""<article class="fde-prose">
+      <h2>Install &amp; run locally</h2>
+      <p>This host serves <strong>static viewers</strong> only. Search, rollouts, and benchmark validation run via the Python package on your machine or in CI.</p>
+      <table class="fde-cli-table">
+        <thead><tr><th>Task</th><th>Command</th></tr></thead>
+        <tbody>{table}</tbody>
+      </table>
+      <p>Full CLI matrix: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/REFERENCE.md">docs/REFERENCE.md</a></p>
+    </article>""",
+        ),
     )
 
     _write(
         out / "dashboard.html",
-        page_shell(
-            title="Fragility Engine — Interactive dashboard",
-            page_id="dashboard",
-            description="Static viewers for replay, Pareto, attribution, composite.",
-            main_html=f"""    <section class="ao-hero ao-hero--fragility">
-      <div class="ao-wrap ao-hero-inner">
-        <p class="ao-eyebrow"><span class="ao-pulse"></span> Evidence-first · Deterministic JSON</p>
-        <h1 class="ao-title">Interactive <span class="ao-grad">dashboard</span></h1>
-        <p class="ao-lead">Bundled static viewers — open a preset or drop your own artifact JSON.</p>
-      </div>
-    </section>
-    <section class="ao-section">
-      <div class="ao-wrap">
-        <p class="ao-kicker">Viewers</p>
-        <div class="ao-viewer-grid">
-{cards}
-        </div>
-      </div>
-    </section>"""
-        ),
+        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/"/><title>Redirect</title></head><body><p><a href="/">Workbench</a></p></body></html>',
     )
-
-    cli_rows = [
-        ("Install (dev)", "pip install -e \".[dev]\""),
-        ("CI parity", "bash scripts/ci_local.sh"),
-        ("Benchmark validate", "python scripts/run_benchmark_suite.py --validate"),
-        ("Flagship demo", "python scripts/run_flagship_demo.py"),
-        ("GCE sync", "powershell -File scripts/gce_sync_vm.ps1"),
-        ("Deploy public site", "powershell -File scripts/gce_deploy_public_site.ps1"),
-        ("Build site only", "python scripts/build_public_site.py"),
-    ]
-    table = "\n".join(
-        f"<tr><td>{a}</td><td><code>{b}</code></td></tr>" for a, b in cli_rows
+    _write(
+        out / "whitepaper.html",
+        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/docs/whitepaper.html"/>'
+        '<title>Redirect</title></head><body></body></html>',
     )
-
     _write(
         out / "cli.html",
-        page_shell(
-            title="Fragility Engine — CLI reference",
-            page_id="cli",
-            description="Common commands for install, CI, benchmarks, GCE deploy.",
-            main_html=f"""    <section class="ao-section">
-      <div class="ao-wrap">
-        <p class="ao-kicker">Operator CLI</p>
-        <h2 class="ao-h2">Commands at the repo root</h2>
-        <p class="ao-sub">Full matrix: <code>docs/REFERENCE.md</code> on GitHub.</p>
-        <table class="ao-cli-table">
-          <thead><tr><th>Task</th><th>Command</th></tr></thead>
-          <tbody>
-{table}
-          </tbody>
-        </table>
-      </div>
-    </section>""",
-        ),
-    )
-
-    _write(
-        out / "index.html",
-        page_shell(
-            title="Fragility Discovery Engine | AgenticOps",
-            page_id="home",
-            description="Open-source fragility benchmarks — six domains, deterministic replay.",
-            main_html="""    <section class="ao-hero ao-hero--fragility ao-hero--home">
-      <div class="ao-wrap ao-hero-inner">
-        <div class="ao-hero-logo-wrap">
-          <img class="ao-hero-logo" src="/logo.svg" alt="AgenticOps" width="160" height="160" />
-        </div>
-        <p class="ao-eyebrow"><span class="ao-pulse"></span> AgenticOps research · Macro-scale fragility</p>
-        <h1 class="ao-title">
-          Find when systems
-          <span class="ao-grad">break</span>
-          — with proof.
-        </h1>
-        <p class="ao-lead">
-          The <strong>Fragility Discovery Engine</strong> searches shock schedules over modular simulations,
-          exports versioned JSON you can replay and cite, and ships <strong>six reference domains</strong>
-          plus frozen benchmark bundles in CI.
-        </p>
-        <div class="ao-hero-ctas">
-          <a class="ao-btn ao-btn-primary" href="/dashboard.html">Open dashboard</a>
-          <a class="ao-btn ao-btn-ghost" href="/whitepaper.html">Read whitepaper</a>
-          <a class="ao-btn ao-btn-link" href="/cli.html">CLI deploy  →</a>
-          <a class="ao-btn ao-btn-link" href="https://agenticop.io" target="_blank" rel="noopener">agenticop.io  →</a>
-        </div>
-        <ul class="ao-hero-stats" aria-label="Release">
-          <li><strong>v0.5.0</strong><span>seven bundles</span></li>
-          <li><strong>481</strong><span>tests in CI</span></li>
-          <li><strong>6</strong><span>reference domains</span></li>
-          <li><strong>JSON</strong><span>replay contract</span></li>
-        </ul>
-      </div>
-    </section>
-    <section class="ao-section ao-section-alt">
-      <div class="ao-wrap">
-        <p class="ao-kicker">Explore</p>
-        <h2 class="ao-h2">Public artifacts &amp; docs</h2>
-        <div class="ao-hub-grid">
-          <a class="ao-hub-card" href="/dashboard.html">
-            <span class="ao-hub-card-num">01</span>
-            <h3>Dashboard</h3>
-            <p>Replay, Pareto, attribution, composite viewers.</p>
-            <span class="ao-hub-card-go">Open →</span>
-          </a>
-          <a class="ao-hub-card" href="/whitepaper.html">
-            <span class="ao-hub-card-num">02</span>
-            <h3>Whitepaper</h3>
-            <p>Fit, domains, reproducibility bar.</p>
-            <span class="ao-hub-card-go">Open →</span>
-          </a>
-          <a class="ao-hub-card" href="https://github.com/AgenticOp-io/fragility-discovery-engine">
-            <span class="ao-hub-card-num">03</span>
-            <h3>GitHub</h3>
-            <p>Source, issues, releases.</p>
-            <span class="ao-hub-card-go">Open →</span>
-          </a>
-        </div>
-      </div>
-    </section>"""
-        ),
+        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/install.html"/>'
+        '<title>Redirect</title></head><body></body></html>',
     )
 
     built = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-    meta = {"out": str(out), "built_utc": built, "pages": ["index", "dashboard", "whitepaper", "cli"]}
+    meta = {"out": str(out), "built_utc": built, "release": RELEASE, "kind": "product-workbench"}
     _write(out / "build.json", json.dumps(meta, indent=2))
     return meta
 

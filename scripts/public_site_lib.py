@@ -1,4 +1,4 @@
-"""HTML helpers for AgenticOps-branded public site build."""
+"""HTML helpers for Fragility Discovery Engine public product site."""
 
 from __future__ import annotations
 
@@ -7,13 +7,22 @@ import re
 
 FONTS = (
     "https://fonts.googleapis.com/css2?"
-    "family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700"
-    "&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    "family=DM+Sans:wght@400;500;600;700"
+    "&family=JetBrains+Mono:wght@400;500&display=swap"
 )
+
+NAV = [
+    ("workbench", "/", "Workbench"),
+    ("replay", "/artifacts/replay_viewer/index.html", "Replay"),
+    ("pareto", "/artifacts/pareto_viewer/index.html", "Pareto"),
+    ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
+    ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
+    ("docs", "/docs/whitepaper.html", "Docs"),
+    ("install", "/install.html", "Install"),
+]
 
 
 def md_to_html(md: str) -> str:
-    """Minimal markdown → HTML for whitepaper (headings, lists, links, code)."""
     out: list[str] = []
     in_ul = False
     for raw in md.splitlines():
@@ -32,12 +41,12 @@ def md_to_html(md: str) -> str:
             if in_ul:
                 out.append("</ul>")
                 in_ul = False
-            out.append(f'<h2 class="ao-h2">{html.escape(line[2:])}</h2>')
+            out.append(f"<h2>{html.escape(line[2:])}</h2>")
         elif line.startswith("## "):
             if in_ul:
                 out.append("</ul>")
                 in_ul = False
-            out.append(f'<h3 class="ao-h3">{html.escape(line[3:])}</h3>')
+            out.append(f"<h3>{html.escape(line[3:])}</h3>")
         elif line.startswith("### "):
             if in_ul:
                 out.append("</ul>")
@@ -52,12 +61,11 @@ def md_to_html(md: str) -> str:
             if in_ul:
                 out.append("</ul>")
                 in_ul = False
-        else:
+        elif line.strip():
             if in_ul:
                 out.append("</ul>")
                 in_ul = False
-            if line.strip():
-                out.append(f"<p>{_inline_md(line)}</p>")
+            out.append(f"<p>{_inline_md(line)}</p>")
     if in_ul:
         out.append("</ul>")
     return "\n".join(out)
@@ -71,43 +79,62 @@ def _inline_md(text: str) -> str:
     return s
 
 
-def page_shell(
+def _nav_html(active: str) -> str:
+    parts = []
+    for page_id, href, label in NAV:
+        cls = "fde-active" if page_id == active else ""
+        attr = f' class="{cls}"' if cls else ""
+        parts.append(f"<a{attr} href=\"{href}\">{label}</a>")
+    return "\n".join(parts)
+
+
+def product_shell(
     *,
     title: str,
     page_id: str,
     main_html: str,
     description: str = "",
+    release: str = "v0.5.0",
 ) -> str:
     desc = html.escape(description) if description else ""
     meta = f'  <meta name="description" content="{desc}" />\n' if desc else ""
+    nav = _nav_html(page_id)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{html.escape(title)}</title>
-  <meta name="theme-color" content="#020208"/>
-{meta}  <link rel="icon" href="/logo.svg" type="image/svg+xml"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <meta name="theme-color" content="#0c0e14"/>
+{meta}  <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="{FONTS}" rel="stylesheet"/>
-  <link rel="stylesheet" href="/agenticops.css"/>
-  <link rel="stylesheet" href="/assets/fragility.css"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
 </head>
-<body class="ao-page" data-ao-page="{html.escape(page_id)}">
-  <div class="ao-bg-fx" aria-hidden="true">
-    <div class="ao-vignette"></div>
-    <div class="ao-orb ao-orb-a"></div>
-    <div class="ao-orb ao-orb-b"></div>
-    <div class="ao-grid"></div>
-    <div class="ao-noise"></div>
-  </div>
-  <header class="ao-nav" role="banner" id="ao-site-nav"></header>
-  <main id="main">
+<body class="fde-app">
+  <header class="fde-top">
+    <a class="fde-brand" href="/">
+      <span class="fde-brand-mark" aria-hidden="true">FDE</span>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">deterministic stress exploration · {html.escape(release)}</span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      {nav}
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <main class="fde-main">
 {main_html}
   </main>
-  <footer class="ao-footer" id="ao-site-footer"></footer>
-  <script src="/assets/ao-layout-fragility.js" defer></script>
+  <footer class="fde-footer">
+    <span>Open source · frozen benchmark bundles · JSON replay contract</span>
+    <span>
+      <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source &amp; releases</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues/6">Feedback</a>
+    </span>
+  </footer>
 </body>
 </html>
 """
