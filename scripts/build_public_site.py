@@ -16,9 +16,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from public_site_lib import (
     md_to_html,
     product_shell,
-    viewer_chrome_footer,
-    viewer_chrome_head,
-    viewer_chrome_header,
+    site_chrome_footer,
+    site_chrome_head,
+    site_chrome_header,
+    viewer_strip_html,
 )
 
 import re
@@ -264,35 +265,107 @@ def _copytree(src: Path, dst: Path) -> None:
     shutil.copytree(src, dst)
 
 
-_BODY_OPEN_RE = re.compile(r"(<body[^>]*>)", re.IGNORECASE)
+_BODY_OPEN_RE = re.compile(r"<body([^>]*)>", re.IGNORECASE)
 _BODY_CLOSE_RE = re.compile(r"(</body\s*>)", re.IGNORECASE)
+_VIEWER_STYLE_RE = re.compile(r"<style>.*?</style>\s*", re.DOTALL | re.IGNORECASE)
+_LEGACY_CHROME_RE = re.compile(
+    r"<header class=\"fde-viewer-top\".*?</header>\s*"
+    r"<script>if \(window\.top !== window\.self\).*?</script>\s*",
+    re.DOTALL,
+)
+_LEGACY_HEAD_INJECT_RE = re.compile(
+    r"<link rel=\"preconnect\" href=\"https://fonts\.googleapis\.com\"/>.*?<style>\s*:root \{ color-scheme: dark; \}.*?</style>\s*",
+    re.DOTALL,
+)
+_LEGACY_FOOTER_RE = re.compile(
+    r"<footer class=\"fde-viewer-footer\".*?</footer>\s*"
+    r"<script>if \(window\.top !== window\.self\).*?</script>\s*",
+    re.DOTALL,
+)
+_INLINE_STYLE_ATTR = re.compile(r'\s+style="[^"]*"')
+
+
+def _strip_inline_styles_in_viewer_main(text: str) -> str:
+    """Remove per-element inline styles so global CSS controls typography."""
+
+    marker = '<main class="fde-main fde-viewer-main">'
+    start = text.find(marker)
+    if start < 0:
+        return text
+    end = text.find("</main>", start)
+    if end < 0:
+        return text
+    chunk = text[start:end]
+    chunk = _INLINE_STYLE_ATTR.sub("", chunk)
+    return text[:start] + chunk + text[end:]
+
+
+def _strip_legacy_viewer_chrome(text: str) -> str:
+    """Remove an older injected chrome pass so rebuilds can upgrade in place."""
+
+    text = _LEGACY_CHROME_RE.sub("", text)
+    text = _LEGACY_HEAD_INJECT_RE.sub("", text)
+    text = _LEGACY_FOOTER_RE.sub("", text)
+    if "<!-- fdeSiteChrome -->" in text:
+        text = re.sub(
+            r"<!-- fdeSiteChrome -->.*?</script>\s*",
+            "",
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        text = text.replace('<main class="fde-main fde-viewer-main">', "")
+        text = text.replace("</main>\n", "", 1)
+        text = _LEGACY_FOOTER_RE.sub("", text)
+    return text
 
 
 def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
-    """Wrap a standalone viewer in the product palette + brand chrome + footer.
+    """Wrap a standalone viewer in the same site chrome as every other page.
 
-    Idempotent: if the chrome marker is already present, do nothing. The
-    injected header and footer hide themselves when the page is loaded inside
-    an iframe (so the workbench live-replay embed stays clean).
+    - Drops per-viewer <style> blocks; typography comes from fde-product.css.
+    - Uses the shared fde-top nav (Workbench → Replay → … → Attribution → …).
+    - Adds a viewer strip (Replay | Pareto | Attribution | Composite) for quick hops.
+    - Header/footer hide when embedded in the workbench iframe.
     """
 
     if not html_path.is_file():
         return
     text = html_path.read_text(encoding="utf-8")
-    if "fdeViewerTop" in text:
+    text = _strip_legacy_viewer_chrome(text)
+    if "<!-- fdeSiteChrome -->" in text:
         return
-    head_inject = viewer_chrome_head()
+
+    text = _VIEWER_STYLE_RE.sub("", text, count=1)
     if "</head>" in text:
-        text = text.replace("</head>", head_inject + "</head>", 1)
+        text = text.replace("</head>", site_chrome_head() + "</head>", 1)
+
+    body_match = _BODY_OPEN_RE.search(text)
+    if not body_match:
+        return
+    text = _BODY_OPEN_RE.sub('<body class="fde-app">', text, count=1)
+
     body_match = _BODY_OPEN_RE.search(text)
     if not body_match:
         return
     end = body_match.end()
-    text = text[:end] + "\n" + viewer_chrome_header(page_id, release=RELEASE) + text[end:]
+    chrome = site_chrome_header(page_id, release=RELEASE)
+    strip = viewer_strip_html(page_id)
+    text = (
+        text[:end]
+        + "\n"
+        + chrome
+        + '  <main class="fde-main fde-viewer-main">\n'
+        + strip
+        + "\n"
+        + text[end:]
+    )
+
     close_match = _BODY_CLOSE_RE.search(text)
     if close_match:
         idx = close_match.start()
-        text = text[:idx] + viewer_chrome_footer() + text[idx:]
+        text = text[:idx] + "  </main>\n" + site_chrome_footer() + text[idx:]
+    text = _strip_inline_styles_in_viewer_main(text)
     html_path.write_text(text, encoding="utf-8")
 
 

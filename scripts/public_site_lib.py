@@ -14,11 +14,13 @@ FONTS = (
 __all__ = [
     "FONTS",
     "NAV",
+    "VIEWER_NAV",
     "md_to_html",
     "product_shell",
-    "viewer_chrome_head",
-    "viewer_chrome_header",
-    "viewer_chrome_footer",
+    "site_chrome_footer",
+    "site_chrome_head",
+    "site_chrome_header",
+    "viewer_strip_html",
 ]
 
 NAV = [
@@ -31,6 +33,13 @@ NAV = [
     ("docs", "/docs/whitepaper.html", "Docs"),
     ("algorithms", "/docs/algorithms.html", "Algorithms"),
     ("host", "/host.html", "This host"),
+]
+
+VIEWER_NAV = [
+    ("replay", "/artifacts/replay_viewer/index.html", "Replay"),
+    ("pareto", "/artifacts/pareto_viewer/index.html", "Pareto"),
+    ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
+    ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
 ]
 
 
@@ -122,108 +131,40 @@ def _nav_html(active: str) -> str:
     return "\n".join(parts)
 
 
-def viewer_chrome_head() -> str:
-    """Head fragment injected into standalone viewer HTML.
+def viewer_strip_html(active: str) -> str:
+    """Secondary nav: jump between the four artifact viewers."""
 
-    Loads the product stylesheet, the shared fonts, and an inline palette +
-    layout override so the viewer body matches the rest of the site:
-    - Dark surface (#0c0e14) and product text color.
-    - DM Sans body, JetBrains Mono for code/pre/kbd.
-    - Base font-size 0.95rem (≈15px) and line-height 1.5 — the same metrics
-      .fde-main uses on workbench / algorithms / run pages.
-    - max-width 1200px with 1.25rem padding, so the viewer's content column
-      lines up with every other product page.
+    parts = []
+    for page_id, href, label in VIEWER_NAV:
+        cls = "fde-active" if page_id == active else ""
+        attr = f' class="{cls}"' if cls else ""
+        parts.append(f"<a{attr} href=\"{href}\">{label}</a>")
+    return (
+        '<nav class="fde-viewer-strip" aria-label="Artifact viewers">\n'
+        + "\n".join(parts)
+        + "\n</nav>"
+    )
 
-    The viewer's own #hint / #meta / h2 / table sizes are intentional and
-    left alone; this only normalizes the *body baseline*.
-    """
+
+def site_chrome_head() -> str:
+    """Shared <head> assets for every product page (shell + viewers)."""
 
     return (
+        '  <meta name="theme-color" content="#0c0e14"/>\n'
         '  <link rel="preconnect" href="https://fonts.googleapis.com"/>\n'
         '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>\n'
         f'  <link href="{FONTS}" rel="stylesheet"/>\n'
         '  <link rel="stylesheet" href="/assets/fde-product.css"/>\n'
         '  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>\n'
-        "  <style>\n"
-        "    :root { color-scheme: dark; }\n"
-        "    html, body { background: #0c0e14; color: #e8ecf4; }\n"
-        "    body {\n"
-        '      font-family: "DM Sans", system-ui, sans-serif !important;\n'
-        "      font-size: 0.95rem !important;\n"
-        "      line-height: 1.5 !important;\n"
-        "      max-width: 1200px !important;\n"
-        "      margin: 0 auto !important;\n"
-        "      padding: 1.25rem !important;\n"
-        "    }\n"
-        '    code, kbd, pre { font-family: "JetBrains Mono", ui-monospace, monospace; }\n'
-        "    a { color: #6eb5f7; }\n"
-        "  </style>\n"
     )
 
 
-def viewer_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
-    """Top-of-body chrome injected into each standalone viewer."""
+def site_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
+    """Site-wide top bar — identical on workbench, run, docs, and all viewers."""
 
     nav = _nav_html(page_id)
-    return f"""<header class="fde-viewer-top" id="fdeViewerTop">
-  <a class="fde-brand" href="/">
-    <img src="/assets/logo.svg" alt="" width="22" height="22"/>
-    <span class="fde-brand-name">Fragility Discovery Engine</span>
-    <span class="fde-brand-sub">{html.escape(release)} · on <a href="https://agenticop.io">AgenticOp</a></span>
-  </a>
-  <nav aria-label="Product">
-{nav}
-  </nav>
-</header>
-<script>if (window.top !== window.self) {{ var _h = document.getElementById('fdeViewerTop'); if (_h) _h.style.display = 'none'; }}</script>
-"""
-
-
-def viewer_chrome_footer() -> str:
-    """Bottom-of-body footer injected into each standalone viewer."""
-
-    return """<footer class="fde-viewer-footer" id="fdeViewerFooter">
-  <span>
-    <img src="/assets/logo.svg" alt="" width="18" height="18" style="vertical-align:middle;margin-right:0.35rem;opacity:0.85"/>
-    <a href="https://agenticop.io">AgenticOp</a> · fragility engine · browser-only demos
-  </span>
-  <span>
-    <a href="/">Workbench</a> ·
-    <a href="/run.html">Run a scenario</a> ·
-    <a href="/docs/algorithms.html">Algorithms</a> ·
-    <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
-  </span>
-</footer>
-<script>if (window.top !== window.self) { var _f = document.getElementById('fdeViewerFooter'); if (_f) _f.style.display = 'none'; }</script>
-"""
-
-
-def product_shell(
-    *,
-    title: str,
-    page_id: str,
-    main_html: str,
-    description: str = "",
-    release: str = "v0.5.0",
-) -> str:
-    desc = html.escape(description) if description else ""
-    meta = f'  <meta name="description" content="{desc}" />\n' if desc else ""
-    nav = _nav_html(page_id)
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>{html.escape(title)}</title>
-  <meta name="theme-color" content="#0c0e14"/>
-{meta}  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="{FONTS}" rel="stylesheet"/>
-  <link rel="stylesheet" href="/assets/fde-product.css"/>
-  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
-</head>
-<body class="fde-app">
-  <header class="fde-top">
+    return f"""<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
     <a class="fde-brand" href="/">
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
@@ -236,19 +177,63 @@ def product_shell(
       <span class="fde-pill">live demos</span>
     </nav>
   </header>
-  <main class="fde-main">
-{main_html}
-  </main>
-  <footer class="fde-footer">
+  <script>
+  if (window.top !== window.self) {{
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {{
+      el.style.display = 'none';
+    }});
+    document.body.classList.add('fde-embedded');
+  }}
+  </script>
+"""
+
+
+def site_chrome_footer() -> str:
+    return """  <footer class="fde-footer" id="fdeSiteFooter">
     <span>
       <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
       <a href="https://agenticop.io">AgenticOp</a> · fragility engine · browser-only demos
     </span>
     <span>
-      <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
-      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues/6">Feedback</a>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
     </span>
   </footer>
+"""
+
+
+# Back-compat aliases used by older call sites
+viewer_chrome_head = site_chrome_head
+viewer_chrome_header = site_chrome_header
+viewer_chrome_footer = site_chrome_footer
+
+
+def product_shell(
+    *,
+    title: str,
+    page_id: str,
+    main_html: str,
+    description: str = "",
+    release: str = "v0.5.0",
+) -> str:
+    desc = html.escape(description) if description else ""
+    meta = f'  <meta name="description" content="{desc}" />\n' if desc else ""
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{html.escape(title)}</title>
+{meta}{site_chrome_head()}
+</head>
+<body class="fde-app">
+{site_chrome_header(page_id, release=release)}
+  <main class="fde-main">
+{main_html}
+  </main>
+{site_chrome_footer()}
   <script src="/assets/fde-workbench.js" defer></script>
 </body>
 </html>
