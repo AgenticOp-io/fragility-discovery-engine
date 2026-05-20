@@ -70,8 +70,9 @@ REPO=~/fragility-discovery-engine
 mkdir -p "$REPO/scripts"
 cd "$REPO"
 if [ -f scripts/gce_git_auth.sh ]; then . scripts/gce_git_auth.sh; elif [ -f ~/gce_git_auth.sh ]; then . ~/gce_git_auth.sh; fi
-# Discard any drift from earlier scp-uploaded scripts so git pull is clean.
+# Discard any drift from earlier scp-uploaded scripts and built artifacts.
 git checkout -- scripts/ 2>/dev/null || true
+git clean -fd artifacts/public_site/ 2>/dev/null || true
 if declare -F fragility_gce_git >/dev/null 2>&1; then
   fragility_gce_git fetch origin main
   fragility_gce_git checkout main
