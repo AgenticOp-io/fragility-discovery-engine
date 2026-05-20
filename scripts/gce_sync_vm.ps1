@@ -38,12 +38,10 @@ if (-not $Instance -or -not $Zone) {
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $ConfigureLocal = Join-Path $RepoRoot "scripts/gce_configure_git_ssh.sh"
+$AuthLocal = Join-Path $RepoRoot "scripts/gce_git_auth.sh"
 $ScriptLocal = Join-Path $RepoRoot "scripts/gce_pull_and_test.sh"
-if (-not (Test-Path $ConfigureLocal)) {
-  throw "Missing $ConfigureLocal"
-}
-if (-not (Test-Path $ScriptLocal)) {
-  throw "Missing $ScriptLocal"
+foreach ($p in @($ConfigureLocal, $AuthLocal, $ScriptLocal)) {
+  if (-not (Test-Path $p)) { throw "Missing $p" }
 }
 
 function Copy-GceShellScriptToVm {
@@ -72,13 +70,36 @@ if ($Project) {
   gcloud config set project $Project
 }
 
+$hasGit = (gcloud compute ssh $Instance --zone=$Zone --command="test -d ~/fragility-discovery-engine/.git && echo yes || echo no" 2>$null).Trim()
+if ($hasGit -ne "yes") {
+  Write-Host "==> no git clone at ~/fragility-discovery-engine — run: powershell -File scripts/gce_bootstrap_git.ps1"
+  throw "VM is not bootstrapped for git. Run gce_bootstrap_git.ps1 once, then re-run gce_sync_vm.ps1."
+}
+
 Write-Host "==> gcloud compute scp -> ${Instance}:gce_configure_git_ssh.sh (zone=$Zone)"
 Copy-GceShellScriptToVm -LocalPath $ConfigureLocal -Instance $Instance -Zone $Zone -RemoteName "gce_configure_git_ssh.sh"
+
+Write-Host "==> gcloud compute scp -> ${Instance}:gce_git_auth.sh (zone=$Zone)"
+Copy-GceShellScriptToVm -LocalPath $AuthLocal -Instance $Instance -Zone $Zone -RemoteName "gce_git_auth.sh"
 
 Write-Host "==> gcloud compute scp -> ${Instance}:gce_pull_and_test.sh (zone=$Zone)"
 Copy-GceShellScriptToVm -LocalPath $ScriptLocal -Instance $Instance -Zone $Zone -RemoteName "gce_pull_and_test.sh"
 
-$remote = "bash ~/gce_configure_git_ssh.sh && bash ~/gce_pull_and_test.sh"
+$ghToken = $null
+try { $ghToken = (gh auth token 2>$null).Trim() } catch { }
+if ($ghToken) {
+  $tokTmp = Join-Path $env:TEMP ("gce-github-token-{0}" -f [Guid]::NewGuid().ToString("N"))
+  [System.IO.File]::WriteAllText($tokTmp, $ghToken, [System.Text.UTF8Encoding]::new($false))
+  try {
+    gcloud compute scp $tokTmp "${Instance}:fragility_github_token" --zone=$Zone
+    gcloud compute ssh $Instance --zone=$Zone --command='mkdir -p ~/.config/fragility-engine; mv -f ~/fragility_github_token ~/.config/fragility-engine/github_token; chmod 600 ~/.config/fragility-engine/github_token'
+  }
+  finally {
+    Remove-Item -LiteralPath $tokTmp -Force -ErrorAction SilentlyContinue
+  }
+}
+
+$remote = 'bash ~/gce_configure_git_ssh.sh; bash ~/gce_pull_and_test.sh'
 Write-Host "==> gcloud compute ssh $Instance -- $remote"
 gcloud compute ssh $Instance --zone=$Zone --command=$remote
 Write-Host "==> done."

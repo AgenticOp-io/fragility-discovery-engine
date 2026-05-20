@@ -5,14 +5,19 @@ export GIT_TERMINAL_PROMPT=0
 DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
 MARK="# fragility-discovery-engine: gce-github-deploy"
-if [[ -f "${KEY}" ]]; then
-  REPO_URL="${FRAGILITY_REPO_URL:-git@github.com:AgenticOp-io/fragility-discovery-engine.git}"
-else
-  REPO_URL="${FRAGILITY_REPO_URL:-https://github.com/AgenticOp-io/fragility-discovery-engine.git}"
-fi
 PY="${FRAGILITY_PYTHON:-}"
 _self="${BASH_SOURCE[0]:-$0}"
 _self_dir="$(cd "$(dirname "${_self}")" && pwd)"
+
+for _auth in "${HOME}/gce_git_auth.sh" "${_self_dir}/gce_git_auth.sh"; do
+  if [[ -f "${_auth}" ]]; then
+    # shellcheck source=/dev/null
+    source "${_auth}"
+    break
+  fi
+done
+fragility_gce_git_env 2>/dev/null || true
+REPO_URL="${FRAGILITY_REPO_URL:-$(fragility_gce_git_clone_url 2>/dev/null || echo "https://github.com/AgenticOp-io/fragility-discovery-engine.git")}"
 
 if [[ -f "${HOME}/gce_configure_git_ssh.sh" ]]; then
   # shellcheck source=/dev/null
@@ -45,9 +50,16 @@ if [[ ! -d "${DEPLOY_DIR}/.git" ]]; then
   if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
     export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
   fi
-  git -c credential.helper= clone --depth 1 -b main "${REPO_URL}" "${DEPLOY_DIR}"
+  if declare -F fragility_gce_git >/dev/null 2>&1; then
+    fragility_gce_git clone --depth 1 -b main "${REPO_URL}" "${DEPLOY_DIR}"
+  else
+    git -c credential.helper= clone --depth 1 -b main "${REPO_URL}" "${DEPLOY_DIR}"
+  fi
 fi
 cd "${DEPLOY_DIR}"
+if declare -F fragility_gce_git >/dev/null 2>&1; then
+  fragility_gce_git remote set-url origin "$(fragility_gce_git_clone_url)"
+fi
 for _cfg in "${HOME}/gce_configure_git_ssh.sh" "${DEPLOY_DIR}/scripts/gce_configure_git_ssh.sh"; do
   if [[ -f "${_cfg}" ]]; then
     # shellcheck source=/dev/null
@@ -59,9 +71,15 @@ done
 if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
   export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 fi
-git fetch origin main
-git checkout main
-git pull --ff-only origin main
+if declare -F fragility_gce_git >/dev/null 2>&1; then
+  fragility_gce_git fetch origin main
+  fragility_gce_git checkout main
+  fragility_gce_git pull --ff-only origin main
+else
+  git fetch origin main
+  git checkout main
+  git pull --ff-only origin main
+fi
 PYBIN="$(pick_python)"
 if [[ ! -d .venv ]]; then
   "${PYBIN}" -m venv .venv

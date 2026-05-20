@@ -14,7 +14,21 @@ setx FRAGILITY_GCE_ZONE "us-central1-a"
 setx FRAGILITY_GCE_PROJECT "chrysalis-dev-f5x6qv"
 ```
 
-**Validated 2026-05-20** on `chrysalis-test-vm` (Debian, Python 3.11): **481 passed**, 7-bundle validate, manifest pins, Phase O smokes — via source tarball (`scripts/gce_run_tarball_test.sh`) after `python3.11-venv` install.
+**Routine sync** (after one-time bootstrap):
+
+```powershell
+powershell -NoProfile -File scripts/gce_bootstrap_git.ps1   # first time only
+powershell -NoProfile -File scripts/gce_sync_vm.ps1       # pull + full ci_local on VM
+```
+
+**Validated 2026-05-20** on `chrysalis-test-vm` (Debian, Python 3.11): **481 passed**, 7-bundle validate, manifest pins, Phase O smokes.
+
+| Method | When |
+|--------|------|
+| **Git (preferred)** | `powershell -File scripts/gce_bootstrap_git.ps1` once, then `scripts/gce_sync_vm.ps1` |
+| **Tarball fallback** | `scripts/gce_run_tarball_test.sh` when git auth is unavailable |
+
+Git auth: repo deploy keys are **disabled** on GitHub; bootstrap copies a read-only **`gh` token** to `~/.config/fragility-engine/github_token` on the VM (see `scripts/gce_git_auth.sh`).
 
 ## Sync + test (one command)
 

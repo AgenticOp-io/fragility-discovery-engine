@@ -6,6 +6,15 @@ DEPLOY_DIR="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 KEY="${HOME}/.ssh/gce_github_ed25519"
 MARK="# fragility-discovery-engine: gce-github-deploy"
 
+for _auth in "${HOME}/gce_git_auth.sh" "${DEPLOY_DIR}/scripts/gce_git_auth.sh"; do
+  if [[ -f "${_auth}" ]]; then
+    # shellcheck source=/dev/null
+    source "${_auth}"
+    fragility_gce_git_env 2>/dev/null || true
+    break
+  fi
+done
+
 for _cfg in "${HOME}/gce_configure_git_ssh.sh" "${DEPLOY_DIR}/scripts/gce_configure_git_ssh.sh"; do
   if [[ -f "${_cfg}" ]]; then
     # shellcheck source=/dev/null
@@ -19,9 +28,16 @@ cd "${DEPLOY_DIR}"
 if [[ -f "${KEY}" ]] && ! grep -qF "${MARK}" "${HOME}/.ssh/config" 2>/dev/null; then
   export GIT_SSH_COMMAND="ssh -i ${KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 fi
-git fetch origin main
-git checkout main
-git pull --ff-only origin main
+if declare -F fragility_gce_git >/dev/null 2>&1; then
+  fragility_gce_git remote set-url origin "$(fragility_gce_git_clone_url)" 2>/dev/null || true
+  fragility_gce_git fetch origin main
+  fragility_gce_git checkout main
+  fragility_gce_git pull --ff-only origin main
+else
+  git fetch origin main
+  git checkout main
+  git pull --ff-only origin main
+fi
 # shellcheck source=/dev/null
 source .venv/bin/activate
 pip install -q -U pip setuptools wheel
