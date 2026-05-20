@@ -40,6 +40,7 @@ sudo chown -R "${USER}:${USER}" "${PUBLIC_ROOT}/runs"
 sudo systemctl reload nginx
 
 echo "==> scenario runner (systemd unit)"
-sudo bash "${SCRIPT_DIR}/gce_install_run_server.sh"
+sudo FRAGILITY_DEPLOY_DIR="${REPO}" FRAGILITY_PUBLIC_ROOT="${PUBLIC_ROOT}" SUDO_USER="${USER}" \
+  bash "${SCRIPT_DIR}/gce_install_run_server.sh"
 
 echo "OK: workbench published to ${PUBLIC_ROOT} (git $(git rev-parse --short HEAD))"

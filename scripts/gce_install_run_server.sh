@@ -3,10 +3,14 @@
 # Idempotent: safe to re-run after deploys to pick up code changes.
 set -euo pipefail
 
-REPO="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
+SERVICE_USER="${SUDO_USER:-${USER}}"
+if [[ -z "${FRAGILITY_DEPLOY_DIR:-}" ]]; then
+  SERVICE_HOME="$(eval echo "~${SERVICE_USER}")"
+  FRAGILITY_DEPLOY_DIR="${SERVICE_HOME}/fragility-discovery-engine"
+fi
+REPO="${FRAGILITY_DEPLOY_DIR}"
 PUBLIC_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
 PY="${REPO}/.venv/bin/python"
-SERVICE_USER="${SUDO_USER:-${USER}}"
 UNIT_PATH="/etc/systemd/system/fragility-runner.service"
 
 if [[ ! -x "${PY}" ]]; then

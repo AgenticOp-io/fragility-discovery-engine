@@ -68,11 +68,10 @@ $remote = @'
 set -e
 REPO=~/fragility-discovery-engine
 mkdir -p "$REPO/scripts"
-for f in gce_publish_workbench.sh gce_install_public_web.sh; do
-  if [ -f ~/"$f" ]; then mv -f ~/"$f" "$REPO/scripts/$f"; chmod +x "$REPO/scripts/$f"; fi
-done
 cd "$REPO"
 if [ -f scripts/gce_git_auth.sh ]; then . scripts/gce_git_auth.sh; elif [ -f ~/gce_git_auth.sh ]; then . ~/gce_git_auth.sh; fi
+# Discard any drift from earlier scp-uploaded scripts so git pull is clean.
+git checkout -- scripts/ 2>/dev/null || true
 if declare -F fragility_gce_git >/dev/null 2>&1; then
   fragility_gce_git fetch origin main
   fragility_gce_git checkout main
@@ -82,6 +81,10 @@ else
   git checkout main
   git pull --ff-only origin main
 fi
+# After pull, overlay the freshly uploaded copies (lets us iterate without a push).
+for f in gce_publish_workbench.sh gce_install_public_web.sh; do
+  if [ -f ~/"$f" ]; then mv -f ~/"$f" "$REPO/scripts/$f"; chmod +x "$REPO/scripts/$f"; fi
+done
 bash scripts/gce_publish_workbench.sh
 '@.Trim()
 if ($SkipGitPull) {
