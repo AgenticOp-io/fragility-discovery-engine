@@ -3,7 +3,7 @@
 [![CI](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/ci.yml)
 [![Scheduled regression](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/schedule.yml/badge.svg)](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/schedule.yml)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.4.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.4.0) (wheel on GitHub Releases; no PyPI) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel on GitHub Releases; no PyPI) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations: vary **shock schedules** (stress scenarios), maximize stated **fragility metrics**, then export **small failing schedules**, **replay JSON** (traces you can re-run), and **counterfactual** / **sensitivity** outputs where applicable.
 

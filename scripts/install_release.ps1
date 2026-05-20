@@ -1,6 +1,6 @@
 # Install fragility-engine from a git tag or GitHub Release wheel (no PyPI required).
 param(
-  [string]$Tag = "v0.4.0",
+  [string]$Tag = "v0.5.0",
   [ValidateSet("auto", "editable", "git", "wheel")]
   [string]$Mode = $(if ($env:FRAGILITY_INSTALL_MODE) { $env:FRAGILITY_INSTALL_MODE } else { "auto" })
 )

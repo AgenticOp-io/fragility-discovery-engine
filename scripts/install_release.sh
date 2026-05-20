@@ -2,7 +2,7 @@
 # Install fragility-engine from a git tag or GitHub Release wheel (no PyPI required).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TAG="${1:-v0.4.0}"
+TAG="${1:-v0.5.0}"
 VER="${TAG#v}"
 REPO="${FRAGILITY_REPO:-https://github.com/AgenticOp-io/fragility-discovery-engine}"
 MODE="${FRAGILITY_INSTALL_MODE:-auto}"

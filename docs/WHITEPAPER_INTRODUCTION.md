@@ -44,13 +44,15 @@ The engine records these for every evaluation and exposes them through a consist
 
 The engine ships five **reference domains** — modular worlds with different physics but the same schedule encoding. You pick whichever fits your research framing:
 
-| Domain | What it models |
-|--------|----------------|
-| **Aggregate peg** | A scalar stablecoin under redemption pressure and panic dynamics |
-| **Network contagion** | Panic spreading across an explicit graph of interconnected nodes |
-| **Resource cascade** | Overload propagating through two coupled capacity layers |
-| **Service backlog** | An operations queue where processing rate fights rising demand |
-| **Liquidity ladder** | Margin utilization vs funding runway under reserve and rumor shocks |
+
+| Domain                | What it models                                                      |
+| --------------------- | ------------------------------------------------------------------- |
+| **Aggregate peg**     | A scalar stablecoin under redemption pressure and panic dynamics    |
+| **Network contagion** | Panic spreading across an explicit graph of interconnected nodes    |
+| **Resource cascade**  | Overload propagating through two coupled capacity layers            |
+| **Service backlog**   | An operations queue where processing rate fights rising demand      |
+| **Liquidity ladder**  | Margin utilization vs funding runway under reserve and rumor shocks |
+
 
 These are **deliberately simplified** reference kernels. They are not calibrated to any real institution or market. Their purpose is to make the engine's search and explanation methods testable across multiple qualitatively different collapse stories. If your domain of interest has similar structure — state that resets, steps forward, and can be driven to a threshold — you can write a new world module using the same interface.
 
@@ -93,11 +95,13 @@ The engine includes an alternating search loop where an adversary tries to find 
 ## Who this fits
 
 **Researchers** working on adversarial robustness, counterfactual explanation, fragility and resilience methodology, or simulation-based evaluation will find the engine useful as:
+
 - a controlled environment where ground-truth interventions are mechanical and reproducible
 - a benchmark platform with frozen golden runs and versioned JSON schemas
 - a codebase demonstrating the separation of search, physics, and explanation layers
 
 **Engineers** building resilience tooling or red-team pipelines will find it useful as:
+
 - a CLI-first framework where every run is reproducible and can be diffed
 - a starting point for adding a new physics world to an existing search and explanation stack
 
@@ -128,18 +132,21 @@ python scripts/export_counterfactual.py --mode aggregate --intervention remove_s
 python scripts/run_benchmark_suite.py --validate
 ```
 
-Full tutorials, domain-specific CLI examples, and viewer guides: [`HOW_TO_USE.md`](HOW_TO_USE.md).  
-Complete CLI and schema reference: [`REFERENCE.md`](REFERENCE.md).  
-Package layout and data flow: [`ARCHITECTURE.md`](ARCHITECTURE.md).  
-Hard limits, wall-clock, non-goals: [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) and [`BOUNDARIES.md`](../BOUNDARIES.md).
+Full tutorials, domain-specific CLI examples, and viewer guides: `[HOW_TO_USE.md](HOW_TO_USE.md)`.  
+Complete CLI and schema reference: `[REFERENCE.md](REFERENCE.md)`.  
+Package layout and data flow: `[ARCHITECTURE.md](ARCHITECTURE.md)`.  
+Hard limits, wall-clock, non-goals: `[SCALE_AND_LIMITS.md](SCALE_AND_LIMITS.md)` and `[BOUNDARIES.md](../BOUNDARIES.md)`.
 
 ---
 
 ## Document control
 
-| Field | Value |
-|--------|--------|
-| **Version** | 3.0 |
-| **Last updated** | 2026-05 — full conceptual rewrite |
-| **Repo state** | Tracks `main`; cite tag `v0.4.0` alongside frozen JSON for reproducibility. |
-| **Questions** | [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) |
+
+| Field            | Value                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| **Version**      | 3.0                                                                                |
+| **Last updated** | 2026-05 — full conceptual rewrite                                                  |
+| **Repo state**   | Tracks `main`; cite tag `v0.4.0` alongside frozen JSON for reproducibility.        |
+| **Questions**    | [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) |
+
+

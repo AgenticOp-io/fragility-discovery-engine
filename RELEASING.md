@@ -33,10 +33,10 @@ gh release upload v0.5.0 dist/fragility_engine-0.5.0-py3-none-any.whl dist/fragi
 
 | Method | Command |
 |--------|---------|
-| **Helper script** (auto: editable if repo matches tag, else Release wheel) | `bash scripts/install_release.sh v0.4.0` or `powershell -NoProfile -File scripts/install_release.ps1 -Tag v0.4.0` |
-| **Release wheel** | `pip install https://github.com/AgenticOp-io/fragility-discovery-engine/releases/download/v0.4.0/fragility_engine-0.4.0-py3-none-any.whl` |
-| **Git tag** | `pip install "fragility-engine @ git+https://github.com/AgenticOp-io/fragility-discovery-engine.git@v0.4.0"` |
-| **Clone + dev** (GCE / contributors) | `pip install -e ".[dev]"` after `git checkout v0.4.0` — see [`scripts/gce_git_deploy.sh`](scripts/gce_git_deploy.sh), [`docs/INSTALLATION.md`](docs/INSTALLATION.md) |
+| **Helper script** (auto: editable if repo matches tag, else Release wheel) | `bash scripts/install_release.sh v0.5.0` or `powershell -NoProfile -File scripts/install_release.ps1 -Tag v0.5.0` |
+| **Release wheel** | `pip install https://github.com/AgenticOp-io/fragility-discovery-engine/releases/download/v0.5.0/fragility_engine-0.5.0-py3-none-any.whl` |
+| **Git tag** | `pip install "fragility-engine @ git+https://github.com/AgenticOp-io/fragility-discovery-engine.git@v0.5.0"` |
+| **Clone + dev** (GCE / contributors) | `pip install -e ".[dev]"` after `git checkout v0.5.0` — see [`scripts/gce_git_deploy.sh`](scripts/gce_git_deploy.sh), [`docs/INSTALLATION.md`](docs/INSTALLATION.md) |
 
 Set `FRAGILITY_INSTALL_MODE=editable|git|wheel` to force a mode. Set `FRAGILITY_REPO` if using a fork mirror.
 
