@@ -219,7 +219,26 @@ body.fde-app hr {
 .fde-brand:hover { text-decoration: none; }
 .fde-brand-logo { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
 .fde-brand-title { font-weight: 600; font-size: var(--fde-size-base); }
-.fde-brand-sub   { font-size: 0.72rem; color: var(--fde-muted); display: block; }
+.fde-brand-sub {
+  font-size: var(--fde-size-xs);
+  color: var(--fde-muted);
+  display: block;
+  line-height: 1.3;
+}
+
+/* Code block shorthand — same as body.fde-app pre, safe for div/pre usage */
+.fde-code-block {
+  font-family: var(--fde-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  background: var(--fde-inset);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius);
+  padding: 0.75rem 0.9rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0.65rem 0 1rem;
+}
 .fde-agenticop-link { color: var(--fde-agenticop); text-decoration: none; }
 .fde-agenticop-link:hover { text-decoration: underline; }
 

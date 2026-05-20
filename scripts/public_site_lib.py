@@ -53,6 +53,29 @@ VIEWER_NAV = [
 ]
 
 
+def _split_table_row(line: str) -> list[str]:
+    """Split a Markdown table row on | while ignoring pipes inside backtick spans."""
+    cells: list[str] = []
+    buf: list[str] = []
+    in_code = False
+    s = line.strip()
+    if s.startswith("|"):
+        s = s[1:]
+    if s.endswith("|"):
+        s = s[:-1]
+    for ch in s:
+        if ch == "`":
+            in_code = not in_code
+            buf.append(ch)
+        elif ch == "|" and not in_code:
+            cells.append("".join(buf).strip())
+            buf = []
+        else:
+            buf.append(ch)
+    cells.append("".join(buf).strip())
+    return cells
+
+
 def md_to_html(md: str) -> str:
     out: list[str] = []
     in_ul = False
@@ -72,7 +95,7 @@ def md_to_html(md: str) -> str:
             if in_ul:
                 out.append("</ul>")
                 in_ul = False
-            cells = [c.strip() for c in line.strip("|").split("|")]
+            cells = _split_table_row(line)
             if all(set(c) <= {"-", ":", " "} for c in cells):
                 if in_table and table_header_pending:
                     out.append("</thead><tbody>")
@@ -104,11 +127,22 @@ def md_to_html(md: str) -> str:
                 out.append("</ul>")
                 in_ul = False
             out.append(f"<h4>{html.escape(line[4:])}</h4>")
+        elif line.startswith("#### "):
+            if in_ul:
+                out.append("</ul>")
+                in_ul = False
+            out.append(f"<h5>{html.escape(line[5:])}</h5>")
         elif line.startswith("- "):
             if not in_ul:
                 out.append("<ul>")
                 in_ul = True
             out.append(f"<li>{_inline_md(line[2:])}</li>")
+        elif line.strip() in ("---", "***", "___"):
+            # Horizontal rule
+            if in_ul:
+                out.append("</ul>")
+                in_ul = False
+            out.append("<hr>")
         elif not line.strip():
             if in_ul:
                 out.append("</ul>")

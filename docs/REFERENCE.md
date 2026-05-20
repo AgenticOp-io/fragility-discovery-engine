@@ -55,15 +55,15 @@ Shared flags across most mode-aware scripts:
 | Explanation DAG | `export_explanation_dag.py` |
 | Minimized replay | `export_minimized_replay.py` |
 | Robustness sweep | `fragility_robustness_sweep.py` |
-| Robustness stretch presets | `fragility_robustness_stretch.py --preset small\|medium\|large` |
+| Robustness stretch presets | `fragility_robustness_stretch.py --preset small` or `medium` or `large` |
 | Fragility surface CSV | `fragility_surface.py --mode … --axis1 … --axis2 …` |
 | Find cheapest collapse | `find_cheap_collapse.py --mode … --samples …` |
 | Compare two replays | `compare_replays.py baseline.json counterfactual.json` |
 | Mechanism design sweep | `mechanism_design_policy_sweep.py` |
-| Institutional composite | `institutional_composite_demo.py --triple\|--quad` |
+| Institutional composite | `institutional_composite_demo.py --triple` or `--quad` |
 | Coevolution Pareto export | `export_coevolution_pareto.py` |
 | Frozen benchmarks | `run_benchmark_suite.py --validate` |
-| Wall-clock timing | `benchmark_rollout.py --bundle … \| --mode …` |
+| Wall-clock timing | `benchmark_rollout.py --bundle … --mode …` |
 | Certificate | `export_fragility_certificate.py` |
 | Flagship demo bundle | `run_flagship_demo.py` |
 | Narration | `narrate_frozen_json.py` |
