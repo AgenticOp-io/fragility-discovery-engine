@@ -13,11 +13,13 @@ FONTS = (
 
 NAV = [
     ("workbench", "/", "Workbench"),
+    ("run", "/run.html", "Run a scenario"),
     ("replay", "/artifacts/replay_viewer/index.html", "Replay"),
     ("pareto", "/artifacts/pareto_viewer/index.html", "Pareto"),
     ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
     ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
     ("docs", "/docs/whitepaper.html", "Docs"),
+    ("algorithms", "/docs/algorithms.html", "Algorithms"),
     ("host", "/host.html", "This host"),
 ]
 

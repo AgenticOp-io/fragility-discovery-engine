@@ -98,7 +98,8 @@ bash scripts/gce_publish_workbench.sh
 }
 
 Write-Host "==> publish on VM (build + validate + nginx)"
-gcloud compute ssh $Instance --zone=$Zone --command=$remote
+$remoteLf = ($remote -replace "`r`n", "`n") -replace "`r", "`n"
+gcloud compute ssh $Instance --zone=$Zone --command=$remoteLf
 if ($LASTEXITCODE -ne 0) { throw "gce_publish_workbench failed (exit $LASTEXITCODE)" }
 
 $ip = (gcloud compute instances describe $Instance --zone=$Zone --format="get(networkInterfaces[0].accessConfigs[0].natIP)").Trim()

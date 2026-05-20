@@ -23,6 +23,19 @@ server {
     location / {
         try_files \$uri \$uri/ =404;
     }
+    # User-generated run artifacts (written by the scenario runner).
+    location /runs/ {
+        alias ${SITE_ROOT}/runs/;
+        autoindex on;
+        add_header Cache-Control "no-store" always;
+    }
+    # Scenario runner backend (loopback only on the VM).
+    location /api/ {
+        proxy_pass http://127.0.0.1:8765;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_read_timeout 30s;
+    }
     add_header X-Fragility-Product "fde-workbench" always;
 }
 EOF

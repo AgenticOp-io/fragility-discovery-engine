@@ -87,6 +87,135 @@ DEMOS = [
 ]
 
 
+def _run_page_main() -> str:
+    return """    <article class="fde-prose">
+      <h2>Run a scenario</h2>
+      <p>Pick a domain, set the search budget, and submit. The engine runs the search <strong>on this server</strong>; when it finishes, the replay viewer opens with your result.</p>
+      <p style="font-size:13px;opacity:0.85">Want to know what is actually running? See <a href="/docs/algorithms.html">Algorithms &amp; provenance</a>.</p>
+    </article>
+
+    <form id="runForm" class="fde-run-form" autocomplete="off">
+      <div class="fde-run-row">
+        <label for="mode">Domain</label>
+        <select id="mode" name="mode">
+          <option value="aggregate" selected>Aggregate peg — stablecoin redemption + panic</option>
+          <option value="network" disabled>Network contagion (coming soon)</option>
+          <option value="resource_cascade" disabled>Resource cascade (coming soon)</option>
+          <option value="service_backlog" disabled>Service backlog (coming soon)</option>
+          <option value="liquidity_ladder" disabled>Liquidity ladder (coming soon)</option>
+        </select>
+        <p class="fde-run-help">The aggregate peg is the smallest reference world: scalar reserves, scalar panic, redemption pressure. Good first run.</p>
+      </div>
+      <div class="fde-run-grid">
+        <label>Random seed
+          <input type="number" id="seed" name="seed" value="999" min="0" max="2147483647" required>
+          <span class="fde-run-help">Pins all RNGs — same seed reproduces this run exactly.</span>
+        </label>
+        <label>Horizon (timesteps)
+          <input type="number" id="horizon" name="horizon" value="24" min="4" max="48" required>
+          <span class="fde-run-help">How many timesteps the attacker can shock. Capped at 48 on this host.</span>
+        </label>
+        <label>GA generations
+          <input type="number" id="generations" name="generations" value="6" min="1" max="12" required>
+          <span class="fde-run-help">How many evolution rounds the genetic algorithm runs. More = better attacks, slower.</span>
+        </label>
+        <label>Population size
+          <input type="number" id="population" name="population" value="18" min="4" max="32" required>
+          <span class="fde-run-help">Genomes per generation. Capped at 32 on this host.</span>
+        </label>
+      </div>
+      <div class="fde-run-actions">
+        <button type="submit" class="fde-run-submit">Run scenario</button>
+        <span id="runStatus" class="fde-run-status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <div id="runLog" class="fde-run-log" hidden></div>
+
+    <article class="fde-prose" style="margin-top:32px">
+      <h3>What you get back</h3>
+      <ul>
+        <li><strong>Best replay</strong> — the worst attack the GA found, opened in the replay viewer.</li>
+        <li><strong>Minimized replay</strong> (if the best run collapsed) — the smallest subset of shocks that still breaks the world.</li>
+        <li><strong>status.json</strong> — request, exit code, artifact list. All files stay under <code>/runs/&lt;id&gt;/</code> on this host.</li>
+      </ul>
+      <h3>Limits</h3>
+      <p>This host caps each run at 180 seconds, with at most 2 concurrent runs across the server. The runner accepts only the parameters shown above — no shell access. For longer searches, larger populations, or other domains, run the engine yourself: <code>pip install fragility-engine</code> and see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md">HOW_TO_USE.md</a>.</p>
+    </article>
+
+    <script>
+      (function () {
+        const form = document.getElementById('runForm');
+        const status = document.getElementById('runStatus');
+        const log = document.getElementById('runLog');
+        let polling = null;
+
+        function fmt(s) { try { return JSON.stringify(s, null, 2); } catch (e) { return String(s); } }
+
+        async function poll(id, deadline) {
+          try {
+            const r = await fetch('/api/run/' + id, { cache: 'no-store' });
+            const s = await r.json();
+            log.hidden = false;
+            log.textContent = fmt(s);
+            if (s.state === 'done') {
+              status.textContent = 'Done. Opening replay…';
+              if (s.viewer_url) {
+                setTimeout(function () { window.location.href = s.viewer_url; }, 600);
+              }
+              return;
+            }
+            if (s.state === 'failed') {
+              status.textContent = 'Run failed.';
+              return;
+            }
+            if (Date.now() > deadline) {
+              status.textContent = 'Timed out waiting for the run.';
+              return;
+            }
+            status.textContent = 'Running… (' + (s.state || 'queued') + ')';
+            polling = setTimeout(function () { poll(id, deadline); }, 1500);
+          } catch (e) {
+            status.textContent = 'Status check failed: ' + e;
+          }
+        }
+
+        form.addEventListener('submit', async function (ev) {
+          ev.preventDefault();
+          if (polling) clearTimeout(polling);
+          status.textContent = 'Submitting…';
+          log.hidden = true;
+          const body = {
+            mode: form.mode.value,
+            seed: Number(form.seed.value),
+            horizon: Number(form.horizon.value),
+            generations: Number(form.generations.value),
+            population: Number(form.population.value),
+          };
+          try {
+            const r = await fetch('/api/run', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+            });
+            const s = await r.json();
+            if (!r.ok) {
+              status.textContent = 'Rejected: ' + (s.error || r.statusText);
+              return;
+            }
+            status.textContent = 'Accepted (id=' + s.id + '). Polling…';
+            log.hidden = false;
+            log.textContent = fmt(s);
+            poll(s.id, Date.now() + 200000);
+          } catch (e) {
+            status.textContent = 'Network error: ' + e;
+          }
+        });
+      })();
+    </script>
+"""
+
+
 def _copytree(src: Path, dst: Path) -> None:
     if dst.exists():
         shutil.rmtree(dst)
@@ -163,6 +292,29 @@ def build(out: Path) -> dict[str, str]:
             page_id="docs",
             description="Technical overview for researchers.",
             main_html=f'<article class="fde-prose">{md_to_html(wp_md)}</article>',
+        ),
+    )
+
+    algo_md_path = ROOT / "docs" / "ALGORITHMS.md"
+    if algo_md_path.is_file():
+        algo_md = algo_md_path.read_text(encoding="utf-8")
+        _write(
+            docs_dir / "algorithms.html",
+            product_shell(
+                title="Algorithms & provenance — Fragility Discovery Engine",
+                page_id="algorithms",
+                description="Catalog of search, attribution, and physics algorithms with provenance.",
+                main_html=f'<article class="fde-prose">{md_to_html(algo_md)}</article>',
+            ),
+        )
+
+    _write(
+        out / "run.html",
+        product_shell(
+            title="Run a scenario — Fragility Discovery Engine",
+            page_id="run",
+            description="Submit a fragility-search scenario; the GCE host runs it and returns a replay.",
+            main_html=_run_page_main(),
         ),
     )
 

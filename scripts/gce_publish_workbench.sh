@@ -29,10 +29,17 @@ python scripts/gce_write_workbench_status.py --out artifacts/public_site/status.
 
 echo "==> nginx publish"
 sudo bash "${SCRIPT_DIR}/gce_install_public_web.sh"
-sudo mkdir -p "${PUBLIC_ROOT}"
-sudo rm -rf "${PUBLIC_ROOT:?}"/*
+sudo mkdir -p "${PUBLIC_ROOT}/runs"
+# Preserve user-generated runs across publishes; replace everything else.
+sudo find "${PUBLIC_ROOT}" -mindepth 1 -maxdepth 1 ! -name runs -exec rm -rf {} +
 sudo cp -a artifacts/public_site/. "${PUBLIC_ROOT}/"
+# Public site directories are read by nginx (www-data); runs/ is written by
+# the runner unit (deploy user), so split ownership.
 sudo chown -R www-data:www-data "${PUBLIC_ROOT}"
+sudo chown -R "${USER}:${USER}" "${PUBLIC_ROOT}/runs"
 sudo systemctl reload nginx
+
+echo "==> scenario runner (systemd unit)"
+sudo bash "${SCRIPT_DIR}/gce_install_run_server.sh"
 
 echo "OK: workbench published to ${PUBLIC_ROOT} (git $(git rev-parse --short HEAD))"
