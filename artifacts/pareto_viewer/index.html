@@ -22,18 +22,36 @@
   </style>
 </head>
 <body>
-  <strong>Pareto frontier viewer</strong>
-  <div id="hint">
-    Load <code>pareto_front.json</code> from <code>python scripts/export_pareto_front.py</code> (<code>--mode aggregate|network|resource_cascade</code>)
-    or co-evolution via <code>run_coevolution.py --export-pareto-json</code> / <code>export_coevolution_pareto.py</code>.
-    Axes: <strong>x = attack_cost</strong> (minimize), <strong>y = severity</strong> (maximize). Non-dominated points only (merged archive).
-    Bundled samples: aggregate / resource_cascade / service_backlog Pareto JSON + flagship preset. Regenerate:
-    <code>python scripts/regenerate_bundled_viewer_samples.py</code> (or <code>--skip-pareto</code> to skip). <strong>Hover</strong> a point for archive index and metrics; click to pin, <kbd>←</kbd><kbd>→</kbd> to step.
-    Optional URL hash (HTTP): <code>#src=sample_pareto_front.json&amp;archive=2</code> — path relative to this page; <code>archive</code> pins that index after load.
-    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (bundled + <code>artifacts/test_exports/pareto_front.json</code> after regenerate).
-    Replay trajectories: <code>artifacts/replay_viewer/index.html</code>.
-    Attribution merges / chain path traces: <code>artifacts/attribution_viewer/index.html</code>.
-  </div>
+  <strong>Pareto viewer</strong>
+  <p style="font-size:13px;opacity:0.9;margin:6px 0 10px">
+    Each dot is one attack the engine found. The picture shows the trade-off between how <em>expensive</em> the attack was and how much <em>damage</em> it caused. Use it to spot the cheap-but-nasty attacks — the bottom-right corner.
+  </p>
+
+  <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+    <summary style="cursor:pointer"><strong>How to read it</strong></summary>
+    <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+      <li><strong>X axis — attack cost</strong> (lower is cheaper for the attacker).</li>
+      <li><strong>Y axis — severity</strong> (higher means a worse outcome for the system).</li>
+      <li>Only Pareto-optimal points are shown: each dot is the best severity reachable at that cost.</li>
+      <li><strong>Bottom-right</strong> dots are the most concerning — large damage for small effort.</li>
+    </ul>
+  </details>
+
+  <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+    <summary style="cursor:pointer"><strong>How to use it</strong></summary>
+    <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+      <li>Pick a preset, or click <em>Choose pareto_front.json…</em> to load your own.</li>
+      <li><strong>Hover</strong> a dot to see its archive index, cost, and severity.</li>
+      <li><strong>Click</strong> a dot to pin it; use <kbd>←</kbd> <kbd>→</kbd> to step through the archive.</li>
+    </ul>
+  </details>
+
+  <p style="font-size:12px;opacity:0.7;margin:0">
+    Bundled samples cover the aggregate, network, resource-cascade, service-backlog, and liquidity-ladder domains, plus the flagship preset.
+    Related views: <a href="../replay_viewer/index.html">Replay viewer</a> (play back one attack) ·
+    <a href="../attribution_viewer/index.html">Attribution viewer</a> (why an attack worked) ·
+    <a href="../composite_viewer/index.html">Composite viewer</a>.
+  </p>
   <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
     <button type="button" class="btn" id="btnPick">Choose pareto_front.json…</button>
     <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">

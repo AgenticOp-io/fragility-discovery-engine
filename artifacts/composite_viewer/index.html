@@ -20,16 +20,40 @@
   </style>
 </head>
 <body>
-  <strong>Institutional composite viewer</strong>
-  <div id="hint">
-    Load <code>fragility-institutional-composite-v1</code> / <strong>v2</strong> / <strong>v3</strong> / <strong>v4</strong> JSON
-    (decoupled multi-kernel metrics, not a replay timeline). Narration:
-    <code>scripts/narrate_frozen_json.py</code>. Bar chart:
-    <code>scripts/plot_institutional_composite_bars.py</code>.
-    Replay / Pareto / attribution viewers live under <code>artifacts/replay_viewer</code>,
-    <code>artifacts/pareto_viewer</code>, <code>artifacts/attribution_viewer</code>.
-    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code>.
-  </div>
+  <strong>Composite viewer</strong>
+  <p style="font-size:13px;opacity:0.9;margin:6px 0 10px">
+    Side-by-side fragility scorecard for one shared scenario, run through several different domain models at once
+    (peg, network contagion, resource cascade, service backlog, liquidity ladder). One row per domain — same shock, different lenses.
+  </p>
+
+  <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+    <summary style="cursor:pointer"><strong>What the table shows</strong></summary>
+    <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+      <li><strong>kernel</strong> — which domain model was used (aggregate, network, resource_cascade, service_backlog, liquidity_ladder).</li>
+      <li><strong>integral instability</strong> — total accumulated stress over the run; higher means more fragile under this shock.</li>
+      <li><strong>collapsed</strong> — did this domain actually break? Green = no, red = yes.</li>
+      <li><strong>attack cost</strong> — what the attacker had to spend.</li>
+      <li><strong>collapse timestep</strong> — when the break happened, if it did.</li>
+    </ul>
+    <p style="margin:6px 0 0">
+      This is a metric snapshot, not a timeline — for a step-by-step replay of a single domain, use the
+      <a href="../replay_viewer/index.html">Replay viewer</a>.
+    </p>
+  </details>
+
+  <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+    <summary style="cursor:pointer"><strong>How to use it</strong></summary>
+    <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+      <li>Pick a preset (twin / triple / quad / penta composite) or load your own <code>fragility-institutional-composite-v1…v4</code> JSON.</li>
+      <li>Compare rows: domains where instability spikes but collapse stays green are the ones with the smallest safety margin.</li>
+    </ul>
+  </details>
+
+  <p style="font-size:12px;opacity:0.7;margin:0">
+    Related views: <a href="../replay_viewer/index.html">Replay viewer</a> ·
+    <a href="../pareto_viewer/index.html">Pareto viewer</a> ·
+    <a href="../attribution_viewer/index.html">Attribution viewer</a>.
+  </p>
   <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
     <button type="button" class="btn" id="btnPick">Choose JSON…</button>
     <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">

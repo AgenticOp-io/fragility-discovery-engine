@@ -41,33 +41,51 @@
 </head>
 <body>
   <header>
-    <strong>Fragility replay viewer</strong>
-    <div id="hint">
-      Drag-and-drop <code>replay.json</code>. Blue = peg ratio or <strong>min layer headroom</strong> (resource cascade); orange = instability. Bottom = shock lane.
-      Magenta = collapse; cyan = <strong>scrub playhead</strong>.
-    </div>
-    <div id="scrubHelp">
-      <strong>Timeline:</strong> move the mouse over the chart to scrub, or click-drag.
-      With the chart focused: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd> ends.
-    </div>
-    <div class="path-hint" id="pathHint">
-      Bundled samples: <code>sample_replay.json</code> (aggregate), <code>sample_network_replay.json</code> (contagion — extra dashed lines),
-      <code>sample_resource_cascade_replay.json</code> (Phase J — blue trace = headroom, not a peg),
-      <code>sample_service_backlog_replay.json</code> (Phase M — frozen bundle <code>service_backlog_rollout_v1</code>).
-      Replay exports: <code>export_replay.py</code>, <code>week1_smoke.py</code>, <code>run_mc_demo.py</code>, <code>export_minimized_replay.py</code>,
-      <code>run_ga_demo.py</code> (best vs <strong>greedy minimized</strong>), <code>run_network_demo.py</code>,
-      <code>find_cheap_collapse.py</code>, <code>export_pareto_front.py</code>, <code>run_coevolution.py</code>,
-      <code>export_counterfactual.py --export-replay-dir</code> (<code>--mode resource_cascade</code> for overload / shock-removal),
-      <code>compare_replays.py</code> for quick metric diffs
-      (each sets <code>meta.cli</code> for the panel below).
-      <strong>Other JSON</strong> (composites, robustness sweeps — not this viewer): see <code>README.md</code> in this folder.
-      Windows pickers often start in <strong>Documents</strong> — navigate once or drag JSON onto the dashed box.
-      Chrome/Edge: <strong>Choose folder</strong> remembers the path for <strong>Choose replay file</strong>.
-      <strong>Compare second replay</strong> adds Δprice (or Δheadroom for cascade) / Δinstability in the panel (e.g. baseline vs counterfactual). For cost vs severity scatter see <code>artifacts/pareto_viewer/</code>.
-      With a local HTTP server, the <strong>Presets</strong> dropdown loads <code>local_presets.json</code> (bundled samples + <code>artifacts/test_exports/</code> after <code>regenerate_test_exports</code>). Cost vs severity scatter: <code>artifacts/pareto_viewer/index.html</code>.
-      <code>artifacts/attribution_viewer/index.html</code> — merged branches (<code>attribution-merge-v1</code>) and mutation-chain path traces.
-      Optional URL hash: <code>#src=sample_replay.json&amp;compare=sample_network_replay.json</code> — paths relative to this page; <code>compare</code> loads the second replay for Δ metrics.
-    </div>
+    <strong>Replay viewer</strong>
+    <p style="font-size:13px;opacity:0.9;margin:6px 0 10px">
+      Play back a single simulation run. Each replay is a frozen JSON file produced by the engine — load one to see what the system was doing and where it broke.
+    </p>
+
+    <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+      <summary style="cursor:pointer"><strong>What the chart shows</strong></summary>
+      <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+        <li><span style="color:#6eb5f7">Blue line</span> — the main health metric. For the peg / aggregate domain it is the <em>peg ratio</em> (1.0 = healthy). For the resource-cascade domain it is the <em>minimum layer headroom</em> (higher = more slack).</li>
+        <li><span style="color:#f3a35a">Orange line</span> — instability (how much stress the system is under right now).</li>
+        <li><span style="color:#cc4dd0">Magenta marker</span> — the step where the run is marked as <em>collapsed</em>.</li>
+        <li><span style="color:#5fd4ff">Cyan vertical line</span> — your scrub playhead (where the mouse is on the timeline).</li>
+        <li>Bottom strip — the shock lane: when and where the attacker injected shocks.</li>
+        <li>Dashed lines (network replays only) — extra contagion traces (e.g. max panic, panic spread).</li>
+      </ul>
+    </details>
+
+    <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+      <summary style="cursor:pointer"><strong>How to use it</strong></summary>
+      <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+        <li><strong>Load a replay</strong> — pick one from <em>Presets</em>, click <em>Choose replay file…</em>, or drag a <code>.json</code> file onto the dashed box.</li>
+        <li><strong>Scrub the timeline</strong> — move the mouse over the chart, or click and drag. The text panel under the chart updates with values at that step.</li>
+        <li><strong>Keyboard</strong> — click the chart once, then <kbd>←</kbd> <kbd>→</kbd> to step, <kbd>Home</kbd> / <kbd>End</kbd> to jump to the start or the end.</li>
+        <li><strong>Compare two replays</strong> — click <em>Compare second replay…</em>. The panel then shows the difference (Δ peg ratio or Δ headroom, Δ instability) between the two at the playhead. Useful for baseline vs. counterfactual.</li>
+        <li><strong>Choose folder</strong> (Chrome / Edge only) — remember a folder so the next file pick opens there.</li>
+      </ul>
+    </details>
+
+    <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+      <summary style="cursor:pointer"><strong>Bundled samples</strong></summary>
+      <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+        <li><code>sample_replay.json</code> — aggregate peg run.</li>
+        <li><code>sample_network_replay.json</code> — graph contagion (adds the dashed panic traces).</li>
+        <li><code>sample_resource_cascade_replay.json</code> — capacity-overload cascade (blue line is headroom, not a peg).</li>
+        <li><code>sample_service_backlog_replay.json</code> — operations backlog run.</li>
+        <li><code>sample_liquidity_ladder_replay.json</code> — funding ladder stress.</li>
+      </ul>
+      <p style="margin:6px 0 0">All samples are reproducible from frozen seeds; the panel under the chart shows the exact CLI that produced the file.</p>
+    </details>
+
+    <p style="font-size:12px;opacity:0.7;margin:0">
+      Other tools: <a href="../pareto_viewer/index.html">Pareto viewer</a> (cost vs severity scatter) ·
+      <a href="../attribution_viewer/index.html">Attribution viewer</a> (counterfactual chains) ·
+      <a href="../composite_viewer/index.html">Composite viewer</a> (multi-domain audits).
+    </p>
   </header>
 
   <div class="btn-row">

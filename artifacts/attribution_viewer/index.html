@@ -22,16 +22,34 @@
   </style>
 </head>
 <body>
-  <strong>Attribution graph viewer</strong>
-  <div id="hint">
-    Load <code>attribution-merge-v1</code> (<code>merge_counterfactual_attribution.py</code>) or
-    mutation-chain path traces: network / resource-cascade / service-backlog / aggregate
-    (<code>explanation-mutation-chain-path-*-v1</code>), including embedded <code>path_trace</code> from
-    <code>--emit-path-trace</code> chain exports.
-    Replay: <code>artifacts/replay_viewer/</code>. Pareto: <code>artifacts/pareto_viewer/</code>.
-    Composite branches: <code>artifacts/composite_viewer/</code>.
-    Over HTTP, <strong>Presets</strong> loads <code>local_presets.json</code> (regenerate: <code>scripts/regenerate_bundled_viewer_samples.py</code>).
-  </div>
+  <strong>Attribution viewer</strong>
+  <p style="font-size:13px;opacity:0.9;margin:6px 0 10px">
+    Answers the question <em>“which change actually caused the collapse?”</em> by walking a chain of small mutations from a baseline run to a collapse — and showing, at each step, how much that single change added to the instability and to the cost.
+  </p>
+
+  <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+    <summary style="cursor:pointer"><strong>What you’ll see</strong></summary>
+    <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+      <li><strong>Nodes</strong> — successive states along the chain (the baseline run, plus each mutated variant).</li>
+      <li><strong>Edges</strong> — the single mutation applied between two nodes, with its Δ integral-instability and Δ attack-cost. Big positive Δ instability ⇒ that mutation is doing the damage.</li>
+      <li><strong>Merge artifacts</strong> (<code>attribution-merge-v1</code>) combine several chains so you can compare branches that all reach the same collapse.</li>
+    </ul>
+  </details>
+
+  <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
+    <summary style="cursor:pointer"><strong>How to use it</strong></summary>
+    <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
+      <li>Pick a preset or click <em>Choose JSON…</em> to load a chain or a merge.</li>
+      <li>Read the Path list top-down: each step is one mutation added on top of the previous one.</li>
+      <li>Hand-rolled chains and engine exports both work — anything matching <code>attribution-merge-v1</code> or <code>explanation-mutation-chain-path-*-v1</code>.</li>
+    </ul>
+  </details>
+
+  <p style="font-size:12px;opacity:0.7;margin:0">
+    Related views: <a href="../replay_viewer/index.html">Replay viewer</a> (play back one variant) ·
+    <a href="../pareto_viewer/index.html">Pareto viewer</a> (cost vs severity scatter) ·
+    <a href="../composite_viewer/index.html">Composite viewer</a>.
+  </p>
   <div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
     <button type="button" class="btn" id="btnPick">Choose JSON…</button>
     <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">
