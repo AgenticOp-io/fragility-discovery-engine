@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -289,9 +290,7 @@ def build_defended_liquidity_ladder_world(
     return world, reserve_boost
 
 
-def clone_inventory_buffer(template: "InventoryBufferWorld", **phys: Any) -> "InventoryBufferWorld":
-    from fragility_engine.world.inventory_buffer import InventoryBufferWorld
-
+def clone_inventory_buffer(template: InventoryBufferWorld, **phys: Any) -> InventoryBufferWorld:
     return InventoryBufferWorld(
         population=phys.get("population", template.population),
         demand_spike_gain=float(phys.get("demand_spike_gain", template.demand_spike_gain)),
@@ -308,11 +307,9 @@ def clone_inventory_buffer(template: "InventoryBufferWorld", **phys: Any) -> "In
 
 
 def build_defended_inventory_buffer_world(
-    template: "InventoryBufferWorld",
+    template: InventoryBufferWorld,
     defender_genome: np.ndarray | None,
-) -> tuple["InventoryBufferWorld", float]:
-    from fragility_engine.world.inventory_buffer import InventoryBufferWorld
-
+) -> tuple[InventoryBufferWorld, float]:
     if defender_genome is None:
         return clone_inventory_buffer(template), 1.0
 

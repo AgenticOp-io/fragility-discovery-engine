@@ -20,6 +20,7 @@ from fragility_engine.runner import (
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld

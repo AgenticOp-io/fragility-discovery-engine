@@ -32,6 +32,8 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 | [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) | Checked-in JSON for viewers and CI pins |
 | [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Charter + Phase O completion snapshot |
 | [`phase_o_stretch.md`](phase_o_stretch.md) | Post-charter stretch (robustness, hexa composite, fork, PyPI) |
+| [`GCE_VALIDATION.md`](GCE_VALIDATION.md) | Run full CI parity on a GCE VM (`gce_sync_vm.ps1`) |
+| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Release v0.5.0, visibility, fork, maintenance |
 
 ---
 
