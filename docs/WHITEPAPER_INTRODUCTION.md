@@ -146,7 +146,7 @@ Hard limits, wall-clock, non-goals: `[SCALE_AND_LIMITS.md](SCALE_AND_LIMITS.md)`
 | ---------------- | ---------------------------------------------------------------------------------- |
 | **Version**      | 3.0                                                                                |
 | **Last updated** | 2026-05 — full conceptual rewrite                                                  |
-| **Repo state**   | Tracks `main`; cite tag `v0.4.0` alongside frozen JSON for reproducibility.        |
+| **Repo state**   | Tracks `main`; cite tag `v0.5.0` alongside frozen JSON for reproducibility.        |
 | **Questions**    | [GitHub Issues](https://github.com/AgenticOp-io/fragility-discovery-engine/issues) |
 
 
