@@ -26,7 +26,7 @@ powershell -NoProfile -File scripts/gce_deploy_public_site.ps1
 
 - **Replay / Pareto / Attribution / Composite** viewers (`artifacts/*_viewer/`)
 - **Bundled demos** (flagship replay, domain samples, composite JSON)
-- **Docs** (`/docs/whitepaper.html`) and **Install** (`/install.html`) — secondary to the workbench
+- **Docs** (`/docs/whitepaper.html`) and **This host** (`/host.html`) — secondary to the workbench; `/install.html` redirects to host
 
 ## What this is not
 

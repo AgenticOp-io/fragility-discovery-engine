@@ -1,21 +1,20 @@
 <#
 .SYNOPSIS
-  Build AgenticOps-branded public site and deploy to GCE nginx (port 80).
+  Publish product workbench on GCE (build + validate + nginx) — all on the VM.
 
 .DESCRIPTION
-  1. python scripts/build_public_site.py
-  2. tar artifacts/public_site -> fragility-public-site.tar.gz
-  3. scp to VM + run gce_install_public_web.sh + gce_deploy_public_site.sh
-  4. Optionally open firewall (tag http-server on instance)
+  End users only need a browser at http://<vm-ip>/.
+  This script SSHs to the VM and runs gce_publish_workbench.sh inside the git clone
+  (after optional git pull). No local Python build required.
 
-.PARAMETER Instance / Zone / Project
-  Same env vars as gce_sync_vm.ps1 (FRAGILITY_GCE_*).
+  Prerequisite: gce_bootstrap_git.ps1 once; FRAGILITY_GCE_* env vars set.
 #>
 param(
   [string]$Instance = $env:FRAGILITY_GCE_INSTANCE,
   [string]$Zone = $env:FRAGILITY_GCE_ZONE,
   [string]$Project = $env:FRAGILITY_GCE_PROJECT,
-  [switch]$SkipFirewall
+  [switch]$SkipFirewall,
+  [switch]$SkipGitPull
 )
 
 $ErrorActionPreference = "Stop"
@@ -24,38 +23,14 @@ if (-not $Instance -or -not $Zone) {
 }
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-$OutDir = Join-Path $RepoRoot "artifacts\public_site"
-$Archive = Join-Path $env:TEMP "fragility-public-site.tar.gz"
+$PublishSh = Join-Path $RepoRoot "scripts\gce_publish_workbench.sh"
+$InstallSh = Join-Path $RepoRoot "scripts\gce_install_public_web.sh"
+foreach ($p in @($PublishSh, $InstallSh)) {
+  if (-not (Test-Path $p)) { throw "Missing $p" }
+}
 
 if ($Project) {
   gcloud config set project $Project
-}
-
-Write-Host "==> build public site"
-Push-Location $RepoRoot
-try {
-  python (Join-Path $RepoRoot "scripts\build_public_site.py")
-} finally {
-  Pop-Location
-}
-
-if (-not (Test-Path $OutDir)) {
-  throw "Missing $OutDir after build"
-}
-
-Write-Host "==> tar public_site bundle"
-if (Test-Path $Archive) { Remove-Item -LiteralPath $Archive -Force }
-Push-Location $OutDir
-try {
-  tar -czf $Archive .
-} finally {
-  Pop-Location
-}
-
-$InstallSh = Join-Path $RepoRoot "scripts\gce_install_public_web.sh"
-$DeploySh = Join-Path $RepoRoot "scripts\gce_deploy_public_site.sh"
-foreach ($p in @($InstallSh, $DeploySh)) {
-  if (-not (Test-Path $p)) { throw "Missing $p" }
 }
 
 function Copy-LfSh {
@@ -65,7 +40,8 @@ function Copy-LfSh {
   [System.IO.File]::WriteAllText($tmp, $raw, [System.Text.UTF8Encoding]::new($false))
   try {
     gcloud compute scp $tmp "${Instance}:${Remote}" --zone=$Zone
-  } finally {
+  }
+  finally {
     Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
   }
 }
@@ -84,14 +60,19 @@ if (-not $SkipFirewall) {
   $ErrorActionPreference = $prevEap
 }
 
-Write-Host "==> scp archive + install scripts"
-gcloud compute scp $Archive "${Instance}:fragility-public-site.tar.gz" --zone=$Zone
+Write-Host "==> upload publish scripts"
+Copy-LfSh -Local $PublishSh -Remote "gce_publish_workbench.sh"
 Copy-LfSh -Local $InstallSh -Remote "gce_install_public_web.sh"
-Copy-LfSh -Local $DeploySh -Remote "gce_deploy_public_site.sh"
 
-Write-Host "==> deploy on VM"
-gcloud compute ssh $Instance --zone=$Zone --command='bash ~/gce_install_public_web.sh; bash ~/gce_deploy_public_site.sh ~/fragility-public-site.tar.gz'
+$remote = "mkdir -p ~/fragility-discovery-engine/scripts; mv -f ~/gce_publish_workbench.sh ~/fragility-discovery-engine/scripts/; mv -f ~/gce_install_public_web.sh ~/fragility-discovery-engine/scripts/; chmod +x ~/fragility-discovery-engine/scripts/gce_publish_workbench.sh"
+if (-not $SkipGitPull) {
+  $remote += "; cd ~/fragility-discovery-engine; git pull --ff-only origin main 2>/dev/null || true"
+}
+$remote += "; cd ~/fragility-discovery-engine; bash scripts/gce_publish_workbench.sh"
+
+Write-Host "==> publish on VM (build + validate + nginx)"
+gcloud compute ssh $Instance --zone=$Zone --command=$remote
 
 $ip = (gcloud compute instances describe $Instance --zone=$Zone --format="get(networkInterfaces[0].accessConfigs[0].natIP)").Trim()
-Write-Host "==> done. Public site: http://${ip}/"
-Write-Host "    dashboard: http://${ip}/dashboard.html"
+Write-Host "==> done. Browser-only workbench: http://${ip}/"
+Write-Host "    status: http://${ip}/status.json"

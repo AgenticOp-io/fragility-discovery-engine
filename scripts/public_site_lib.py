@@ -18,7 +18,7 @@ NAV = [
     ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
     ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
     ("docs", "/docs/whitepaper.html", "Docs"),
-    ("install", "/install.html", "Install"),
+    ("host", "/host.html", "This host"),
 ]
 
 
@@ -110,14 +110,15 @@ def product_shell(
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="{FONTS}" rel="stylesheet"/>
   <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
 </head>
 <body class="fde-app">
   <header class="fde-top">
     <a class="fde-brand" href="/">
-      <span class="fde-brand-mark" aria-hidden="true">FDE</span>
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">deterministic stress exploration · {html.escape(release)}</span>
+        <span class="fde-brand-sub">hosted on GCE · {html.escape(release)} · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOp</a></span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">
@@ -129,12 +130,16 @@ def product_shell(
 {main_html}
   </main>
   <footer class="fde-footer">
-    <span>Open source · frozen benchmark bundles · JSON replay contract</span>
     <span>
-      <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source &amp; releases</a>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOp</a> · fragility engine · browser-only demos
+    </span>
+    <span>
+      <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
       · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues/6">Feedback</a>
     </span>
   </footer>
+  <script src="/assets/fde-workbench.js" defer></script>
 </body>
 </html>
 """

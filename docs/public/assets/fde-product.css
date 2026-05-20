@@ -6,8 +6,9 @@
   --fde-border: #2a3140;
   --fde-text: #e8ecf4;
   --fde-muted: #8b95a8;
-  --fde-accent: #5b9fd4;
-  --fde-accent-dim: #3d6f99;
+  --fde-accent: #6eb5f7;
+  --fde-accent-dim: #4a7fb8;
+  --fde-agenticop: #7c9cff;
   --fde-ok: #5ecf8a;
   font-family: "DM Sans", system-ui, sans-serif;
 }
@@ -41,17 +42,33 @@ body.fde-app {
   text-decoration: none;
   color: inherit;
 }
-.fde-brand-mark {
-  width: 36px;
-  height: 36px;
+.fde-brand-logo {
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--fde-accent-dim), var(--fde-accent));
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-size: 0.75rem;
-  letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
+.fde-agenticop-link {
+  color: var(--fde-agenticop);
+  text-decoration: none;
+}
+.fde-agenticop-link:hover { text-decoration: underline; }
+.fde-footer-logo {
+  vertical-align: middle;
+  margin-right: 0.35rem;
+  opacity: 0.9;
+}
+.fde-status-bar {
+  font-size: 0.82rem;
+  color: var(--fde-muted);
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--fde-border);
+  background: rgba(110, 181, 247, 0.06);
+}
+.fde-status-ok { color: var(--fde-ok); }
+.fde-status-warn { color: #f0a060; }
 .fde-brand-title { font-weight: 600; font-size: 1rem; }
 .fde-brand-sub { font-size: 0.75rem; color: var(--fde-muted); display: block; }
 
