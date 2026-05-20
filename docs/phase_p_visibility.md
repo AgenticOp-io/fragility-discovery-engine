@@ -12,7 +12,9 @@ Lightweight outreach on `main` without hosted SaaS or new physics.
 
 ## Enable GitHub Pages (once)
 
-Repo **Settings → Pages → Build and deployment → GitHub Actions**. After the workflow runs, the site URL appears on the Pages settings tab (typically `https://<org>.github.io/<repo>/`).
+Repo **Settings → Pages → Build and deployment → GitHub Actions** (enabled on this repo).
+
+**Live URL:** https://agenticop-io.github.io/fragility-discovery-engine/
 
 ## Coupled fork quick start
 

@@ -10,7 +10,7 @@
 
 ## 2. External visibility (Phase P)
 
-- [x] GitHub Pages landing ([`docs/public/index.html`](public/index.html), workflow `pages.yml`) — enable **Settings → Pages → GitHub Actions** once
+- [x] GitHub Pages landing — https://agenticop-io.github.io/fragility-discovery-engine/
 - [x] Research feedback issue template + pinned feedback issue on GitHub
 - [ ] Point **agenticop.io** DNS at Pages URL or repo (operator)
 
