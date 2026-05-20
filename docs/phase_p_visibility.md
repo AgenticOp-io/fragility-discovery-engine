@@ -24,7 +24,22 @@ pytest -q
 python scripts/run_coupled_ga_demo.py --export-replay /tmp/coupled_demo.json
 ```
 
+## PyPI (optional)
+
+1. Create a PyPI account and API token (scope: entire account or project `fragility-engine`).
+2. Repo **Settings → Secrets → Actions** → add `PYPI_API_TOKEN`.
+3. **Actions → Publish to PyPI → Run workflow** → set confirm input to `publish`.
+
+Install after publish: `pip install fragility-engine==0.5.0`
+
+## Custom domain (agenticop.io)
+
+1. Enable Pages (above); note the `*.github.io` URL from **Settings → Pages**.
+2. **Pages → Custom domain** → `fragility-discovery.agenticop.io` (or apex via A/ALIAS per your DNS host).
+3. At your DNS provider, add the records GitHub shows (usually `CNAME` to `<org>.github.io`).
+4. Optional: link from the main site root to this Pages URL in your CMS.
+
 ## Non-goals (unchanged)
 
-- Hosted dashboard SaaS, agenticop.io DNS (operator task outside repo)
+- Hosted dashboard SaaS
 - Seventh reference domain on `main`
