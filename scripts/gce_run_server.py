@@ -48,7 +48,15 @@ CAPS = {
     "population": (4, 32),
     "seed": (0, 2**31 - 1),
 }
-MODES = {"aggregate"}
+MODES = {
+    "aggregate",
+    "network",
+    "resource_cascade",
+    "service_backlog",
+    "liquidity_ladder",
+}
+# Modes whose CLI honors --horizon. For the others the CLI uses its own fixed horizon (18).
+HORIZON_AWARE_MODES = {"aggregate", "network"}
 
 _active = 0
 _active_lock = threading.Lock()
@@ -77,25 +85,59 @@ def _validate(body: dict) -> tuple[dict, str | None]:
     return out, None
 
 
-def _run_aggregate(req: dict, run_dir: Path, status_path: Path) -> None:
-    """Run the aggregate GA CLI with the user's capped parameters."""
+def _build_cmd(req: dict, run_dir: Path) -> list[str]:
+    """Translate validated request → whitelisted CLI argv. Never accepts shell input."""
+
+    mode = req["mode"]
+    replay = run_dir / "best_replay.json"
+    minimized = run_dir / "minimized_replay.json"
+    seed = str(req["seed"])
+    gens = str(req["generations"])
+    pop = str(req["population"])
+    horizon = str(req["horizon"])
+    scripts_dir = ROOT / "scripts"
+
+    if mode == "aggregate":
+        return [
+            PYTHON_BIN, str(scripts_dir / "run_ga_demo.py"),
+            "--seed", seed, "--generations", gens, "--population-size", pop,
+            "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
+        ]
+    if mode == "network":
+        # ER topology, capped node count. Same seed drives both GA and graph for reproducibility.
+        return [
+            PYTHON_BIN, str(scripts_dir / "run_network_demo.py"),
+            "--ga-seed", seed, "--graph-seed", seed,
+            "--horizon", horizon, "--generations", gens, "--population-size", pop,
+            "--nodes", "32", "--graph-kind", "erdos_renyi", "--er-p", "0.12",
+            "--export-replay", str(replay),
+        ]
+    if mode == "resource_cascade":
+        return [
+            PYTHON_BIN, str(scripts_dir / "run_resource_cascade_ga_demo.py"),
+            "--seed", seed, "--generations", gens, "--population-size", pop,
+            "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
+        ]
+    if mode == "service_backlog":
+        return [
+            PYTHON_BIN, str(scripts_dir / "run_service_backlog_ga_demo.py"),
+            "--seed", seed, "--generations", gens, "--population-size", pop,
+            "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
+        ]
+    if mode == "liquidity_ladder":
+        return [
+            PYTHON_BIN, str(scripts_dir / "run_liquidity_ladder_ga_demo.py"),
+            "--seed", seed, "--generations", gens, "--population-size", pop,
+            "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
+        ]
+    raise ValueError(f"no command builder for mode {mode!r}")
+
+
+def _run(req: dict, run_dir: Path, status_path: Path) -> None:
+    """Spawn the whitelisted CLI for ``req['mode']`` with a hard wall-clock cap."""
 
     replay_path = run_dir / "best_replay.json"
-    minimized_path = run_dir / "minimized_replay.json"
-    cmd = [
-        PYTHON_BIN,
-        str(ROOT / "scripts" / "run_ga_demo.py"),
-        "--seed",
-        str(req["seed"]),
-        "--generations",
-        str(req["generations"]),
-        "--population-size",
-        str(req["population"]),
-        "--export-replay",
-        str(replay_path),
-        "--export-minimized-replay",
-        str(minimized_path),
-    ]
+    cmd = _build_cmd(req, run_dir)
     started = _now()
     log_path = run_dir / "stdout.log"
     err_path = run_dir / "stderr.log"
@@ -123,6 +165,7 @@ def _run_aggregate(req: dict, run_dir: Path, status_path: Path) -> None:
         "exit_code": rc,
         "viewer_url": viewer_url if state == "done" else None,
         "artifacts": [p.name for p in run_dir.iterdir() if p.is_file()],
+        "cli": [str(c) for c in cmd],
     }
     if state == "failed":
         try:
@@ -160,16 +203,7 @@ def _enqueue(req: dict) -> dict:
     def _worker() -> None:
         global _active
         try:
-            if req["mode"] == "aggregate":
-                _run_aggregate(req, run_dir, status_path)
-            else:
-                _write_status(
-                    status_path,
-                    req=req,
-                    state="failed",
-                    started=_now(),
-                    error=f"mode {req['mode']} not yet supported on this host",
-                )
+            _run(req, run_dir, status_path)
         finally:
             with _active_lock:
                 _active -= 1
@@ -213,7 +247,18 @@ class _Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         path = self.path.split("?", 1)[0]
         if path == "/api/health":
-            self._send(200, {"ok": True, "active": _active, "max": MAX_CONCURRENT, "modes": sorted(MODES)})
+            self._send(
+                200,
+                {
+                    "ok": True,
+                    "active": _active,
+                    "max": MAX_CONCURRENT,
+                    "modes": sorted(MODES),
+                    "horizon_aware_modes": sorted(HORIZON_AWARE_MODES),
+                    "caps": {k: list(v) for k, v in CAPS.items()},
+                    "timeout_s": RUN_TIMEOUT_S,
+                },
+            )
             return
         if path == "/api/runs":
             self._send(200, _list_runs())

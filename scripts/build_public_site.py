@@ -98,13 +98,13 @@ def _run_page_main() -> str:
       <div class="fde-run-row">
         <label for="mode">Domain</label>
         <select id="mode" name="mode">
-          <option value="aggregate" selected>Aggregate peg — stablecoin redemption + panic</option>
-          <option value="network" disabled>Network contagion (coming soon)</option>
-          <option value="resource_cascade" disabled>Resource cascade (coming soon)</option>
-          <option value="service_backlog" disabled>Service backlog (coming soon)</option>
-          <option value="liquidity_ladder" disabled>Liquidity ladder (coming soon)</option>
+          <option value="aggregate" selected>Aggregate peg — scalar reserves vs panic</option>
+          <option value="network">Network contagion — panic spreading on an ER graph (32 nodes)</option>
+          <option value="resource_cascade">Resource cascade — two coupled capacity layers</option>
+          <option value="service_backlog">Service backlog — ops queue vs process rate</option>
+          <option value="liquidity_ladder">Liquidity ladder — margin vs funding runway</option>
         </select>
-        <p class="fde-run-help">The aggregate peg is the smallest reference world: scalar reserves, scalar panic, redemption pressure. Good first run.</p>
+        <p class="fde-run-help" id="modeHelp">The aggregate peg is the smallest reference world: scalar reserves, scalar panic, redemption pressure. Good first run.</p>
       </div>
       <div class="fde-run-grid">
         <label>Random seed
@@ -113,7 +113,7 @@ def _run_page_main() -> str:
         </label>
         <label>Horizon (timesteps)
           <input type="number" id="horizon" name="horizon" value="24" min="4" max="48" required>
-          <span class="fde-run-help">How many timesteps the attacker can shock. Capped at 48 on this host.</span>
+          <span class="fde-run-help" id="horizonHelp">How many timesteps the attacker can shock. Capped at 48 on this host.</span>
         </label>
         <label>GA generations
           <input type="number" id="generations" name="generations" value="6" min="1" max="12" required>
@@ -148,7 +148,34 @@ def _run_page_main() -> str:
         const form = document.getElementById('runForm');
         const status = document.getElementById('runStatus');
         const log = document.getElementById('runLog');
+        const modeHelp = document.getElementById('modeHelp');
+        const horizonHelp = document.getElementById('horizonHelp');
+        const horizonInput = document.getElementById('horizon');
         let polling = null;
+
+        const MODE_TEXT = {
+          aggregate: 'Smallest reference world: scalar reserves, scalar panic, redemption pressure. Good first run.',
+          network: 'Panic spreading on an Erdős–Rényi graph (32 nodes, p=0.12). Adds dashed panic-spread lines to the replay.',
+          resource_cascade: 'Two coupled capacity layers with shared overload. Blue line in the replay is minimum headroom (higher = safer).',
+          service_backlog: 'Operations queue: backlog grows with demand, shrinks with process rate. Collapse when backlog crosses threshold.',
+          liquidity_ladder: 'Margin utilization vs funding runway. Reserve losses and rumor shocks erode the ladder until a margin-call spiral.',
+        };
+        const FIXED_HORIZON = { resource_cascade: 18, service_backlog: 18, liquidity_ladder: 18 };
+
+        function updateMode() {
+          const m = form.mode.value;
+          modeHelp.textContent = MODE_TEXT[m] || '';
+          if (m in FIXED_HORIZON) {
+            horizonInput.disabled = true;
+            horizonInput.value = FIXED_HORIZON[m];
+            horizonHelp.textContent = 'This domain uses a fixed horizon of ' + FIXED_HORIZON[m] + ' timesteps; the field is locked.';
+          } else {
+            horizonInput.disabled = false;
+            horizonHelp.textContent = 'How many timesteps the attacker can shock. Capped at 48 on this host.';
+          }
+        }
+        form.mode.addEventListener('change', updateMode);
+        updateMode();
 
         function fmt(s) { try { return JSON.stringify(s, null, 2); } catch (e) { return String(s); } }
 
