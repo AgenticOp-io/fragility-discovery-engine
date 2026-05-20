@@ -54,9 +54,31 @@ MODES = {
     "resource_cascade",
     "service_backlog",
     "liquidity_ladder",
+    "inventory_buffer",
+    # Co-evolution variants: same domain physics, attacker/defender alternating search.
+    # Output is pareto_front.json (+ best_replay.json). horizon = attacker_horizon.
+    "coevolution_aggregate",
+    "coevolution_network",
+    "coevolution_resource_cascade",
+    "coevolution_service_backlog",
+    "coevolution_liquidity_ladder",
 }
-# Modes whose CLI honors --horizon. For the others the CLI uses its own fixed horizon (18).
-HORIZON_AWARE_MODES = {"aggregate", "network"}
+# Modes whose CLI honors --horizon / --attacker-horizon.
+# Fixed-horizon modes ignore the horizon field (script uses its own default).
+HORIZON_AWARE_MODES = {
+    "aggregate",
+    "network",
+    "coevolution_aggregate",
+    "coevolution_network",
+}
+# Modes that output a Pareto front as primary artifact (linked to pareto viewer).
+PARETO_MODES = {
+    "coevolution_aggregate",
+    "coevolution_network",
+    "coevolution_resource_cascade",
+    "coevolution_service_backlog",
+    "coevolution_liquidity_ladder",
+}
 
 _active = 0
 _active_lock = threading.Lock()
@@ -130,13 +152,61 @@ def _build_cmd(req: dict, run_dir: Path) -> list[str]:
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
         ]
+    if mode == "inventory_buffer":
+        # Fixed horizon (18) — horizon field is ignored by the script.
+        return [
+            PYTHON_BIN, str(scripts_dir / "run_inventory_buffer_ga_demo.py"),
+            "--seed", seed, "--generations", gens, "--population-size", pop,
+            "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
+        ]
+
+    # --- Co-evolution modes ---
+    # All coevolution variants use the shared run_coevolution.py script.
+    # horizon → --attacker-horizon; generations → --attacker-generations + --defender-generations
+    # population → --attacker-population + --defender-population; rounds fixed at 1 for the web UI.
+    pareto = run_dir / "pareto_front.json"
+    coev_domain = mode.split("coevolution_", 1)[1]  # e.g. "aggregate"
+    base_coev = [
+        PYTHON_BIN, str(scripts_dir / "run_coevolution.py"),
+        "--mode", coev_domain,
+        "--seed", seed,
+        "--attacker-generations", gens,
+        "--attacker-population", pop,
+        "--defender-generations", gens,
+        "--defender-population", pop,
+        "--rounds", "1",
+        "--export-pareto-json", str(pareto),
+        "--export-replay", str(replay),
+    ]
+    if coev_domain in ("aggregate", "network"):
+        base_coev += ["--attacker-horizon", horizon]
+    if coev_domain == "network":
+        base_coev += ["--nodes", "32", "--graph-kind", "erdos_renyi", "--er-p", "0.12",
+                      "--graph-seed", seed]
+    return base_coev
+
     raise ValueError(f"no command builder for mode {mode!r}")
+
+
+def _viewer_urls(mode: str, run_id: str, run_dir: Path) -> dict[str, str | None]:
+    """Return viewer URL(s) for the artifacts produced by a completed run."""
+    replay = run_dir / "best_replay.json"
+    pareto = run_dir / "pareto_front.json"
+    out: dict[str, str | None] = {"viewer_url": None, "pareto_url": None}
+    if replay.is_file():
+        out["viewer_url"] = f"/artifacts/replay_viewer/index.html#src=/runs/{run_id}/best_replay.json"
+    if pareto.is_file():
+        out["pareto_url"] = f"/artifacts/pareto_viewer/index.html#src=/runs/{run_id}/pareto_front.json"
+    return out
 
 
 def _run(req: dict, run_dir: Path, status_path: Path) -> None:
     """Spawn the whitelisted CLI for ``req['mode']`` with a hard wall-clock cap."""
 
-    replay_path = run_dir / "best_replay.json"
+    mode = req["mode"]
+    is_pareto_mode = mode in PARETO_MODES
+    primary_path = run_dir / ("pareto_front.json" if is_pareto_mode else "best_replay.json")
+
     cmd = _build_cmd(req, run_dir)
     started = _now()
     log_path = run_dir / "stdout.log"
@@ -159,11 +229,11 @@ def _run(req: dict, run_dir: Path, status_path: Path) -> None:
         )
         return
 
-    state = "done" if rc == 0 and replay_path.is_file() else "failed"
-    viewer_url = f"/artifacts/replay_viewer/index.html#src=/runs/{run_dir.name}/best_replay.json"
+    state = "done" if rc == 0 and primary_path.is_file() else "failed"
+    urls = _viewer_urls(mode, run_dir.name, run_dir)
     extra: dict[str, object] = {
         "exit_code": rc,
-        "viewer_url": viewer_url if state == "done" else None,
+        **urls,
         "artifacts": [p.name for p in run_dir.iterdir() if p.is_file()],
         "cli": [str(c) for c in cmd],
     }
@@ -209,11 +279,17 @@ def _enqueue(req: dict) -> dict:
                 _active -= 1
 
     threading.Thread(target=_worker, daemon=True).start()
+    mode = req["mode"]
+    initial_viewer = (
+        f"/artifacts/pareto_viewer/index.html#src=/runs/{run_id}/pareto_front.json"
+        if mode in PARETO_MODES
+        else f"/artifacts/replay_viewer/index.html#src=/runs/{run_id}/best_replay.json"
+    )
     return {
         "id": run_id,
         "state": "running",
         "status_url": f"/api/run/{run_id}",
-        "viewer_url": f"/artifacts/replay_viewer/index.html#src=/runs/{run_id}/best_replay.json",
+        "viewer_url": initial_viewer,
     }
 
 
@@ -255,6 +331,7 @@ class _Handler(BaseHTTPRequestHandler):
                     "max": MAX_CONCURRENT,
                     "modes": sorted(MODES),
                     "horizon_aware_modes": sorted(HORIZON_AWARE_MODES),
+                    "pareto_modes": sorted(PARETO_MODES),
                     "caps": {k: list(v) for k, v in CAPS.items()},
                     "timeout_s": RUN_TIMEOUT_S,
                 },

@@ -48,7 +48,7 @@ These are the algorithms, frameworks, and physics kernels **originated by this p
 | Two-layer resource-cascade kernel | Coupled headrooms `(h₀, h₁)` with a shared overload state; reduces a Motter–Lai cascade to its smallest still-interesting form.                  | §4.3          | `src/fragility_engine/world/resource_cascade.py` |
 | Service-backlog kernel            | Backlog grows with demand, shrinks with process rate; collapse on sustained over-threshold backlog.                                              | §4.4          | `src/fragility_engine/world/service_backlog.py`  |
 | Liquidity-ladder kernel           | Margin utilization vs funding-ladder depth with deleveraging on haircut breach; reproduces the margin-call spiral mechanic in 4 state variables. | §4.5          | `src/fragility_engine/world/liquidity_ladder.py` |
-| Inventory-buffer kernel (fork)    | Supply-buffer drain under demand spikes.                                                                                                         | §4.6          | `forks/coupled_institution/`                     |
+| Inventory-buffer kernel           | Stock level under demand spikes and fulfillment erosion; sixth reference domain shipped in v0.5.                                                 | §4.6          | `src/fragility_engine/world/inventory_buffer.py` |
 
 
 All kernels share **one schedule encoding** (`src/fragility_engine/adversary/encoding.py`), so any attacker genome found by search transfers across kernels unchanged — itself an intentional design choice of this project.
@@ -187,9 +187,13 @@ Margin utilization vs funding-ladder depth; reserve losses and rumor shocks erod
 - **Mechanism family:** Margin-call spiral / fire-sale literature — Brunnermeier & Pedersen (2009), *[Market Liquidity and Funding Liquidity](https://academic.oup.com/rfs/article/22/6/2201/1592184)*.
 - **Our code:** `world/liquidity_ladder.py::LiquidityLadderWorld`.
 
-### 4.6 Inventory buffer (optional fork) — Original kernel
+### 4.6 Inventory buffer — Original kernel
 
-Supply-buffer drain under demand spikes; outside the public site, available in `forks/coupled_institution/`.
+Normalized stock level `S` and fulfillment capacity `F` (both in `[0,1]`). `reserve_loss` shocks drain stock (demand spikes); `rumor` shocks erode fulfillment (supplier / logistics trust). Collapse when stock falls below `stockout_collapse` threshold or fulfillment falls below `fulfillment_floor_collapse`. Distinct from service backlog (queue depth) and peg worlds.
+
+- **Originators:** Original to this project (Phase O stretch, v0.5).
+- **Our code:** `src/fragility_engine/world/inventory_buffer.py`, `scripts/run_inventory_buffer_ga_demo.py`.
+- **Frozen bundle:** `inventory_buffer_rollout_v1` in `scripts/run_benchmark_suite.py --validate`.
 
 ### 4.7 Institutional composite — Original framing
 
@@ -269,4 +273,5 @@ If you build on the engine, please cite the project alongside the underlying alg
 | World physics (any domain)            | `src/fragility_engine/world/{stablecoin_peg, stablecoin_network, resource_cascade, service_backlog, liquidity_ladder}.py` |
 | Benchmark / certificate / hypervolume | `src/fragility_engine/benchmarks/`                                                                                        |
 | Frozen JSON schemas (every export)    | `docs/REFERENCE.md` schema index                                                                                          |
+
 

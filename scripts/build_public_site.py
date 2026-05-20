@@ -105,79 +105,125 @@ DEMOS = [
 
 
 def _run_page_main() -> str:
-    return """    <article class="fde-prose">
+    return r"""    <article class="fde-prose">
       <h2>Run a scenario</h2>
-      <p>Pick a domain, set the search budget, and submit. The engine runs the search <strong>on this server</strong>; when it finishes, the replay viewer opens with your result.</p>
-      <p style="font-size:13px;opacity:0.85">Want to know what is actually running? See <a href="/docs/algorithms.html">Algorithms &amp; provenance</a>.</p>
+      <p>Choose a domain and search type. The engine runs on <strong>this server</strong>; when it finishes you are taken straight to the viewer with your result.</p>
+      <p><a href="/docs/how-to-use.html">How to Use</a> has step-by-step tutorials for every domain. <a href="/docs/algorithms.html">Algorithms &amp; provenance</a> explains what is running under the hood.</p>
     </article>
 
     <form id="runForm" class="fde-run-form" autocomplete="off">
+
       <div class="fde-run-row">
-        <label for="mode">Domain</label>
+        <label for="mode">Domain &amp; search type</label>
         <select id="mode" name="mode">
-          <option value="aggregate" selected>Aggregate peg — scalar reserves vs panic</option>
-          <option value="network">Network contagion — panic spreading on an ER graph (32 nodes)</option>
-          <option value="resource_cascade">Resource cascade — two coupled capacity layers</option>
-          <option value="service_backlog">Service backlog — ops queue vs process rate</option>
-          <option value="liquidity_ladder">Liquidity ladder — margin vs funding runway</option>
+          <optgroup label="Single-adversary GA — outputs replay">
+            <option value="aggregate" selected>Aggregate peg — scalar reserves vs panic</option>
+            <option value="network">Network contagion — panic spreading on an ER graph (32 nodes)</option>
+            <option value="resource_cascade">Resource cascade — two coupled capacity layers</option>
+            <option value="service_backlog">Service backlog — ops queue vs process rate</option>
+            <option value="liquidity_ladder">Liquidity ladder — margin vs funding runway</option>
+            <option value="inventory_buffer">Inventory buffer — stock drain under demand spikes</option>
+          </optgroup>
+          <optgroup label="Attacker/defender co-evolution — outputs Pareto front">
+            <option value="coevolution_aggregate">Co-evolution · Aggregate peg</option>
+            <option value="coevolution_network">Co-evolution · Network contagion</option>
+            <option value="coevolution_resource_cascade">Co-evolution · Resource cascade</option>
+            <option value="coevolution_service_backlog">Co-evolution · Service backlog</option>
+            <option value="coevolution_liquidity_ladder">Co-evolution · Liquidity ladder</option>
+          </optgroup>
         </select>
-        <p class="fde-run-help" id="modeHelp">The aggregate peg is the smallest reference world: scalar reserves, scalar panic, redemption pressure. Good first run.</p>
+        <p class="fde-run-help" id="modeHelp"></p>
       </div>
+
       <div class="fde-run-grid">
         <label>Random seed
           <input type="number" id="seed" name="seed" value="999" min="0" max="2147483647" required>
-          <span class="fde-run-help">Pins all RNGs — same seed reproduces this run exactly.</span>
+          <span class="fde-run-help">Same seed always reproduces the same run.</span>
         </label>
-        <label>Horizon (timesteps)
+        <label id="horizonLabel">Horizon (timesteps)
           <input type="number" id="horizon" name="horizon" value="24" min="4" max="48" required>
-          <span class="fde-run-help" id="horizonHelp">How many timesteps the attacker can shock. Capped at 48 on this host.</span>
+          <span class="fde-run-help" id="horizonHelp">How many timesteps the attacker can use.</span>
         </label>
-        <label>GA generations
+        <label id="gensLabel">Generations
           <input type="number" id="generations" name="generations" value="6" min="1" max="12" required>
-          <span class="fde-run-help">How many evolution rounds the genetic algorithm runs. More = better attacks, slower.</span>
+          <span class="fde-run-help" id="gensHelp">Evolution rounds. More = better attacks, slower.</span>
         </label>
         <label>Population size
-          <input type="number" id="population" name="population" value="18" min="4" max="32" required>
-          <span class="fde-run-help">Genomes per generation. Capped at 32 on this host.</span>
+          <input type="number" id="population" name="population" value="16" min="4" max="32" required>
+          <span class="fde-run-help">Genomes per generation. Max 32 on this host.</span>
         </label>
       </div>
+
       <div class="fde-run-actions">
-        <button type="submit" class="fde-run-submit">Run scenario</button>
+        <button type="submit" class="fde-run-submit" id="runBtn">Run scenario</button>
         <span id="runStatus" class="fde-run-status" aria-live="polite"></span>
       </div>
     </form>
 
     <div id="runLog" class="fde-run-log" hidden></div>
+    <div id="runLinks" hidden style="margin:1rem 0"></div>
 
-    <article class="fde-prose" style="margin-top:32px">
-      <h3>What you get back</h3>
+    <article class="fde-prose" style="margin-top:2rem">
+      <h3>What you get</h3>
+      <table>
+        <thead><tr><th>Search type</th><th>Primary output</th><th>Also produced</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Single-adversary GA</td>
+            <td>Replay JSON → opened in the <a href="/artifacts/replay_viewer/index.html">Replay viewer</a></td>
+            <td>Minimized replay (if collapsed), stdout/stderr logs, status.json</td>
+          </tr>
+          <tr>
+            <td>Co-evolution</td>
+            <td>Pareto front JSON → opened in the <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a></td>
+            <td>Best-round replay JSON, stdout/stderr logs, status.json</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>All files persist under <code>/runs/&lt;id&gt;/</code> on this host and are accessible directly by URL for the duration of the server's uptime.</p>
+      <h3>Server limits</h3>
       <ul>
-        <li><strong>Best replay</strong> — the worst attack the GA found, opened in the replay viewer.</li>
-        <li><strong>Minimized replay</strong> (if the best run collapsed) — the smallest subset of shocks that still breaks the world.</li>
-        <li><strong>status.json</strong> — request, exit code, artifact list. All files stay under <code>/runs/&lt;id&gt;/</code> on this host.</li>
+        <li>Maximum run time: <strong>180 seconds</strong> (then killed).</li>
+        <li>Maximum concurrent runs: <strong>2</strong>. Extra submissions are rejected with a "busy" error.</li>
+        <li>Parameters are validated server-side; no shell access is possible.</li>
+        <li>For longer searches, larger populations, or local use: <code>pip install fragility-engine</code> — see <a href="/docs/how-to-use.html">How to Use</a>.</li>
       </ul>
-      <h3>Limits</h3>
-      <p>This host caps each run at 180 seconds, with at most 2 concurrent runs across the server. The runner accepts only the parameters shown above — no shell access. For longer searches, larger populations, or other domains, run the engine yourself: <code>pip install fragility-engine</code> and see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md">HOW_TO_USE.md</a>.</p>
     </article>
 
     <script>
       (function () {
-        const form = document.getElementById('runForm');
-        const status = document.getElementById('runStatus');
-        const log = document.getElementById('runLog');
+        const form   = document.getElementById('runForm');
+        const statusEl = document.getElementById('runStatus');
+        const logEl  = document.getElementById('runLog');
+        const linksEl = document.getElementById('runLinks');
         const modeHelp = document.getElementById('modeHelp');
         const horizonHelp = document.getElementById('horizonHelp');
+        const gensHelp  = document.getElementById('gensHelp');
         const horizonInput = document.getElementById('horizon');
         let polling = null;
 
         const MODE_TEXT = {
-          aggregate: 'Smallest reference world: scalar reserves, scalar panic, redemption pressure. Good first run.',
-          network: 'Panic spreading on an Erdős–Rényi graph (32 nodes, p=0.12). Adds dashed panic-spread lines to the replay.',
-          resource_cascade: 'Two coupled capacity layers with shared overload. Blue line in the replay is minimum headroom (higher = safer).',
-          service_backlog: 'Operations queue: backlog grows with demand, shrinks with process rate. Collapse when backlog crosses threshold.',
-          liquidity_ladder: 'Margin utilization vs funding runway. Reserve losses and rumor shocks erode the ladder until a margin-call spiral.',
+          aggregate:               'Smallest world: scalar reserves vs panic. Good starting point — fast and easy to interpret.',
+          network:                 'Panic spreading on an Erdős–Rényi graph (32 nodes, p=0.12). Replay shows dashed contagion traces.',
+          resource_cascade:        'Two coupled capacity layers with shared overload. Blue line = minimum headroom (higher is safer). Fixed horizon: 18.',
+          service_backlog:         'Operations queue: backlog grows with demand, falls with process rate. Collapse when backlog threshold is crossed. Fixed horizon: 18.',
+          liquidity_ladder:        'Margin utilization vs funding runway. Reserve losses and rumor shocks erode the ladder until a margin-call spiral. Fixed horizon: 18.',
+          inventory_buffer:        'Stock level under demand spikes and fulfillment erosion. Sixth reference domain (Phase O). Fixed horizon: 18.',
+          coevolution_aggregate:   'Attacker and defender evolve together on the aggregate peg. Outputs a severity-vs-cost Pareto front. Runs 1 round.',
+          coevolution_network:     'Attacker and defender evolve together on the network contagion domain. Outputs a Pareto front.',
+          coevolution_resource_cascade: 'Co-evolution on the resource cascade domain. Outputs a Pareto front. Fixed horizon: 18.',
+          coevolution_service_backlog:  'Co-evolution on the service backlog domain. Outputs a Pareto front. Fixed horizon: 18.',
+          coevolution_liquidity_ladder: 'Co-evolution on the liquidity ladder domain. Outputs a Pareto front. Fixed horizon: 18.',
         };
-        const FIXED_HORIZON = { resource_cascade: 18, service_backlog: 18, liquidity_ladder: 18 };
+        const FIXED_HORIZON = {
+          resource_cascade: 18, service_backlog: 18, liquidity_ladder: 18,
+          inventory_buffer: 18,
+          coevolution_resource_cascade: 18, coevolution_service_backlog: 18, coevolution_liquidity_ladder: 18,
+        };
+        const PARETO_MODES = new Set([
+          'coevolution_aggregate','coevolution_network','coevolution_resource_cascade',
+          'coevolution_service_backlog','coevolution_liquidity_ladder'
+        ]);
 
         function updateMode() {
           const m = form.mode.value;
@@ -185,10 +231,15 @@ def _run_page_main() -> str:
           if (m in FIXED_HORIZON) {
             horizonInput.disabled = true;
             horizonInput.value = FIXED_HORIZON[m];
-            horizonHelp.textContent = 'This domain uses a fixed horizon of ' + FIXED_HORIZON[m] + ' timesteps; the field is locked.';
+            horizonHelp.textContent = 'Fixed at ' + FIXED_HORIZON[m] + ' timesteps for this domain.';
           } else {
             horizonInput.disabled = false;
-            horizonHelp.textContent = 'How many timesteps the attacker can shock. Capped at 48 on this host.';
+            horizonHelp.textContent = 'Timesteps available to the attacker. Max 48.';
+          }
+          if (PARETO_MODES.has(m)) {
+            gensHelp.textContent = 'Attacker and defender each run this many generations per round.';
+          } else {
+            gensHelp.textContent = 'Evolution rounds. More = better attacks, slower.';
           }
         }
         form.mode.addEventListener('change', updateMode);
@@ -196,45 +247,56 @@ def _run_page_main() -> str:
 
         function fmt(s) { try { return JSON.stringify(s, null, 2); } catch (e) { return String(s); } }
 
+        function showLinks(s) {
+          const links = [];
+          if (s.viewer_url) links.push('<a href="' + s.viewer_url + '" class="fde-run-submit" style="text-decoration:none">Open Replay viewer →</a>');
+          if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '" class="fde-run-submit" style="text-decoration:none">Open Pareto viewer →</a>');
+          if (links.length) {
+            linksEl.innerHTML = links.join(' &nbsp; ');
+            linksEl.hidden = false;
+          }
+        }
+
         async function poll(id, deadline) {
           try {
             const r = await fetch('/api/run/' + id, { cache: 'no-store' });
             const s = await r.json();
-            log.hidden = false;
-            log.textContent = fmt(s);
+            logEl.hidden = false;
+            logEl.textContent = fmt(s);
             if (s.state === 'done') {
-              status.textContent = 'Done. Opening replay…';
-              if (s.viewer_url) {
-                setTimeout(function () { window.location.href = s.viewer_url; }, 600);
-              }
+              statusEl.textContent = 'Done.';
+              showLinks(s);
+              const dest = s.pareto_url || s.viewer_url;
+              if (dest) setTimeout(function () { window.location.href = dest; }, 800);
               return;
             }
             if (s.state === 'failed') {
-              status.textContent = 'Run failed.';
+              statusEl.textContent = 'Run failed — see log below.';
               return;
             }
             if (Date.now() > deadline) {
-              status.textContent = 'Timed out waiting for the run.';
+              statusEl.textContent = 'Timed out waiting — check /runs/' + id + '/status.json directly.';
               return;
             }
-            status.textContent = 'Running… (' + (s.state || 'queued') + ')';
+            statusEl.textContent = 'Running\u2026 (' + (s.state || 'queued') + ')';
             polling = setTimeout(function () { poll(id, deadline); }, 1500);
           } catch (e) {
-            status.textContent = 'Status check failed: ' + e;
+            statusEl.textContent = 'Status check failed: ' + e;
           }
         }
 
         form.addEventListener('submit', async function (ev) {
           ev.preventDefault();
           if (polling) clearTimeout(polling);
-          status.textContent = 'Submitting…';
-          log.hidden = true;
+          statusEl.textContent = 'Submitting\u2026';
+          logEl.hidden = true;
+          linksEl.hidden = true;
           const body = {
-            mode: form.mode.value,
-            seed: Number(form.seed.value),
-            horizon: Number(form.horizon.value),
+            mode:        form.mode.value,
+            seed:        Number(form.seed.value),
+            horizon:     Number(form.horizon.value),
             generations: Number(form.generations.value),
-            population: Number(form.population.value),
+            population:  Number(form.population.value),
           };
           try {
             const r = await fetch('/api/run', {
@@ -244,15 +306,15 @@ def _run_page_main() -> str:
             });
             const s = await r.json();
             if (!r.ok) {
-              status.textContent = 'Rejected: ' + (s.error || r.statusText);
+              statusEl.textContent = 'Rejected: ' + (s.error || r.statusText);
               return;
             }
-            status.textContent = 'Accepted (id=' + s.id + '). Polling…';
-            log.hidden = false;
-            log.textContent = fmt(s);
-            poll(s.id, Date.now() + 200000);
+            statusEl.textContent = 'Accepted (id=' + s.id + '). Polling\u2026';
+            logEl.hidden = false;
+            logEl.textContent = fmt(s);
+            poll(s.id, Date.now() + 210000);
           } catch (e) {
-            status.textContent = 'Network error: ' + e;
+            statusEl.textContent = 'Network error: ' + e;
           }
         });
       })();

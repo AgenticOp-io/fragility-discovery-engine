@@ -167,6 +167,25 @@ python scripts/run_service_backlog_ga_demo.py --export-replay sb.json --initial-
 
 Concepts: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md), narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md). Counterfactual cookbook: [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
 
+### 4.5d Inventory buffer (sixth reference domain, Phase O)
+
+Stock level `S` and fulfillment capacity `F` (both in `[0,1]`). `reserve_loss` shocks drain stock (demand spikes); `rumor` shocks erode fulfillment (supplier / logistics trust). Collapse when stock falls below the stockout threshold or fulfillment falls below the floor. Fixed horizon: 18.
+
+```bash
+python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json
+python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json --export-minimized-replay inv_min.json --seed 42
+python scripts/export_replay.py --mode inventory_buffer --out inv_replay.json
+```
+
+Validate the frozen bundle:
+
+```bash
+python scripts/run_benchmark_suite.py --validate
+# includes inventory_buffer_rollout_v1
+```
+
+Why this domain: distinct from service backlog (queue depth) and peg worlds — models a supply chain or physical stock buffer rather than a financial clearing mechanism.
+
 ### 4.5c Liquidity ladder (fourth reference domain, Phase N)
 
 ```bash
@@ -241,6 +260,48 @@ python scripts/institutional_composite_demo.py --triple --out composite.json
 python scripts/narrate_frozen_json.py composite.json
 ```
 
+### 4.9b Robustness stretch (Phase O presets)
+
+`fragility_robustness_stretch.py` provides three ready-made multi-domain sweep presets that cover all six reference worlds in one command:
+
+```bash
+python scripts/fragility_robustness_stretch.py --preset small    # fast smoke, ~1 min
+python scripts/fragility_robustness_stretch.py --preset medium   # balanced sweep
+python scripts/fragility_robustness_stretch.py --preset large    # full multi-domain grid
+```
+
+Each preset runs GA sweeps across several parameter axes for aggregate, network, resource cascade, service backlog, liquidity ladder, and inventory buffer, and writes a combined `fragility-robustness-*` JSON artifact.
+
+### 4.9c Fragility surface
+
+`fragility_surface.py` produces a 2-D CSV grid of instability over two parameter axes (e.g. `initial_panic × horizon`):
+
+```bash
+python scripts/fragility_surface.py --mode aggregate --axis1 initial_panic --axis2 horizon --out surface.csv
+python scripts/plot_fragility_surface_csv.py surface.csv --out surface.png
+```
+
+Use `--help` for the full axis list per domain.
+
+### 4.9d Find cheapest collapse
+
+`find_cheap_collapse.py` runs repeated MC samples from a given seed range and returns the lowest-cost schedule that still causes collapse:
+
+```bash
+python scripts/find_cheap_collapse.py --mode aggregate --samples 200 --seed 42 --out cheap.json
+```
+
+Useful for seeding counterfactual and chain analysis from a minimal starting point.
+
+### 4.9e Compare two replays
+
+`compare_replays.py` prints or exports a JSON diff of two replay files, highlighting divergent timesteps:
+
+```bash
+python scripts/compare_replays.py baseline.json counterfactual.json
+python scripts/compare_replays.py baseline.json counterfactual.json --json-out diff.json
+```
+
 ### 4.10 Hypervolume (Pareto analysis) and explanation DAG
 
 **Hypervolume** (two objectives, both minimized): use `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min(points, ref)`. The reference point must be **strictly worse** (larger on both axes) than every point on your non-dominated front.
@@ -291,13 +352,55 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 
 ---
 
-## 7. Narration, plots, optional LLM prompts
+## 7. Narration, plots, and LLM prompts
 
-- **Deterministic narration:** `scripts/narrate_frozen_json.py` — works on replay, Pareto, merge, epsilon-sweep, counterfactual bundles, **institutional composite v1/v2/v3**, **`explanation-dag-v1`**.
-- **Machine-readable summary:** `--json-out narration.json`.
-- **Citation hook:** `--cite-digest` (SHA-256 of file bytes + path).
-- **Plots:** `scripts/plot_*.py` require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`). Index: [`phase_l_publication.md`](phase_l_publication.md).
-- **LLM prompt export (optional):** `scripts/export_llm_narration_prompt.py` — external prose only; never fed back into simulation.
+### 7.1 Deterministic narration
+
+`scripts/narrate_frozen_json.py` produces human-readable text from any artifact — replay, Pareto, merge, epsilon-sweep, counterfactual bundles, institutional composite v1/v2/v3, or `explanation-dag-v1`:
+
+```bash
+python scripts/narrate_frozen_json.py best.json
+python scripts/narrate_frozen_json.py best.json --json-out narration.json
+python scripts/narrate_frozen_json.py best.json --cite-digest   # SHA-256 citation hook
+```
+
+### 7.2 Plot scripts
+
+All plot scripts require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`). Default visual styles live in `artifacts/plot_styles/`.
+
+| Script | What it plots |
+|--------|--------------|
+| `plot_replay_timeline.py` | Replay timeline (peg ratio, instability, shock lane, collapse marker) |
+| `plot_pareto_front.py` | 2-D Pareto front (severity vs attack cost) |
+| `plot_counterfactual_bars.py` | Bar chart of Δ instability across counterfactual interventions |
+| `plot_epsilon_sweep.py` | Line chart of instability / collapse probability over an ε-sweep axis |
+| `plot_fragility_surface_csv.py` | Heatmap from a `fragility_surface.py` CSV |
+| `plot_institutional_composite_bars.py` | Multi-kernel scorecard bars from a composite JSON |
+
+All accept `--style <path>` for a custom JSON style override and `--out <path>` to write PNG / SVG instead of showing interactively.
+
+### 7.3 LLM prompt bundles
+
+`scripts/export_llm_narration_prompt.py` exports structured prompt bundles for external LLM prose generation. The prompts are **never fed back** into the simulation engine. Versioned templates live in `artifacts/llm_prompts/`:
+
+| Bundle | Use |
+|--------|-----|
+| `narration_v1` | General replay / artifact narration |
+| `reviewer_memo_v1` | Academic reviewer-style memo |
+| `paper_appendix_v1` | Appendix artifact walkthrough |
+| `institution_composite_v1` | Single composite kernel summary |
+| `institutional_composite_twin_v1` | Twin (two-kernel) composite |
+| `institutional_composite_triple_v1` | Triple (three-kernel) composite |
+| `institutional_composite_quad_v1` | Quad (four-kernel) composite |
+| `institutional_composite_penta_v1` | Penta (five-kernel) composite |
+| `liquidity_ladder_replay_v1` | Liquidity-ladder-specific replay narration |
+| `status_digest_v1` | GCE workbench status digest |
+
+```bash
+python scripts/export_llm_narration_prompt.py --input best.json --bundle narration_v1 --out prompt_bundle.json
+```
+
+Pass `prompt_bundle.json` to your LLM of choice. The `system.txt` and `user_template.txt` in each bundle folder are standalone text files you can read and adapt directly.
 
 ---
 

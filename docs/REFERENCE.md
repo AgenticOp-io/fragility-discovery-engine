@@ -6,13 +6,14 @@ Quick lookup for operators and contributors. Tutorials and narrative context are
 
 ## Simulation modes
 
-| `--mode` | GA demo script | Primary counterfactual interventions | ε-sweep axes |
-|----------|----------------|--------------------------------------|--------------|
-| `aggregate` | `run_ga_demo.py` | `remove_steps` | `initial_panic` |
-| `network` | `run_network_demo.py` | `remove_steps`, `base_panic_shift`, `contagion_beta_shift`, edge weights | `base_panic`, `contagion_beta`, `edge_weight` |
-| `resource_cascade` | `run_resource_cascade_ga_demo.py` | `remove_steps`, `initial_overload_shift`, `cascade_coupling_shift` | `initial_overload` |
-| `service_backlog` | `run_service_backlog_ga_demo.py` | `remove_steps`, `initial_backlog_shift`, `process_rate_shift` | `initial_backlog`, `process_rate` |
-| `liquidity_ladder` | `run_liquidity_ladder_ga_demo.py` | `remove_steps`, `initial_margin_shift`, `delever_rate_shift` | `initial_margin`, `delever_rate` |
+| `--mode` | GA demo script | Primary counterfactual interventions | ε-sweep axes | Fixed horizon |
+|----------|----------------|--------------------------------------|--------------|---------------|
+| `aggregate` | `run_ga_demo.py` | `remove_steps` | `initial_panic` | No |
+| `network` | `run_network_demo.py` | `remove_steps`, `base_panic_shift`, `contagion_beta_shift`, edge weights | `base_panic`, `contagion_beta`, `edge_weight` | No |
+| `resource_cascade` | `run_resource_cascade_ga_demo.py` | `remove_steps`, `initial_overload_shift`, `cascade_coupling_shift` | `initial_overload` | 18 |
+| `service_backlog` | `run_service_backlog_ga_demo.py` | `remove_steps`, `initial_backlog_shift`, `process_rate_shift` | `initial_backlog`, `process_rate` | 18 |
+| `liquidity_ladder` | `run_liquidity_ladder_ga_demo.py` | `remove_steps`, `initial_margin_shift`, `delever_rate_shift` | `initial_margin`, `delever_rate` | 18 |
+| `inventory_buffer` | `run_inventory_buffer_ga_demo.py` | `remove_steps`, `initial_stock_shift` | `initial_stock` | 18 |
 
 Shared flags across most mode-aware scripts:
 
@@ -31,18 +32,62 @@ Shared flags across most mode-aware scripts:
 | Smoke test | `week1_smoke.py` |
 | Export one replay | `export_replay.py --mode …` |
 | MC search | `run_mc_demo.py --mode …` |
-| GA search | `run_ga_demo.py` or domain GA demos |
+| GA search (aggregate) | `run_ga_demo.py` |
+| GA search (network) | `run_network_demo.py` |
+| GA search (resource cascade) | `run_resource_cascade_ga_demo.py` |
+| GA search (service backlog) | `run_service_backlog_ga_demo.py` |
+| GA search (liquidity ladder) | `run_liquidity_ladder_ga_demo.py` |
+| GA search (inventory buffer) | `run_inventory_buffer_ga_demo.py` |
 | Pareto front | `export_pareto_front.py --mode …` |
-| Co-evolution | `run_coevolution.py --mode …` |
+| Co-evolution (all modes) | `run_coevolution.py --mode …` |
 | Counterfactual pair | `export_counterfactual.py` |
 | ε-sweep | `counterfactual_epsilon_sweep.py` |
-| Mutation chain | `export_*_counterfactual_chain.py` (per domain) |
+| Mutation chain (aggregate) | `export_aggregate_counterfactual_chain.py` |
+| Mutation chain (resource cascade) | `export_resource_cascade_counterfactual_chain.py` |
+| Mutation chain (service backlog) | `export_service_backlog_counterfactual_chain.py` |
+| Mutation chain (liquidity ladder) | `export_liquidity_ladder_counterfactual_chain.py` |
+| Generic mutation chain | `export_counterfactual_chain.py` |
+| Joint attribution (resource cascade) | `export_resource_cascade_joint_attribution.py` |
+| Joint attribution (service backlog) | `export_service_backlog_joint_attribution.py` |
+| Joint attribution (liquidity ladder) | `export_liquidity_ladder_joint_attribution.py` |
+| Triple attribution | `export_resource_cascade_triple_attribution.py` |
 | Merge branches | `merge_counterfactual_attribution.py` |
+| Explanation DAG | `export_explanation_dag.py` |
+| Minimized replay | `export_minimized_replay.py` |
+| Robustness sweep | `fragility_robustness_sweep.py` |
+| Robustness stretch presets | `fragility_robustness_stretch.py --preset small\|medium\|large` |
+| Fragility surface CSV | `fragility_surface.py --mode … --axis1 … --axis2 …` |
+| Find cheapest collapse | `find_cheap_collapse.py --mode … --samples …` |
+| Compare two replays | `compare_replays.py baseline.json counterfactual.json` |
+| Mechanism design sweep | `mechanism_design_policy_sweep.py` |
+| Institutional composite | `institutional_composite_demo.py --triple\|--quad` |
+| Coevolution Pareto export | `export_coevolution_pareto.py` |
 | Frozen benchmarks | `run_benchmark_suite.py --validate` |
-| Wall-clock timing | `benchmark_rollout.py --bundle …` or `--mode …` |
+| Wall-clock timing | `benchmark_rollout.py --bundle … \| --mode …` |
 | Certificate | `export_fragility_certificate.py` |
 | Flagship demo bundle | `run_flagship_demo.py` |
 | Narration | `narrate_frozen_json.py` |
+| LLM prompt bundle | `export_llm_narration_prompt.py --bundle <name>` |
+| Plot replay | `plot_replay_timeline.py` |
+| Plot Pareto | `plot_pareto_front.py` |
+| Plot counterfactual bars | `plot_counterfactual_bars.py` |
+| Plot ε-sweep | `plot_epsilon_sweep.py` |
+| Plot fragility surface | `plot_fragility_surface_csv.py` |
+| Plot composite bars | `plot_institutional_composite_bars.py` |
+| Summarize attribution merge | `summarize_attribution_merge.py` |
+| Validate viewer presets | `validate_viewer_presets.py` |
+| Check manifest digest | `check_manifest_digest.py` |
+| Check manifest inventory | `check_manifest_inventory.py` |
+| Check manifest summary | `check_manifest_summary.py` |
+| Check bundled artifacts | `check_bundled_artifacts.py` |
+| Check bundled Pareto HV | `check_bundled_pareto_hypervolume.py` |
+| Check flagship bundle | `check_flagship_bundled.py` |
+| Frozen JSON digest | `frozen_json_digest.py` |
+| Regenerate viewer samples | `regenerate_bundled_viewer_samples.py` |
+| GCE workbench publish | `gce_publish_workbench.sh` |
+| GCE run server | `gce_run_server.py` (systemd service on GCE) |
+| GCE write status | `gce_write_workbench_status.py` |
+| Static dashboard export | `export_static_dashboard.py` |
 | Local CI parity | `ci_local.sh` / `ci_local.ps1` |
 
 Full one-line descriptions: root [`README.md`](../README.md) scripts table.
