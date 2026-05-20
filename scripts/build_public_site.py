@@ -13,7 +13,16 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from public_site_lib import md_to_html, product_shell
+from public_site_lib import md_to_html, product_shell, viewer_chrome_head, viewer_chrome_header
+
+import re
+
+VIEWER_PAGE_IDS = {
+    "replay_viewer": "replay",
+    "pareto_viewer": "pareto",
+    "attribution_viewer": "attribution",
+    "composite_viewer": "composite",
+}
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ASSETS = ROOT / "docs" / "public" / "assets"
@@ -249,6 +258,33 @@ def _copytree(src: Path, dst: Path) -> None:
     shutil.copytree(src, dst)
 
 
+_BODY_OPEN_RE = re.compile(r"(<body[^>]*>)", re.IGNORECASE)
+
+
+def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
+    """Add product brand + nav header to a standalone viewer's index.html.
+
+    Idempotent: if the chrome marker is already present, do nothing. The
+    injected header hides itself when the page is loaded inside an iframe
+    (so the workbench live-replay embed stays clean).
+    """
+
+    if not html_path.is_file():
+        return
+    text = html_path.read_text(encoding="utf-8")
+    if "fdeViewerTop" in text:
+        return
+    head_inject = viewer_chrome_head()
+    if "</head>" in text:
+        text = text.replace("</head>", head_inject + "</head>", 1)
+    body_match = _BODY_OPEN_RE.search(text)
+    if not body_match:
+        return
+    end = body_match.end()
+    text = text[:end] + "\n" + viewer_chrome_header(page_id, release=RELEASE) + text[end:]
+    html_path.write_text(text, encoding="utf-8")
+
+
 def _write(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
@@ -272,6 +308,9 @@ def build(out: Path) -> dict[str, str]:
         src = ROOT / "artifacts" / name
         if src.is_dir():
             _copytree(src, art_root / name)
+            page_id = VIEWER_PAGE_IDS.get(name)
+            if page_id:
+                _inject_viewer_chrome(art_root / name / "index.html", page_id)
 
     demo_cards = "\n".join(
         f"""      <a class="fde-card" href="{href}">

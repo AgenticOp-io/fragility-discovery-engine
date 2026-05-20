@@ -112,6 +112,33 @@ def _nav_html(active: str) -> str:
     return "\n".join(parts)
 
 
+def viewer_chrome_head() -> str:
+    """Head fragment injected into standalone viewer HTML (brand + nav stylesheet)."""
+
+    return (
+        '  <link rel="stylesheet" href="/assets/fde-product.css"/>\n'
+        '  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>\n'
+    )
+
+
+def viewer_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
+    """Top-of-body chrome injected into each standalone viewer."""
+
+    nav = _nav_html(page_id)
+    return f"""<header class="fde-viewer-top" id="fdeViewerTop">
+  <a class="fde-brand" href="/">
+    <img src="/assets/logo.svg" alt="" width="22" height="22"/>
+    <span class="fde-brand-name">Fragility Discovery Engine</span>
+    <span class="fde-brand-sub">{html.escape(release)} · on <a href="https://agenticop.io">AgenticOp</a></span>
+  </a>
+  <nav aria-label="Product">
+{nav}
+  </nav>
+</header>
+<script>if (window.top !== window.self) {{ var _h = document.getElementById('fdeViewerTop'); if (_h) _h.style.display = 'none'; }}</script>
+"""
+
+
 def product_shell(
     *,
     title: str,

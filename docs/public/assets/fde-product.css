@@ -286,3 +286,55 @@ body.fde-app {
   overflow-y: auto;
   margin: 0 0 1rem;
 }
+
+/* Slim chrome injected into standalone viewer pages so they keep brand + nav. */
+.fde-viewer-top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  justify-content: space-between;
+  padding: 0.45rem 0.9rem;
+  background: rgba(20, 24, 32, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--fde-border);
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.85rem;
+  margin: -16px -16px 12px;
+}
+.fde-viewer-top .fde-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--fde-text);
+}
+.fde-viewer-top .fde-brand img { border-radius: 6px; }
+.fde-viewer-top .fde-brand-name { font-weight: 600; }
+.fde-viewer-top .fde-brand-sub {
+  color: var(--fde-muted);
+  font-size: 0.78rem;
+}
+.fde-viewer-top .fde-brand-sub a {
+  color: var(--fde-agenticop);
+  text-decoration: none;
+}
+.fde-viewer-top .fde-brand-sub a:hover { text-decoration: underline; }
+.fde-viewer-top nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.95rem;
+  align-items: center;
+}
+.fde-viewer-top nav a {
+  color: var(--fde-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+.fde-viewer-top nav a:hover, .fde-viewer-top nav a.fde-active {
+  color: var(--fde-text);
+}
+.fde-viewer-top nav a.fde-active { font-weight: 600; }
