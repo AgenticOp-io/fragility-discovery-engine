@@ -11,6 +11,16 @@ FONTS = (
     "&family=JetBrains+Mono:wght@400;500&display=swap"
 )
 
+__all__ = [
+    "FONTS",
+    "NAV",
+    "md_to_html",
+    "product_shell",
+    "viewer_chrome_head",
+    "viewer_chrome_header",
+    "viewer_chrome_footer",
+]
+
 NAV = [
     ("workbench", "/", "Workbench"),
     ("run", "/run.html", "Run a scenario"),
@@ -113,11 +123,27 @@ def _nav_html(active: str) -> str:
 
 
 def viewer_chrome_head() -> str:
-    """Head fragment injected into standalone viewer HTML (brand + nav stylesheet)."""
+    """Head fragment injected into standalone viewer HTML.
+
+    Loads the product stylesheet, the shared fonts, and an inline palette
+    override so the viewer body inherits the same dark theme + typography as
+    the rest of the site (without breaking the viewer's own canvas / button
+    layout, which already uses a dark-friendly palette).
+    """
 
     return (
+        '  <link rel="preconnect" href="https://fonts.googleapis.com"/>\n'
+        '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>\n'
+        f'  <link href="{FONTS}" rel="stylesheet"/>\n'
         '  <link rel="stylesheet" href="/assets/fde-product.css"/>\n'
         '  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>\n'
+        "  <style>\n"
+        "    :root { color-scheme: dark; }\n"
+        '    html, body { background: #0c0e14; color: #e8ecf4; }\n'
+        '    body { font-family: "DM Sans", system-ui, sans-serif; }\n'
+        '    code, kbd, pre { font-family: "JetBrains Mono", ui-monospace, monospace; }\n'
+        "    a { color: #6eb5f7; }\n"
+        "  </style>\n"
     )
 
 
@@ -136,6 +162,25 @@ def viewer_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
   </nav>
 </header>
 <script>if (window.top !== window.self) {{ var _h = document.getElementById('fdeViewerTop'); if (_h) _h.style.display = 'none'; }}</script>
+"""
+
+
+def viewer_chrome_footer() -> str:
+    """Bottom-of-body footer injected into each standalone viewer."""
+
+    return """<footer class="fde-viewer-footer" id="fdeViewerFooter">
+  <span>
+    <img src="/assets/logo.svg" alt="" width="18" height="18" style="vertical-align:middle;margin-right:0.35rem;opacity:0.85"/>
+    <a href="https://agenticop.io">AgenticOp</a> · fragility engine · browser-only demos
+  </span>
+  <span>
+    <a href="/">Workbench</a> ·
+    <a href="/run.html">Run a scenario</a> ·
+    <a href="/docs/algorithms.html">Algorithms</a> ·
+    <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+  </span>
+</footer>
+<script>if (window.top !== window.self) { var _f = document.getElementById('fdeViewerFooter'); if (_f) _f.style.display = 'none'; }</script>
 """
 
 

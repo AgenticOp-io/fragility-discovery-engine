@@ -338,3 +338,19 @@ body.fde-app {
   color: var(--fde-text);
 }
 .fde-viewer-top nav a.fde-active { font-weight: 600; }
+
+.fde-viewer-footer {
+  margin: 32px -16px -16px;
+  padding: 1rem 1.25rem;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.8rem;
+  color: var(--fde-muted);
+  background: var(--fde-surface);
+  border-top: 1px solid var(--fde-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+}
+.fde-viewer-footer a { color: var(--fde-accent); text-decoration: none; }
+.fde-viewer-footer a:hover { text-decoration: underline; }

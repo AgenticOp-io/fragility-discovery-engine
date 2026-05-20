@@ -13,7 +13,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from public_site_lib import md_to_html, product_shell, viewer_chrome_head, viewer_chrome_header
+from public_site_lib import (
+    md_to_html,
+    product_shell,
+    viewer_chrome_footer,
+    viewer_chrome_head,
+    viewer_chrome_header,
+)
 
 import re
 
@@ -259,14 +265,15 @@ def _copytree(src: Path, dst: Path) -> None:
 
 
 _BODY_OPEN_RE = re.compile(r"(<body[^>]*>)", re.IGNORECASE)
+_BODY_CLOSE_RE = re.compile(r"(</body\s*>)", re.IGNORECASE)
 
 
 def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
-    """Add product brand + nav header to a standalone viewer's index.html.
+    """Wrap a standalone viewer in the product palette + brand chrome + footer.
 
     Idempotent: if the chrome marker is already present, do nothing. The
-    injected header hides itself when the page is loaded inside an iframe
-    (so the workbench live-replay embed stays clean).
+    injected header and footer hide themselves when the page is loaded inside
+    an iframe (so the workbench live-replay embed stays clean).
     """
 
     if not html_path.is_file():
@@ -282,6 +289,10 @@ def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
         return
     end = body_match.end()
     text = text[:end] + "\n" + viewer_chrome_header(page_id, release=RELEASE) + text[end:]
+    close_match = _BODY_CLOSE_RE.search(text)
+    if close_match:
+        idx = close_match.start()
+        text = text[:idx] + viewer_chrome_footer() + text[idx:]
     html_path.write_text(text, encoding="utf-8")
 
 
