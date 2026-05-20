@@ -2,76 +2,50 @@
 
 This document lists every algorithm the Fragility Discovery Engine uses, who invented it, and where you can find the implementation in this repository. The engine has **two runtime dependencies** — `numpy` and `networkx` — so everything below is hand-rolled on top of NumPy unless noted.
 
-| Notation | Meaning |
-|---|---|
-| **Original** | First implementation; framing introduced by this project. |
+
+| Notation     | Meaning                                                                           |
+| ------------ | --------------------------------------------------------------------------------- |
+| **Original** | First implementation; framing introduced by this project.                         |
 | **Standard** | Textbook algorithm we re-implemented from first principles (no external library). |
-| **Library** | Provided by a third-party package we depend on. |
+| **Library**  | Provided by a third-party package we depend on.                                   |
+
 
 ---
 
 ## 0. What we created (named, in one place)
 
-These are the algorithms and frameworks **originated by this project**. Each is fully documented in the relevant section below; this is a single index so the contribution is visible at a glance.
+These are the algorithms, frameworks, and physics kernels **originated by this project**. Each is fully documented in the section linked from the table; this is a single index so the contribution is visible at a glance.
 
-### Methods
+**Explanation and attribution methods**
 
-1. **Schedule-mask counterfactual** *(§2.1)*
-   Given a simulator and an attacker schedule, re-run with selected shock timesteps deterministically zeroed and diff the rollouts to attribute outcome change to those steps. Builds on Pearl's `do`-calculus framing; the schedule-mask + replay-diff pipeline is ours.
-   `src/fragility_engine/explain/counterfactual.py`
+| Name | What it does | Where to read | Code |
+|---|---|---|---|
+| Schedule-mask counterfactual | Re-run a simulator with selected shock timesteps deterministically zeroed and diff the rollouts to attribute outcome change to those steps. Builds on Pearl's `do`-calculus framing; the schedule-mask + replay-diff pipeline is ours. | §2.1 | `src/fragility_engine/explain/counterfactual.py` |
+| Greedy shock-set minimization for collapse | Position-greedy reduction of an attacker schedule to the smallest subset of shocks that still drives the world to collapse, with pinned rollout seeds throughout. Applies the delta-debugging idea (Zeller & Hildebrandt 2002) to adversarial simulation schedules; the specific algorithm is greedy-by-timestep. | §2.2 | `src/fragility_engine/explain/minimal_collapse.py` |
+| Mutation-chain path trace | Apply discrete world-physics mutations one at a time in a chosen order; record `Δ integral_instability` and `Δ attack_cost` at every step. Analogous in spirit to integrated gradients / SHAP but defined directly over a discrete simulator. | §2.3 | `src/fragility_engine/explain/counterfactual_chain*.py` |
+| Star-merge attribution graph | Merge several single-branch counterfactual bundles that share one baseline into one graph (root = baseline, leaves = branches, edges carry Δ-metrics and intervention labels), with strict baseline-equality checking. Schema `attribution-merge-v1`. | §2.4 | `src/fragility_engine/explain/merge_attribution.py` |
+| Schedule-minimization explanation DAG | Compact DAG (`explanation-dag-v1`) over a minimization report: `baseline → minimized` with the kept events on the edge. Machine-readable "why did it still collapse?" record. | §2.5 | `src/fragility_engine/explain/explanation_dag.py` |
+| Institutional composite | Run the same attacker schedule through several decoupled physics kernels and emit a side-by-side scorecard JSON (`fragility-institutional-composite-v1…v4`). Kernels never exchange state inside a step. | §3.7 | `src/fragility_engine/benchmarks/institutional_composite.py` |
 
-2. **Greedy shock-set minimization for collapse** *(§2.2)*
-   Position-greedy reduction of an attacker schedule to the smallest subset of shocks that still drives the world to collapse, with pinned rollout seeds throughout. Applies the delta-debugging idea (Zeller & Hildebrandt 2002) to adversarial simulation schedules — original application; our specific algorithm is greedy-by-timestep rather than ddmin.
-   `src/fragility_engine/explain/minimal_collapse.py`
+**Reproducibility framework**
 
-3. **Mutation-chain path trace** *(§2.3)*
-   Apply discrete world-physics mutations one at a time in a chosen order; record `Δ integral_instability` and `Δ attack_cost` at every step so you can read off per-mutation contribution along the chain. Analogous in spirit to integrated gradients / SHAP but defined directly over a discrete simulator rather than a differentiable model. Original.
-   `src/fragility_engine/explain/counterfactual_chain*.py`
+| Name | What it does | Where to read | Code |
+|---|---|---|---|
+| Frozen-benchmark golden-metric harness | Benchmark suite where each bundle pins `(genome_seed, rollout_seed)` and asserts scalar metrics on every CI run. Conceptually similar to MLPerf, but for adversarial search rather than model training. | §4.1 | `src/fragility_engine/benchmarks/suite.py`, `scripts/run_benchmark_suite.py` |
+| Manifest digest pinning | SHA-256 over the benchmark inventory; CI fails if the digest drifts without an explicit bump. Standard hash, original workflow. | §4.2 | `src/fragility_engine/benchmarks/manifest.py`, `scripts/check_manifest_digest.py` |
+| Fragility certificate | Single JSON that bundles a flagship replay + Pareto front + environment fingerprint into one signed, citeable artifact — paper-appendix or audit attachment. Schema `fragility-certificate-v1`. | §4.3 | `src/fragility_engine/benchmarks/certificate.py` |
 
-4. **Star-merge attribution graph** *(§2.4)*
-   Merge several single-branch counterfactual bundles that share one baseline into one graph (root = baseline, leaves = branches, edges carry Δ-metrics and the intervention label), with strict baseline-equality checking. Schema `attribution-merge-v1`. Original.
-   `src/fragility_engine/explain/merge_attribution.py`
+**Physics kernels** (deliberately simplified; not calibrated to any real institution)
 
-5. **Schedule-minimization explanation DAG** *(§2.5)*
-   Compact DAG (`explanation-dag-v1`) over a minimization report: `baseline → minimized` with the kept events on the edge — a tiny machine-readable "why did it still collapse?" record. Original.
-   `src/fragility_engine/explain/explanation_dag.py`
+| Name | What it does | Where to read | Code |
+|---|---|---|---|
+| Aggregate peg kernel | Scalar reserves/supply with panic + redemption coupling. | §3.1 | `src/fragility_engine/world/stablecoin_peg.py` |
+| Two-layer resource-cascade kernel | Coupled headrooms `(h₀, h₁)` with a shared overload state; reduces a Motter–Lai cascade to its smallest still-interesting form. | §3.3 | `src/fragility_engine/world/resource_cascade.py` |
+| Service-backlog kernel | Backlog grows with demand, shrinks with process rate; collapse on sustained over-threshold backlog. | §3.4 | `src/fragility_engine/world/service_backlog.py` |
+| Liquidity-ladder kernel | Margin utilization vs funding-ladder depth with deleveraging on haircut breach; reproduces the margin-call spiral mechanic in 4 state variables. | §3.5 | `src/fragility_engine/world/liquidity_ladder.py` |
+| Inventory-buffer kernel (fork) | Supply-buffer drain under demand spikes. | §3.6 | `forks/coupled_institution/` |
 
-6. **Institutional composite** *(§3.7)*
-   Run **the same** attacker schedule through several decoupled physics kernels and emit a side-by-side scorecard JSON (`fragility-institutional-composite-v1…v4`). Kernels never exchange state inside a step. Original framing.
-   `src/fragility_engine/benchmarks/institutional_composite.py`
-
-### Reproducibility framework
-
-7. **Frozen-benchmark golden-metric harness** *(§4.1)*
-   A small benchmark suite where each bundle pins `(genome_seed, rollout_seed)` and asserts scalar metrics (integral instability bands, collapsed/uncollapsed) on every CI run. Conceptually similar to MLPerf, but for adversarial search rather than model training. Original framework.
-   `src/fragility_engine/benchmarks/suite.py`, `scripts/run_benchmark_suite.py`
-
-8. **Manifest digest pinning** *(§4.2)*
-   SHA-256 over the benchmark inventory; CI fails if the digest drifts without an explicit bump. Standard hash, original workflow.
-   `src/fragility_engine/benchmarks/manifest.py`, `scripts/check_manifest_digest.py`
-
-9. **Fragility certificate** *(§4.3)*
-   Single JSON that bundles a flagship replay + Pareto front + environment fingerprint into one signed, citeable artifact — intended as a paper-appendix or audit attachment. Schema `fragility-certificate-v1`. Original.
-   `src/fragility_engine/benchmarks/certificate.py`
-
-### Physics kernels (deliberately simplified; not calibrated)
-
-10. **Aggregate peg kernel** *(§3.1)* — scalar reserves/supply with panic + redemption coupling.
-    `src/fragility_engine/world/stablecoin_peg.py`
-
-11. **Two-layer resource-cascade kernel** *(§3.3)* — coupled headrooms `(h₀, h₁)` with a shared overload state; reduces a Motter–Lai cascade to its smallest still-interesting form.
-    `src/fragility_engine/world/resource_cascade.py`
-
-12. **Service-backlog kernel** *(§3.4)* — backlog grows with demand, shrinks with process rate; collapse on sustained over-threshold backlog.
-    `src/fragility_engine/world/service_backlog.py`
-
-13. **Liquidity-ladder kernel** *(§3.5)* — margin utilization vs funding-ladder depth with deleveraging on haircut breach; reproduces the margin-call spiral mechanic in 4 state variables.
-    `src/fragility_engine/world/liquidity_ladder.py`
-
-14. **Inventory-buffer kernel** *(§3.6, fork)* — buffer drain under demand spikes.
-    `forks/coupled_institution/`
-
-All kernels share **one schedule encoding** (`adversary/encoding.py`), so any attacker genome found by search transfers across kernels unchanged — itself an intentional design choice of this project.
+All kernels share **one schedule encoding** (`src/fragility_engine/adversary/encoding.py`), so any attacker genome found by search transfers across kernels unchanged — itself an intentional design choice of this project.
 
 Everything else listed in §1–§5 is textbook or library; we cite the original sources for those below.
 
@@ -83,7 +57,7 @@ Everything else listed in §1–§5 is textbook or library; we cite the original
 
 Draws `samples` random genomes, evaluates fitness, keeps the best.
 
-- **Originators:** Common baseline; Metropolis & Ulam coined "Monte Carlo" in 1949 ([von Neumann & Ulam, 1947](https://library.lanl.gov/cgi-bin/getfile?00326866.pdf)). The "uniform random search" baseline is canonical (e.g. Bergstra & Bengio 2012, [*Random Search for Hyper-Parameter Optimization*](https://www.jmlr.org/papers/v13/bergstra12a.html)).
+- **Originators:** Common baseline; Metropolis & Ulam coined "Monte Carlo" in 1949 ([von Neumann & Ulam, 1947](https://library.lanl.gov/cgi-bin/getfile?00326866.pdf)). The "uniform random search" baseline is canonical (e.g. Bergstra & Bengio 2012, *[Random Search for Hyper-Parameter Optimization](https://www.jmlr.org/papers/v13/bergstra12a.html)*).
 - **Our code:** `src/fragility_engine/adversary/search.py::monte_carlo_search`
 - **Notes:** Used as the reference baseline against which the GA's improvement is measured.
 
@@ -110,7 +84,7 @@ Maintains the non-dominated set across `(severity, attack_cost)`; `severity` max
 
 Closed-form rectangular sweep for two minimized objectives relative to a reference point.
 
-- **Originators:** Zitzler & Thiele (1998), [*Multiobjective optimization using evolutionary algorithms — a comparative case study*](https://link.springer.com/chapter/10.1007/BFb0056872) (introduced the "size of the dominated space" indicator). The 2-D O(N log N) sweep is folklore.
+- **Originators:** Zitzler & Thiele (1998), *[Multiobjective optimization using evolutionary algorithms — a comparative case study](https://link.springer.com/chapter/10.1007/BFb0056872)* (introduced the "size of the dominated space" indicator). The 2-D O(N log N) sweep is folklore.
 - **Our code:** `benchmarks/hypervolume.py::hypervolume_2d_min` and `nondominated_points_min`.
 - **Use:** CI regression gate on Pareto-archive quality; never used as a fitness signal.
 
@@ -118,7 +92,7 @@ Closed-form rectangular sweep for two minimized objectives relative to a referen
 
 Rounds of (a) attacker GA finds worst schedules against frozen defender, then (b) defender GA finds best parameter vector against frozen attacker; repeat.
 
-- **Originators:** Competitive co-evolution: Hillis (1990), [*Co-evolving parasites improve simulated evolution as an optimization procedure*](https://www.sciencedirect.com/science/article/abs/pii/0167278990900762). Alternating min-max formulation: classical in adversarial / game-theoretic learning (e.g. Sims 1994 on competitive coevolution; Watson & Pollack 2001 on the "Red Queen" dynamic).
+- **Originators:** Competitive co-evolution: Hillis (1990), *[Co-evolving parasites improve simulated evolution as an optimization procedure](https://www.sciencedirect.com/science/article/abs/pii/0167278990900762)*. Alternating min-max formulation: classical in adversarial / game-theoretic learning (e.g. Sims 1994 on competitive coevolution; Watson & Pollack 2001 on the "Red Queen" dynamic).
 - **Our code:** `coevolution/alternating.py::alternating_coevolution_rollout` plus mode-specific wrappers (`alternating_coevolution_network`, etc.) and `coevolution/thread_safe_template.py` for safe parallel rollouts.
 - **Pareto-per-round:** optional `collect_attacker_pareto=True`; archives are merged via `merge_pareto_points`.
 
@@ -138,7 +112,7 @@ Re-run the simulation with selected shock timesteps zeroed; compare metrics.
 
 Greedy removal of shock timesteps while preserving the `collapsed` outcome — finds the minimal shock set that still breaks the world.
 
-- **Originators:** Algorithmic minimization of inputs while preserving a property: Zeller & Hildebrandt (2002), [*Simplifying and Isolating Failure-Inducing Input*](https://www.st.cs.uni-saarland.de/papers/tse2002/) (delta debugging, ddmin). We use the greedy-by-position variant rather than the divide-and-conquer ddmin variant.
+- **Originators:** Algorithmic minimization of inputs while preserving a property: Zeller & Hildebrandt (2002), *[Simplifying and Isolating Failure-Inducing Input](https://www.st.cs.uni-saarland.de/papers/tse2002/)* (delta debugging, ddmin). We use the greedy-by-position variant rather than the divide-and-conquer ddmin variant.
 - **Our code:** `explain/minimal_collapse.py::minimize_schedule_with_rollout`.
 - **CLI:** `scripts/run_ga_demo.py --export-minimized-replay` and the explicit `scripts/export_minimized_replay.py`.
 
@@ -182,7 +156,7 @@ Scalar pool: reserves drain on redemption shocks; panic decays with a fixed time
 
 Per-node panic updates by `pᵢ' ← (1-β) pᵢ + β · mean(pⱼ for j ∈ N(i))`.
 
-- **Mechanism family:** Linear opinion / consensus dynamics — DeGroot (1974), [*Reaching a Consensus*](https://www.jstor.org/stable/2285509). Threshold contagion: Granovetter (1978), [*Threshold Models of Collective Behavior*](https://www.journals.uchicago.edu/doi/abs/10.1086/226707), Watts (2002), [*A simple model of global cascades on random networks*](https://www.pnas.org/doi/10.1073/pnas.082090499). Financial contagion: Eisenberg & Noe (2001) on payment clearing.
+- **Mechanism family:** Linear opinion / consensus dynamics — DeGroot (1974), *[Reaching a Consensus](https://www.jstor.org/stable/2285509)*. Threshold contagion: Granovetter (1978), *[Threshold Models of Collective Behavior](https://www.journals.uchicago.edu/doi/abs/10.1086/226707)*, Watts (2002), *[A simple model of global cascades on random networks](https://www.pnas.org/doi/10.1073/pnas.082090499)*. Financial contagion: Eisenberg & Noe (2001) on payment clearing.
 - **Topology generators:** Erdős–Rényi (1959) and Watts–Strogatz (1998) — supplied by **networkx** (`erdos_renyi_graph`, `watts_strogatz_graph`).
 - **Our code:** `network/contagion.py::contagion_step_lists`, `network/topology.py`, `world/stablecoin_network.py`.
 
@@ -190,7 +164,7 @@ Per-node panic updates by `pᵢ' ← (1-β) pᵢ + β · mean(pⱼ for j ∈ N(i
 
 Two coupled capacity headrooms (`h₀`, `h₁`) with a shared overload state. Overload feeds back into headroom; rumor shocks raise overload; reserve hits drop headroom.
 
-- **Mechanism family:** Cascading failure in capacity systems — Motter & Lai (2002), [*Cascade-based attacks on complex networks*](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.66.065102). Our two-layer reduction is original.
+- **Mechanism family:** Cascading failure in capacity systems — Motter & Lai (2002), *[Cascade-based attacks on complex networks](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.66.065102)*. Our two-layer reduction is original.
 - **Our code:** `world/resource_cascade.py::ResourceCascadeWorld`. Optional Numba acceleration: `runner_resource_cascade_numba.py` (well-formed parity tested vs. NumPy reference).
 
 ### 3.4 Service backlog — Original kernel
@@ -204,7 +178,7 @@ Queue length grows with demand, shrinks with process rate; collapse when backlog
 
 Margin utilization vs funding-ladder depth; reserve losses and rumor shocks erode runway; deleveraging mechanic when margin breaches haircut thresholds.
 
-- **Mechanism family:** Margin-call spiral / fire-sale literature — Brunnermeier & Pedersen (2009), [*Market Liquidity and Funding Liquidity*](https://academic.oup.com/rfs/article/22/6/2201/1592184).
+- **Mechanism family:** Margin-call spiral / fire-sale literature — Brunnermeier & Pedersen (2009), *[Market Liquidity and Funding Liquidity](https://academic.oup.com/rfs/article/22/6/2201/1592184)*.
 - **Our code:** `world/liquidity_ladder.py::LiquidityLadderWorld`.
 
 ### 3.6 Inventory buffer (optional fork) — Original kernel
@@ -248,12 +222,14 @@ Bundles a flagship replay + Pareto front + environment fingerprint into a single
 
 ## 5. Third-party libraries (provenance for transitive algorithms)
 
-| Library | Algorithms we rely on | Citation |
-|---|---|---|
-| **NumPy** | RNG (`PCG64` default), vector ops, linear algebra | [Harris et al., 2020](https://www.nature.com/articles/s41586-020-2649-2), *Nature*. PCG: [O'Neill 2014](https://www.pcg-random.org/paper.html). |
-| **networkx** | Erdős–Rényi (`gnp_random_graph`), Watts–Strogatz (`watts_strogatz_graph`), graph traversal | [Hagberg, Schult, Swart 2008](https://conference.scipy.org/proceedings/SciPy2008/paper_2/). |
-| **numba** *(optional, accelerate extra)* | JIT compilation of the resource-cascade hot loop | [Lam, Pitrou, Seibert 2015](https://dl.acm.org/doi/10.1145/2833157.2833162). |
-| **matplotlib** *(optional, viz extra)* | Static plots in the analysis notebooks | [Hunter 2007](https://ieeexplore.ieee.org/document/4160265). |
+
+| Library                                  | Algorithms we rely on                                                                      | Citation                                                                                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **NumPy**                                | RNG (`PCG64` default), vector ops, linear algebra                                          | [Harris et al., 2020](https://www.nature.com/articles/s41586-020-2649-2), *Nature*. PCG: [O'Neill 2014](https://www.pcg-random.org/paper.html). |
+| **networkx**                             | Erdős–Rényi (`gnp_random_graph`), Watts–Strogatz (`watts_strogatz_graph`), graph traversal | [Hagberg, Schult, Swart 2008](https://conference.scipy.org/proceedings/SciPy2008/paper_2/).                                                     |
+| **numba** *(optional, accelerate extra)* | JIT compilation of the resource-cascade hot loop                                           | [Lam, Pitrou, Seibert 2015](https://dl.acm.org/doi/10.1145/2833157.2833162).                                                                    |
+| **matplotlib** *(optional, viz extra)*   | Static plots in the analysis notebooks                                                     | [Hunter 2007](https://ieeexplore.ieee.org/document/4160265).                                                                                    |
+
 
 We do **not** use `scipy`, `pymoo`, `DEAP`, `cma`, `optuna`, or any other optimization library — every search, archive, and explanation algorithm above is implemented in this repository.
 
@@ -277,12 +253,15 @@ If you build on the engine, please cite the project alongside the underlying alg
 
 ## 7. Where to read the code
 
-| You want… | Start here |
-|---|---|
-| The end-to-end rollout loop | `src/fragility_engine/runner.py` |
-| Search loops (MC / GA / Pareto) | `src/fragility_engine/adversary/search.py` |
-| Counterfactual primitives | `src/fragility_engine/explain/counterfactual.py` |
-| Mutation chains | `src/fragility_engine/explain/counterfactual_chain*.py` |
-| World physics (any domain) | `src/fragility_engine/world/{stablecoin_peg, stablecoin_network, resource_cascade, service_backlog, liquidity_ladder}.py` |
-| Benchmark / certificate / hypervolume | `src/fragility_engine/benchmarks/` |
-| Frozen JSON schemas (every export) | `docs/REFERENCE.md` schema index |
+
+| You want…                             | Start here                                                                                                                |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| The end-to-end rollout loop           | `src/fragility_engine/runner.py`                                                                                          |
+| Search loops (MC / GA / Pareto)       | `src/fragility_engine/adversary/search.py`                                                                                |
+| Counterfactual primitives             | `src/fragility_engine/explain/counterfactual.py`                                                                          |
+| Mutation chains                       | `src/fragility_engine/explain/counterfactual_chain*.py`                                                                   |
+| World physics (any domain)            | `src/fragility_engine/world/{stablecoin_peg, stablecoin_network, resource_cascade, service_backlog, liquidity_ladder}.py` |
+| Benchmark / certificate / hypervolume | `src/fragility_engine/benchmarks/`                                                                                        |
+| Frozen JSON schemas (every export)    | `docs/REFERENCE.md` schema index                                                                                          |
+
+

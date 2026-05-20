@@ -27,6 +27,16 @@ NAV = [
 def md_to_html(md: str) -> str:
     out: list[str] = []
     in_ul = False
+    in_table = False
+    table_header_pending = False
+
+    def _close_table() -> None:
+        nonlocal in_table, table_header_pending
+        if in_table:
+            out.append("</tbody></table>")
+            in_table = False
+            table_header_pending = False
+
     for raw in md.splitlines():
         line = raw.rstrip()
         if line.startswith("|") and "|" in line[1:]:
@@ -35,10 +45,21 @@ def md_to_html(md: str) -> str:
                 in_ul = False
             cells = [c.strip() for c in line.strip("|").split("|")]
             if all(set(c) <= {"-", ":", " "} for c in cells):
+                if in_table and table_header_pending:
+                    out.append("</thead><tbody>")
+                    table_header_pending = False
                 continue
-            row = "".join(f"<td>{html.escape(c)}</td>" for c in cells)
+            if not in_table:
+                out.append("<table><thead>")
+                in_table = True
+                table_header_pending = True
+                row = "".join(f"<th>{_inline_md(c)}</th>" for c in cells)
+                out.append(f"<tr>{row}</tr>")
+                continue
+            row = "".join(f"<td>{_inline_md(c)}</td>" for c in cells)
             out.append(f"<tr>{row}</tr>")
             continue
+        _close_table()
         if line.startswith("# "):
             if in_ul:
                 out.append("</ul>")
@@ -70,6 +91,7 @@ def md_to_html(md: str) -> str:
             out.append(f"<p>{_inline_md(line)}</p>")
     if in_ul:
         out.append("</ul>")
+    _close_table()
     return "\n".join(out)
 
 
