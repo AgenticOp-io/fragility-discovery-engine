@@ -1,124 +1,125 @@
-# Installation and tooling notes
+# Installation notes
 
-This page **supplements** [`HOW_TO_USE.md`](HOW_TO_USE.md). Use that guide for **Python**, venv, `pip install -e ".[dev]"`, tutorials, and static viewers. Use this page for **Git**, **OS-specific packages**, and other host-tooling edge cases that are not part of the Python package. **Post-clone checklist** (CI scripts, frozen benchmarks): [`NEXT_STEPS.md`](NEXT_STEPS.md).
-
-## Dual stack (Linux and Windows)
-
-**CI** runs the same checks on **Ubuntu** and **Windows** (Python **3.11** and **3.12**), plus optional **Numba** parity on both (`.github/workflows/ci.yml`). Weekly scheduled regression (`.github/workflows/schedule.yml`) runs the **test** job on **Ubuntu + 3.12** (ruff, pytest with perf gate, explicit **`run_benchmark_suite.py --validate`**, manifest artifact) and a separate **build** job (sdist/wheel + smoke import), mirroring PR CI.
-
-To reproduce the default **test** job locally after activating a venv:
-
-| OS | Command |
-|----|---------|
-| Linux, macOS, [WSL](https://learn.microsoft.com/windows/wsl/) | `bash scripts/ci_local.sh` |
-| Windows (PowerShell) | `pwsh -File scripts/ci_local.ps1` |
-
-Both scripts run `pip install -e ".[dev]"`, **ruff**, **pytest** with `FRAGILITY_PERF_GATE=1`, and **`python scripts/run_benchmark_suite.py --validate`** (frozen golden bundles). Set **`FRAGILITY_CI_LOCAL_BUILD=1`** to also run **`python -m build`** (optional parity with the CI **build** job).
+This page covers **OS-specific setup**, **Git configuration**, and **repository layout** — edge cases that come up when you are installing for the first time. The main installation steps (Python, venv, `pip install`, running tests) are in [How to Use](/docs/how-to-use.html).
 
 ---
 
-## Linux: system Python and venv packages
+## Linux: installing Python and Git
 
-Debian / Ubuntu examples (adjust version to match **CPython ≥ 3.11**):
+Debian and Ubuntu:
 
 ```bash
 sudo apt update
 sudo apt install -y git python3.12 python3.12-venv
 ```
 
-If your distro ships only **3.11**, use `python3.11` / `python3.11-venv` instead—the engine supports either. Then create the venv as in [`HOW_TO_USE.md`](HOW_TO_USE.md) §2.
+If your distribution only ships Python 3.11, replace `3.12` with `3.11` everywhere — both versions are supported. Then follow the venv setup in [How to Use](/docs/how-to-use.html).
 
-**WSL:** clone the repo on the Linux filesystem (for example `~/src/fragility-discovery-engine`) for faster I/O than `/mnt/c/...`; the same `apt` + venv flow applies.
+**Using WSL (Windows Subsystem for Linux):** clone the repository on the Linux filesystem (for example `~/src/fragility-discovery-engine`) rather than `/mnt/c/...` — file I/O is much faster that way. The same `apt` commands and venv steps apply.
+
+**Fedora / RHEL:** `sudo dnf install -y git python3.12` (or `python3.11`), then the same venv pattern.
+
+**macOS:** install Python 3.11 or newer from [python.org](https://www.python.org/downloads/) or via Homebrew (`brew install python@3.12`), then create a venv with that interpreter.
 
 ---
 
-## Git credential helper (Windows)
+## Git on Windows — fixing a credential warning
 
-### Symptom
+### What you might see
 
-`git push` or `git fetch` prints a warning such as:
+After running `git push` or `git fetch`, you get a warning like:
 
 ```text
 git: 'credential-manager-core' is not a git command. See 'git --help'.
 ```
 
-Pushes may still succeed afterward, but the message means Git is trying to run a **credential helper name that is not on your PATH**.
+The push usually still works, but this warning means Git is looking for a credential helper that does not exist on your system.
 
-### Cause
+### Why it happens
 
-A **global** Git config entry `credential.helper=manager-core` (or similar) can override the **system** helper shipped with [Git for Windows](https://git-scm.com/download/win), which registers the working **Git Credential Manager** as `manager`. The `manager-core` name is easy to copy from older docs and may not resolve as an executable on your install.
+An old setting in your global Git config (`credential.helper=manager-core`) is overriding the working helper that [Git for Windows](https://git-scm.com/download/win) installed. The name `manager-core` comes from old documentation and may not exist on your machine.
 
-### Fix (recommended)
+### Fix
 
-Clear the global override so the system helper is used:
+Remove the override so Git uses its built-in helper:
 
 ```powershell
 git config --global --unset credential.helper
 ```
 
-Then run `git fetch` or `git push` once; if Windows prompts you to sign in to GitHub, complete that flow so credentials are stored.
+Then run `git fetch` or `git push` once. If Windows prompts you to sign in to GitHub, complete that step — your credentials will be saved for future pushes.
 
-To confirm what Git will use:
+To check what Git is using:
 
 ```powershell
 git config --show-origin --get-all credential.helper
 ```
 
-You should see the **system** entry (Git for Windows install path) pointing at `manager`, and **no** conflicting global `manager-core` line.
+You should see one entry pointing at `manager` from the Git for Windows installation, with no conflicting `manager-core` line.
 
-### If you must set a helper explicitly
-
-Prefer the value Git for Windows documents for your version, for example:
+If you need to set a helper explicitly, use:
 
 ```powershell
 git config --global credential.helper manager
 ```
 
-Only do this if you understand why the system config is not enough (unusual on a standard Git for Windows setup).
-
 ---
 
-## Git over HTTPS (Linux and macOS)
+## Git over HTTPS on Linux and macOS
 
-Typical setups use the **Git built-in credential helper** (cache or store) or **[GitHub CLI](https://cli.github.com/)** (`gh auth login`). Distro packages vary; there is no single `manager-core` issue like Git for Windows, but misconfigured `credential.helper` in `~/.gitconfig` can still break pushes.
-
-Useful checks:
+Most setups work out of the box using the Git built-in credential helper or the [GitHub CLI](https://cli.github.com/) (`gh auth login`). If `git push` fails:
 
 ```bash
+# See what credential helper Git is using
 git config --show-origin --get-all credential.helper
 ```
 
-If `git push` fails with TLS or certificate errors on a minimal server image, install your distro’s **CA certificate** bundle (for example `ca-certificates` on Debian/Ubuntu).
+If you get TLS or certificate errors on a minimal server image, install the CA certificates bundle:
+
+```bash
+sudo apt install -y ca-certificates   # Debian/Ubuntu
+```
 
 ---
 
-## Extra remotes (optional, local only)
-
-Adding another remote (for example to fetch `main` from a second GitHub repository you correlate with this tree) updates **only** your clone’s `.git/config`. Other machines and CI do **not** pick it up until you run the same `git remote add …` there (or restore from a backup of your config). This is normal Git behavior, not something the engine repo needs to track in source control.
-
----
-
-## Repository layout (after clone)
+## Folder layout after cloning
 
 ```
 fragility-discovery-engine/
-  src/fragility_engine/   # Library: world, adversary, explain, benchmarks, …
-  scripts/                # CLI tools (run from repo root)
-  tests/                  # Pytest suite (400+ tests; use `python -m pytest`)
-  artifacts/              # Checked-in demo JSON + static HTML viewers
-  benchmarks/             # Benchmark docs; golden rows in src/…/benchmarks/
-  docs/                   # Operator guides — start at docs/README.md
-  pyproject.toml          # Package `fragility-engine`, extras: dev, viz, accelerate
+  src/fragility_engine/   Library code: simulation worlds, search, explanation
+  scripts/                Command-line tools (run from the repo root)
+  tests/                  Test suite (400+ tests; run with python -m pytest)
+  artifacts/              Bundled demo JSON files and browser-based viewers
+  benchmarks/             Benchmark documentation and reference bundles
+  docs/                   This documentation set
+  pyproject.toml          Package definition and optional extras
 ```
 
-Install the package in editable mode from the repo root: `pip install -e ".[dev]"`. Import name: `fragility_engine`.
+Install in editable mode from the repo root: `pip install -e ".[dev]"`. The package import name is `fragility_engine`.
 
-**Tagged release without PyPI:** use [`scripts/install_release.sh`](../scripts/install_release.sh) / [`scripts/install_release.ps1`](../scripts/install_release.ps1) or see [`RELEASING.md`](../RELEASING.md) (GitHub Release wheel, git tag, or editable checkout).
+---
+
+## Adding a second Git remote (optional)
+
+Adding a remote (`git remote add …`) only changes your local `.git/config`. No other machines or the CI pipeline pick it up unless you run the same command there. This is normal Git behavior.
+
+---
+
+## Running CI checks locally (for contributors)
+
+The automated CI pipeline runs on Ubuntu and Windows against Python 3.11 and 3.12. To run the same checks locally after activating your venv:
+
+| OS | Command |
+|----|---------|
+| Linux, macOS, WSL | `bash scripts/ci_local.sh` |
+| Windows (PowerShell) | `pwsh -File scripts/ci_local.ps1` |
+
+Both scripts run `pip install -e ".[dev]"`, the linter (ruff), pytest, and `python scripts/run_benchmark_suite.py --validate` to confirm the frozen reference results still match. Set `FRAGILITY_CI_LOCAL_BUILD=1` to also build the package wheel (mirrors the CI build job).
 
 ---
 
 ## Still stuck?
 
-- **Authentication (Windows):** sign in once via the credential manager UI when Git prompts during `https://` push or fetch.
-- **Authentication (Linux/macOS):** use `gh auth login` or your distro’s Git credential documentation.
-- **Python / tests / viewers:** [`HOW_TO_USE.md`](HOW_TO_USE.md), [`docs/README.md`](README.md), root [`README.md`](../README.md).
+- **Git sign-in on Windows:** let the credential manager UI prompt you on the first `https://` push or fetch, then your credentials will be saved.
+- **Git sign-in on Linux/macOS:** use `gh auth login` or your distribution's Git credential documentation.
+- **Python, tests, or the browser viewers:** see [How to Use](/docs/how-to-use.html).

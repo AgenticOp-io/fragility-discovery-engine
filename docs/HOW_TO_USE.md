@@ -84,17 +84,17 @@ python scripts/week1_smoke.py
 
 ---
 
-## 3. Core concepts (about one minute)
+## 3. Key concepts
 
-| Concept | Where it lives |
-|--------|----------------|
-| **World** | `fragility_engine.world.*` — physics only; reset + `step`. |
-| **Adversary** | `fragility_engine.adversary` — encodes stress sequences; MC / GA search. |
-| **Rollout** | `fragility_engine.runner` — decode genome → events → trajectory → `RolloutResult`. |
-| **Replay file** | `rollout_to_replay_dict` — `schema_version`, `trajectory`, `events_lane`, `meta`. |
-| **Explain** | `fragility_engine.explain` — counterfactuals, minimization, sweeps, narration. |
+| Concept | What it is |
+|---------|------------|
+| **World** | A simulation domain (one of six). It resets to known starting conditions, steps forward one timestep at a time, and reports metrics. Code: `fragility_engine.world.*`. |
+| **Schedule** | The sequence of stress events applied to the world — one event per timestep, encoded as a NumPy array. The search layer generates and tests thousands of these. Code: `fragility_engine.adversary`. |
+| **Rollout** | One complete run of a world from start to finish (or collapse). Produces a result with instability score, attack cost, collapse flag, and the full trajectory. Code: `fragility_engine.runner`. |
+| **Replay file** | A JSON file packaging a rollout result so you can load it in the browser viewer. Contains the trajectory, event lane, metadata, and version. |
+| **Explain** | Post-run analysis that re-runs the simulation with controlled changes to measure what caused the outcome. Code: `fragility_engine.explain`. |
 
-Everything important is **deterministic** given published seeds and CLI flags.
+Every run is **fully reproducible**: the same code, seeds, and flags always produce the same result.
 
 ---
 

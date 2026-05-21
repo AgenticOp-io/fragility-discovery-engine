@@ -20,7 +20,7 @@
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">
@@ -116,17 +116,17 @@
 <p>python scripts/week1_smoke.py</p>
 <p>```</p>
 <hr>
-<h3>3. Core concepts (about one minute)</h3>
+<h3>3. Key concepts</h3>
 <table><thead>
-<tr><th>Concept</th><th>Where it lives</th></tr>
+<tr><th>Concept</th><th>What it is</th></tr>
 </thead><tbody>
-<tr><td><strong>World</strong></td><td><code>fragility_engine.world.*</code> — physics only; reset + <code>step</code>.</td></tr>
-<tr><td><strong>Adversary</strong></td><td><code>fragility_engine.adversary</code> — encodes stress sequences; MC / GA search.</td></tr>
-<tr><td><strong>Rollout</strong></td><td><code>fragility_engine.runner</code> — decode genome → events → trajectory → <code>RolloutResult</code>.</td></tr>
-<tr><td><strong>Replay file</strong></td><td><code>rollout_to_replay_dict</code> — <code>schema_version</code>, <code>trajectory</code>, <code>events_lane</code>, <code>meta</code>.</td></tr>
-<tr><td><strong>Explain</strong></td><td><code>fragility_engine.explain</code> — counterfactuals, minimization, sweeps, narration.</td></tr>
+<tr><td><strong>World</strong></td><td>A simulation domain (one of six). It resets to known starting conditions, steps forward one timestep at a time, and reports metrics. Code: <code>fragility_engine.world.*</code>.</td></tr>
+<tr><td><strong>Schedule</strong></td><td>The sequence of stress events applied to the world — one event per timestep, encoded as a NumPy array. The search layer generates and tests thousands of these. Code: <code>fragility_engine.adversary</code>.</td></tr>
+<tr><td><strong>Rollout</strong></td><td>One complete run of a world from start to finish (or collapse). Produces a result with instability score, attack cost, collapse flag, and the full trajectory. Code: <code>fragility_engine.runner</code>.</td></tr>
+<tr><td><strong>Replay file</strong></td><td>A JSON file packaging a rollout result so you can load it in the browser viewer. Contains the trajectory, event lane, metadata, and version.</td></tr>
+<tr><td><strong>Explain</strong></td><td>Post-run analysis that re-runs the simulation with controlled changes to measure what caused the outcome. Code: <code>fragility_engine.explain</code>.</td></tr>
 </tbody></table>
-<p>Everything important is <strong>deterministic</strong> given published seeds and CLI flags.</p>
+<p>Every run is <strong>fully reproducible</strong>: the same code, seeds, and flags always produce the same result.</p>
 <hr>
 <h3>4. Tutorial paths</h3>
 <p>Run commands from the <strong>repository root</strong> unless noted.</p>
@@ -351,7 +351,7 @@
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>
       <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
-      <a href="https://agenticop.io">AgenticOps</a> · fragility engine · browser-only demos
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
     </span>
     <span>
       <a href="/">Workbench</a>

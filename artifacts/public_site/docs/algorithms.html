@@ -20,7 +20,7 @@
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">
@@ -212,7 +212,7 @@
 <h4>4.6 Inventory buffer — Original kernel</h4>
 <p>Normalized stock level <code>S</code> and fulfillment capacity <code>F</code> (both in <code>[0,1]</code>). <code>reserve_loss</code> shocks drain stock (demand spikes); <code>rumor</code> shocks erode fulfillment (supplier / logistics trust). Collapse when stock falls below <code>stockout_collapse</code> threshold or fulfillment falls below <code>fulfillment_floor_collapse</code>. Distinct from service backlog (queue depth) and peg worlds.</p>
 <ul>
-<li><strong>Originators:</strong> Original to this project (Phase O stretch, v0.5).</li>
+<li><strong>Originators:</strong> Original to this project (added in v0.5).</li>
 <li><strong>Our code:</strong> <code>src/fragility_engine/world/inventory_buffer.py</code>, <code>scripts/run_inventory_buffer_ga_demo.py</code>.</li>
 <li><strong>Frozen bundle:</strong> <code>inventory_buffer_rollout_v1</code> in <code>scripts/run_benchmark_suite.py --validate</code>.</li>
 </ul>
@@ -283,7 +283,7 @@
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>
       <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
-      <a href="https://agenticop.io">AgenticOps</a> · fragility engine · browser-only demos
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
     </span>
     <span>
       <a href="/">Workbench</a>

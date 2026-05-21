@@ -20,7 +20,7 @@
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">
@@ -54,91 +54,93 @@
 <a href="/docs/reference.html">Reference</a>
 <a href="/docs/algorithms.html">Algorithms</a>
 </nav>
-<article class="fde-prose"><h2>Installation and tooling notes</h2>
-<p>This page <strong>supplements</strong> <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a>. Use that guide for <strong>Python</strong>, venv, <code>pip install -e &quot;.[dev]&quot;</code>, tutorials, and static viewers. Use this page for <strong>Git</strong>, <strong>OS-specific packages</strong>, and other host-tooling edge cases that are not part of the Python package. <strong>Post-clone checklist</strong> (CI scripts, frozen benchmarks): <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/NEXT_STEPS.md"><code>NEXT_STEPS.md</code></a>.</p>
-<h3>Dual stack (Linux and Windows)</h3>
-<p><strong>CI</strong> runs the same checks on <strong>Ubuntu</strong> and <strong>Windows</strong> (Python <strong>3.11</strong> and <strong>3.12</strong>), plus optional <strong>Numba</strong> parity on both (<code>.github/workflows/ci.yml</code>). Weekly scheduled regression (<code>.github/workflows/schedule.yml</code>) runs the <strong>test</strong> job on <strong>Ubuntu + 3.12</strong> (ruff, pytest with perf gate, explicit <strong><code>run_benchmark_suite.py --validate</code></strong>, manifest artifact) and a separate <strong>build</strong> job (sdist/wheel + smoke import), mirroring PR CI.</p>
-<p>To reproduce the default <strong>test</strong> job locally after activating a venv:</p>
-<table><thead>
-<tr><th>OS</th><th>Command</th></tr>
-</thead><tbody>
-<tr><td>Linux, macOS, <a href="https://learn.microsoft.com/windows/wsl/">WSL</a></td><td><code>bash scripts/ci_local.sh</code></td></tr>
-<tr><td>Windows (PowerShell)</td><td><code>pwsh -File scripts/ci_local.ps1</code></td></tr>
-</tbody></table>
-<p>Both scripts run <code>pip install -e &quot;.[dev]&quot;</code>, <strong>ruff</strong>, <strong>pytest</strong> with <code>FRAGILITY_PERF_GATE=1</code>, and <strong><code>python scripts/run_benchmark_suite.py --validate</code></strong> (frozen golden bundles). Set <strong><code>FRAGILITY_CI_LOCAL_BUILD=1</code></strong> to also run <strong><code>python -m build</code></strong> (optional parity with the CI <strong>build</strong> job).</p>
+<article class="fde-prose"><h2>Installation notes</h2>
+<p>This page covers <strong>OS-specific setup</strong>, <strong>Git configuration</strong>, and <strong>repository layout</strong> — edge cases that come up when you are installing for the first time. The main installation steps (Python, venv, <code>pip install</code>, running tests) are in <a href="/docs/how-to-use.html">How to Use</a>.</p>
 <hr>
-<h3>Linux: system Python and venv packages</h3>
-<p>Debian / Ubuntu examples (adjust version to match <strong>CPython ≥ 3.11</strong>):</p>
+<h3>Linux: installing Python and Git</h3>
+<p>Debian and Ubuntu:</p>
 <p>```bash</p>
 <p>sudo apt update</p>
 <p>sudo apt install -y git python3.12 python3.12-venv</p>
 <p>```</p>
-<p>If your distro ships only <strong>3.11</strong>, use <code>python3.11</code> / <code>python3.11-venv</code> instead—the engine supports either. Then create the venv as in <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a> §2.</p>
-<p><strong>WSL:</strong> clone the repo on the Linux filesystem (for example <code>~/src/fragility-discovery-engine</code>) for faster I/O than <code>/mnt/c/...</code>; the same <code>apt</code> + venv flow applies.</p>
+<p>If your distribution only ships Python 3.11, replace <code>3.12</code> with <code>3.11</code> everywhere — both versions are supported. Then follow the venv setup in <a href="/docs/how-to-use.html">How to Use</a>.</p>
+<p><strong>Using WSL (Windows Subsystem for Linux):</strong> clone the repository on the Linux filesystem (for example <code>~/src/fragility-discovery-engine</code>) rather than <code>/mnt/c/...</code> — file I/O is much faster that way. The same <code>apt</code> commands and venv steps apply.</p>
+<p><strong>Fedora / RHEL:</strong> <code>sudo dnf install -y git python3.12</code> (or <code>python3.11</code>), then the same venv pattern.</p>
+<p><strong>macOS:</strong> install Python 3.11 or newer from <a href="https://www.python.org/downloads/">python.org</a> or via Homebrew (<code>brew install python@3.12</code>), then create a venv with that interpreter.</p>
 <hr>
-<h3>Git credential helper (Windows)</h3>
-<h4>Symptom</h4>
-<p><code>git push</code> or <code>git fetch</code> prints a warning such as:</p>
+<h3>Git on Windows — fixing a credential warning</h3>
+<h4>What you might see</h4>
+<p>After running <code>git push</code> or <code>git fetch</code>, you get a warning like:</p>
 <p>```text</p>
 <p>git: &#x27;credential-manager-core&#x27; is not a git command. See &#x27;git --help&#x27;.</p>
 <p>```</p>
-<p>Pushes may still succeed afterward, but the message means Git is trying to run a <strong>credential helper name that is not on your PATH</strong>.</p>
-<h4>Cause</h4>
-<p>A <strong>global</strong> Git config entry <code>credential.helper=manager-core</code> (or similar) can override the <strong>system</strong> helper shipped with <a href="https://git-scm.com/download/win">Git for Windows</a>, which registers the working <strong>Git Credential Manager</strong> as <code>manager</code>. The <code>manager-core</code> name is easy to copy from older docs and may not resolve as an executable on your install.</p>
-<h4>Fix (recommended)</h4>
-<p>Clear the global override so the system helper is used:</p>
+<p>The push usually still works, but this warning means Git is looking for a credential helper that does not exist on your system.</p>
+<h4>Why it happens</h4>
+<p>An old setting in your global Git config (<code>credential.helper=manager-core</code>) is overriding the working helper that <a href="https://git-scm.com/download/win">Git for Windows</a> installed. The name <code>manager-core</code> comes from old documentation and may not exist on your machine.</p>
+<h4>Fix</h4>
+<p>Remove the override so Git uses its built-in helper:</p>
 <p>```powershell</p>
 <p>git config --global --unset credential.helper</p>
 <p>```</p>
-<p>Then run <code>git fetch</code> or <code>git push</code> once; if Windows prompts you to sign in to GitHub, complete that flow so credentials are stored.</p>
-<p>To confirm what Git will use:</p>
+<p>Then run <code>git fetch</code> or <code>git push</code> once. If Windows prompts you to sign in to GitHub, complete that step — your credentials will be saved for future pushes.</p>
+<p>To check what Git is using:</p>
 <p>```powershell</p>
 <p>git config --show-origin --get-all credential.helper</p>
 <p>```</p>
-<p>You should see the <strong>system</strong> entry (Git for Windows install path) pointing at <code>manager</code>, and <strong>no</strong> conflicting global <code>manager-core</code> line.</p>
-<h4>If you must set a helper explicitly</h4>
-<p>Prefer the value Git for Windows documents for your version, for example:</p>
+<p>You should see one entry pointing at <code>manager</code> from the Git for Windows installation, with no conflicting <code>manager-core</code> line.</p>
+<p>If you need to set a helper explicitly, use:</p>
 <p>```powershell</p>
 <p>git config --global credential.helper manager</p>
 <p>```</p>
-<p>Only do this if you understand why the system config is not enough (unusual on a standard Git for Windows setup).</p>
 <hr>
-<h3>Git over HTTPS (Linux and macOS)</h3>
-<p>Typical setups use the <strong>Git built-in credential helper</strong> (cache or store) or <strong><a href="https://cli.github.com/">GitHub CLI</a></strong> (<code>gh auth login</code>). Distro packages vary; there is no single <code>manager-core</code> issue like Git for Windows, but misconfigured <code>credential.helper</code> in <code>~/.gitconfig</code> can still break pushes.</p>
-<p>Useful checks:</p>
+<h3>Git over HTTPS on Linux and macOS</h3>
+<p>Most setups work out of the box using the Git built-in credential helper or the <a href="https://cli.github.com/">GitHub CLI</a> (<code>gh auth login</code>). If <code>git push</code> fails:</p>
 <p>```bash</p>
+<h2>See what credential helper Git is using</h2>
 <p>git config --show-origin --get-all credential.helper</p>
 <p>```</p>
-<p>If <code>git push</code> fails with TLS or certificate errors on a minimal server image, install your distro’s <strong>CA certificate</strong> bundle (for example <code>ca-certificates</code> on Debian/Ubuntu).</p>
+<p>If you get TLS or certificate errors on a minimal server image, install the CA certificates bundle:</p>
+<p>```bash</p>
+<p>sudo apt install -y ca-certificates   # Debian/Ubuntu</p>
+<p>```</p>
 <hr>
-<h3>Extra remotes (optional, local only)</h3>
-<p>Adding another remote (for example to fetch <code>main</code> from a second GitHub repository you correlate with this tree) updates <strong>only</strong> your clone’s <code>.git/config</code>. Other machines and CI do <strong>not</strong> pick it up until you run the same <code>git remote add …</code> there (or restore from a backup of your config). This is normal Git behavior, not something the engine repo needs to track in source control.</p>
-<hr>
-<h3>Repository layout (after clone)</h3>
+<h3>Folder layout after cloning</h3>
 <p>```</p>
 <p>fragility-discovery-engine/</p>
-<p>  src/fragility_engine/   # Library: world, adversary, explain, benchmarks, …</p>
-<p>  scripts/                # CLI tools (run from repo root)</p>
-<p>  tests/                  # Pytest suite (400+ tests; use <code>python -m pytest</code>)</p>
-<p>  artifacts/              # Checked-in demo JSON + static HTML viewers</p>
-<p>  benchmarks/             # Benchmark docs; golden rows in src/…/benchmarks/</p>
-<p>  docs/                   # Operator guides — start at docs/README.md</p>
-<p>  pyproject.toml          # Package <code>fragility-engine</code>, extras: dev, viz, accelerate</p>
+<p>  src/fragility_engine/   Library code: simulation worlds, search, explanation</p>
+<p>  scripts/                Command-line tools (run from the repo root)</p>
+<p>  tests/                  Test suite (400+ tests; run with python -m pytest)</p>
+<p>  artifacts/              Bundled demo JSON files and browser-based viewers</p>
+<p>  benchmarks/             Benchmark documentation and reference bundles</p>
+<p>  docs/                   This documentation set</p>
+<p>  pyproject.toml          Package definition and optional extras</p>
 <p>```</p>
-<p>Install the package in editable mode from the repo root: <code>pip install -e &quot;.[dev]&quot;</code>. Import name: <code>fragility_engine</code>.</p>
-<p><strong>Tagged release without PyPI:</strong> use <a href="../scripts/install_release.sh"><code>scripts/install_release.sh</code></a> / <a href="../scripts/install_release.ps1"><code>scripts/install_release.ps1</code></a> or see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/RELEASING.md"><code>RELEASING.md</code></a> (GitHub Release wheel, git tag, or editable checkout).</p>
+<p>Install in editable mode from the repo root: <code>pip install -e &quot;.[dev]&quot;</code>. The package import name is <code>fragility_engine</code>.</p>
+<hr>
+<h3>Adding a second Git remote (optional)</h3>
+<p>Adding a remote (<code>git remote add …</code>) only changes your local <code>.git/config</code>. No other machines or the CI pipeline pick it up unless you run the same command there. This is normal Git behavior.</p>
+<hr>
+<h3>Running CI checks locally (for contributors)</h3>
+<p>The automated CI pipeline runs on Ubuntu and Windows against Python 3.11 and 3.12. To run the same checks locally after activating your venv:</p>
+<table><thead>
+<tr><th>OS</th><th>Command</th></tr>
+</thead><tbody>
+<tr><td>Linux, macOS, WSL</td><td><code>bash scripts/ci_local.sh</code></td></tr>
+<tr><td>Windows (PowerShell)</td><td><code>pwsh -File scripts/ci_local.ps1</code></td></tr>
+</tbody></table>
+<p>Both scripts run <code>pip install -e &quot;.[dev]&quot;</code>, the linter (ruff), pytest, and <code>python scripts/run_benchmark_suite.py --validate</code> to confirm the frozen reference results still match. Set <code>FRAGILITY_CI_LOCAL_BUILD=1</code> to also build the package wheel (mirrors the CI build job).</p>
 <hr>
 <h3>Still stuck?</h3>
 <ul>
-<li><strong>Authentication (Windows):</strong> sign in once via the credential manager UI when Git prompts during <code>https://</code> push or fetch.</li>
-<li><strong>Authentication (Linux/macOS):</strong> use <code>gh auth login</code> or your distro’s Git credential documentation.</li>
-<li><strong>Python / tests / viewers:</strong> <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a>, <a href="https://github.com/AgenticOp-io/fragility-discovery-engine#readme"><code>docs/README.md</code></a>, root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md"><code>README.md</code></a>.</li>
+<li><strong>Git sign-in on Windows:</strong> let the credential manager UI prompt you on the first <code>https://</code> push or fetch, then your credentials will be saved.</li>
+<li><strong>Git sign-in on Linux/macOS:</strong> use <code>gh auth login</code> or your distribution&#x27;s Git credential documentation.</li>
+<li><strong>Python, tests, or the browser viewers:</strong> see <a href="/docs/how-to-use.html">How to Use</a>.</li>
 </ul></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>
       <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
-      <a href="https://agenticop.io">AgenticOps</a> · fragility engine · browser-only demos
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
     </span>
     <span>
       <a href="/">Workbench</a>

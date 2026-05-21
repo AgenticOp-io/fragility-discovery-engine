@@ -191,7 +191,7 @@ Margin utilization vs funding-ladder depth; reserve losses and rumor shocks erod
 
 Normalized stock level `S` and fulfillment capacity `F` (both in `[0,1]`). `reserve_loss` shocks drain stock (demand spikes); `rumor` shocks erode fulfillment (supplier / logistics trust). Collapse when stock falls below `stockout_collapse` threshold or fulfillment falls below `fulfillment_floor_collapse`. Distinct from service backlog (queue depth) and peg worlds.
 
-- **Originators:** Original to this project (Phase O stretch, v0.5).
+- **Originators:** Original to this project (added in v0.5).
 - **Our code:** `src/fragility_engine/world/inventory_buffer.py`, `scripts/run_inventory_buffer_ga_demo.py`.
 - **Frozen bundle:** `inventory_buffer_rollout_v1` in `scripts/run_benchmark_suite.py --validate`.
 

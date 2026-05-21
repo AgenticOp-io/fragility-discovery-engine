@@ -1,6 +1,6 @@
 # Reference: modes, CLIs, environment, schemas
 
-Quick lookup for operators and contributors. Tutorials and narrative context are in [`HOW_TO_USE.md`](HOW_TO_USE.md).
+Quick lookup for all command-line flags, output formats, and script names. Step-by-step tutorials are in [How to Use](/docs/how-to-use.html).
 
 ---
 
@@ -15,13 +15,13 @@ Quick lookup for operators and contributors. Tutorials and narrative context are
 | `liquidity_ladder` | `run_liquidity_ladder_ga_demo.py` | `remove_steps`, `initial_margin_shift`, `delever_rate_shift` | `initial_margin`, `delever_rate` | 18 |
 | `inventory_buffer` | `run_inventory_buffer_ga_demo.py` | `remove_steps`, `initial_stock_shift` | `initial_stock` | 18 |
 
-Shared flags across most mode-aware scripts:
+Flags shared across most scripts:
 
-- `--horizon` — genome rows (schedule length)
-- `--seed` / `--genome-seed` — rollout vs genome RNG
-- `--export-replay PATH` — write replay JSON
-- `--continue-after-collapse` — keep stepping after collapse for recovery metrics
-- `--eval-workers N` — thread pool for GA/MC (clone worlds when N>1)
+- `--horizon` — number of steps in the simulation (schedule length)
+- `--seed` / `--genome-seed` — random seed for the rollout / for generating the initial schedule
+- `--export-replay PATH` — save the result as a replay JSON file
+- `--continue-after-collapse` — keep stepping after collapse, useful for measuring recovery
+- `--eval-workers N` — number of parallel workers for the search (each gets its own world copy)
 
 ---
 
@@ -91,7 +91,7 @@ Shared flags across most mode-aware scripts:
 | Inventory buffer counterfactual | `export_inventory_buffer_counterfactual_chain.py` |
 | Local CI parity | `ci_local.sh` / `ci_local.ps1` |
 
-Full one-line descriptions: root [`README.md`](../README.md) scripts table.
+One-line descriptions for every script: root [README.md](../README.md) scripts table.
 
 ---
 
@@ -159,16 +159,19 @@ Supply at most one of `--variant-initial-stock` / `--variant-demand-spike-gain`.
 
 ---
 
-## Frozen benchmark bundles (Phase H)
+## Frozen reference bundles
 
-| `bundle_id` | Topology / domain |
-|-------------|-----------------|
-| `aggregate_rollout_v1` | Scalar peg |
-| `network_er_rollout_v1` | ER synthetic graph |
-| `network_neighbor_list_rollout_v1` | Neighbor-list graph |
+Each bundle has pinned seeds and known-good metric values that are checked on every CI run.
+
+| `bundle_id` | Domain |
+|-------------|--------|
+| `aggregate_rollout_v1` | Aggregate peg |
+| `network_er_rollout_v1` | Network (synthetic ER graph) |
+| `network_neighbor_list_rollout_v1` | Network (neighbor-list topology) |
 | `resource_cascade_rollout_v1` | Resource cascade |
 | `service_backlog_rollout_v1` | Service backlog |
 | `liquidity_ladder_rollout_v1` | Liquidity ladder |
+| `inventory_buffer_rollout_v1` | Inventory buffer |
 
 Pinned seeds and golden metrics: `src/fragility_engine/benchmarks/suite.py`. Validate with:
 
@@ -209,22 +212,21 @@ python scripts/run_benchmark_suite.py --validate
 | `fragility-institutional-composite-v1` … `v3` | `institutional_composite_demo.py` | Composite viewer |
 | `llm-prompt-bundle-v1` | `export_llm_narration_prompt.py` | External LLM only |
 
-**Important:** composite, sweep, and Pareto JSON are **not** replay timelines. Loading them in `artifacts/replay_viewer/` will fail by design.
+**Note:** composite, sweep, and trade-off chart (Pareto) files are **not** replay timelines. The replay viewer only accepts replay files — loading other types will show an error.
 
 ---
 
-## Repository layout (operator view)
+## Repository layout
 
 ```
 fragility-discovery-engine/
-  src/fragility_engine/     Library code
-  scripts/                  CLI tools
-  tests/                    Pytest (400+ tests)
-  benchmarks/               Benchmark docs + fixtures pointers
-  artifacts/                Checked-in demo JSON + static HTML viewers
+  src/fragility_engine/     Library code (worlds, search, explanation, benchmarks)
+  scripts/                  Command-line tools
+  tests/                    Test suite (400+ tests)
+  benchmarks/               Benchmark documentation and reference bundle definitions
+  artifacts/                Bundled demo JSON files and browser-based viewers
   docs/                     This documentation set
-  BOUNDARIES.md             Charter and phase gates
-  pyproject.toml            Package metadata and extras: dev, viz, accelerate
+  pyproject.toml            Package definition; extras: dev, viz, accelerate
 ```
 
-Python package name on PyPI-style installs: `fragility-engine` (import `fragility_engine`).
+Install with `pip install -e ".[dev]"`. Import name: `fragility_engine`.

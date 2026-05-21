@@ -20,7 +20,7 @@
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">hosted on GCE · v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">
@@ -55,7 +55,7 @@
 <a href="/docs/algorithms.html">Algorithms</a>
 </nav>
 <article class="fde-prose"><h2>Reference: modes, CLIs, environment, schemas</h2>
-<p>Quick lookup for operators and contributors. Tutorials and narrative context are in <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a>.</p>
+<p>Quick lookup for all command-line flags, output formats, and script names. Step-by-step tutorials are in <a href="/docs/how-to-use.html">How to Use</a>.</p>
 <hr>
 <h3>Simulation modes</h3>
 <table><thead>
@@ -68,13 +68,13 @@
 <tr><td><code>liquidity_ladder</code></td><td><code>run_liquidity_ladder_ga_demo.py</code></td><td><code>remove_steps</code>, <code>initial_margin_shift</code>, <code>delever_rate_shift</code></td><td><code>initial_margin</code>, <code>delever_rate</code></td><td>18</td></tr>
 <tr><td><code>inventory_buffer</code></td><td><code>run_inventory_buffer_ga_demo.py</code></td><td><code>remove_steps</code>, <code>initial_stock_shift</code></td><td><code>initial_stock</code></td><td>18</td></tr>
 </tbody></table>
-<p>Shared flags across most mode-aware scripts:</p>
+<p>Flags shared across most scripts:</p>
 <ul>
-<li><code>--horizon</code> — genome rows (schedule length)</li>
-<li><code>--seed</code> / <code>--genome-seed</code> — rollout vs genome RNG</li>
-<li><code>--export-replay PATH</code> — write replay JSON</li>
-<li><code>--continue-after-collapse</code> — keep stepping after collapse for recovery metrics</li>
-<li><code>--eval-workers N</code> — thread pool for GA/MC (clone worlds when N&gt;1)</li>
+<li><code>--horizon</code> — number of steps in the simulation (schedule length)</li>
+<li><code>--seed</code> / <code>--genome-seed</code> — random seed for the rollout / for generating the initial schedule</li>
+<li><code>--export-replay PATH</code> — save the result as a replay JSON file</li>
+<li><code>--continue-after-collapse</code> — keep stepping after collapse, useful for measuring recovery</li>
+<li><code>--eval-workers N</code> — number of parallel workers for the search (each gets its own world copy)</li>
 </ul>
 <hr>
 <h3>Scripts by task</h3>
@@ -143,7 +143,7 @@
 <tr><td>Inventory buffer counterfactual</td><td><code>export_inventory_buffer_counterfactual_chain.py</code></td></tr>
 <tr><td>Local CI parity</td><td><code>ci_local.sh</code> / <code>ci_local.ps1</code></td></tr>
 </tbody></table>
-<p>Full one-line descriptions: root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md"><code>README.md</code></a> scripts table.</p>
+<p>One-line descriptions for every script: root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md">README.md</a> scripts table.</p>
 <hr>
 <h3>export_static_dashboard.py — local viewer index</h3>
 <p>Generates a minimal HTML index at <code>artifacts/dashboard/index.html</code> that links all four bundled viewers (Replay, Pareto, Attribution, Composite) using relative paths. Designed for <strong>local use</strong> — serve from the repository root with <code>python -m http.server</code> and open in a browser. Not needed on the GCE workbench (the hosted site already provides the same navigation).</p>
@@ -195,16 +195,18 @@
 </tbody></table>
 <p>Supply at most one of <code>--variant-initial-stock</code> / <code>--variant-demand-spike-gain</code>. If neither is supplied the script uses <code>remove_steps</code>. Output is an <code>attribution-merge-v1</code>-compatible JSON readable by the Attribution viewer.</p>
 <hr>
-<h3>Frozen benchmark bundles (Phase H)</h3>
+<h3>Frozen reference bundles</h3>
+<p>Each bundle has pinned seeds and known-good metric values that are checked on every CI run.</p>
 <table><thead>
-<tr><th><code>bundle_id</code></th><th>Topology / domain</th></tr>
+<tr><th><code>bundle_id</code></th><th>Domain</th></tr>
 </thead><tbody>
-<tr><td><code>aggregate_rollout_v1</code></td><td>Scalar peg</td></tr>
-<tr><td><code>network_er_rollout_v1</code></td><td>ER synthetic graph</td></tr>
-<tr><td><code>network_neighbor_list_rollout_v1</code></td><td>Neighbor-list graph</td></tr>
+<tr><td><code>aggregate_rollout_v1</code></td><td>Aggregate peg</td></tr>
+<tr><td><code>network_er_rollout_v1</code></td><td>Network (synthetic ER graph)</td></tr>
+<tr><td><code>network_neighbor_list_rollout_v1</code></td><td>Network (neighbor-list topology)</td></tr>
 <tr><td><code>resource_cascade_rollout_v1</code></td><td>Resource cascade</td></tr>
 <tr><td><code>service_backlog_rollout_v1</code></td><td>Service backlog</td></tr>
 <tr><td><code>liquidity_ladder_rollout_v1</code></td><td>Liquidity ladder</td></tr>
+<tr><td><code>inventory_buffer_rollout_v1</code></td><td>Inventory buffer</td></tr>
 </tbody></table>
 <p>Pinned seeds and golden metrics: <code>src/fragility_engine/benchmarks/suite.py</code>. Validate with:</p>
 <p>```bash</p>
@@ -241,26 +243,25 @@
 <tr><td><code>fragility-institutional-composite-v1</code> … <code>v3</code></td><td><code>institutional_composite_demo.py</code></td><td>Composite viewer</td></tr>
 <tr><td><code>llm-prompt-bundle-v1</code></td><td><code>export_llm_narration_prompt.py</code></td><td>External LLM only</td></tr>
 </tbody></table>
-<p><strong>Important:</strong> composite, sweep, and Pareto JSON are <strong>not</strong> replay timelines. Loading them in <code>artifacts/replay_viewer/</code> will fail by design.</p>
+<p><strong>Note:</strong> composite, sweep, and trade-off chart (Pareto) files are <strong>not</strong> replay timelines. The replay viewer only accepts replay files — loading other types will show an error.</p>
 <hr>
-<h3>Repository layout (operator view)</h3>
+<h3>Repository layout</h3>
 <p>```</p>
 <p>fragility-discovery-engine/</p>
-<p>  src/fragility_engine/     Library code</p>
-<p>  scripts/                  CLI tools</p>
-<p>  tests/                    Pytest (400+ tests)</p>
-<p>  benchmarks/               Benchmark docs + fixtures pointers</p>
-<p>  artifacts/                Checked-in demo JSON + static HTML viewers</p>
+<p>  src/fragility_engine/     Library code (worlds, search, explanation, benchmarks)</p>
+<p>  scripts/                  Command-line tools</p>
+<p>  tests/                    Test suite (400+ tests)</p>
+<p>  benchmarks/               Benchmark documentation and reference bundle definitions</p>
+<p>  artifacts/                Bundled demo JSON files and browser-based viewers</p>
 <p>  docs/                     This documentation set</p>
-<p>  BOUNDARIES.md             Charter and phase gates</p>
-<p>  pyproject.toml            Package metadata and extras: dev, viz, accelerate</p>
+<p>  pyproject.toml            Package definition; extras: dev, viz, accelerate</p>
 <p>```</p>
-<p>Python package name on PyPI-style installs: <code>fragility-engine</code> (import <code>fragility_engine</code>).</p></article>
+<p>Install with <code>pip install -e &quot;.[dev]&quot;</code>. Import name: <code>fragility_engine</code>.</p></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>
       <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
-      <a href="https://agenticop.io">AgenticOps</a> · fragility engine · browser-only demos
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
     </span>
     <span>
       <a href="/">Workbench</a>
