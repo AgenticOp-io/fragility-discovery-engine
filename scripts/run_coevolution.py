@@ -10,6 +10,7 @@ from pathlib import Path
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution import (
     alternating_coevolution,
+    alternating_coevolution_inventory_buffer,
     alternating_coevolution_liquidity_ladder,
     alternating_coevolution_network,
     alternating_coevolution_resource_cascade,
@@ -21,6 +22,7 @@ from fragility_engine.coevolution.pareto_export import (
 )
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import REPLAY_SCHEMA_VERSION, rollout_to_replay_dict
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -36,7 +38,7 @@ def main() -> None:
     )
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder", "inventory_buffer"),
         default="aggregate",
     )
     p.add_argument("--max-steps", type=int, default=40, help="World horizon cap (all modes).")
@@ -57,6 +59,12 @@ def main() -> None:
         type=float,
         default=0.06,
         help="[liquidity_ladder] margin utilization at reset (defender reserve_boost damps effective margin).",
+    )
+    p.add_argument(
+        "--initial-stock",
+        type=float,
+        default=0.88,
+        help="[inventory_buffer] normalized stock level at reset (defender reserve_boost damps effective stock drain).",
     )
 
     p.add_argument("--nodes", type=int, default=32)
@@ -253,12 +261,29 @@ def main() -> None:
             seed=int(args.seed),
             eval_workers=ew,
         )
-    else:
+    elif args.mode == "liquidity_ladder":
         template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=int(args.max_steps))
         enriched_topo = {"domain": "liquidity_ladder", "initial_margin": float(args.initial_margin)}
         summary = alternating_coevolution_liquidity_ladder(
             template,
             initial_margin=float(args.initial_margin),
+            continue_after_collapse=bool(args.continue_after_collapse),
+            collect_attacker_pareto=collect_pareto,
+            attacker_horizon=int(args.attacker_horizon),
+            rounds=int(args.rounds),
+            attacker_generations=int(args.attacker_generations),
+            attacker_population=int(args.attacker_population),
+            defender_generations=int(args.defender_generations),
+            defender_population=int(args.defender_population),
+            seed=int(args.seed),
+            eval_workers=ew,
+        )
+    else:  # inventory_buffer
+        template = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=int(args.max_steps))
+        enriched_topo = {"domain": "inventory_buffer", "initial_stock": float(args.initial_stock)}
+        summary = alternating_coevolution_inventory_buffer(
+            template,
+            initial_stock=float(args.initial_stock),
             continue_after_collapse=bool(args.continue_after_collapse),
             collect_attacker_pareto=collect_pareto,
             attacker_horizon=int(args.attacker_horizon),
@@ -308,6 +333,9 @@ def main() -> None:
         if args.mode == "liquidity_ladder":
             meta["domain"] = "liquidity_ladder"
             meta["initial_margin"] = float(args.initial_margin)
+        if args.mode == "inventory_buffer":
+            meta["domain"] = "inventory_buffer"
+            meta["initial_stock"] = float(args.initial_stock)
         replay["meta"] = meta
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 

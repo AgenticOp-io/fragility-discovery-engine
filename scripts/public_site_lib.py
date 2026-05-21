@@ -28,6 +28,7 @@ __all__ = [
 NAV = [
     ("workbench", "/", "Workbench"),
     ("run", "/run.html", "Run a scenario"),
+    ("runs", "/runs.html", "Past runs"),
     ("replay", "/artifacts/replay_viewer/index.html", "Replay"),
     ("pareto", "/artifacts/pareto_viewer/index.html", "Pareto"),
     ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
@@ -158,9 +159,42 @@ def md_to_html(md: str) -> str:
     return "\n".join(out)
 
 
+_MD_TO_HTML_LINKS: dict[str, str] = {
+    "HOW_TO_USE.md": "/docs/how-to-use.html",
+    "REFERENCE.md": "/docs/reference.html",
+    "ARCHITECTURE.md": "/docs/architecture.html",
+    "ALGORITHMS.md": "/docs/algorithms.html",
+    "WHITEPAPER_INTRODUCTION.md": "/docs/overview.html",
+    "INSTALLATION.md": "/docs/installation.html",
+    "README.md": "https://github.com/AgenticOp-io/fragility-discovery-engine#readme",
+    "BOUNDARIES.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md",
+    "../BOUNDARIES.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md",
+    "SCALE_AND_LIMITS.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/SCALE_AND_LIMITS.md",
+}
+
+_GITHUB_BLOB = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main"
+
+
+def _rewrite_md_href(href: str) -> str:
+    """Rewrite a markdown file link to its public site HTML equivalent or GitHub source."""
+    if href in _MD_TO_HTML_LINKS:
+        return _MD_TO_HTML_LINKS[href]
+    # Any remaining .md link → GitHub source
+    if href.endswith(".md") and not href.startswith("http"):
+        clean = href.lstrip("./")
+        return f"{_GITHUB_BLOB}/{clean}"
+    return href
+
+
 def _inline_md(text: str) -> str:
     s = html.escape(text)
-    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
+
+    def _rewrite_link(m: re.Match) -> str:
+        label = m.group(1)
+        href = _rewrite_md_href(html.unescape(m.group(2)))
+        return f'<a href="{href}">{label}</a>'
+
+    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", _rewrite_link, s)
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
     return s

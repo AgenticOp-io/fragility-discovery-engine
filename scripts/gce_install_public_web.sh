@@ -20,6 +20,8 @@ server {
     server_name _;
     root ${SITE_ROOT};
     index index.html;
+    error_page 404 /404.html;
+    location = /404.html { internal; }
     location / {
         try_files \$uri \$uri/ =404;
     }

@@ -62,6 +62,7 @@ MODES = {
     "coevolution_resource_cascade",
     "coevolution_service_backlog",
     "coevolution_liquidity_ladder",
+    "coevolution_inventory_buffer",
 }
 # Modes whose CLI honors --horizon / --attacker-horizon.
 # Fixed-horizon modes ignore the horizon field (script uses its own default).
@@ -78,6 +79,7 @@ PARETO_MODES = {
     "coevolution_resource_cascade",
     "coevolution_service_backlog",
     "coevolution_liquidity_ladder",
+    "coevolution_inventory_buffer",
 }
 
 _active = 0

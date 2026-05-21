@@ -130,6 +130,7 @@ def _run_page_main() -> str:
             <option value="coevolution_resource_cascade">Co-evolution · Resource cascade</option>
             <option value="coevolution_service_backlog">Co-evolution · Service backlog</option>
             <option value="coevolution_liquidity_ladder">Co-evolution · Liquidity ladder</option>
+            <option value="coevolution_inventory_buffer">Co-evolution · Inventory buffer</option>
           </optgroup>
         </select>
         <p class="fde-run-help" id="modeHelp"></p>
@@ -213,16 +214,18 @@ def _run_page_main() -> str:
           coevolution_network:     'Attacker and defender evolve together on the network contagion domain. Outputs a Pareto front.',
           coevolution_resource_cascade: 'Co-evolution on the resource cascade domain. Outputs a Pareto front. Fixed horizon: 18.',
           coevolution_service_backlog:  'Co-evolution on the service backlog domain. Outputs a Pareto front. Fixed horizon: 18.',
-          coevolution_liquidity_ladder: 'Co-evolution on the liquidity ladder domain. Outputs a Pareto front. Fixed horizon: 18.',
+          coevolution_liquidity_ladder:  'Co-evolution on the liquidity ladder domain. Outputs a Pareto front. Fixed horizon: 18.',
+          coevolution_inventory_buffer:  'Co-evolution on the inventory buffer domain (Phase O). Outputs a Pareto front. Fixed horizon: 18.',
         };
         const FIXED_HORIZON = {
           resource_cascade: 18, service_backlog: 18, liquidity_ladder: 18,
           inventory_buffer: 18,
-          coevolution_resource_cascade: 18, coevolution_service_backlog: 18, coevolution_liquidity_ladder: 18,
+          coevolution_resource_cascade: 18, coevolution_service_backlog: 18,
+          coevolution_liquidity_ladder: 18, coevolution_inventory_buffer: 18,
         };
         const PARETO_MODES = new Set([
           'coevolution_aggregate','coevolution_network','coevolution_resource_cascade',
-          'coevolution_service_backlog','coevolution_liquidity_ladder'
+          'coevolution_service_backlog','coevolution_liquidity_ladder','coevolution_inventory_buffer'
         ]);
 
         function updateMode() {
@@ -317,8 +320,40 @@ def _run_page_main() -> str:
             statusEl.textContent = 'Network error: ' + e;
           }
         });
+
+        // Recent runs history
+        async function loadRecentRuns() {
+          const el = document.getElementById('recentRuns');
+          if (!el) return;
+          try {
+            const r = await fetch('/api/runs', { cache: 'no-store' });
+            if (!r.ok) { el.innerHTML = '<p class="fde-run-help">Run history unavailable.</p>'; return; }
+            const runs = await r.json();
+            if (!runs.length) { el.innerHTML = '<p class="fde-run-help">No completed runs yet.</p>'; return; }
+            const rows = runs.slice(0, 10).map(function(s) {
+              const id    = s.id || '?';
+              const mode  = (s.request && s.request.mode) || '?';
+              const state = s.state || '?';
+              const ts    = s.started_utc ? s.started_utc.replace('T',' ').replace('Z','') : '';
+              const links = [];
+              if (s.viewer_url) links.push('<a href="' + s.viewer_url + '">Replay</a>');
+              if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '">Pareto</a>');
+              links.push('<a href="/runs/' + id + '/">/runs/' + id + '/</a>');
+              return '<tr><td><code>' + id + '</code></td><td>' + mode + '</td><td>' + state + '</td><td>' + ts + '</td><td>' + links.join(' · ') + '</td></tr>';
+            });
+            el.innerHTML = '<table><thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Started</th><th>Results</th></tr></thead><tbody>' + rows.join('') + '</tbody></table><p class="fde-run-help"><a href="/runs.html">View all past runs →</a></p>';
+          } catch (e) {
+            el.innerHTML = '<p class="fde-run-help">Run history unavailable (no API server).</p>';
+          }
+        }
+        loadRecentRuns();
       })();
     </script>
+
+    <article class="fde-prose" style="margin-top:2rem">
+      <h3>Recent runs</h3>
+      <div id="recentRuns"><p class="fde-run-help">Loading\u2026</p></div>
+    </article>
 """
 
 
@@ -664,7 +699,7 @@ def build(out: Path) -> dict[str, str]:
         <a class="fde-card" href="/docs/overview.html">
           <span class="fde-card-tag">introduction</span>
           <h3>Overview</h3>
-          <p>What the engine is, what problem it solves, the five domains, and who it fits.</p>
+          <p>What the engine is, what problem it solves, the six domains, and who it fits.</p>
         </a>
         <a class="fde-card" href="/docs/installation.html">
           <span class="fde-card-tag">setup</span>
@@ -735,7 +770,7 @@ def build(out: Path) -> dict[str, str]:
         product_shell(
             title="This host — Fragility Discovery Engine",
             page_id="host",
-            description="GCE-hosted workbench; browser-only access.",
+            description="GCE-hosted workbench; live engine status and deployment notes.",
             main_html="""<article class="fde-prose">
       <h2>This deployment</h2>
       <p>The <strong>Fragility Discovery Engine</strong> on this VM serves the workbench, bundled JSON artifacts, and interactive viewers. You only need a web browser pointed at this host.</p>
@@ -744,13 +779,102 @@ def build(out: Path) -> dict[str, str]:
         <li><strong>Public web root:</strong> <code>/var/www/fragility/public</code></li>
         <li><strong>Status:</strong> <a href="/status.json">/status.json</a> (benchmark validate snapshot)</li>
       </ul>
+
+      <h3>Live engine status</h3>
+      <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
+
       <h3>Refresh workbench (operators, on the VM)</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine
 git pull
 bash scripts/gce_publish_workbench.sh</pre>
       <p>From your laptop you can trigger the same publish after sync: <code>powershell -File scripts/gce_deploy_public_site.ps1</code> (runs build + validate on the VM).</p>
       <p>Product by <a href="https://agenticop.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
-    </article>""",
+    </article>
+    <script>
+      (function () {
+        var el = document.getElementById('hostHealth');
+        fetch('/api/health', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (h) {
+            var lines = [];
+            lines.push('<strong>Active runs:</strong> ' + h.active + ' / ' + h.max);
+            lines.push('<strong>Run timeout:</strong> ' + h.timeout_s + ' s');
+            if (h.caps) {
+              var caps = h.caps;
+              lines.push('<strong>Parameter caps:</strong> seed [' + caps.seed[0] + ',' + caps.seed[1] + ']' +
+                ', generations [' + caps.generations[0] + ',' + caps.generations[1] + ']' +
+                ', population [' + caps.population[0] + ',' + caps.population[1] + ']' +
+                ', horizon [' + caps.horizon[0] + ',' + caps.horizon[1] + ']');
+            }
+            if (h.modes) lines.push('<strong>Supported modes (' + h.modes.length + '):</strong> ' + h.modes.join(', '));
+            if (h.pareto_modes) lines.push('<strong>Pareto modes:</strong> ' + h.pareto_modes.join(', '));
+            el.innerHTML = '<ul style="margin:0.5rem 0 0 0">' + lines.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>';
+          })
+          .catch(function () {
+            el.innerHTML = '<p class="fde-run-help">API server not reachable. Run <code>bash scripts/gce_install_run_server.sh</code> on the VM to start it.</p>';
+          });
+      })();
+    </script>""",
+        ),
+    )
+
+    _write(
+        out / "runs.html",
+        product_shell(
+            title="Past runs — Fragility Discovery Engine",
+            page_id="runs",
+            description="Browse completed scenario runs and open their results in the viewer.",
+            main_html="""<article class="fde-prose">
+      <h2>Past runs</h2>
+      <p>Completed runs on this server. Each row links to the replay or Pareto viewer for that run and its raw files under <code>/runs/&lt;id&gt;/</code>.</p>
+    </article>
+
+    <div id="runsList"><p class="fde-run-help">Loading&hellip;</p></div>
+
+    <script>
+      (function () {
+        var el = document.getElementById('runsList');
+        fetch('/api/runs', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (runs) {
+            if (!runs.length) {
+              el.innerHTML = '<p>No runs yet. <a href="/run.html">Start one now.</a></p>';
+              return;
+            }
+            var rows = runs.map(function (s) {
+              var id    = s.id || '?';
+              var mode  = (s.request && s.request.mode) || '?';
+              var state = s.state || '?';
+              var seed  = (s.request && s.request.seed != null) ? s.request.seed : '';
+              var gens  = (s.request && s.request.generations != null) ? s.request.generations : '';
+              var pop   = (s.request && s.request.population != null) ? s.request.population : '';
+              var ts    = s.started_utc ? s.started_utc.replace('T', ' ').replace('Z', ' UTC') : '';
+              var dur   = (s.elapsed_s != null) ? s.elapsed_s.toFixed(1) + 's' : '';
+              var links = [];
+              if (s.viewer_url) links.push('<a href="' + s.viewer_url + '">Replay</a>');
+              if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '">Pareto</a>');
+              links.push('<a href="/runs/' + id + '/">files</a>');
+              var stateClass = state === 'done' ? 'color:var(--fde-green,#22c55e)' : state === 'failed' ? 'color:var(--fde-red,#ef4444)' : '';
+              return '<tr><td><code>' + id + '</code></td>' +
+                '<td>' + mode + '</td>' +
+                '<td style="' + stateClass + '">' + state + '</td>' +
+                '<td>' + seed + '</td>' +
+                '<td>' + gens + ' gen / ' + pop + ' pop</td>' +
+                '<td>' + ts + '</td>' +
+                '<td>' + dur + '</td>' +
+                '<td>' + links.join(' &middot; ') + '</td></tr>';
+            });
+            el.innerHTML = '<div style="overflow-x:auto"><table>' +
+              '<thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Seed</th><th>Params</th><th>Started</th><th>Duration</th><th>Results</th></tr></thead>' +
+              '<tbody>' + rows.join('') + '</tbody>' +
+              '</table></div>' +
+              '<p class="fde-run-help">Showing up to 25 most recent runs. Files persist for the duration of the server session.</p>';
+          })
+          .catch(function () {
+            el.innerHTML = '<p class="fde-run-help">Run history unavailable — API server may not be running. <a href="/host.html">Check this host.</a></p>';
+          });
+      })();
+    </script>""",
         ),
     )
 
@@ -781,6 +905,25 @@ bash scripts/gce_publish_workbench.sh</pre>
         out / "install.html",
         '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/host.html"/>'
         '<title>Redirect</title></head><body></body></html>',
+    )
+    _write(
+        out / "404.html",
+        product_shell(
+            title="Page not found — Fragility Discovery Engine",
+            page_id="workbench",
+            description="The page you requested was not found on this server.",
+            main_html="""<article class="fde-prose" style="text-align:center;padding:3rem 0">
+      <h2 style="font-size:4rem;margin-bottom:0.25rem">404</h2>
+      <p style="font-size:1.25rem">Page not found.</p>
+      <p>The URL you requested does not exist on this server. Try one of these:</p>
+      <ul style="display:inline-block;text-align:left">
+        <li><a href="/">Workbench</a> — the main landing page</li>
+        <li><a href="/run.html">Run a scenario</a> — submit a fragility search</li>
+        <li><a href="/runs.html">Past runs</a> — browse completed runs</li>
+        <li><a href="/docs/">Documentation</a> — full manual</li>
+      </ul>
+    </article>""",
+        ),
     )
     _write(
         out / "cli.html",

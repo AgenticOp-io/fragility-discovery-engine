@@ -9,6 +9,7 @@ import numpy as np
 from fragility_engine.adversary.fitness import severity_score
 from fragility_engine.adversary.search import genetic_search, genetic_vector_search
 from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_inventory_buffer_clone,
     thread_safe_liquidity_ladder_clone,
     thread_safe_network_clone,
     thread_safe_peg_clone,
@@ -16,6 +17,7 @@ from fragility_engine.coevolution.thread_safe_template import (
     thread_safe_service_backlog_clone,
 )
 from fragility_engine.runner import (
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
@@ -23,6 +25,7 @@ from fragility_engine.runner import (
     rollout_stablecoin_network,
 )
 from fragility_engine.types import RolloutResult, SearchResult
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -387,6 +390,55 @@ def alternating_coevolution_liquidity_ladder(
         seed=seed,
         baseline_seed_offset=baseline_seed_offset,
         simulation_mode="liquidity_ladder",
+        collect_attacker_pareto=collect_attacker_pareto,
+        eval_workers=ew,
+    )
+
+
+def alternating_coevolution_inventory_buffer(
+    template: InventoryBufferWorld,
+    *,
+    initial_stock: float = 0.88,
+    continue_after_collapse: bool = False,
+    collect_attacker_pareto: bool = False,
+    attacker_horizon: int = 20,
+    defender_genome_size: int = 4,
+    rounds: int = 3,
+    attacker_generations: int = 8,
+    attacker_population: int = 18,
+    defender_generations: int = 8,
+    defender_population: int = 16,
+    seed: int = 4242,
+    baseline_seed_offset: int = 50_000,
+    eval_workers: int = 1,
+) -> CoevolutionSummary:
+    """Alternating attacker/defender loop on :class:`~fragility_engine.world.inventory_buffer.InventoryBufferWorld`."""
+
+    ew = max(1, int(eval_workers))
+
+    def rollout_fn(g: np.ndarray, s: int, d: np.ndarray) -> RolloutResult:
+        world = thread_safe_inventory_buffer_clone(template) if ew > 1 else template
+        return rollout_inventory_buffer(
+            world,
+            g,
+            seed=s,
+            initial_stock=float(initial_stock),
+            continue_after_collapse=continue_after_collapse,
+            defender_genome=d,
+        )
+
+    return alternating_coevolution_rollout(
+        rollout_fn,
+        attacker_horizon=attacker_horizon,
+        defender_genome_size=defender_genome_size,
+        rounds=rounds,
+        attacker_generations=attacker_generations,
+        attacker_population=attacker_population,
+        defender_generations=defender_generations,
+        defender_population=defender_population,
+        seed=seed,
+        baseline_seed_offset=baseline_seed_offset,
+        simulation_mode="inventory_buffer",
         collect_attacker_pareto=collect_attacker_pareto,
         eval_workers=ew,
     )

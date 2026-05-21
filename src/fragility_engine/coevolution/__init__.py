@@ -19,6 +19,7 @@ __all__ = [
     "alternating_coevolution_resource_cascade",
     "alternating_coevolution_service_backlog",
     "alternating_coevolution_liquidity_ladder",
+    "alternating_coevolution_inventory_buffer",
     "alternating_coevolution_rollout",
     "build_defended_aggregate_world",
     "build_defended_network_world",
@@ -60,4 +61,8 @@ def __getattr__(name: str):
         from fragility_engine.coevolution.alternating import alternating_coevolution_liquidity_ladder
 
         return alternating_coevolution_liquidity_ladder
+    if name == "alternating_coevolution_inventory_buffer":
+        from fragility_engine.coevolution.alternating import alternating_coevolution_inventory_buffer
+
+        return alternating_coevolution_inventory_buffer
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
