@@ -26,6 +26,7 @@
     <nav class="fde-nav" aria-label="Product">
       <a href="/">Workbench</a>
 <a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
 <a href="/artifacts/replay_viewer/index.html">Replay</a>
 <a href="/artifacts/pareto_viewer/index.html">Pareto</a>
 <a href="/artifacts/attribution_viewer/index.html">Attribution</a>
@@ -54,7 +55,7 @@
 <a href="/docs/algorithms.html">Algorithms</a>
 </nav>
 <article class="fde-prose"><h2>Architecture</h2>
-<p>This document describes how the Fragility Discovery Engine is structured: what runs where, how data flows from a genome to JSON artifacts, and how the reference domains relate. For CLI flags and schema names, see <a href="REFERENCE.md"><code>REFERENCE.md</code></a>. For scope and non-goals, see <a href="../BOUNDARIES.md"><code>BOUNDARIES.md</code></a>.</p>
+<p>This document describes how the Fragility Discovery Engine is structured: what runs where, how data flows from a genome to JSON artifacts, and how the reference domains relate. For CLI flags and schema names, see <a href="/docs/reference.html"><code>REFERENCE.md</code></a>. For scope and non-goals, see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md"><code>BOUNDARIES.md</code></a>.</p>
 <hr>
 <h3>Design goal</h3>
 <p>The engine answers one question in a <strong>controlled, repeatable</strong> way:</p>
@@ -149,7 +150,7 @@
 <ul>
 <li><strong>Reference path:</strong> NumPy RNG with explicit seeds on genome construction and rollout.</li>
 <li><strong>Same inputs</strong> (code version, seeds, CLI flags, world template params) ⇒ <strong>same</strong> metrics and trajectory within documented float tolerances on golden bundles.</li>
-<li><strong>Parallelism</strong> is safe only with per-task world clones or isolated bundle evaluators; see <a href="SCALE_AND_LIMITS.md"><code>SCALE_AND_LIMITS.md</code></a>.</li>
+<li><strong>Parallelism</strong> is safe only with per-task world clones or isolated bundle evaluators; see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/SCALE_AND_LIMITS.md"><code>SCALE_AND_LIMITS.md</code></a>.</li>
 <li><strong>Optional Numba</strong> backend for resource cascade must pass parity tests against NumPy before claims about speedup.</li>
 </ul>
 <hr>
@@ -162,7 +163,7 @@
 <tr><td>Custom topology</td><td><code>ContagionGraph</code> / <code>--neighbor-json</code> list format</td></tr>
 <tr><td>Faster cascade</td><td><code>pip install -e &quot;.[accelerate]&quot;</code>, env <code>FRAGILITY_RESOURCE_CASCADE_BACKEND</code></td></tr>
 </tbody></table>
-<p>Coupled multi-kernel physics inside one world belongs in a <strong>fork</strong> per <a href="FORK_COUPLING_RESEARCH.md"><code>FORK_COUPLING_RESEARCH.md</code></a>, not in this repo’s default charter.</p></article>
+<p>Coupled multi-kernel physics inside one world belongs in a <strong>fork</strong> per <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/FORK_COUPLING_RESEARCH.md"><code>FORK_COUPLING_RESEARCH.md</code></a>, not in this repo’s default charter.</p></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>

@@ -26,6 +26,7 @@
     <nav class="fde-nav" aria-label="Product">
       <a href="/">Workbench</a>
 <a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
 <a href="/artifacts/replay_viewer/index.html">Replay</a>
 <a href="/artifacts/pareto_viewer/index.html">Pareto</a>
 <a href="/artifacts/attribution_viewer/index.html">Attribution</a>
@@ -53,113 +54,104 @@
 <a href="/docs/reference.html">Reference</a>
 <a href="/docs/algorithms.html">Algorithms</a>
 </nav>
-<article class="fde-prose"><h2>Fragility Discovery Engine — Whitepaper</h2>
+<article class="fde-prose"><h2>Fragility Discovery Engine — Overview</h2>
 <p><strong>Repository:</strong> <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">github.com/AgenticOp-io/fragility-discovery-engine</a></p>
-<p><strong>Version:</strong> 3.1 · <strong>Release:</strong> v0.5.0 · <strong>License:</strong> open-source Python</p>
+<p><strong>Release:</strong> v0.5.0 · <strong>License:</strong> open-source Python</p>
 <hr>
 <h3>What is this?</h3>
-<p>The <strong>Fragility Discovery Engine</strong> is an open-source Python framework for <strong>systematically finding the conditions under which a simulated system breaks</strong> — and then explaining *why* it broke in a form you can archive, reproduce, and compare.</p>
-<p>It is built to answer questions like:</p>
+<p>The <strong>Fragility Discovery Engine</strong> is an open-source Python tool for <strong>finding the conditions that break a simulated system</strong> — and then explaining *why* it broke in a way you can save, reproduce, and share.</p>
+<p>It answers questions like:</p>
 <ul>
-<li>A stablecoin peg holds under normal conditions — at what point does a sequence of redemption shocks trigger a panic and break it?</li>
-<li>A financial network is stable in isolation — which combination of node-level shocks causes contagion to cascade across the graph?</li>
-<li>A service infrastructure runs within capacity — how does an overload in one layer propagate until the whole system fails?</li>
-<li>A funding ladder is adequately margined — what reserve losses and rumor shocks erode the runway fast enough to cause a margin call spiral?</li>
-<li>A supply buffer looks adequate — which demand spikes and fulfillment shocks drive stock to stockout?</li>
+<li>A stablecoin peg holds under normal conditions — what sequence of shocks triggers a panic and breaks it?</li>
+<li>A financial network is stable in isolation — which combination of node-level pressures causes failure to spread across the whole graph?</li>
+<li>A service infrastructure runs within capacity — how does overload in one layer cascade until the whole system fails?</li>
+<li>A funding ladder looks adequately margined — what reserve losses and rumor shocks erode it fast enough to cause a forced sell-off spiral?</li>
+<li>A supply buffer looks adequate — which demand surges and fulfillment shocks drive stock to a stockout?</li>
 </ul>
-<p>In each case the engine searches for the shock sequences that matter, records exactly how the system responded, and produces controlled comparisons that show what would have changed under different conditions.</p>
-<p>The engine answers that question with <strong>directed search</strong> (genetic algorithms, Monte Carlo sampling, co-evolution) over discrete-time simulations, then exports structured JSON artifacts at every step so results are <strong>deterministic, verifiable, and citable</strong>.</p>
+<p>In each case the engine searches for the stress sequences that matter, records exactly how the system responded, and produces controlled comparisons that show what would have changed under different conditions.</p>
+<p>The engine uses <strong>automated search</strong> (genetic algorithms, Monte Carlo sampling, attacker/defender co-evolution) over step-by-step simulations, and exports structured JSON files at every step so results are <strong>reproducible and easy to compare</strong>.</p>
 <hr>
-<h3>The core idea: shock schedules and fragility metrics</h3>
-<p>Any system the engine studies is described as a <strong>simulation world</strong>: a state that resets to known initial conditions, steps forward one timestep at a time, and exposes a small set of scalar metrics. The engine does <strong>not</strong> try to build a single monolithic model of everything — it provides six thin reference worlds that each tell a different physics story.</p>
-<p>What all worlds share is the <strong>shock schedule</strong>: an encoded sequence of external pressures applied at each timestep. The engine&#x27;s adversary layer searches over possible schedules to find which ones are most damaging. This is analogous to fuzz testing for software — but for system-level fragility, with interpretable outputs instead of crash logs.</p>
+<h3>The core idea: stress schedules and fragility metrics</h3>
+<p>Any system the engine studies is described as a <strong>simulation world</strong>: a state that resets to known starting conditions, advances one step at a time, and reports a small set of numbers at each step. The engine does not try to build a single model of everything — it provides six focused reference worlds that each tell a different story about how things fail.</p>
+<p>What all worlds share is the <strong>stress schedule</strong>: a sequence of external pressures applied at each step. The engine&#x27;s search layer tests many possible schedules to find which ones cause the most damage. This is similar to fuzz testing in software — but applied to system-level fragility, with results you can read and explain rather than just crash logs.</p>
 <p>A run produces:</p>
 <ul>
-<li><strong>How bad did it get?</strong> — <code>integral_instability</code>, <code>peak_instability</code>, whether the system <code>collapsed</code>.</li>
-<li><strong>How expensive was the attack?</strong> — <code>attack_cost</code> (the resource cost of applying those shocks).</li>
-<li><strong>When did it collapse?</strong> — <code>collapse_timestep</code>, optional recovery metrics.</li>
-<li><strong>What did the trajectory look like?</strong> — full timestep-by-timestep replay JSON.</li>
+<li><strong>How bad did it get?</strong> — total accumulated stress, peak stress level, whether the system collapsed.</li>
+<li><strong>How costly was the attack?</strong> — the total resource cost of applying those pressures.</li>
+<li><strong>When did it collapse?</strong> — which step the collapse occurred, and optional recovery metrics.</li>
+<li><strong>What did it look like?</strong> — a full step-by-step replay file you can load in the browser.</li>
 </ul>
-<p>The engine records these for every evaluation and exposes them through a consistent JSON schema, so you can compare runs across seeds, modes, and parameter settings.</p>
+<p>The engine saves these for every run through a consistent file format, so you can compare runs across different seeds, domains, and settings.</p>
 <hr>
-<h3>The five simulation domains</h3>
-<p>The engine ships five <strong>reference domains</strong> — modular worlds with different physics but the same schedule encoding. You pick whichever fits your research framing:</p>
+<h3>The six simulation domains</h3>
+<p>The engine ships six <strong>reference domains</strong> — separate worlds with different mechanics but the same schedule format. You pick whichever fits what you want to study:</p>
 <table><thead>
 <tr><th>Domain</th><th>What it models</th></tr>
 </thead><tbody>
-<tr><td><strong>Aggregate peg</strong></td><td>A scalar stablecoin under redemption pressure and panic dynamics</td></tr>
+<tr><td><strong>Aggregate peg</strong></td><td>A stablecoin reserve and panic level under redemption pressure</td></tr>
 <tr><td><strong>Network contagion</strong></td><td>Panic spreading across an explicit graph of interconnected nodes</td></tr>
 <tr><td><strong>Resource cascade</strong></td><td>Overload propagating through two coupled capacity layers</td></tr>
-<tr><td><strong>Service backlog</strong></td><td>An operations queue where processing rate fights rising demand</td></tr>
-<tr><td><strong>Liquidity ladder</strong></td><td>Margin utilization vs funding runway under reserve and rumor shocks</td></tr>
+<tr><td><strong>Service backlog</strong></td><td>A work queue where processing rate fights rising demand</td></tr>
+<tr><td><strong>Liquidity ladder</strong></td><td>Financial margin eroding under reserve losses and rumors</td></tr>
+<tr><td><strong>Inventory buffer</strong></td><td>Stock level declining under demand surges and fulfillment problems</td></tr>
 </tbody></table>
-<p>These are <strong>deliberately simplified</strong> reference kernels. They are not calibrated to any real institution or market. Their purpose is to make the engine&#x27;s search and explanation methods testable across multiple qualitatively different collapse stories. If your domain of interest has similar structure — state that resets, steps forward, and can be driven to a threshold — you can write a new world module using the same interface.</p>
+<p>These are <strong>deliberately simple</strong> models. They are not calibrated to any real institution or market. Their purpose is to let the engine&#x27;s search and explanation methods work across several different failure patterns. If your system follows a similar structure — state that resets, steps forward, and can be driven past a threshold — you can write a new world module using the same interface.</p>
 <hr>
 <h3>What the engine does that is hard to do by hand</h3>
-<p><strong>1. Directed search for fragile conditions</strong></p>
-<p>Running the simulation once with a hand-crafted shock is exploratory. Running Monte Carlo sampling or a genetic algorithm over thousands of possible shock schedules finds *systematically worse* conditions — and records the ones that score highest on instability or lowest cost-to-collapse. Pareto search finds the full tradeoff frontier between severity and attack cost.</p>
+<p><strong>1. Systematic search for weak points</strong></p>
+<p>Running a simulation once with a hand-crafted scenario is exploratory. Running thousands of possible stress schedules through a genetic algorithm finds *systematically worse* conditions — and records the ones that score highest on damage or lowest cost-to-collapse. Attacker/defender co-evolution finds the full trade-off between how severe an attack is and how much it costs.</p>
 <p><strong>2. Counterfactuals and sensitivity</strong></p>
-<p>After finding a collapsing run, you can ask: what if those shocks had been weaker? What if the initial conditions were different? What if certain shock steps were removed? The engine answers these questions by re-running the simulation under controlled interventions and diffing the outputs — producing <strong>counterfactual JSON pairs</strong> you can compare side by side.</p>
-<p><strong>3. Mutation chains and attribution</strong></p>
-<p>For network and domain-specific worlds, the engine can build <strong>ordered mutation chains</strong>: intermediate rollouts where shocks are applied one by one. Each step in the chain shows how instability accumulates, which lets you trace which shocks contributed most to a collapse.</p>
+<p>After finding a scenario that causes collapse, you can ask: what if those shocks had been weaker? What if the starting conditions were different? What if certain shock steps were removed? The engine answers these questions by re-running the simulation with controlled changes and comparing the outputs — producing <strong>before/after comparison files</strong> you can inspect side by side.</p>
+<p><strong>3. Step-by-step attribution</strong></p>
+<p>The engine can apply discrete changes to the world&#x27;s parameters one at a time and record how instability accumulates at each step. This lets you trace which shocks or parameter changes contributed most to a collapse.</p>
 <p><strong>4. Reproducible records</strong></p>
-<p>Every output is a JSON file with a versioned schema, the seed used, and the CLI flags that produced it. A <strong>benchmark harness</strong> ships with six frozen reference runs whose golden metrics are checked in CI on every commit. An optional <strong>certificate</strong> script hashes your artifacts and records the Python environment so a paper appendix or audit packet has a stable reference point.</p>
+<p>Every output is a JSON file with the version, the random seed used, and the exact settings that produced it. A benchmark harness ships with six frozen reference runs whose expected results are checked automatically on every code change. An optional certificate script creates a single file bundling your results and environment details — useful for paper appendices or audit records.</p>
 <p><strong>5. Attacker–defender co-evolution</strong></p>
-<p>The engine includes an alternating search loop where an adversary tries to find collapsing schedules while a defender tries to suppress collapse. The result is a two-objective Pareto frontier trading off attacker severity against defender response cost.</p>
+<p>The engine includes an alternating search loop where one side tries to find collapsing scenarios while the other tries to prevent collapse. The result is a curve showing all the non-dominated trade-offs between attack severity and defense cost.</p>
 <hr>
 <h3>What this is not</h3>
 <ul>
-<li><strong>Not a calibrated model.</strong> The domains are pedagogical. They do not have empirically fitted parameters from any real institution, market, or infrastructure system.</li>
+<li><strong>Not a calibrated model.</strong> The domains are teaching tools. They do not have parameters fitted to any real institution, market, or infrastructure system.</li>
 <li><strong>Not a forecast or trading system.</strong> The engine produces research artifacts for analysis, not predictions about real-world outcomes.</li>
 <li><strong>Not a compliance tool.</strong> Outputs are not regulatory-grade stress tests.</li>
-<li><strong>Not a coupled multi-physics engine.</strong> The six worlds never exchange state inside a timestep. &quot;Institutional composite&quot; outputs apply one schedule to multiple worlds independently and summarize results side by side — there is no cross-world coupling in the physics.</li>
-<li><strong>Not a platform you deploy.</strong> There is no server, database, or hosted service. It is a Python library and a set of CLI scripts you run locally or in CI.</li>
+<li><strong>Not a coupled multi-system engine.</strong> The six worlds never share state within a step. The &quot;composite&quot; output mode runs the same attack through multiple worlds independently and compares the results — the worlds do not interact with each other.</li>
+<li><strong>Not a calibrated real-world risk tool.</strong> If you need real-time simulation, empirically fitted models, or output that is safe to act on in production, this is not the right fit.</li>
 </ul>
 <hr>
 <h3>Who this fits</h3>
-<p><strong>Researchers</strong> working on adversarial robustness, counterfactual explanation, fragility and resilience methodology, or simulation-based evaluation will find the engine useful as:</p>
+<p><strong>Researchers</strong> working on adversarial robustness, counterfactual explanation, fragility and resilience, or simulation-based evaluation will find the engine useful as:</p>
 <ul>
-<li>a controlled environment where ground-truth interventions are mechanical and reproducible</li>
-<li>a benchmark platform with frozen golden runs and versioned JSON schemas</li>
-<li>a codebase demonstrating the separation of search, physics, and explanation layers</li>
+<li>a controlled environment where interventions are mechanical and fully reproducible</li>
+<li>a benchmark platform with frozen reference runs and versioned output formats</li>
+<li>a codebase showing how search, physics, and explanation can be cleanly separated</li>
 </ul>
 <p><strong>Engineers</strong> building resilience tooling or red-team pipelines will find it useful as:</p>
 <ul>
-<li>a CLI-first framework where every run is reproducible and can be diffed</li>
-<li>a starting point for adding a new physics world to an existing search and explanation stack</li>
+<li>a command-line tool where every run is reproducible and results can be diffed</li>
+<li>a starting point for adding a new simulation domain to an existing search and explanation stack</li>
 </ul>
-<p><strong>Reviewers and paper authors</strong> will find the artifact chain (replay → Pareto → counterfactuals → certificate) useful as a reproducibility trail for simulation-based results.</p>
-<p>This is <strong>not</strong> the right fit if you need real-time simulation, calibrated real-world models, or infrastructure you can deploy to end users.</p>
+<p><strong>Reviewers and paper authors</strong> will find the artifact chain (replay → trade-off chart → counterfactuals → certificate) useful as a reproducibility trail for simulation-based results.</p>
 <hr>
-<h3>Quick orientation: what you run</h3>
+<h3>Quick start</h3>
 <p>```bash</p>
 <h2>Install</h2>
 <p>pip install -e &quot;.[dev]&quot;</p>
-<h2>Run one search (aggregate domain, ~2 min)</h2>
+<h2>Run one search (~2 minutes, aggregate domain)</h2>
 <p>python scripts/run_ga_demo.py --export-replay best.json --generations 4 --seed 42</p>
-<h2>View result</h2>
+<h2>Read a summary of the result</h2>
 <p>python scripts/narrate_frozen_json.py best.json</p>
-<h2>Open artifacts/replay_viewer/index.html in a browser, load best.json</h2>
-<h2>Counterfactual: what if those shocks were removed?</h2>
+<h2>Open artifacts/replay_viewer/index.html in a browser and load best.json</h2>
+<h2>What if those shocks were removed?</h2>
 <p>python scripts/export_counterfactual.py --mode aggregate --intervention remove_steps \</p>
 <p>  --export-replay-dir ./cf_out</p>
-<h2>Verify frozen benchmarks match expected metrics</h2>
+<h2>Verify the frozen benchmark results match expectations</h2>
 <p>python scripts/run_benchmark_suite.py --validate</p>
 <p>```</p>
-<p>Full tutorials, domain-specific CLI examples, and viewer guides: <code><a href="HOW_TO_USE.md">HOW_TO_USE.md</a></code>.</p>
-<p>Complete CLI and schema reference: <code><a href="REFERENCE.md">REFERENCE.md</a></code>.</p>
-<p>Package layout and data flow: <code><a href="ARCHITECTURE.md">ARCHITECTURE.md</a></code>.</p>
-<p>Hard limits, wall-clock, non-goals: <code><a href="SCALE_AND_LIMITS.md">SCALE_AND_LIMITS.md</a></code> and <code><a href="../BOUNDARIES.md">BOUNDARIES.md</a></code>.</p>
+<p>Full tutorials, domain examples, and viewer guides: <a href="/docs/how-to-use.html">How to Use</a>.</p>
+<p>Complete command reference: <a href="/docs/reference.html">Reference</a>.</p>
+<p>Package layout and data flow: <a href="/docs/architecture.html">Architecture</a>.</p>
 <hr>
-<h3>Document control</h3>
-<table><thead>
-<tr><th>Field</th><th>Value</th></tr>
-</thead><tbody>
-<tr><td><strong>Version</strong></td><td>3.0</td></tr>
-<tr><td><strong>Last updated</strong></td><td>2026-05 — full conceptual rewrite</td></tr>
-<tr><td><strong>Repo state</strong></td><td>Tracks <code>main</code>; cite tag <code>v0.5.0</code> alongside frozen JSON for reproducibility.</td></tr>
-<tr><td><strong>Questions</strong></td><td><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues">GitHub Issues</a></td></tr>
-</tbody></table></article>
+<p>*Last updated: 2026-05 · Release v0.5.0 · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/issues">GitHub Issues</a>*</p></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>

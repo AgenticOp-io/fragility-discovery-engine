@@ -26,6 +26,7 @@
     <nav class="fde-nav" aria-label="Product">
       <a href="/">Workbench</a>
 <a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
 <a href="/artifacts/replay_viewer/index.html">Replay</a>
 <a href="/artifacts/pareto_viewer/index.html">Pareto</a>
 <a href="/artifacts/attribution_viewer/index.html">Attribution</a>
@@ -94,7 +95,7 @@
 <tr><td>Liquidity-ladder kernel</td><td>Margin utilization vs funding-ladder depth with deleveraging on haircut breach; reproduces the margin-call spiral mechanic in 4 state variables.</td><td>§4.5</td><td><code>src/fragility_engine/world/liquidity_ladder.py</code></td></tr>
 <tr><td>Inventory-buffer kernel</td><td>Stock level under demand spikes and fulfillment erosion; sixth reference domain shipped in v0.5.</td><td>§4.6</td><td><code>src/fragility_engine/world/inventory_buffer.py</code></td></tr>
 </tbody></table>
-<p>All kernels share <strong>one schedule encoding</strong> (<code>src/fragility_engine/adversary/encoding.py</code>), so any attacker genome found by search transfers across kernels unchanged — itself an intentional design choice of this project.</p>
+<p>All kernels share <strong>one schedule encoding</strong> (<code>src/fragility_engine/adversary/encoding.py</code>), so any attack found by search transfers across kernels unchanged — itself an intentional design choice of this project.</p>
 <p>Everything else listed in §2–§6 is textbook or library; we cite the original sources for those below.</p>
 <hr>
 <h3>2. Adversary search</h3>
@@ -176,7 +177,7 @@
 </ul>
 <hr>
 <h3>4. Simulation worlds (physics kernels)</h3>
-<p>All five worlds are <strong>deliberately simplified pedagogical models</strong>. They are <strong>not calibrated</strong> to any real institution, market, or infrastructure system. Each is original to this project; the underlying mechanisms are well-known.</p>
+<p>All six worlds are <strong>deliberately simplified models</strong>. They are <strong>not calibrated</strong> to any real institution, market, or infrastructure system. Each is original to this project; the underlying mechanisms draw on well-known theory.</p>
 <h4>4.1 Aggregate stablecoin peg — Original kernel</h4>
 <p>Scalar pool: reserves drain on redemption shocks; panic decays with a fixed time constant; collapse if price &lt; threshold.</p>
 <ul>

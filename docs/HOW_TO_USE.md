@@ -1,50 +1,47 @@
 # How to use the Fragility Discovery Engine
 
-This guide is the **hands-on entry point**: install, run your first artifacts, understand JSON outputs, and use the static viewers.
+This guide is the **hands-on entry point**: install, run your first scenarios, understand the output files, and use the browser-based viewers.
 
 | More detail | Document |
 |-------------|----------|
-| Documentation map | [`README.md`](README.md) |
-| Package layout and data flow | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| CLI / env / schema lookup | [`REFERENCE.md`](REFERENCE.md) |
-| Charter and non-goals | [`BOUNDARIES.md`](../BOUNDARIES.md) |
-| Cost and parallelism | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |
-
-**About “Phase” in docs:** labels such as Phase H or Phase N are **section names** in [`BOUNDARIES.md`](../BOUNDARIES.md) (how features were gated in CI). They are not separate products or install tiers. Primer: [How to read “Phase” labels](../BOUNDARIES.md#how-to-read-phase-labels).
+| Package layout and data flow | [Architecture](/docs/architecture.html) |
+| CLI flags and output formats | [Reference](/docs/reference.html) |
+| Cost and parallelism limits | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) |
 
 ---
 
 ## 1. What this software does
 
-The engine runs **discrete-time simulations** where an adversary supplies a **shock schedule** (one row per timestep). Search algorithms (Monte Carlo, genetic algorithms, co-evolution) explore schedules to maximize stated **fragility metrics**. Outputs are **versioned JSON** you can archive, diff, and cite.
+The engine runs **step-by-step simulations** where each timestep applies a stress event to the simulated system. Search algorithms (Monte Carlo, genetic algorithms, attacker/defender co-evolution) test many possible stress sequences to find the ones that cause the most damage. All outputs are saved as JSON files you can replay, compare, and reproduce exactly.
 
-**Reference domains** (each is a separate world model; same schedule encoding):
+**Simulation domains** (each is a separate world with different physics; all use the same stress encoding):
 
 | Mode | What it models |
 |------|----------------|
-| `aggregate` | Scalar stablecoin peg / panic |
-| `network` | Contagion on a graph (synthetic or neighbor-list JSON) |
-| `resource_cascade` | Overload and capacity cascade |
-| `service_backlog` | Operations backlog and processing rate |
-| `liquidity_ladder` | Margin utilization vs funding ladder depth |
+| `aggregate` | Stablecoin reserve and panic level |
+| `network` | Panic spreading across a graph (synthetic or from a topology file) |
+| `resource_cascade` | Overload cascading through two capacity layers |
+| `service_backlog` | Operations queue and processing rate |
+| `liquidity_ladder` | Financial margin eroding toward a forced sell-off |
+| `inventory_buffer` | Stock level under demand surges and fulfillment problems |
 
 Typical workflow:
 
-1. Run search or a single rollout → **replay JSON** or **Pareto JSON**.
-2. Run **counterfactuals** or **ε-sweeps** on pinned seeds.
+1. Run a search → **replay file** or **trade-off chart**.
+2. Run **counterfactuals** or **parameter sweeps** on fixed seeds.
 3. Optional: **certificate** digest, **narration**, plots, static viewers.
 
-This is a **research and engineering** tool: fixed seeds, explicit metrics, frozen benchmark rows in CI. It is **not** a live trading stack, a calibrated macro model, or a compliance certification product.
+This is a **research and engineering** tool: fixed seeds, explicit metrics, frozen benchmark results checked in CI. It is not a live trading stack, a calibrated macro model, or a compliance certification product.
 
-What the engine is and when it fits your work: [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md).
+What the engine is and when it fits your work: [Overview](/docs/overview.html).
 
 ---
 
 ## 2. Install and verify
 
-**Requirements:** CPython **≥ 3.11**, `pip`, `git`. Core deps: `numpy`, `networkx`; optional `numba` via extras.
+**Requirements:** Python **≥ 3.11**, `pip`, `git`. Core dependencies: `numpy`, `networkx`; optional `numba` for acceleration.
 
-### Windows (recommended: real installer, not Store stubs)
+### Windows (recommended: real installer, not the Store version)
 
 ```powershell
 winget install Python.Python.3.12 --accept-package-agreements --accept-source-agreements
@@ -55,13 +52,13 @@ pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-Optional acceleration (resource cascade): `pip install -e ".[accelerate]"` — see [`phase_k_acceleration.md`](phase_k_acceleration.md) and `scripts/install_accelerate_windows.ps1`.
+Optional acceleration (resource cascade): `pip install -e ".[accelerate]"` — see `scripts/install_accelerate_windows.ps1`.
 
 ### Linux / macOS
 
-**CI parity:** after activating a venv from this clone, run `bash scripts/ci_local.sh` (same **ruff** + **pytest** + perf gate env as `.github/workflows/ci.yml`). See [`INSTALLATION.md`](INSTALLATION.md) for dual-stack notes, distro packages, and WSL tips.
+**CI parity:** after activating a venv from this clone, run `bash scripts/ci_local.sh` (same checks as the automated CI pipeline). See [Installation](/docs/installation.html) for platform-specific notes.
 
-**Debian / Ubuntu** (Python 3.12 in bookworm/backports or 24.04+; use `python3.11` on 22.04 if you prefer the LTS interpreter):
+**Debian / Ubuntu:**
 
 ```bash
 sudo apt update
@@ -73,13 +70,13 @@ pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-**Fedora / RHEL-family:** `sudo dnf install -y git python3.12` (or `python3.11`), then the same `python3.12 -m venv .venv` pattern.
+**Fedora / RHEL:** `sudo dnf install -y git python3.12` (or `python3.11`), then the same `python3.12 -m venv .venv` pattern.
 
-**macOS:** install Python **≥ 3.11** via [python.org](https://www.python.org/downloads/) or Homebrew (`brew install python@3.12`), then create a venv with that interpreter’s full path if `python3` is ambiguous.
+**macOS:** install Python **≥ 3.11** via [python.org](https://www.python.org/downloads/) or Homebrew (`brew install python@3.12`), then create a venv with that interpreter.
 
-Optional acceleration (resource cascade Numba): `pip install -e ".[accelerate]"` — see [`phase_k_acceleration.md`](phase_k_acceleration.md). Linux CI also runs `tests/test_resource_cascade_numba_parity.py` in a separate workflow job.
+Optional acceleration (resource cascade): `pip install -e ".[accelerate]"`.
 
-### Minimal smoke (no full test suite)
+### Quick smoke test (no full test suite)
 
 ```bash
 python scripts/week1_smoke.py
@@ -92,10 +89,10 @@ python scripts/week1_smoke.py
 | Concept | Where it lives |
 |--------|----------------|
 | **World** | `fragility_engine.world.*` — physics only; reset + `step`. |
-| **Adversary** | `fragility_engine.adversary` — encodes schedules from genomes; MC / GA search. |
+| **Adversary** | `fragility_engine.adversary` — encodes stress sequences; MC / GA search. |
 | **Rollout** | `fragility_engine.runner` — decode genome → events → trajectory → `RolloutResult`. |
-| **Replay JSON** | `rollout_to_replay_dict` — `schema_version`, `trajectory`, `events_lane`, `meta`. |
-| **Explain** | `fragility_engine.explain` — minimization, counterfactuals, sweeps, narration. |
+| **Replay file** | `rollout_to_replay_dict` — `schema_version`, `trajectory`, `events_lane`, `meta`. |
+| **Explain** | `fragility_engine.explain` — counterfactuals, minimization, sweeps, narration. |
 
 Everything important is **deterministic** given published seeds and CLI flags.
 
@@ -105,88 +102,61 @@ Everything important is **deterministic** given published seeds and CLI flags.
 
 Run commands from the **repository root** unless noted.
 
-### 4.1 First replay (aggregate, ~1 minute)
+### 4.1 First replay (aggregate domain, ~1 minute)
 
 ```bash
 python scripts/week1_smoke.py --export-replay replay.json
 ```
 
-Open `artifacts/replay_viewer/index.html` in a browser (local HTTP server recommended: `python -m http.server 8765` from repo root, then visit `http://localhost:8765/artifacts/replay_viewer/`). Load `replay.json`. See [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md) for what JSON this viewer accepts.
+Open `artifacts/replay_viewer/index.html` in a browser (local HTTP server recommended: `python -m http.server 8765` from repo root, then visit `http://localhost:8765/artifacts/replay_viewer/`). Load `replay.json`.
 
-**Narration (deterministic text):**
+**Narration (deterministic text summary):**
 
 ```bash
 python scripts/narrate_frozen_json.py replay.json
 ```
 
-### 4.2 Genetic adversary on aggregate (~2–5 minutes)
+### 4.2 Genetic search on aggregate (~2–5 minutes)
 
 ```bash
 python scripts/run_ga_demo.py --export-replay best.json --generations 4 --population-size 12 --seed 42
 ```
 
-Use `--export-minimized-replay` for greedy-minimized schedules. Tune `--horizon`, `--generations`, `--population-size`.
+Use `--export-minimized-replay` for a stripped-down version of the worst-case schedule. Tune `--horizon`, `--generations`, `--population-size`.
 
-### 4.3 Reviewer-grade trail (certificate + Pareto + replay)
-
-One scripted path: [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md).
+### 4.3 Reviewer-grade artifact trail (certificate + trade-off chart + replay)
 
 ```bash
 python scripts/run_flagship_demo.py
 ```
 
-Outputs under `artifacts/flagship/output/` (see `artifacts/flagship/README.md`). Digest artifacts into **`fragility-certificate-v1`**:
+Outputs under `artifacts/flagship/output/`. Bundle into a **certificate**:
 
 ```bash
 python scripts/export_fragility_certificate.py --out cite.json --digest-json artifacts/flagship/output/best_replay.json artifacts/flagship/output/pareto_front.json
 ```
 
-### 4.4 Network contagion (synthetic graph or neighbor JSON)
+### 4.4 Network contagion (synthetic graph or topology file)
 
 ```bash
 python scripts/run_network_demo.py --graph-kind erdos_renyi --nodes 14 --export-replay net.json
-# List topology from JSON (directed out-neighbors):
+# Load topology from a JSON file (directed out-neighbors):
 python scripts/run_network_demo.py --neighbor-json path/to/topology.json --export-replay net.json
 ```
 
-Counterfactuals and examples: [`network_counterfactual_example.md`](network_counterfactual_example.md). Aggregate peg cookbook: [`aggregate_counterfactual_example.md`](aggregate_counterfactual_example.md).
-
-### 4.5 Resource cascade (second reference domain)
+### 4.5 Resource cascade
 
 ```bash
 python scripts/run_resource_cascade_ga_demo.py --export-replay rc.json --initial-overload 0.05
 ```
 
-Concepts: [`phase_j_resource_cascade.md`](phase_j_resource_cascade.md), narrative: [`WHY_RESOURCE_CASCADE.md`](WHY_RESOURCE_CASCADE.md).
-
-### 4.5b Service backlog (third reference domain, Phase M)
+### 4.6 Service backlog
 
 ```bash
 python scripts/run_service_backlog_ga_demo.py --export-replay sb.json --initial-backlog 0.05
 ```
 
-Concepts: [`phase_m_third_reference_domain.md`](phase_m_third_reference_domain.md), narrative: [`WHY_SERVICE_BACKLOG.md`](WHY_SERVICE_BACKLOG.md). Counterfactual cookbook: [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md).
-
-### 4.5d Inventory buffer (sixth reference domain, Phase O)
-
-Stock level `S` and fulfillment capacity `F` (both in `[0,1]`). `reserve_loss` shocks drain stock (demand spikes); `rumor` shocks erode fulfillment (supplier / logistics trust). Collapse when stock falls below the stockout threshold or fulfillment falls below the floor. Fixed horizon: 18.
-
-```bash
-python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json
-python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json --export-minimized-replay inv_min.json --seed 42
-python scripts/export_replay.py --mode inventory_buffer --out inv_replay.json
-```
-
-Validate the frozen bundle:
-
-```bash
-python scripts/run_benchmark_suite.py --validate
-# includes inventory_buffer_rollout_v1
-```
-
-Why this domain: distinct from service backlog (queue depth) and peg worlds — models a supply chain or physical stock buffer rather than a financial clearing mechanism.
-
-### 4.5c Liquidity ladder (fourth reference domain, Phase N)
+### 4.7 Liquidity ladder
 
 ```bash
 python scripts/run_liquidity_ladder_ga_demo.py --export-replay ll.json --initial-margin 0.06
@@ -194,16 +164,31 @@ python scripts/export_replay.py --mode liquidity_ladder --initial-margin 0.07 --
 python scripts/run_mc_demo.py --mode liquidity_ladder --samples 16 --export-replay ll_mc.json
 ```
 
-Concepts: [`phase_n_liquidity_ladder.md`](phase_n_liquidity_ladder.md), narrative: [`WHY_LIQUIDITY_LADDER.md`](WHY_LIQUIDITY_LADDER.md). Counterfactual cookbook: [`liquidity_ladder_counterfactual_example.md`](liquidity_ladder_counterfactual_example.md).
-
-Validate the frozen bundle:
+Validate the frozen benchmark:
 
 ```bash
 python scripts/run_benchmark_suite.py --validate
 # includes liquidity_ladder_rollout_v1
 ```
 
-### 4.6 Co-evolution and Pareto viewer
+### 4.8 Inventory buffer
+
+Stock level `S` and fulfillment capacity `F` (both in `[0,1]`). Demand spikes drain stock; supplier/logistics shocks erode fulfillment. The system collapses when stock falls below the stockout threshold or fulfillment falls below the floor. Fixed horizon: 18 steps.
+
+```bash
+python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json
+python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json --export-minimized-replay inv_min.json --seed 42
+python scripts/export_replay.py --mode inventory_buffer --out inv_replay.json
+```
+
+Validate the frozen benchmark:
+
+```bash
+python scripts/run_benchmark_suite.py --validate
+# includes inventory_buffer_rollout_v1
+```
+
+### 4.9 Attacker/defender co-evolution and the trade-off chart
 
 ```bash
 python scripts/run_coevolution.py --mode aggregate \
@@ -212,22 +197,22 @@ python scripts/run_coevolution.py --mode aggregate \
   --export-replay coev.json --export-pareto-json pareto.json --json-summary summary.json
 ```
 
-Use `--mode liquidity_ladder` (with `--initial-margin`) or other modes the same way; see `run_coevolution.py --help`.
+Use `--mode liquidity_ladder` (with `--initial-margin`) or any other domain the same way; see `run_coevolution.py --help`.
 
-Open `artifacts/pareto_viewer/index.html` and load `pareto_front.json` / your `pareto.json` (see viewer folder for preset behavior).
+Open `artifacts/pareto_viewer/index.html` and load `pareto_front.json` or your `pareto.json`.
 
-**Institutional composite** (multi-kernel metrics, not replays): `artifacts/composite_viewer/index.html` — bundled quad sample via presets; regenerate with `scripts/regenerate_bundled_viewer_samples.py`.
+**Multi-domain comparison** (run the same attack through several worlds at once): `artifacts/composite_viewer/index.html` — bundled quad sample via Presets; regenerate with `scripts/regenerate_bundled_viewer_samples.py`.
 
-### 4.7 Counterfactuals and ε-sweeps
+### 4.10 Counterfactuals and parameter sweeps
 
 ```bash
 python scripts/export_counterfactual.py --mode aggregate --intervention remove_steps --export-replay-dir ./cf_out
 python scripts/counterfactual_epsilon_sweep.py --mode aggregate --axis initial_panic --json-out sweep.json
 ```
 
-Network / cascade modes and axes vary; see `export_counterfactual.py --help` and the counterfactual cookbooks in `docs/` ([`network_counterfactual_example.md`](network_counterfactual_example.md), [`aggregate_counterfactual_example.md`](aggregate_counterfactual_example.md), [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md), [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md)). Chain spec fixtures: [`CHAIN_FIXTURES.md`](CHAIN_FIXTURES.md). Bundled demo JSON map: [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md).
+See `export_counterfactual.py --help` for other domains and intervention types.
 
-### 4.8 Benchmark harness (golden bundles)
+### 4.11 Benchmark harness (frozen reference results)
 
 ```bash
 python scripts/run_benchmark_suite.py --validate
@@ -235,34 +220,32 @@ python scripts/run_benchmark_suite.py --validate
 
 Wall-clock on named bundles: `python scripts/benchmark_rollout.py --bundle aggregate_rollout_v1 --json`. Full index: [`benchmarks/README.md`](../benchmarks/README.md).
 
-**Portable manifest (`benchmark-manifest-v2`):**
+**Portable manifest:**
 
 ```bash
 python scripts/run_benchmark_suite.py --manifest-out benchmark_manifest.json
 ```
 
-Includes per-bundle topology hints, `golden_metrics_sha256`, Python/NumPy/package versions, optional `git_commit`, a **frozen hypervolume regression fixture** (sanity for `hypervolume_2d_min`), an **artifact schema index** (Pareto, merges, institutional composite v1–v3, path traces), **registry entries for pinned Pareto HV fixtures** under `tests/fixtures/benchmarks/`, and pointers to **`explanation-dag-v1`** export.
+Includes per-bundle details, checksums, Python and package versions, and an optional `git_commit` field.
 
-On **push/PR** CI (Ubuntu, Python **3.12** only), `benchmark_manifest.json` is uploaded as a workflow artifact (`benchmark-manifest-ci-<sha>`, **30** day retention). The **weekly** scheduled job uploads a manifest with **90** day retention (see `.github/workflows/`).
+### 4.12 Robustness sweeps, multi-domain runs
 
-### 4.9 Robustness sweeps, mechanism design, institutional composite
+All documented with copy-paste examples in [`benchmarks/README.md`](../benchmarks/README.md):
 
-All documented with copy-paste examples in [`benchmarks/README.md`](../benchmarks/README.md), including:
-
-- `fragility_robustness_sweep.py` — ensembles, physics sweeps, GA budget modes, `--neighbor-json-list`.
+- `fragility_robustness_sweep.py` — ensemble sweeps, physics parameter grids, `--neighbor-json-list`.
 - `mechanism_design_policy_sweep.py` — defender presets + inner GA.
-- `institutional_composite_demo.py` — twin (**v1**), `--triple` (**v2**), or `--quad` (**v3**) decoupled multi-kernel metrics.
+- `institutional_composite_demo.py` — run one attack through twin/triple/quad decoupled worlds.
 
-**Composite JSON is not a replay timeline** — use JSON tools, narration, or downstream analytics:
+**Composite output is not a replay timeline** — use narration or downstream analytics:
 
 ```bash
 python scripts/institutional_composite_demo.py --triple --out composite.json
 python scripts/narrate_frozen_json.py composite.json
 ```
 
-### 4.9b Robustness stretch (Phase O presets)
+### 4.13 Multi-domain preset sweeps
 
-`fragility_robustness_stretch.py` provides three ready-made multi-domain sweep presets that cover all six reference worlds in one command:
+`fragility_robustness_stretch.py` provides three ready-made sweep presets covering all six domains:
 
 ```bash
 python scripts/fragility_robustness_stretch.py --preset small    # fast smoke, ~1 min
@@ -270,85 +253,79 @@ python scripts/fragility_robustness_stretch.py --preset medium   # balanced swee
 python scripts/fragility_robustness_stretch.py --preset large    # full multi-domain grid
 ```
 
-Each preset runs GA sweeps across several parameter axes for aggregate, network, resource cascade, service backlog, liquidity ladder, and inventory buffer, and writes a combined `fragility-robustness-*` JSON artifact.
+### 4.14 Fragility surface (2-D grid)
 
-### 4.9c Fragility surface
-
-`fragility_surface.py` produces a 2-D CSV grid of instability over two parameter axes (e.g. `initial_panic × horizon`):
+`fragility_surface.py` produces a CSV grid of instability over two parameter axes:
 
 ```bash
 python scripts/fragility_surface.py --mode aggregate --axis1 initial_panic --axis2 horizon --out surface.csv
 python scripts/plot_fragility_surface_csv.py surface.csv --out surface.png
 ```
 
-Use `--help` for the full axis list per domain.
+### 4.15 Find cheapest collapse
 
-### 4.9d Find cheapest collapse
-
-`find_cheap_collapse.py` runs repeated MC samples from a given seed range and returns the lowest-cost schedule that still causes collapse:
+`find_cheap_collapse.py` runs repeated samples and returns the lowest-cost schedule that still causes collapse:
 
 ```bash
 python scripts/find_cheap_collapse.py --mode aggregate --samples 200 --seed 42 --out cheap.json
 ```
 
-Useful for seeding counterfactual and chain analysis from a minimal starting point.
+Useful for seeding counterfactual analysis from a minimal starting point.
 
-### 4.9e Compare two replays
+### 4.16 Compare two replays
 
-`compare_replays.py` prints or exports a JSON diff of two replay files, highlighting divergent timesteps:
+`compare_replays.py` prints or exports a JSON diff of two replay files, highlighting which steps diverged:
 
 ```bash
 python scripts/compare_replays.py baseline.json counterfactual.json
 python scripts/compare_replays.py baseline.json counterfactual.json --json-out diff.json
 ```
 
-### 4.10 Hypervolume (Pareto analysis) and explanation DAG
+### 4.17 Hypervolume and explanation DAG
 
-**Hypervolume** (two objectives, both minimized): use `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min(points, ref)`. The reference point must be **strictly worse** (larger on both axes) than every point on your non-dominated front.
+**Hypervolume** (measures quality of a trade-off curve, two objectives): `fragility_engine.benchmarks.hypervolume.hypervolume_2d_min(points, ref)`. The reference point must be strictly worse than every point on your curve.
 
-**Mechanical explanation DAG** (`explanation-dag-v1`) — summarize structure without LLMs:
+**Explanation DAG** — a compact machine-readable record of "why did the system still collapse?":
 
 ```bash
-# From a counterfactual export (baseline + counterfactual + intervention)
+# From a counterfactual export
 python scripts/export_explanation_dag.py --from-counterfactual cf_bundle.json --out dag.json
 
-# From greedy minimization report (capture sidecar when exporting minimized replay)
+# From a minimization report
 python scripts/export_minimized_replay.py --minimization-report-out minimize_report.json --out minimized.json
 python scripts/export_explanation_dag.py --from-minimization-report minimize_report.json --out dag.json
 python scripts/narrate_frozen_json.py dag.json
 ```
 
-**Research frontiers** (third world beyond cascade, coupled mega-models — **not** shipped here): [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md).
-
 ---
 
-## 5. Static browsers (replay, Pareto, attribution)
+## 5. Static viewers (replay, Pareto, attribution)
 
 | Viewer | Path | Loads |
 |--------|------|--------|
-| Replay timeline | `artifacts/replay_viewer/index.html` | Rollout replay JSON (`rollout_to_replay_dict` contract) |
-| Pareto | `artifacts/pareto_viewer/index.html` | `pareto-front-v1` / `pareto_front.json` |
-| Attribution | `artifacts/attribution_viewer/index.html` | `attribution-merge-v1`, path traces |
+| Replay timeline | `artifacts/replay_viewer/index.html` | Rollout replay JSON |
+| Trade-off chart | `artifacts/pareto_viewer/index.html` | `pareto-front-v1` / `pareto_front.json` |
+| Attribution chains | `artifacts/attribution_viewer/index.html` | `attribution-merge-v1`, path traces |
 
-Serve the **repo root** over HTTP so relative paths and optional presets work (`python -m http.server 8765`). Bulk sample exports: `scripts/regenerate_test_exports.ps1` / `.sh` → `artifacts/test_exports/` (often gitignored); see `artifacts/README_test_exports.txt`.
+Serve the **repo root** over HTTP so relative paths and presets work (`python -m http.server 8765`).
 
 ---
 
-## 6. Artifact cheat sheet
+## 6. Output file reference
 
-| You want | Typical schema / shape | Produced by |
+| You want | Typical schema | Produced by |
 |----------|------------------------|-------------|
 | Timeline replay | `schema_version` + `trajectory` | `week1_smoke`, `run_ga_demo`, `export_replay`, `run_coevolution`, … |
-| Pareto archive | `pareto-front-v1` | `export_pareto_front`, `run_coevolution --export-pareto-json`, … |
+| Trade-off chart | `pareto-front-v1` | `export_pareto_front`, `run_coevolution --export-pareto-json`, … |
 | Certificate | `fragility-certificate-v1` | `export_fragility_certificate`, `run_flagship_demo` |
 | Robustness / GA sweep | `fragility-robustness-*` | `fragility_robustness_sweep.py --json` |
 | Mechanism design | `fragility-mechanism-design-outer-v1` | `mechanism_design_policy_sweep.py --json` |
-| Institutional composite | `fragility-institutional-composite-v1` / **v2** / **v3** (`--quad`) | `institutional_composite_demo.py --out` |
+| Multi-domain comparison | `fragility-institutional-composite-v1` / **v2** / **v3** | `institutional_composite_demo.py --out` |
 | Explanation DAG | `explanation-dag-v1` | `export_explanation_dag.py` |
 | Benchmark manifest | `benchmark-manifest-v2` | `run_benchmark_suite.py --manifest-out` |
 | Narration output | `narration-summary-v1` | `narrate_frozen_json.py --json-out` |
 
-Robustness / composite / Pareto JSON **do not** load in the replay timeline viewer — see [`artifacts/replay_viewer/README.md`](../artifacts/replay_viewer/README.md).
+Robustness, composite, and trade-off chart files **do not** load in the replay timeline viewer.
 
 ---
 
@@ -356,7 +333,7 @@ Robustness / composite / Pareto JSON **do not** load in the replay timeline view
 
 ### 7.1 Deterministic narration
 
-`scripts/narrate_frozen_json.py` produces human-readable text from any artifact — replay, Pareto, merge, epsilon-sweep, counterfactual bundles, institutional composite v1/v2/v3, or `explanation-dag-v1`:
+`scripts/narrate_frozen_json.py` produces a readable text summary from any artifact — replay, trade-off chart, merge, sweep, counterfactual bundles, composite, or explanation DAG:
 
 ```bash
 python scripts/narrate_frozen_json.py best.json
@@ -366,49 +343,34 @@ python scripts/narrate_frozen_json.py best.json --cite-digest   # SHA-256 citati
 
 ### 7.2 Plot scripts
 
-All plot scripts require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`). Default visual styles live in `artifacts/plot_styles/`.
+All plot scripts require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`).
 
 | Script | What it plots |
 |--------|--------------|
 | `plot_replay_timeline.py` | Replay timeline (peg ratio, instability, shock lane, collapse marker) |
-| `plot_pareto_front.py` | 2-D Pareto front (severity vs attack cost) |
-| `plot_counterfactual_bars.py` | Bar chart of Δ instability across counterfactual interventions |
-| `plot_epsilon_sweep.py` | Line chart of instability / collapse probability over an ε-sweep axis |
+| `plot_pareto_front.py` | Trade-off curve (severity vs attack cost) |
+| `plot_counterfactual_bars.py` | Bar chart of instability change across counterfactual interventions |
+| `plot_epsilon_sweep.py` | Line chart of instability / collapse probability over a parameter sweep |
 | `plot_fragility_surface_csv.py` | Heatmap from a `fragility_surface.py` CSV |
-| `plot_institutional_composite_bars.py` | Multi-kernel scorecard bars from a composite JSON |
+| `plot_institutional_composite_bars.py` | Multi-domain scorecard bars from a composite file |
 
-All accept `--style <path>` for a custom JSON style override and `--out <path>` to write PNG / SVG instead of showing interactively.
+All accept `--style <path>` for a custom JSON style override and `--out <path>` to write PNG / SVG.
 
 ### 7.3 LLM prompt bundles
 
-`scripts/export_llm_narration_prompt.py` exports structured prompt bundles for external LLM prose generation. The prompts are **never fed back** into the simulation engine. Versioned templates live in `artifacts/llm_prompts/`:
-
-| Bundle | Use |
-|--------|-----|
-| `narration_v1` | General replay / artifact narration |
-| `reviewer_memo_v1` | Academic reviewer-style memo |
-| `paper_appendix_v1` | Appendix artifact walkthrough |
-| `institution_composite_v1` | Single composite kernel summary |
-| `institutional_composite_twin_v1` | Twin (two-kernel) composite |
-| `institutional_composite_triple_v1` | Triple (three-kernel) composite |
-| `institutional_composite_quad_v1` | Quad (four-kernel) composite |
-| `institutional_composite_penta_v1` | Penta (five-kernel) composite |
-| `liquidity_ladder_replay_v1` | Liquidity-ladder-specific replay narration |
-| `status_digest_v1` | GCE workbench status digest |
+`scripts/export_llm_narration_prompt.py` exports structured prompt bundles for external LLM prose generation. The prompts are never fed back into the simulation engine.
 
 ```bash
 python scripts/export_llm_narration_prompt.py --input best.json --bundle narration_v1 --out prompt_bundle.json
 ```
 
-Pass `prompt_bundle.json` to your LLM of choice. The `system.txt` and `user_template.txt` in each bundle folder are standalone text files you can read and adapt directly.
-
 ---
 
 ## 8. Performance, CI, and limits
 
-- **Scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) — sweep grid sizes, GA costs, neighbor bundles.
-- **CI:** root `README.md` badge; local parity with `python -m ruff check .` and `python -m pytest`.
-- **Perf gate:** optional env `FRAGILITY_PERF_GATE` (see `README.md` Extending section).
+- **Scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) — sweep sizes, GA costs, neighbor bundles.
+- **CI:** run `python -m ruff check .` and `python -m pytest` locally.
+- **Performance gate:** optional env `FRAGILITY_PERF_GATE` — see the root `README.md`.
 
 ---
 
@@ -416,30 +378,24 @@ Pass `prompt_bundle.json` to your LLM of choice. The `system.txt` and `user_temp
 
 | Problem | What to try |
 |---------|-------------|
-| `python` not found or wrong interpreter (Windows) | Use `py -3.12`, or full path under `%LocalAppData%\Programs\Python\`; avoid Windows Store alias. |
+| `python` not found or wrong interpreter (Windows) | Use `py -3.12`, or the full path under `%LocalAppData%\Programs\Python\`. Avoid the Windows Store alias. |
 | `matplotlib` / plot scripts fail | `pip install -e ".[dev]"` or `".[viz]"`. |
-| Viewer blank or errors on JSON | Confirm artifact type: replay viewer needs **replay** JSON, not composite or sweep payloads. |
-| Heavy sweeps / GA OOM or slow | Shrink `--nodes`, horizons, sweep lists, GA populations; read [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md). |
-| `git: 'credential-manager-core' is not a git command` (Windows) | Unset the global helper so Git for Windows’ `manager` is used: [`INSTALLATION.md` — Git credential helper](INSTALLATION.md#git-credential-helper-windows). |
-| Linux: `python3.12: command not found` | Install `python3.12` + `python3.12-venv` (or use **3.11** everywhere); see [`INSTALLATION.md` — Linux](INSTALLATION.md#linux-system-python-and-venv-packages). |
+| Viewer blank or shows errors on JSON | Check the artifact type: the replay viewer only accepts **replay** files, not composite or sweep outputs. |
+| Heavy sweeps / GA runs out of memory or is slow | Shrink `--nodes`, horizon, sweep lists, GA population. See [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md). |
+| `git: 'credential-manager-core' is not a git command` (Windows) | Unset the global helper: see [Installation — Git credential helper](/docs/installation.html). |
+| Linux: `python3.12: command not found` | Install `python3.12` + `python3.12-venv`, or use **3.11** everywhere. See [Installation](/docs/installation.html). |
 
 ---
 
 ## 10. Further reading
 
-See [`README.md`](README.md) for the full documentation index. Highlights:
-
 | Document | Purpose |
 |----------|---------|
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Layers, rollout pipeline, extension points |
-| [`REFERENCE.md`](REFERENCE.md) | Mode matrix, env vars, schema ids |
-| [`BOUNDARIES.md`](../BOUNDARIES.md) | Charter, phase exit criteria, non-goals |
+| [Architecture](/docs/architecture.html) | How the code is organized, layers, and extension points |
+| [Reference](/docs/reference.html) | All flags, environment variables, output schema IDs |
 | [`benchmarks/README.md`](../benchmarks/README.md) | Bundle IDs, robustness sweeps, composites |
-| [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | One end-to-end reviewer path |
-| [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) | Checked-in demo JSON |
-| [`INSTALLATION.md`](INSTALLATION.md) | Git, OS packages, CI scripts |
-| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Post-clone checklist |
+| [Installation](/docs/installation.html) | Git, OS packages, CI scripts |
 
 ---
 
-*User-oriented guide. Root [`README.md`](../README.md) = overview + script index.*
+*Hands-on guide. See the [Overview](/docs/overview.html) for what the engine is and who it fits.*

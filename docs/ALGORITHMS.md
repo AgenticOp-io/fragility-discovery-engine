@@ -51,7 +51,7 @@ These are the algorithms, frameworks, and physics kernels **originated by this p
 | Inventory-buffer kernel           | Stock level under demand spikes and fulfillment erosion; sixth reference domain shipped in v0.5.                                                 | §4.6          | `src/fragility_engine/world/inventory_buffer.py` |
 
 
-All kernels share **one schedule encoding** (`src/fragility_engine/adversary/encoding.py`), so any attacker genome found by search transfers across kernels unchanged — itself an intentional design choice of this project.
+All kernels share **one schedule encoding** (`src/fragility_engine/adversary/encoding.py`), so any attack found by search transfers across kernels unchanged — itself an intentional design choice of this project.
 
 Everything else listed in §2–§6 is textbook or library; we cite the original sources for those below.
 
@@ -149,7 +149,7 @@ Tiny DAG over a minimization report: baseline → minimized, with the minimal ev
 
 ## 4. Simulation worlds (physics kernels)
 
-All five worlds are **deliberately simplified pedagogical models**. They are **not calibrated** to any real institution, market, or infrastructure system. Each is original to this project; the underlying mechanisms are well-known.
+All six worlds are **deliberately simplified models**. They are **not calibrated** to any real institution, market, or infrastructure system. Each is original to this project; the underlying mechanisms draw on well-known theory.
 
 ### 4.1 Aggregate stablecoin peg — Original kernel
 

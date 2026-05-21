@@ -26,6 +26,7 @@
     <nav class="fde-nav" aria-label="Product">
       <a href="/">Workbench</a>
 <a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
 <a href="/artifacts/replay_viewer/index.html">Replay</a>
 <a href="/artifacts/pareto_viewer/index.html">Pareto</a>
 <a href="/artifacts/attribution_viewer/index.html">Attribution</a>
@@ -54,7 +55,7 @@
 <a href="/docs/algorithms.html">Algorithms</a>
 </nav>
 <article class="fde-prose"><h2>Reference: modes, CLIs, environment, schemas</h2>
-<p>Quick lookup for operators and contributors. Tutorials and narrative context are in <a href="HOW_TO_USE.md"><code>HOW_TO_USE.md</code></a>.</p>
+<p>Quick lookup for operators and contributors. Tutorials and narrative context are in <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a>.</p>
 <hr>
 <h3>Simulation modes</h3>
 <table><thead>
@@ -139,9 +140,60 @@
 <tr><td>GCE run server</td><td><code>gce_run_server.py</code> (systemd service on GCE)</td></tr>
 <tr><td>GCE write status</td><td><code>gce_write_workbench_status.py</code></td></tr>
 <tr><td>Static dashboard export</td><td><code>export_static_dashboard.py</code></td></tr>
+<tr><td>Inventory buffer counterfactual</td><td><code>export_inventory_buffer_counterfactual_chain.py</code></td></tr>
 <tr><td>Local CI parity</td><td><code>ci_local.sh</code> / <code>ci_local.ps1</code></td></tr>
 </tbody></table>
-<p>Full one-line descriptions: root <a href="../README.md"><code>README.md</code></a> scripts table.</p>
+<p>Full one-line descriptions: root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md"><code>README.md</code></a> scripts table.</p>
+<hr>
+<h3>export_static_dashboard.py — local viewer index</h3>
+<p>Generates a minimal HTML index at <code>artifacts/dashboard/index.html</code> that links all four bundled viewers (Replay, Pareto, Attribution, Composite) using relative paths. Designed for <strong>local use</strong> — serve from the repository root with <code>python -m http.server</code> and open in a browser. Not needed on the GCE workbench (the hosted site already provides the same navigation).</p>
+<p>```bash</p>
+<h2>Generate the dashboard index</h2>
+<p>python scripts/export_static_dashboard.py</p>
+<h2>Serve locally (open http://localhost:8765/artifacts/dashboard/index.html)</h2>
+<p>python -m http.server 8765</p>
+<p>```</p>
+<p><strong>Flags:</strong></p>
+<table><thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead><tbody>
+<tr><td><code>--out PATH</code></td><td><code>artifacts/dashboard/index.html</code></td><td>Output file path</td></tr>
+<tr><td><code>--manifest PATH</code></td><td>none</td><td>Optional <code>benchmark_manifest.json</code> to embed a link in the page</td></tr>
+</tbody></table>
+<p><strong>When to use it:</strong> after running a local batch of scripts that produce artifacts in <code>artifacts/</code>, run <code>export_static_dashboard.py</code> once to get a single clickable entry point to all viewers without needing to remember their paths. The GCE workbench provides the same experience for hosted runs.</p>
+<hr>
+<h3>export_inventory_buffer_counterfactual_chain.py — inventory buffer counterfactual</h3>
+<p>Compares a baseline inventory-buffer rollout against a variant with one of three intervention types: remove shock steps, shift initial stock, or shift demand-spike gain.</p>
+<p>```bash</p>
+<h2>Remove first 3 shock timesteps (default)</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py --out cf.json</p>
+<h2>Shift initial stock from 0.88 to 0.60 (low-stock variant)</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py \</p>
+<p>  --variant-initial-stock 0.60 --out cf_stock.json</p>
+<h2>Shift demand-spike gain (more aggressive demand)</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py \</p>
+<p>  --variant-demand-spike-gain 0.95 --out cf_demand.json</p>
+<h2>Export baseline and counterfactual as replay JSON files</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py \</p>
+<p>  --variant-initial-stock 0.50 --export-replay-dir ./cf_replays</p>
+<p>```</p>
+<p><strong>Flags:</strong></p>
+<table><thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead><tbody>
+<tr><td><code>--out PATH</code></td><td><code>counterfactual_inventory_buffer.json</code></td><td>Output attribution JSON</td></tr>
+<tr><td><code>--seed INT</code></td><td>424244</td><td>Rollout RNG seed</td></tr>
+<tr><td><code>--genome-seed INT</code></td><td>7</td><td>Genome generation seed</td></tr>
+<tr><td><code>--horizon INT</code></td><td>18</td><td>Attacker schedule length</td></tr>
+<tr><td><code>--initial-stock FLOAT</code></td><td>0.88</td><td>Baseline normalized stock at reset</td></tr>
+<tr><td><code>--remove-timesteps LIST</code></td><td>first 3 steps</td><td>Comma-separated 0-based indices to zero out</td></tr>
+<tr><td><code>--variant-initial-stock FLOAT</code></td><td>none</td><td>Counterfactual reset stock (<code>initial_stock_shift</code> intervention)</td></tr>
+<tr><td><code>--variant-demand-spike-gain FLOAT</code></td><td>none</td><td>Counterfactual demand-spike gain (<code>demand_spike_shift</code> intervention)</td></tr>
+<tr><td><code>--continue-after-collapse</code></td><td>off</td><td>Keep stepping after stockout for recovery metrics</td></tr>
+<tr><td><code>--max-steps INT</code></td><td>40</td><td>World horizon cap</td></tr>
+<tr><td><code>--export-replay-dir PATH</code></td><td>none</td><td>Write <code>baseline.json</code> and <code>counterfactual.json</code> replay files here</td></tr>
+</tbody></table>
+<p>Supply at most one of <code>--variant-initial-stock</code> / <code>--variant-demand-spike-gain</code>. If neither is supplied the script uses <code>remove_steps</code>. Output is an <code>attribution-merge-v1</code>-compatible JSON readable by the Attribution viewer.</p>
 <hr>
 <h3>Frozen benchmark bundles (Phase H)</h3>
 <table><thead>

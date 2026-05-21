@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Run a scenario — Fragility Discovery Engine</title>
-  <meta name="description" content="Submit a fragility-search scenario; the GCE host runs it and returns a replay." />
+  <meta name="description" content="Choose a domain, set a few parameters, and this server runs the search and opens the results." />
   <meta name="theme-color" content="#0c0e14"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -26,6 +26,7 @@
     <nav class="fde-nav" aria-label="Product">
       <a href="/">Workbench</a>
 <a class="fde-active" href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
 <a href="/artifacts/replay_viewer/index.html">Replay</a>
 <a href="/artifacts/pareto_viewer/index.html">Pareto</a>
 <a href="/artifacts/attribution_viewer/index.html">Attribution</a>
@@ -47,8 +48,8 @@
   <main class="fde-main">
     <article class="fde-prose">
       <h2>Run a scenario</h2>
-      <p>Choose a domain and search type. The engine runs on <strong>this server</strong>; when it finishes you are taken straight to the viewer with your result.</p>
-      <p><a href="/docs/how-to-use.html">How to Use</a> has step-by-step tutorials for every domain. <a href="/docs/algorithms.html">Algorithms &amp; provenance</a> explains what is running under the hood.</p>
+      <p>Choose a domain and search type. This server runs the simulation and takes you straight to the results when it finishes.</p>
+      <p><a href="/docs/how-to-use.html">How to Use</a> has step-by-step tutorials for every domain. <a href="/docs/algorithms.html">Algorithms</a> explains how the search works.</p>
     </article>
 
     <form id="runForm" class="fde-run-form" autocomplete="off">
@@ -56,20 +57,21 @@
       <div class="fde-run-row">
         <label for="mode">Domain &amp; search type</label>
         <select id="mode" name="mode">
-          <optgroup label="Single-adversary GA — outputs replay">
-            <option value="aggregate" selected>Aggregate peg — scalar reserves vs panic</option>
-            <option value="network">Network contagion — panic spreading on an ER graph (32 nodes)</option>
-            <option value="resource_cascade">Resource cascade — two coupled capacity layers</option>
-            <option value="service_backlog">Service backlog — ops queue vs process rate</option>
-            <option value="liquidity_ladder">Liquidity ladder — margin vs funding runway</option>
-            <option value="inventory_buffer">Inventory buffer — stock drain under demand spikes</option>
+          <optgroup label="Find worst-case scenarios — saves a step-by-step replay">
+            <option value="aggregate" selected>Aggregate peg — stablecoin reserves under panic</option>
+            <option value="network">Network contagion — panic spreading across 32 connected nodes</option>
+            <option value="resource_cascade">Resource cascade — two capacity layers under overload</option>
+            <option value="service_backlog">Service backlog — work queue vs processing rate</option>
+            <option value="liquidity_ladder">Liquidity ladder — margin eroding toward a forced sell-off</option>
+            <option value="inventory_buffer">Inventory buffer — stock level under demand spikes</option>
           </optgroup>
-          <optgroup label="Attacker/defender co-evolution — outputs Pareto front">
-            <option value="coevolution_aggregate">Co-evolution · Aggregate peg</option>
-            <option value="coevolution_network">Co-evolution · Network contagion</option>
-            <option value="coevolution_resource_cascade">Co-evolution · Resource cascade</option>
-            <option value="coevolution_service_backlog">Co-evolution · Service backlog</option>
-            <option value="coevolution_liquidity_ladder">Co-evolution · Liquidity ladder</option>
+          <optgroup label="Attacker vs. defender simulation — saves a trade-off chart">
+            <option value="coevolution_aggregate">Attacker vs. defender · Aggregate peg</option>
+            <option value="coevolution_network">Attacker vs. defender · Network contagion</option>
+            <option value="coevolution_resource_cascade">Attacker vs. defender · Resource cascade</option>
+            <option value="coevolution_service_backlog">Attacker vs. defender · Service backlog</option>
+            <option value="coevolution_liquidity_ladder">Attacker vs. defender · Liquidity ladder</option>
+            <option value="coevolution_inventory_buffer">Attacker vs. defender · Inventory buffer</option>
           </optgroup>
         </select>
         <p class="fde-run-help" id="modeHelp"></p>
@@ -78,19 +80,19 @@
       <div class="fde-run-grid">
         <label>Random seed
           <input type="number" id="seed" name="seed" value="999" min="0" max="2147483647" required>
-          <span class="fde-run-help">Same seed always reproduces the same run.</span>
+          <span class="fde-run-help">The same seed always produces the same run.</span>
         </label>
-        <label id="horizonLabel">Horizon (timesteps)
+        <label id="horizonLabel">Simulation length (steps)
           <input type="number" id="horizon" name="horizon" value="24" min="4" max="48" required>
-          <span class="fde-run-help" id="horizonHelp">How many timesteps the attacker can use.</span>
+          <span class="fde-run-help" id="horizonHelp">How many steps the search can use. Max 48.</span>
         </label>
         <label id="gensLabel">Generations
           <input type="number" id="generations" name="generations" value="6" min="1" max="12" required>
-          <span class="fde-run-help" id="gensHelp">Evolution rounds. More = better attacks, slower.</span>
+          <span class="fde-run-help" id="gensHelp">Search rounds. More = better results, slower.</span>
         </label>
         <label>Population size
           <input type="number" id="population" name="population" value="16" min="4" max="32" required>
-          <span class="fde-run-help">Genomes per generation. Max 32 on this host.</span>
+          <span class="fde-run-help">Candidate solutions per round. Max 32 on this server.</span>
         </label>
       </div>
 
@@ -106,26 +108,26 @@
     <article class="fde-prose" style="margin-top:2rem">
       <h3>What you get</h3>
       <table>
-        <thead><tr><th>Search type</th><th>Primary output</th><th>Also produced</th></tr></thead>
+        <thead><tr><th>Search type</th><th>Main output</th><th>Also saved</th></tr></thead>
         <tbody>
           <tr>
-            <td>Single-adversary GA</td>
-            <td>Replay JSON → opened in the <a href="/artifacts/replay_viewer/index.html">Replay viewer</a></td>
-            <td>Minimized replay (if collapsed), stdout/stderr logs, status.json</td>
+            <td>Find worst-case scenarios</td>
+            <td>Replay file → opens in the <a href="/artifacts/replay_viewer/index.html">Replay viewer</a></td>
+            <td>Stripped-down replay (if the system collapsed), run logs</td>
           </tr>
           <tr>
-            <td>Co-evolution</td>
-            <td>Pareto front JSON → opened in the <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a></td>
-            <td>Best-round replay JSON, stdout/stderr logs, status.json</td>
+            <td>Attacker vs. defender</td>
+            <td>Trade-off chart → opens in the <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a></td>
+            <td>Best-round replay, run logs</td>
           </tr>
         </tbody>
       </table>
-      <p>All files persist under <code>/runs/&lt;id&gt;/</code> on this host and are accessible directly by URL for the duration of the server's uptime.</p>
-      <h3>Server limits</h3>
+      <p>All files are saved under <code>/runs/&lt;id&gt;/</code> and stay accessible by URL until the server restarts.</p>
+      <h3>Limits on this server</h3>
       <ul>
-        <li>Maximum run time: <strong>180 seconds</strong> (then killed).</li>
-        <li>Maximum concurrent runs: <strong>2</strong>. Extra submissions are rejected with a "busy" error.</li>
-        <li>Parameters are validated server-side; no shell access is possible.</li>
+        <li>Maximum run time: <strong>180 seconds</strong> — the run is stopped after that.</li>
+        <li>Maximum concurrent runs: <strong>2</strong>. Extra submissions get a "busy" error.</li>
+        <li>All inputs are validated; no direct server access is possible.</li>
         <li>For longer searches, larger populations, or local use: <code>pip install fragility-engine</code> — see <a href="/docs/how-to-use.html">How to Use</a>.</li>
       </ul>
     </article>
@@ -143,26 +145,28 @@
         let polling = null;
 
         const MODE_TEXT = {
-          aggregate:               'Smallest world: scalar reserves vs panic. Good starting point — fast and easy to interpret.',
-          network:                 'Panic spreading on an Erdős–Rényi graph (32 nodes, p=0.12). Replay shows dashed contagion traces.',
-          resource_cascade:        'Two coupled capacity layers with shared overload. Blue line = minimum headroom (higher is safer). Fixed horizon: 18.',
-          service_backlog:         'Operations queue: backlog grows with demand, falls with process rate. Collapse when backlog threshold is crossed. Fixed horizon: 18.',
-          liquidity_ladder:        'Margin utilization vs funding runway. Reserve losses and rumor shocks erode the ladder until a margin-call spiral. Fixed horizon: 18.',
-          inventory_buffer:        'Stock level under demand spikes and fulfillment erosion. Sixth reference domain (Phase O). Fixed horizon: 18.',
-          coevolution_aggregate:   'Attacker and defender evolve together on the aggregate peg. Outputs a severity-vs-cost Pareto front. Runs 1 round.',
-          coevolution_network:     'Attacker and defender evolve together on the network contagion domain. Outputs a Pareto front.',
-          coevolution_resource_cascade: 'Co-evolution on the resource cascade domain. Outputs a Pareto front. Fixed horizon: 18.',
-          coevolution_service_backlog:  'Co-evolution on the service backlog domain. Outputs a Pareto front. Fixed horizon: 18.',
-          coevolution_liquidity_ladder: 'Co-evolution on the liquidity ladder domain. Outputs a Pareto front. Fixed horizon: 18.',
+          aggregate:               'The simplest domain: a stablecoin reserve and panic level. Good starting point — fast and easy to read.',
+          network:                 'Panic spreading across a randomly connected 32-node network. The replay shows which nodes triggered each other.',
+          resource_cascade:        'Two capacity layers that both fail when overload overwhelms the safety margin. Fixed at 18 steps.',
+          service_backlog:         'A work queue that fills up faster than it gets processed. Fails when the backlog stays too high for too long. Fixed at 18 steps.',
+          liquidity_ladder:        'Financial margin that erodes under reserve losses and rumors until a forced sell-off spiral begins. Fixed at 18 steps.',
+          inventory_buffer:        'A stock level that drops under demand surges and fulfillment problems until a stockout occurs. Fixed at 18 steps.',
+          coevolution_aggregate:   'An attacker and a defender each evolve on the aggregate peg domain. Outputs a chart showing the full range of trade-offs between attack damage and cost.',
+          coevolution_network:     'Attacker and defender both evolve on the network contagion domain. Outputs a trade-off chart.',
+          coevolution_resource_cascade: 'Attacker and defender both evolve on the resource cascade domain. Outputs a trade-off chart. Fixed at 18 steps.',
+          coevolution_service_backlog:  'Attacker and defender both evolve on the service backlog domain. Outputs a trade-off chart. Fixed at 18 steps.',
+          coevolution_liquidity_ladder:  'Attacker and defender both evolve on the liquidity ladder domain. Outputs a trade-off chart. Fixed at 18 steps.',
+          coevolution_inventory_buffer:  'Attacker and defender both evolve on the inventory buffer domain. Outputs a trade-off chart. Fixed at 18 steps.',
         };
         const FIXED_HORIZON = {
           resource_cascade: 18, service_backlog: 18, liquidity_ladder: 18,
           inventory_buffer: 18,
-          coevolution_resource_cascade: 18, coevolution_service_backlog: 18, coevolution_liquidity_ladder: 18,
+          coevolution_resource_cascade: 18, coevolution_service_backlog: 18,
+          coevolution_liquidity_ladder: 18, coevolution_inventory_buffer: 18,
         };
         const PARETO_MODES = new Set([
           'coevolution_aggregate','coevolution_network','coevolution_resource_cascade',
-          'coevolution_service_backlog','coevolution_liquidity_ladder'
+          'coevolution_service_backlog','coevolution_liquidity_ladder','coevolution_inventory_buffer'
         ]);
 
         function updateMode() {
@@ -171,15 +175,15 @@
           if (m in FIXED_HORIZON) {
             horizonInput.disabled = true;
             horizonInput.value = FIXED_HORIZON[m];
-            horizonHelp.textContent = 'Fixed at ' + FIXED_HORIZON[m] + ' timesteps for this domain.';
+            horizonHelp.textContent = 'Fixed at ' + FIXED_HORIZON[m] + ' steps for this domain.';
           } else {
             horizonInput.disabled = false;
-            horizonHelp.textContent = 'Timesteps available to the attacker. Max 48.';
+            horizonHelp.textContent = 'How many steps the search can use. Max 48.';
           }
           if (PARETO_MODES.has(m)) {
-            gensHelp.textContent = 'Attacker and defender each run this many generations per round.';
+            gensHelp.textContent = 'Attacker and defender each run this many rounds of search.';
           } else {
-            gensHelp.textContent = 'Evolution rounds. More = better attacks, slower.';
+            gensHelp.textContent = 'Search rounds. More = better results, slower.';
           }
         }
         form.mode.addEventListener('change', updateMode);
@@ -204,7 +208,7 @@
             logEl.hidden = false;
             logEl.textContent = fmt(s);
             if (s.state === 'done') {
-              statusEl.textContent = 'Done.';
+              statusEl.textContent = 'Finished.';
               showLinks(s);
               const dest = s.pareto_url || s.viewer_url;
               if (dest) setTimeout(function () { window.location.href = dest; }, 800);
@@ -215,10 +219,10 @@
               return;
             }
             if (Date.now() > deadline) {
-              statusEl.textContent = 'Timed out waiting — check /runs/' + id + '/status.json directly.';
+              statusEl.textContent = 'Timed out. You can check the run files at /runs/' + id + '/ directly.';
               return;
             }
-            statusEl.textContent = 'Running\u2026 (' + (s.state || 'queued') + ')';
+            statusEl.textContent = 'Running\u2026';
             polling = setTimeout(function () { poll(id, deadline); }, 1500);
           } catch (e) {
             statusEl.textContent = 'Status check failed: ' + e;
@@ -257,8 +261,40 @@
             statusEl.textContent = 'Network error: ' + e;
           }
         });
+
+        // Recent runs history
+        async function loadRecentRuns() {
+          const el = document.getElementById('recentRuns');
+          if (!el) return;
+          try {
+            const r = await fetch('/api/runs', { cache: 'no-store' });
+            if (!r.ok) {             el.innerHTML = '<p class="fde-run-help">Run history not available.</p>'; return; }
+            const runs = await r.json();
+            if (!runs.length) { el.innerHTML = '<p class="fde-run-help">No runs yet on this server.</p>'; return; }
+            const rows = runs.slice(0, 10).map(function(s) {
+              const id    = s.id || '?';
+              const mode  = (s.request && s.request.mode) || '?';
+              const state = s.state || '?';
+              const ts    = s.started_utc ? s.started_utc.replace('T',' ').replace('Z','') : '';
+              const links = [];
+              if (s.viewer_url) links.push('<a href="' + s.viewer_url + '">Replay</a>');
+              if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '">Pareto</a>');
+              links.push('<a href="/runs/' + id + '/">/runs/' + id + '/</a>');
+              return '<tr><td><code>' + id + '</code></td><td>' + mode + '</td><td>' + state + '</td><td>' + ts + '</td><td>' + links.join(' · ') + '</td></tr>';
+            });
+            el.innerHTML = '<table><thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Started</th><th>Results</th></tr></thead><tbody>' + rows.join('') + '</tbody></table><p class="fde-run-help"><a href="/runs.html">View all past runs →</a></p>';
+          } catch (e) {
+            el.innerHTML = '<p class="fde-run-help">Run history not available (engine server not running).</p>';
+          }
+        }
+        loadRecentRuns();
       })();
     </script>
+
+    <article class="fde-prose" style="margin-top:2rem">
+      <h3>Recent runs</h3>
+      <div id="recentRuns"><p class="fde-run-help">Loading\u2026</p></div>
+    </article>
 
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">

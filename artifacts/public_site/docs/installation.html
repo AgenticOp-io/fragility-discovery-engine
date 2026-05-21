@@ -26,6 +26,7 @@
     <nav class="fde-nav" aria-label="Product">
       <a href="/">Workbench</a>
 <a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
 <a href="/artifacts/replay_viewer/index.html">Replay</a>
 <a href="/artifacts/pareto_viewer/index.html">Pareto</a>
 <a href="/artifacts/attribution_viewer/index.html">Attribution</a>
@@ -54,7 +55,7 @@
 <a href="/docs/algorithms.html">Algorithms</a>
 </nav>
 <article class="fde-prose"><h2>Installation and tooling notes</h2>
-<p>This page <strong>supplements</strong> <a href="HOW_TO_USE.md"><code>HOW_TO_USE.md</code></a>. Use that guide for <strong>Python</strong>, venv, <code>pip install -e &quot;.[dev]&quot;</code>, tutorials, and static viewers. Use this page for <strong>Git</strong>, <strong>OS-specific packages</strong>, and other host-tooling edge cases that are not part of the Python package. <strong>Post-clone checklist</strong> (CI scripts, frozen benchmarks): <a href="NEXT_STEPS.md"><code>NEXT_STEPS.md</code></a>.</p>
+<p>This page <strong>supplements</strong> <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a>. Use that guide for <strong>Python</strong>, venv, <code>pip install -e &quot;.[dev]&quot;</code>, tutorials, and static viewers. Use this page for <strong>Git</strong>, <strong>OS-specific packages</strong>, and other host-tooling edge cases that are not part of the Python package. <strong>Post-clone checklist</strong> (CI scripts, frozen benchmarks): <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/NEXT_STEPS.md"><code>NEXT_STEPS.md</code></a>.</p>
 <h3>Dual stack (Linux and Windows)</h3>
 <p><strong>CI</strong> runs the same checks on <strong>Ubuntu</strong> and <strong>Windows</strong> (Python <strong>3.11</strong> and <strong>3.12</strong>), plus optional <strong>Numba</strong> parity on both (<code>.github/workflows/ci.yml</code>). Weekly scheduled regression (<code>.github/workflows/schedule.yml</code>) runs the <strong>test</strong> job on <strong>Ubuntu + 3.12</strong> (ruff, pytest with perf gate, explicit <strong><code>run_benchmark_suite.py --validate</code></strong>, manifest artifact) and a separate <strong>build</strong> job (sdist/wheel + smoke import), mirroring PR CI.</p>
 <p>To reproduce the default <strong>test</strong> job locally after activating a venv:</p>
@@ -72,7 +73,7 @@
 <p>sudo apt update</p>
 <p>sudo apt install -y git python3.12 python3.12-venv</p>
 <p>```</p>
-<p>If your distro ships only <strong>3.11</strong>, use <code>python3.11</code> / <code>python3.11-venv</code> instead—the engine supports either. Then create the venv as in <a href="HOW_TO_USE.md"><code>HOW_TO_USE.md</code></a> §2.</p>
+<p>If your distro ships only <strong>3.11</strong>, use <code>python3.11</code> / <code>python3.11-venv</code> instead—the engine supports either. Then create the venv as in <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a> §2.</p>
 <p><strong>WSL:</strong> clone the repo on the Linux filesystem (for example <code>~/src/fragility-discovery-engine</code>) for faster I/O than <code>/mnt/c/...</code>; the same <code>apt</code> + venv flow applies.</p>
 <hr>
 <h3>Git credential helper (Windows)</h3>
@@ -125,13 +126,13 @@
 <p>  pyproject.toml          # Package <code>fragility-engine</code>, extras: dev, viz, accelerate</p>
 <p>```</p>
 <p>Install the package in editable mode from the repo root: <code>pip install -e &quot;.[dev]&quot;</code>. Import name: <code>fragility_engine</code>.</p>
-<p><strong>Tagged release without PyPI:</strong> use <a href="../scripts/install_release.sh"><code>scripts/install_release.sh</code></a> / <a href="../scripts/install_release.ps1"><code>scripts/install_release.ps1</code></a> or see <a href="../RELEASING.md"><code>RELEASING.md</code></a> (GitHub Release wheel, git tag, or editable checkout).</p>
+<p><strong>Tagged release without PyPI:</strong> use <a href="../scripts/install_release.sh"><code>scripts/install_release.sh</code></a> / <a href="../scripts/install_release.ps1"><code>scripts/install_release.ps1</code></a> or see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/RELEASING.md"><code>RELEASING.md</code></a> (GitHub Release wheel, git tag, or editable checkout).</p>
 <hr>
 <h3>Still stuck?</h3>
 <ul>
 <li><strong>Authentication (Windows):</strong> sign in once via the credential manager UI when Git prompts during <code>https://</code> push or fetch.</li>
 <li><strong>Authentication (Linux/macOS):</strong> use <code>gh auth login</code> or your distro’s Git credential documentation.</li>
-<li><strong>Python / tests / viewers:</strong> <a href="HOW_TO_USE.md"><code>HOW_TO_USE.md</code></a>, <a href="README.md"><code>docs/README.md</code></a>, root <a href="../README.md"><code>README.md</code></a>.</li>
+<li><strong>Python / tests / viewers:</strong> <a href="/docs/how-to-use.html"><code>HOW_TO_USE.md</code></a>, <a href="https://github.com/AgenticOp-io/fragility-discovery-engine#readme"><code>docs/README.md</code></a>, root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md"><code>README.md</code></a>.</li>
 </ul></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
