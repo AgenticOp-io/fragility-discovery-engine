@@ -88,9 +88,74 @@ Shared flags across most mode-aware scripts:
 | GCE run server | `gce_run_server.py` (systemd service on GCE) |
 | GCE write status | `gce_write_workbench_status.py` |
 | Static dashboard export | `export_static_dashboard.py` |
+| Inventory buffer counterfactual | `export_inventory_buffer_counterfactual_chain.py` |
 | Local CI parity | `ci_local.sh` / `ci_local.ps1` |
 
 Full one-line descriptions: root [`README.md`](../README.md) scripts table.
+
+---
+
+## export_static_dashboard.py — local viewer index
+
+Generates a minimal HTML index at `artifacts/dashboard/index.html` that links all four bundled viewers (Replay, Pareto, Attribution, Composite) using relative paths. Designed for **local use** — serve from the repository root with `python -m http.server` and open in a browser. Not needed on the GCE workbench (the hosted site already provides the same navigation).
+
+```bash
+# Generate the dashboard index
+python scripts/export_static_dashboard.py
+
+# Serve locally (open http://localhost:8765/artifacts/dashboard/index.html)
+python -m http.server 8765
+```
+
+**Flags:**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--out PATH` | `artifacts/dashboard/index.html` | Output file path |
+| `--manifest PATH` | none | Optional `benchmark_manifest.json` to embed a link in the page |
+
+**When to use it:** after running a local batch of scripts that produce artifacts in `artifacts/`, run `export_static_dashboard.py` once to get a single clickable entry point to all viewers without needing to remember their paths. The GCE workbench provides the same experience for hosted runs.
+
+---
+
+## export_inventory_buffer_counterfactual_chain.py — inventory buffer counterfactual
+
+Compares a baseline inventory-buffer rollout against a variant with one of three intervention types: remove shock steps, shift initial stock, or shift demand-spike gain.
+
+```bash
+# Remove first 3 shock timesteps (default)
+python scripts/export_inventory_buffer_counterfactual_chain.py --out cf.json
+
+# Shift initial stock from 0.88 to 0.60 (low-stock variant)
+python scripts/export_inventory_buffer_counterfactual_chain.py \
+  --variant-initial-stock 0.60 --out cf_stock.json
+
+# Shift demand-spike gain (more aggressive demand)
+python scripts/export_inventory_buffer_counterfactual_chain.py \
+  --variant-demand-spike-gain 0.95 --out cf_demand.json
+
+# Export baseline and counterfactual as replay JSON files
+python scripts/export_inventory_buffer_counterfactual_chain.py \
+  --variant-initial-stock 0.50 --export-replay-dir ./cf_replays
+```
+
+**Flags:**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--out PATH` | `counterfactual_inventory_buffer.json` | Output attribution JSON |
+| `--seed INT` | 424244 | Rollout RNG seed |
+| `--genome-seed INT` | 7 | Genome generation seed |
+| `--horizon INT` | 18 | Attacker schedule length |
+| `--initial-stock FLOAT` | 0.88 | Baseline normalized stock at reset |
+| `--remove-timesteps LIST` | first 3 steps | Comma-separated 0-based indices to zero out |
+| `--variant-initial-stock FLOAT` | none | Counterfactual reset stock (`initial_stock_shift` intervention) |
+| `--variant-demand-spike-gain FLOAT` | none | Counterfactual demand-spike gain (`demand_spike_shift` intervention) |
+| `--continue-after-collapse` | off | Keep stepping after stockout for recovery metrics |
+| `--max-steps INT` | 40 | World horizon cap |
+| `--export-replay-dir PATH` | none | Write `baseline.json` and `counterfactual.json` replay files here |
+
+Supply at most one of `--variant-initial-stock` / `--variant-demand-spike-gain`. If neither is supplied the script uses `remove_steps`. Output is an `attribution-merge-v1`-compatible JSON readable by the Attribution viewer.
 
 ---
 

@@ -40,18 +40,19 @@ The engine records these for every evaluation and exposes them through a consist
 
 ---
 
-## The five simulation domains
+## The six simulation domains
 
-The engine ships five **reference domains** — modular worlds with different physics but the same schedule encoding. You pick whichever fits your research framing:
+The engine ships six **reference domains** — modular worlds with different physics but the same schedule encoding. You pick whichever fits your research framing:
 
 
-| Domain                | What it models                                                      |
-| --------------------- | ------------------------------------------------------------------- |
-| **Aggregate peg**     | A scalar stablecoin under redemption pressure and panic dynamics    |
-| **Network contagion** | Panic spreading across an explicit graph of interconnected nodes    |
-| **Resource cascade**  | Overload propagating through two coupled capacity layers            |
-| **Service backlog**   | An operations queue where processing rate fights rising demand      |
-| **Liquidity ladder**  | Margin utilization vs funding runway under reserve and rumor shocks |
+| Domain                | What it models                                                           |
+| --------------------- | ------------------------------------------------------------------------ |
+| **Aggregate peg**     | A scalar stablecoin under redemption pressure and panic dynamics         |
+| **Network contagion** | Panic spreading across an explicit graph of interconnected nodes         |
+| **Resource cascade**  | Overload propagating through two coupled capacity layers                 |
+| **Service backlog**   | An operations queue where processing rate fights rising demand           |
+| **Liquidity ladder**  | Margin utilization vs funding runway under reserve and rumor shocks      |
+| **Inventory buffer**  | Normalized stock level under demand spikes and fulfillment erosion       |
 
 
 These are **deliberately simplified** reference kernels. They are not calibrated to any real institution or market. Their purpose is to make the engine's search and explanation methods testable across multiple qualitatively different collapse stories. If your domain of interest has similar structure — state that resets, steps forward, and can be driven to a threshold — you can write a new world module using the same interface.
