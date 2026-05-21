@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>This host — Fragility Discovery Engine</title>
-  <meta name="description" content="GCE-hosted workbench; live engine status and deployment notes." />
+  <meta name="description" content="Live engine status, server configuration, and deployment notes for this installation." />
   <meta name="theme-color" content="#0c0e14"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -58,11 +58,11 @@
       <h3>Live engine status</h3>
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
 
-      <h3>Refresh workbench (operators, on the VM)</h3>
+      <h3>Updating this server</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine
 git pull
 bash scripts/gce_publish_workbench.sh</pre>
-      <p>From your laptop you can trigger the same publish after sync: <code>powershell -File scripts/gce_deploy_public_site.ps1</code> (runs build + validate on the VM).</p>
+      <p>From your local machine you can trigger the same update remotely: <code>powershell -File scripts/gce_deploy_public_site.ps1</code></p>
       <p>Product by <a href="https://agenticop.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
     </article>
     <script>

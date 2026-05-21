@@ -51,55 +51,55 @@ DEMOS = [
         "Flagship GA replay",
         "replay",
         "/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json",
-        "Bundled best adversary schedule — collapse timeline.",
+        "The best attack schedule from the benchmark — full step-by-step collapse timeline.",
     ),
     (
         "Aggregate peg",
         "replay",
         "/artifacts/replay_viewer/index.html#src=sample_replay.json",
-        "Scalar stablecoin peg reference domain.",
+        "A stablecoin reserve breaking under accumulated panic pressure.",
     ),
     (
         "Network contagion",
         "replay",
         "/artifacts/replay_viewer/index.html#src=sample_network_replay.json",
-        "Graph shock propagation.",
+        "Panic spreading node to node across a connected network.",
     ),
     (
         "Resource cascade",
         "replay",
         "/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json",
-        "Overload capacity cascade.",
+        "Two capacity layers that fail together when overload overwhelms the safety margin.",
     ),
     (
         "Service backlog",
         "replay",
         "/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json",
-        "Ops backlog reference domain.",
+        "A work queue that fills up faster than it can be cleared.",
     ),
     (
         "Liquidity ladder",
         "replay",
         "/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json",
-        "Funding ladder stress.",
+        "Financial margin eroding step by step until a forced sell-off begins.",
     ),
     (
-        "Penta composite",
+        "Multi-domain comparison",
         "composite",
         "/artifacts/composite_viewer/index.html",
-        "Five-domain audit JSON — use Presets dropdown.",
+        "The same attack applied to five domains at once — use the Presets menu.",
     ),
     (
-        "Pareto front",
+        "Attack trade-off curve",
         "pareto",
         "/artifacts/pareto_viewer/index.html",
-        "Two-objective adversary archive.",
+        "The full range of trade-offs between attack severity and attack cost.",
     ),
     (
-        "Attribution chains",
+        "What caused the collapse?",
         "attribution",
         "/artifacts/attribution_viewer/index.html",
-        "Counterfactual chain viewer.",
+        "Step-by-step breakdown of which shocks led to failure.",
     ),
 ]
 
@@ -647,21 +647,21 @@ def build(out: Path) -> dict[str, str]:
         filename="installation.html",
         doc_id="docs-install",
         title="Installation — Fragility Discovery Engine",
-        description="Setup instructions: Python, venv, platform notes, CI parity.",
+        description="Platform-specific setup: Python, venv, Git configuration, and CI scripts.",
         md_filename="INSTALLATION.md",
     )
     _doc(
         filename="how-to-use.html",
         doc_id="docs-use",
         title="How to Use — Fragility Discovery Engine",
-        description="Tutorials for all five domains, viewers, counterfactuals, and benchmarks.",
+        description="Step-by-step tutorials for all six domains, viewers, counterfactuals, and benchmarks.",
         md_filename="HOW_TO_USE.md",
     )
     _doc(
         filename="architecture.html",
         doc_id="docs-arch",
         title="Architecture — Fragility Discovery Engine",
-        description="Package layers, rollout pipeline, simulation modes, and extension points.",
+        description="How the code is organized, how a search run flows through it, and how to add new simulation domains.",
         md_filename="ARCHITECTURE.md",
     )
     _doc(
@@ -681,7 +681,7 @@ def build(out: Path) -> dict[str, str]:
             product_shell(
                 title="Algorithms & provenance — Fragility Discovery Engine",
                 page_id="docs",
-                description="Catalog of search, attribution, and physics algorithms with provenance.",
+                description="Which algorithms are original to this project, which are standard, and where each one is cited.",
                 main_html=algo_body,
             ),
         )
@@ -704,7 +704,7 @@ def build(out: Path) -> dict[str, str]:
         <a class="fde-card" href="/docs/installation.html">
           <span class="fde-card-tag">setup</span>
           <h3>Installation</h3>
-          <p>Python, venv, platform notes (Windows / Linux / macOS / WSL), CI parity scripts.</p>
+          <p>Platform-specific setup notes for Windows, Linux, macOS, and WSL. Git configuration and CI scripts for contributors.</p>
         </a>
         <a class="fde-card" href="/docs/how-to-use.html">
           <span class="fde-card-tag">tutorials</span>
@@ -770,7 +770,7 @@ def build(out: Path) -> dict[str, str]:
         product_shell(
             title="This host — Fragility Discovery Engine",
             page_id="host",
-            description="GCE-hosted workbench; live engine status and deployment notes.",
+            description="Live engine status, server configuration, and deployment notes for this installation.",
             main_html="""<article class="fde-prose">
       <h2>This deployment</h2>
       <p>The <strong>Fragility Discovery Engine</strong> on this VM serves the workbench, bundled JSON artifacts, and interactive viewers. You only need a web browser pointed at this host.</p>
@@ -783,11 +783,11 @@ def build(out: Path) -> dict[str, str]:
       <h3>Live engine status</h3>
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
 
-      <h3>Refresh workbench (operators, on the VM)</h3>
+      <h3>Updating this server</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine
 git pull
 bash scripts/gce_publish_workbench.sh</pre>
-      <p>From your laptop you can trigger the same publish after sync: <code>powershell -File scripts/gce_deploy_public_site.ps1</code> (runs build + validate on the VM).</p>
+      <p>From your local machine you can trigger the same update remotely: <code>powershell -File scripts/gce_deploy_public_site.ps1</code></p>
       <p>Product by <a href="https://agenticop.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
     </article>
     <script>
