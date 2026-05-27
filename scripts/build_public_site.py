@@ -142,16 +142,16 @@ def _run_page_main() -> str:
           <span class="fde-run-help">The same seed always produces the same run.</span>
         </label>
         <label id="horizonLabel">Simulation length (steps)
-          <input type="number" id="horizon" name="horizon" value="24" min="4" max="48" required>
-          <span class="fde-run-help" id="horizonHelp">How many steps the search can use. Max 48.</span>
+          <input type="number" id="horizon" name="horizon" value="20" min="4" max="32" required>
+          <span class="fde-run-help" id="horizonHelp">How many steps the search can use. Max 32.</span>
         </label>
         <label id="gensLabel">Generations
-          <input type="number" id="generations" name="generations" value="6" min="1" max="12" required>
+          <input type="number" id="generations" name="generations" value="4" min="1" max="8" required>
           <span class="fde-run-help" id="gensHelp">Search rounds. More = better results, slower.</span>
         </label>
         <label>Population size
-          <input type="number" id="population" name="population" value="16" min="4" max="32" required>
-          <span class="fde-run-help">Candidate solutions per round. Max 32 on this server.</span>
+          <input type="number" id="population" name="population" value="12" min="4" max="20" required>
+          <span class="fde-run-help">Candidate solutions per round. Max 20 on this server.</span>
         </label>
         <label id="initialLevelLabel" hidden>Starting level
           <input type="number" id="initialLevel" name="initialLevel" value="0.88" min="0" max="1" step="0.01">
@@ -192,9 +192,9 @@ def _run_page_main() -> str:
       <p>All files are saved under <code>/runs/&lt;id&gt;/</code>. A run index survives server restarts; individual run folders may be removed during maintenance.</p>
       <h3>Limits on this server</h3>
       <ul>
-        <li>Maximum run time: <strong>180 seconds</strong> — the run is stopped after that.</li>
-        <li>Maximum concurrent runs: <strong>2</strong>. Extra submissions get a "busy" error.</li>
-        <li>Maximum <strong>12 runs per hour</strong> per client address (rate limit).</li>
+        <li>Maximum run time: <strong>150 seconds</strong> — the run is stopped after that.</li>
+        <li>Maximum concurrent runs: <strong>1</strong>. Extra submissions get a "busy" error.</li>
+        <li>Maximum <strong>8 runs per hour</strong> per client address (rate limit).</li>
         <li>Operators may require an <strong>API key</strong> for submissions (<code>X-Fragility-Run-Key</code> header).</li>
         <li>All inputs are validated; no direct server access is possible.</li>
         <li>For longer searches, larger populations, or local use: <code>pip install fragility-engine</code> — see <a href="/docs/how-to-use.html">How to Use</a>.</li>
@@ -214,7 +214,56 @@ def _run_page_main() -> str:
         const initialLevelLabel = document.getElementById('initialLevelLabel');
         const initialLevelInput = document.getElementById('initialLevel');
         const initialLevelHelp = document.getElementById('initialLevelHelp');
+        const apiKeyLabel = document.getElementById('apiKeyLabel');
+        const apiKeyInput = document.getElementById('apiKey');
+        const apiKeyHelp = document.getElementById('apiKeyHelp');
+        const RUN_KEY_STORAGE = 'fde_run_api_key';
         let polling = null;
+        let runAuthRequired = false;
+
+        function loadRunApiKey() {
+          const params = new URLSearchParams(window.location.search);
+          const fromUrl = params.get('run_key');
+          if (fromUrl) {
+            sessionStorage.setItem(RUN_KEY_STORAGE, fromUrl);
+            params.delete('run_key');
+            const qs = params.toString();
+            history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+          }
+          const stored = sessionStorage.getItem(RUN_KEY_STORAGE) || '';
+          if (apiKeyInput) apiKeyInput.value = stored;
+          return stored;
+        }
+
+        function saveRunApiKey() {
+          if (!apiKeyInput) return;
+          const v = apiKeyInput.value.trim();
+          if (v) sessionStorage.setItem(RUN_KEY_STORAGE, v);
+          else sessionStorage.removeItem(RUN_KEY_STORAGE);
+        }
+
+        function runApiHeaders() {
+          const h = { 'Content-Type': 'application/json' };
+          const k = (apiKeyInput && apiKeyInput.value.trim()) || sessionStorage.getItem(RUN_KEY_STORAGE) || '';
+          if (k) h['X-Fragility-Run-Key'] = k;
+          return h;
+        }
+
+        async function loadRunnerHealth() {
+          try {
+            const r = await fetch('/api/health', { cache: 'no-store' });
+            if (!r.ok) return;
+            const h = await r.json();
+            runAuthRequired = !!h.run_auth_required;
+            if (runAuthRequired && apiKeyLabel) {
+              apiKeyLabel.hidden = false;
+              apiKeyHelp.textContent = 'This server requires a run API key. Use ?run_key=... once per browser session.';
+            }
+          } catch (e) { /* runner offline */ }
+        }
+        loadRunApiKey();
+        loadRunnerHealth();
+        if (apiKeyInput) apiKeyInput.addEventListener('change', saveRunApiKey);
 
         const INITIAL_MODES = {
           aggregate: { default: 0.05, label: 'Starting panic level (0 = calm, 1 = high panic)' },
@@ -265,7 +314,7 @@ def _run_page_main() -> str:
             horizonHelp.textContent = 'Fixed at ' + FIXED_HORIZON[m] + ' steps for this domain.';
           } else {
             horizonInput.disabled = false;
-            horizonHelp.textContent = 'How many steps the search can use. Max 48.';
+            horizonHelp.textContent = 'How many steps the search can use. Max 32.';
           }
           if (PARETO_MODES.has(m)) {
             gensHelp.textContent = 'Attacker and defender each run this many rounds of search.';
@@ -552,9 +601,10 @@ def build(out: Path) -> dict[str, str]:
       <div class="fde-hero-actions">
         <a class="fde-btn-primary" href="/run.html">Run a scenario</a>
         <a class="fde-btn-secondary" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Watch a collapse</a>
+        <a class="fde-btn-secondary" href="/tour.html">Take the 2-minute tour</a>
         <a class="fde-btn-secondary" href="/docs/">Read the docs</a>
       </div>
-      <p class="fde-run-help" style="margin-top:1rem">Demo workbench — no account required. Runs are rate-limited on this server; bundled samples work offline in the viewers.</p>
+      <p class="fde-run-help" style="margin-top:1rem">Demo workbench — no account required. Runs are intentionally capped so everyone can try it; bundled samples always work in the viewers.</p>
     </div>
 
     <p class="fde-section-title">Tools</p>
@@ -878,6 +928,26 @@ def build(out: Path) -> dict[str, str]:
             page_id="run",
             description="Choose a domain, set a few parameters, and this server runs the search and opens the results.",
             main_html=_run_page_main(),
+        ),
+    )
+
+    _write(
+        out / "tour.html",
+        product_shell(
+            title="First visit tour — Fragility Discovery Engine",
+            page_id="workbench",
+            description="A quick guided path through one replay, one run, and one attribution trace.",
+            main_html="""<article class="fde-prose">
+      <h2>First visit tour (2 minutes)</h2>
+      <p>Use this quick path if you're seeing the workbench for the first time.</p>
+      <ol>
+        <li><strong>Watch one collapse:</strong> open <a href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">the flagship replay</a> and step through 5-10 timesteps.</li>
+        <li><strong>Run one live search:</strong> go to <a href="/run.html">Run a scenario</a>, keep defaults, press <em>Run scenario</em>.</li>
+        <li><strong>See why it broke:</strong> open <a href="/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json">the attribution chain sample</a>.</li>
+      </ol>
+      <p>Then explore: <a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">trade-off chart</a> and <a href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">all-six-domain composite</a>.</p>
+      <p class="fde-run-help">Tip: this is a public demo instance with strict caps. If you need larger runs, use local install from <a href="/docs/how-to-use.html">How to Use</a>.</p>
+    </article>""",
         ),
     )
 

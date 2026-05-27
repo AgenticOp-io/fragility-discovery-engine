@@ -39,13 +39,13 @@ PYTHON_BIN = os.environ.get("FRAGILITY_PYTHON", sys.executable)
 LISTEN_HOST = os.environ.get("FRAGILITY_RUNNER_HOST", "127.0.0.1")
 LISTEN_PORT = int(os.environ.get("FRAGILITY_RUNNER_PORT", "8765"))
 
-MAX_CONCURRENT = 2
-RUN_TIMEOUT_S = 180
+MAX_CONCURRENT = 1
+RUN_TIMEOUT_S = 150
 
 CAPS = {
-    "horizon": (4, 48),
-    "generations": (1, 12),
-    "population": (4, 32),
+    "horizon": (4, 32),
+    "generations": (1, 8),
+    "population": (4, 20),
     "seed": (0, 2**31 - 1),
 }
 # Optional starting-level knob exposed on the run page (CLI flag name, default value).
@@ -65,7 +65,7 @@ MODE_INITIAL: dict[str, tuple[str, float]] = {
 }
 RUNS_INDEX = RUNS_DIR / "index.json"
 RATE_LIMIT_FILE = RUNS_DIR / "rate_limit.json"
-MAX_RUNS_PER_IP_PER_HOUR = int(os.environ.get("FRAGILITY_MAX_RUNS_PER_IP_HOUR", "12"))
+MAX_RUNS_PER_IP_PER_HOUR = int(os.environ.get("FRAGILITY_MAX_RUNS_PER_IP_HOUR", "8"))
 RATE_LIMIT_WINDOW_S = 3600
 # When set, POST /api/run requires header X-Fragility-Run-Key or Authorization: Bearer <key>.
 RUN_API_KEY = os.environ.get("FRAGILITY_RUN_API_KEY", "").strip()
