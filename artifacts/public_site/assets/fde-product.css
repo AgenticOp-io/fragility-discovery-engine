@@ -118,6 +118,49 @@ body.fde-app ul,
 body.fde-app ol { margin: 0.35rem 0 0.75rem 1.3rem; padding: 0; }
 body.fde-app li { margin-bottom: 0.3rem; }
 
+/* ─── Guided tour overlay ─── */
+#fdeTourRoot { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+#fdeTourRoot .fde-tour-dim {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(1px);
+}
+#fdeTourRoot .fde-tour-spot {
+  position: absolute;
+  border-radius: 14px;
+  border: 2px solid rgba(110,181,247,0.85);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.62), 0 10px 32px rgba(0,0,0,0.55);
+}
+#fdeTourRoot .fde-tour-card {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: min(720px, calc(100vw - 24px));
+  background: var(--fde-surface);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius-lg);
+  padding: 14px 14px 12px;
+  pointer-events: auto;
+}
+#fdeTourRoot .fde-tour-kicker { font-size: var(--fde-size-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fde-muted); }
+#fdeTourRoot .fde-tour-title { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
+#fdeTourRoot .fde-tour-body  { color: var(--fde-text); opacity: 0.92; margin-top: 6px; }
+#fdeTourRoot .fde-tour-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+#fdeTourRoot .fde-tour-btn {
+  font: inherit;
+  border-radius: 10px;
+  border: 1px solid var(--fde-border);
+  background: var(--fde-surface-raised);
+  color: var(--fde-text);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#fdeTourRoot .fde-tour-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#fdeTourRoot .fde-tour-primary { border-color: rgba(110,181,247,0.65); background: rgba(110,181,247,0.14); }
+#fdeTourRoot .fde-tour-ghost { background: transparent; }
+#fdeTourRoot .fde-tour-progress { margin-top: 8px; font-size: var(--fde-size-xs); color: var(--fde-muted); }
+
 body.fde-app strong, body.fde-app b { font-weight: 600; }
 body.fde-app em { font-style: italic; }
 
