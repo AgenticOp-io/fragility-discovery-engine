@@ -18,7 +18,11 @@ if [[ ! -x "${PY}" ]]; then
   exit 1
 fi
 
-sudo mkdir -p "${PUBLIC_ROOT}/runs"
+sudo mkdir -p "${PUBLIC_ROOT}/runs" /etc/fragility
+if [[ ! -f /etc/fragility/runner.env ]]; then
+  sudo cp "${REPO}/scripts/gce_runner.env.example" /etc/fragility/runner.env
+  sudo chmod 600 /etc/fragility/runner.env
+fi
 sudo chown -R "${SERVICE_USER}:${SERVICE_USER}" /var/www/fragility
 
 sudo tee "${UNIT_PATH}" >/dev/null <<EOF

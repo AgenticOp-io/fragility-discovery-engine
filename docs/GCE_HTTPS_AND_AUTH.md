@@ -10,10 +10,13 @@ The workbench VM external IP is **34.61.255.147**. A friendly hostname needs a D
 
 `agenticop.io` itself may point elsewhere (for example GitHub Pages); only the **subdomain** should target the GCE VM.
 
-After DNS propagates (check with `nslookup fragility.agenticop.io`):
+After DNS propagates:
 
 ```powershell
-# From the repo on your laptop (opens firewall 443 + certbot on VM)
+# Check A record (exit 0 when ready)
+powershell -File scripts/check_fragility_dns.ps1
+
+# From the repo on your laptop (firewall 443 is opened on every deploy; this runs certbot)
 powershell -File scripts/gce_enable_https.ps1
 ```
 

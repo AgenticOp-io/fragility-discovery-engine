@@ -3,7 +3,12 @@
 set -euo pipefail
 
 SITE_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
+PUBLIC_HOST="${FRAGILITY_PUBLIC_HOST:-}"
 NGINX_SITE="/etc/nginx/sites-available/fragility-public"
+SERVER_NAMES="_"
+if [[ -n "${PUBLIC_HOST}" ]]; then
+  SERVER_NAMES="_ ${PUBLIC_HOST}"
+fi
 
 if ! command -v nginx >/dev/null 2>&1; then
   sudo apt-get update -qq
@@ -17,7 +22,7 @@ sudo tee "${NGINX_SITE}" >/dev/null <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name _;
+    server_name ${SERVER_NAMES};
     root ${SITE_ROOT};
     index index.html;
     error_page 404 /404.html;

@@ -9,6 +9,7 @@ REPLAY_VIEWER_SAMPLES: tuple[str, ...] = (
     "artifacts/replay_viewer/sample_resource_cascade_replay.json",
     "artifacts/replay_viewer/sample_service_backlog_replay.json",
     "artifacts/replay_viewer/sample_liquidity_ladder_replay.json",
+    "artifacts/replay_viewer/sample_inventory_buffer_replay.json",
 )
 
 # Pareto viewer
@@ -18,6 +19,7 @@ PARETO_VIEWER_SAMPLES: tuple[str, ...] = (
     "artifacts/pareto_viewer/sample_pareto_service_backlog.json",
     "artifacts/pareto_viewer/sample_pareto_network.json",
     "artifacts/pareto_viewer/sample_pareto_liquidity_ladder.json",
+    "artifacts/pareto_viewer/sample_pareto_inventory_buffer.json",
     "artifacts/flagship/bundled/pareto_front.json",
     "artifacts/flagship/bundled/best_replay.json",
     "artifacts/flagship/bundled/fragility_certificate.json",
@@ -34,6 +36,7 @@ ATTRIBUTION_VIEWER_SAMPLES: tuple[str, ...] = (
     "artifacts/attribution_viewer/sample_service_backlog_chain_process_ingest.json",
     "artifacts/attribution_viewer/sample_liquidity_ladder_chain_margin_haircut.json",
     "artifacts/attribution_viewer/sample_inventory_buffer_chain_demand_fulfillment.json",
+    "artifacts/attribution_viewer/sample_attribution_merge_inventory_buffer.json",
 )
 
 # Composite demo + viewer
@@ -42,6 +45,7 @@ COMPOSITE_DEMO_SAMPLES: tuple[str, ...] = (
     "artifacts/composite_demo/sample_triple_composite.json",
     "artifacts/composite_demo/sample_quad_composite.json",
     "artifacts/composite_demo/sample_penta_composite.json",
+    "artifacts/composite_demo/sample_hexa_composite.json",
     "artifacts/attribution_viewer/sample_attribution_merge_liquidity_ladder.json",
     "artifacts/attribution_viewer/sample_attribution_merge_service_backlog.json",
 )

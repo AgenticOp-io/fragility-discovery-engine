@@ -181,6 +181,8 @@ python scripts/run_inventory_buffer_ga_demo.py --export-replay inv.json --export
 python scripts/export_replay.py --mode inventory_buffer --out inv_replay.json
 ```
 
+Counterfactual and mutation-chain recipes: [`inventory_buffer_counterfactual_example.md`](inventory_buffer_counterfactual_example.md).
+
 Validate the frozen benchmark:
 
 ```bash

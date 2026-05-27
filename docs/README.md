@@ -57,6 +57,7 @@ Six reference worlds share the same shock-schedule encoding but have different p
 - [`network_counterfactual_example.md`](network_counterfactual_example.md)
 - [`resource_cascade_counterfactual_example.md`](resource_cascade_counterfactual_example.md)
 - [`service_backlog_counterfactual_example.md`](service_backlog_counterfactual_example.md)
+- [`inventory_buffer_counterfactual_example.md`](inventory_buffer_counterfactual_example.md)
 - [`liquidity_ladder_counterfactual_example.md`](liquidity_ladder_counterfactual_example.md)
 
 **Mutation chain fixtures:** [`CHAIN_FIXTURES.md`](CHAIN_FIXTURES.md)

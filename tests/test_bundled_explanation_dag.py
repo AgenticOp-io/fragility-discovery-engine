@@ -18,6 +18,7 @@ _CHAIN_SAMPLES = (
     "sample_resource_cascade_chain_coupling_rumor.json",
     "sample_service_backlog_chain_process_ingest.json",
     "sample_liquidity_ladder_chain_margin_haircut.json",
+    "sample_inventory_buffer_chain_demand_fulfillment.json",
 )
 
 

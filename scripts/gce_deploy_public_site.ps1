@@ -57,6 +57,13 @@ if (-not $SkipFirewall) {
       --direction=INGRESS --priority=1000 --network=default `
       --action=ALLOW --rules=tcp:80 --target-tags=http-server 2>&1 | Out-Null
   }
+  gcloud compute instances add-tags $Instance --zone=$Zone --tags=https-server 2>&1 | Out-Null
+  gcloud compute firewall-rules describe fragility-allow-https 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    gcloud compute firewall-rules create fragility-allow-https `
+      --direction=INGRESS --priority=1000 --network=default `
+      --action=ALLOW --rules=tcp:443 --target-tags=https-server 2>&1 | Out-Null
+  }
   $ErrorActionPreference = $prevEap
 }
 
