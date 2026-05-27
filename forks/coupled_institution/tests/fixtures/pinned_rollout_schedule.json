@@ -1,0 +1,22 @@
+{
+  "schema": "coupled-institution-pinned-schedule-v1",
+  "bundle_id": "coupled_institution_rollout_v1",
+  "coupling_strength": 0.3,
+  "rollout_seed": 8801,
+  "schedule": [
+    [
+      {"kind": "reserve_loss", "magnitude": 0.35},
+      {"kind": "rumor", "magnitude": 0.1}
+    ],
+    [{"kind": "rumor", "magnitude": 0.25}],
+    [],
+    [{"kind": "reserve_loss", "magnitude": 0.5}],
+    [{"kind": "rumor", "magnitude": 0.15}],
+    [
+      {"kind": "reserve_loss", "magnitude": 0.2},
+      {"kind": "rumor", "magnitude": 0.2}
+    ],
+    [],
+    [{"kind": "reserve_loss", "magnitude": 0.45}]
+  ]
+}

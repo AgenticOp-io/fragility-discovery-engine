@@ -8,6 +8,7 @@
     { "label": "Bundled: service_backlog sample (frozen bundle replay)", "path": "sample_service_backlog_replay.json" },
     { "label": "Bundled: liquidity ladder sample", "path": "sample_liquidity_ladder_replay.json" },
     { "label": "Bundled: inventory buffer sample", "path": "sample_inventory_buffer_replay.json" },
+    { "label": "Research fork: coupled institution (panic ↔ overload)", "path": "sample_coupled_institution_replay.json" },
     { "label": "Flagship bundled: GA best replay", "path": "../flagship/bundled/best_replay.json" },
     { "label": "Export: aggregate baseline", "path": "../test_exports/replay_aggregate.json" },
     { "label": "Export: aggregate high initial panic", "path": "../test_exports/replay_aggregate_high_panic.json" },

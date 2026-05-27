@@ -13,12 +13,12 @@
 - [x] GitHub Pages landing — https://agenticop-io.github.io/fragility-discovery-engine/
 - [x] GCE public **product workbench** — `scripts/gce_deploy_public_site.ps1` → http://34.61.255.147/
 - [x] Research feedback issue template + pinned feedback issue on GitHub
-- [ ] Point **fragility.agenticop.io** A record at **34.61.255.147**, then `powershell -File scripts/gce_enable_https.ps1` — [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
+- [ ] _(Optional, not needed for IP demo)_ Custom hostname + HTTPS — [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
 
 ## 3. Research fork
 
 - [x] `forks/coupled_institution/` v0.1 — `step(events)`, replay `coupled_institution_v1`, GA demo ([`phase_p_visibility.md`](phase_p_visibility.md))
-- [ ] Golden bundle for coupled fork (fork-only; not `main` charter)
+- [x] Golden bundle for coupled fork (`coupled_institution_rollout_v1` in `forks/coupled_institution/`)
 
 ## 4. Not planned on `main`
 

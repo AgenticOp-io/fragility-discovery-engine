@@ -58,15 +58,8 @@
       <h3>Live engine status</h3>
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
 
-      <h3>Public URL and HTTPS</h3>
-      <p>This workbench is currently reachable at the VM IP. To use a branded hostname with TLS:</p>
-      <ol>
-        <li>Create a DNS <strong>A record</strong> (for example <code>fragility.agenticop.io</code>) pointing at this server's external IP.</li>
-        <li>Open port <strong>443</strong> in the GCP firewall if it is not already allowed.</li>
-        <li>From your machine (after DNS propagates): <code>powershell -File scripts/gce_enable_https.ps1</code></li>
-        <li>Or on the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
-      </ol>
-      <p>See <code>scripts/gce_install_https.sh</code> in the repository for details.</p>
+      <h3>Demo access</h3>
+      <p>This installation is meant for browser demos at the VM IP address. Custom hostnames and TLS are optional — see <a href="/docs/fork-coupling.html">coupled fork notes</a> and <code>docs/GCE_HTTPS_AND_AUTH.md</code> in the repo if you need them later.</p>
 
       <h3>Updating this server</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine

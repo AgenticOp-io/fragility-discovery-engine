@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Coupled fork (research) — Fragility Discovery Engine</title>
+  <meta name="description" content="Why coupled multi-physics lives in a sibling fork, not in the six-domain workbench charter." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">Overview</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+</nav>
+<article class="fde-prose"><h2>Coupled “mega-institution” dynamics — fork policy</h2>
+<p>This repository ships <strong>decoupled</strong> reference kernels (aggregate peg, network contagion, resource cascade, service backlog) and <strong>audit composites</strong> that evaluate the <strong>same shock schedule</strong> on multiple kernels <strong>without</strong> shared mutable state across <code>World.step()</code>.</p>
+<h3>Why not here</h3>
+<p>A <strong>single coupled state graph</strong> (liquidity, overload, backlog, and network panic exchanging mass or signals inside one <code>step()</code>) is a <strong>different research product</strong>: new physics contracts, replay schema decisions, benchmark oracles, and attribution semantics. Shipping it inside this repo would blur the charter in <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md"><code>BOUNDARIES.md</code></a> and the non-goals in <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/RESEARCH_FRONTIERS.md"><code>RESEARCH_FRONTIERS.md</code></a>.</p>
+<h3>If you pursue it</h3>
+<p>Treat as a <strong>fork</strong> (or a clearly named sibling package):</p>
+<p>1. New <code>World</code> (or orchestrator) module with an explicit coupling contract.</p>
+<p>2. <strong>Schema bump</strong> for replay JSON (or a new top-level artifact) with migration notes and viewer guidance.</p>
+<p>3. New <strong>golden benchmark bundles</strong> (same style as <code>*_rollout_v1</code> in <code>fragility_engine.benchmarks.suite</code>); do <strong>not</strong> overload <code>fragility-institutional-composite-v*</code> JSON as if it were coupled physics.</p>
+<p>4. Link back to this engine for <strong>schedule encoding</strong>, <strong>search</strong>, and <strong>counterfactual</strong> patterns where reuse is honest.</p>
+<h3>Related shipped tooling</h3>
+<p>Use <strong>institutional composite v1–v3</strong> only for <strong>side-by-side</strong> metrics under identical schedules (<code>scripts/institutional_composite_demo.py</code>).</p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

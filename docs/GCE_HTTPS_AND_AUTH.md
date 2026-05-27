@@ -1,6 +1,8 @@
 # GCE HTTPS and run API authentication
 
-## HTTPS (Let's Encrypt)
+**Demo deployments** can use the VM IP only (for example http://34.61.255.147/). The sections below are optional operator notes, not required for the public workbench demo.
+
+## HTTPS (Let's Encrypt) — optional
 
 The workbench VM external IP is **34.61.255.147**. A friendly hostname needs a DNS **A record** before certificates can be issued.
 

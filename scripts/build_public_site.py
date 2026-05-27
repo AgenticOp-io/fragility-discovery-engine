@@ -539,6 +539,10 @@ def build(out: Path) -> dict[str, str]:
             if page_id:
                 _inject_viewer_chrome(art_root / name / "index.html", page_id)
 
+    coupled_replay = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_replay.json"
+    if coupled_replay.is_file():
+        shutil.copy2(coupled_replay, art_root / "replay_viewer" / "sample_coupled_institution_replay.json")
+
     index_main = """    <div id="fde-status" class="fde-status-bar" style="display:none"></div>
 
     <div class="fde-hero">
@@ -547,8 +551,10 @@ def build(out: Path) -> dict[str, str]:
          Pick a domain, set a few parameters, and this server does the rest.</p>
       <div class="fde-hero-actions">
         <a class="fde-btn-primary" href="/run.html">Run a scenario</a>
+        <a class="fde-btn-secondary" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Watch a collapse</a>
         <a class="fde-btn-secondary" href="/docs/">Read the docs</a>
       </div>
+      <p class="fde-run-help" style="margin-top:1rem">Demo workbench — no account required. Runs are rate-limited on this server; bundled samples work offline in the viewers.</p>
     </div>
 
     <p class="fde-section-title">Tools</p>
@@ -633,6 +639,11 @@ def build(out: Path) -> dict[str, str]:
         <span class="fde-card-tag">replay</span>
         <h3>Inventory buffer</h3>
         <p>Stock level dropping under demand surges and fulfillment problems until a stockout occurs.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json">
+        <span class="fde-card-tag">replay · research fork</span>
+        <h3>Coupled institution</h3>
+        <p>Peg panic and cascade overload exchange signals each step — physics coupling, not the six-domain composite.</p>
       </a>
       <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">
         <span class="fde-card-tag">trade-off chart</span>
@@ -756,6 +767,13 @@ def build(out: Path) -> dict[str, str]:
         description="What the inventory buffer domain models and why it exists as the sixth reference world.",
         md_filename="WHY_INVENTORY_BUFFER.md",
     )
+    _doc(
+        filename="fork-coupling.html",
+        doc_id="docs-fork",
+        title="Coupled fork (research) — Fragility Discovery Engine",
+        description="Why coupled multi-physics lives in a sibling fork, not in the six-domain workbench charter.",
+        md_filename="FORK_COUPLING_RESEARCH.md",
+    )
 
     algo_md_path = ROOT / "docs" / "ALGORITHMS.md"
     if algo_md_path.is_file():
@@ -838,6 +856,7 @@ def build(out: Path) -> dict[str, str]:
         <li><a href="/docs/reference.html#common-json-schemas">Output file formats</a> — all schema IDs and what produces them.</li>
         <li><a href="/docs/scale-and-limits.html">Scale and limits</a> — complexity, parallelism, and sweep cost.</li>
         <li><a href="/docs/why-inventory-buffer.html">Why inventory buffer</a> — the sixth simulation domain explained.</li>
+        <li><a href="/docs/fork-coupling.html">Coupled fork</a> — research physics with in-step coupling (sample replay on the workbench).</li>
         <li><a href="/docs/algorithms.html">Algorithms</a> — what we built vs what we borrowed, with citations.</li>
         <li><a href="/run.html">Run a scenario</a> — start a search on this server right now.</li>
       </ul>
@@ -880,15 +899,8 @@ def build(out: Path) -> dict[str, str]:
       <h3>Live engine status</h3>
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
 
-      <h3>Public URL and HTTPS</h3>
-      <p>This workbench is currently reachable at the VM IP. To use a branded hostname with TLS:</p>
-      <ol>
-        <li>Create a DNS <strong>A record</strong> (for example <code>fragility.agenticop.io</code>) pointing at this server's external IP.</li>
-        <li>Open port <strong>443</strong> in the GCP firewall if it is not already allowed.</li>
-        <li>From your machine (after DNS propagates): <code>powershell -File scripts/gce_enable_https.ps1</code></li>
-        <li>Or on the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
-      </ol>
-      <p>See <code>scripts/gce_install_https.sh</code> in the repository for details.</p>
+      <h3>Demo access</h3>
+      <p>This installation is meant for browser demos at the VM IP address. Custom hostnames and TLS are optional — see <a href="/docs/fork-coupling.html">coupled fork notes</a> and <code>docs/GCE_HTTPS_AND_AUTH.md</code> in the repo if you need them later.</p>
 
       <h3>Updating this server</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine
