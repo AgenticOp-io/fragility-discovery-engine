@@ -6,14 +6,14 @@
 - [x] Tag **v0.5.0** + [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel + sdist)
 - [x] GCE git bootstrap on `chrysalis-test-vm` (`gce_bootstrap_git.ps1`; HTTPS via `gh` token — deploy keys disabled on repo)
 - [ ] Re-enable deploy key in GitHub org/repo settings (optional; token sync works today)
-- [ ] Optional: run `.github/workflows/pypi.yml` with `PYPI_API_TOKEN` if publishing to PyPI
+- [ ] Optional: run `.github/workflows/pypi.yml` with `PYPI_API_TOKEN` if publishing to PyPI — see [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
 
 ## 2. External visibility (Phase P)
 
 - [x] GitHub Pages landing — https://agenticop-io.github.io/fragility-discovery-engine/
 - [x] GCE public **product workbench** — `scripts/gce_deploy_public_site.ps1` → http://34.61.255.147/
 - [x] Research feedback issue template + pinned feedback issue on GitHub
-- [ ] Point **agenticop.io** subdomain (e.g. `fragility.agenticop.io`) at GCE IP or Pages URL (operator DNS)
+- [ ] Point **fragility.agenticop.io** A record at **34.61.255.147**, then `powershell -File scripts/gce_enable_https.ps1` — [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
 
 ## 3. Research fork
 

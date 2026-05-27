@@ -63,7 +63,8 @@
       <ol>
         <li>Create a DNS <strong>A record</strong> (for example <code>fragility.agenticop.io</code>) pointing at this server's external IP.</li>
         <li>Open port <strong>443</strong> in the GCP firewall if it is not already allowed.</li>
-        <li>On the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
+        <li>From your machine (after DNS propagates): <code>powershell -File scripts/gce_enable_https.ps1</code></li>
+        <li>Or on the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
       </ol>
       <p>See <code>scripts/gce_install_https.sh</code> in the repository for details.</p>
 

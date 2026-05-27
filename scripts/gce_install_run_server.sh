@@ -35,6 +35,7 @@ Environment=FRAGILITY_PUBLIC_ROOT=${PUBLIC_ROOT}
 Environment=FRAGILITY_PYTHON=${PY}
 Environment=FRAGILITY_RUNNER_HOST=127.0.0.1
 Environment=FRAGILITY_RUNNER_PORT=8765
+EnvironmentFile=-/etc/fragility/runner.env
 ExecStart=${PY} ${REPO}/scripts/gce_run_server.py
 Restart=on-failure
 RestartSec=2

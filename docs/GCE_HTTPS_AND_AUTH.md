@@ -1,0 +1,62 @@
+# GCE HTTPS and run API authentication
+
+## HTTPS (Let's Encrypt)
+
+The workbench VM external IP is **34.61.255.147**. A friendly hostname needs a DNS **A record** before certificates can be issued.
+
+| Record | Type | Value |
+|--------|------|-------|
+| `fragility.agenticop.io` | A | `34.61.255.147` |
+
+`agenticop.io` itself may point elsewhere (for example GitHub Pages); only the **subdomain** should target the GCE VM.
+
+After DNS propagates (check with `nslookup fragility.agenticop.io`):
+
+```powershell
+# From the repo on your laptop (opens firewall 443 + certbot on VM)
+powershell -File scripts/gce_enable_https.ps1
+```
+
+Or on the VM:
+
+```bash
+sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh
+```
+
+The HTTPS nginx config keeps `/api/` proxying to the scenario runner and `/runs/` for artifacts.
+
+---
+
+## Run API key (optional)
+
+By default, `POST /api/run` is open to the public workbench (still rate-limited). To require a shared secret on the VM:
+
+```bash
+sudo mkdir -p /etc/fragility
+sudo cp scripts/gce_runner.env.example /etc/fragility/runner.env
+sudo nano /etc/fragility/runner.env   # set FRAGILITY_RUN_API_KEY=...
+sudo systemctl restart fragility-runner
+```
+
+Clients send `X-Fragility-Run-Key: <key>` or `Authorization: Bearer <key>`.
+
+The run page (`/run.html`) shows a key field when `/api/health` reports `run_auth_required: true`. Users can set the key once via `https://…/run.html?run_key=YOUR_KEY` (stored in session storage for that browser tab).
+
+---
+
+## PyPI publish
+
+GitHub Actions workflow **Publish to PyPI** (`.github/workflows/pypi.yml`) runs manually:
+
+1. Add repository secret `PYPI_API_TOKEN` (PyPI → Account → API tokens).
+2. Actions → **Publish to PyPI** → Run workflow → type `publish` in the confirm field.
+
+Local smoke before publishing:
+
+```bash
+pip install build twine
+python -m build
+twine check dist/*
+```
+
+See [RELEASING.md](../RELEASING.md) for tagging and GitHub Release wheels.

@@ -157,6 +157,10 @@ def _run_page_main() -> str:
           <input type="number" id="initialLevel" name="initialLevel" value="0.88" min="0" max="1" step="0.01">
           <span class="fde-run-help" id="initialLevelHelp">Domain-specific starting condition (0 = empty, 1 = full).</span>
         </label>
+        <label id="apiKeyLabel" hidden>Run API key
+          <input type="password" id="apiKey" name="apiKey" autocomplete="off" placeholder="Required on this server">
+          <span class="fde-run-help" id="apiKeyHelp">Stored in this browser only (session). Set once via <code>?run_key=…</code> in the URL.</span>
+        </label>
       </div>
 
       <div class="fde-run-actions">
@@ -191,6 +195,7 @@ def _run_page_main() -> str:
         <li>Maximum run time: <strong>180 seconds</strong> — the run is stopped after that.</li>
         <li>Maximum concurrent runs: <strong>2</strong>. Extra submissions get a "busy" error.</li>
         <li>Maximum <strong>12 runs per hour</strong> per client address (rate limit).</li>
+        <li>Operators may require an <strong>API key</strong> for submissions (<code>X-Fragility-Run-Key</code> header).</li>
         <li>All inputs are validated; no direct server access is possible.</li>
         <li>For longer searches, larger populations, or local use: <code>pip install fragility-engine</code> — see <a href="/docs/how-to-use.html">How to Use</a>.</li>
       </ul>
@@ -335,15 +340,21 @@ def _run_page_main() -> str:
           if (INITIAL_MODES[body.mode]) {
             body.initial_level = Number(initialLevelInput.value);
           }
+          saveRunApiKey();
+          if (runAuthRequired && !runApiHeaders()['X-Fragility-Run-Key']) {
+            statusEl.textContent = 'This server requires a run API key (see field above).';
+            if (apiKeyLabel) apiKeyLabel.hidden = false;
+            return;
+          }
           try {
             const r = await fetch('/api/run', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: runApiHeaders(),
               body: JSON.stringify(body),
             });
             const s = await r.json();
             if (!r.ok) {
-              statusEl.textContent = 'Rejected: ' + (s.error || r.statusText);
+              statusEl.textContent = (r.status === 401 ? 'Unauthorized: ' : 'Rejected: ') + (s.error || r.statusText);
               return;
             }
             statusEl.textContent = 'Accepted (id=' + s.id + '). Polling\u2026';
@@ -864,7 +875,8 @@ def build(out: Path) -> dict[str, str]:
       <ol>
         <li>Create a DNS <strong>A record</strong> (for example <code>fragility.agenticop.io</code>) pointing at this server's external IP.</li>
         <li>Open port <strong>443</strong> in the GCP firewall if it is not already allowed.</li>
-        <li>On the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
+        <li>From your machine (after DNS propagates): <code>powershell -File scripts/gce_enable_https.ps1</code></li>
+        <li>Or on the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
       </ol>
       <p>See <code>scripts/gce_install_https.sh</code> in the repository for details.</p>
 

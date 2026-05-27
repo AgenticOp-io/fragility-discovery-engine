@@ -67,6 +67,9 @@ RUNS_INDEX = RUNS_DIR / "index.json"
 RATE_LIMIT_FILE = RUNS_DIR / "rate_limit.json"
 MAX_RUNS_PER_IP_PER_HOUR = int(os.environ.get("FRAGILITY_MAX_RUNS_PER_IP_HOUR", "12"))
 RATE_LIMIT_WINDOW_S = 3600
+# When set, POST /api/run requires header X-Fragility-Run-Key or Authorization: Bearer <key>.
+RUN_API_KEY = os.environ.get("FRAGILITY_RUN_API_KEY", "").strip()
+RUN_API_KEY_HEADER = "X-Fragility-Run-Key"
 MODES = {
     "aggregate",
     "network",
@@ -184,6 +187,30 @@ def _update_runs_index(entry: dict) -> None:
         json.dumps({"schema": "fragility-runs-index-v1", "runs": runs[:100]}, indent=2),
         encoding="utf-8",
     )
+
+
+def _run_auth_required() -> bool:
+    return bool(RUN_API_KEY)
+
+
+def _api_key_from_handler(handler: BaseHTTPRequestHandler) -> str:
+    key = (handler.headers.get(RUN_API_KEY_HEADER) or "").strip()
+    if key:
+        return key
+    auth = (handler.headers.get("Authorization") or "").strip()
+    if auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return ""
+
+
+def _check_api_key(handler: BaseHTTPRequestHandler) -> str | None:
+    """Return an error message when auth is required and the key is missing or wrong."""
+
+    if not RUN_API_KEY:
+        return None
+    if _api_key_from_handler(handler) != RUN_API_KEY:
+        return "unauthorized: valid run API key required"
+    return None
 
 
 def _client_ip(handler: BaseHTTPRequestHandler) -> str:
@@ -489,6 +516,7 @@ class _Handler(BaseHTTPRequestHandler):
                     "initial_modes": sorted(MODE_INITIAL.keys()),
                     "timeout_s": RUN_TIMEOUT_S,
                     "rate_limit_per_ip_per_hour": MAX_RUNS_PER_IP_PER_HOUR,
+                    "run_auth_required": _run_auth_required(),
                 },
             )
             return
@@ -518,6 +546,10 @@ class _Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length))
         except json.JSONDecodeError as exc:
             self._send(400, {"error": f"invalid-json: {exc}"})
+            return
+        auth_err = _check_api_key(self)
+        if auth_err:
+            self._send(401, {"error": auth_err})
             return
         req, err = _validate(body if isinstance(body, dict) else {})
         if err:
