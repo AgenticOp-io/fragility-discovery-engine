@@ -90,7 +90,7 @@
               '<thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Seed</th><th>Params</th><th>Started</th><th>Duration</th><th>Results</th></tr></thead>' +
               '<tbody>' + rows.join('') + '</tbody>' +
               '</table></div>' +
-              '<p class="fde-run-help">Showing up to 25 most recent runs. Files stay available until the server restarts.</p>';
+              '<p class="fde-run-help">Showing up to 25 most recent runs. Run summaries are indexed on disk; artifact folders may be removed during maintenance.</p>';
           })
           .catch(function () {
             el.innerHTML = '<p class="fde-run-help">Run history not available — the engine server may not be running. <a href="/host.html">Check this host.</a></p>';

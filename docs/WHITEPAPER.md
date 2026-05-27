@@ -1,6 +1,6 @@
 # Fragility Discovery Engine — Whitepaper
 
-This repository's **public whitepaper** is the **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** — what the engine is, what problem it solves, the five simulation domains, and when it fits your work.
+This repository's **public whitepaper** is the **[introduction whitepaper](WHITEPAPER_INTRODUCTION.md)** — what the engine is, what problem it solves, the six simulation domains, and when it fits your work.
 
 | Need | Document |
 |------|----------|

@@ -17,6 +17,10 @@
     {
       "label": "Bundled: penta institutional composite (v4)",
       "path": "../composite_demo/sample_penta_composite.json"
+    },
+    {
+      "label": "Bundled: hexa institutional composite (v5, all six domains)",
+      "path": "../composite_demo/sample_hexa_composite.json"
     }
   ]
 }

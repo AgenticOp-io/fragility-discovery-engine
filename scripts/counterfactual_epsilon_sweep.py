@@ -12,6 +12,7 @@ import numpy as np
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.sweep import (
     sweep_aggregate_initial_panic,
+    sweep_inventory_buffer_initial_stock,
     sweep_liquidity_ladder_delever_rate,
     sweep_liquidity_ladder_initial_margin,
     sweep_network_edge_weight,
@@ -22,6 +23,7 @@ from fragility_engine.explain.sweep import (
 )
 from fragility_engine.explain.trace import linear_epsilon_sweep_to_trace
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -41,14 +43,14 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
             "Sweep one scalar: aggregate initial_panic, resource_cascade initial_overload, service_backlog "
-            "initial_backlog / process_rate, liquidity_ladder initial_margin / delever_rate, or network "
-            "base_panic / contagion_beta / edge_weight on neighbor-list topology "
+            "initial_backlog / process_rate, liquidity_ladder initial_margin / delever_rate, inventory_buffer "
+            "initial_stock, or network base_panic / contagion_beta / edge_weight on neighbor-list topology "
             "(fixed genome + rollout_seed). Optional linear explanation trace JSON."
         ),
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder", "inventory_buffer"),
         default="network",
     )
     ap.add_argument(
@@ -60,6 +62,7 @@ def main() -> None:
             "process_rate",
             "initial_margin",
             "delever_rate",
+            "initial_stock",
             "base_panic",
             "contagion_beta",
             "edge_weight",
@@ -140,6 +143,9 @@ def main() -> None:
     elif args.mode == "liquidity_ladder":
         if args.axis not in ("initial_margin", "delever_rate"):
             raise SystemExit("--mode liquidity_ladder requires --axis initial_margin or delever_rate.")
+    elif args.mode == "inventory_buffer":
+        if args.axis != "initial_stock":
+            raise SystemExit("--mode inventory_buffer requires --axis initial_stock.")
     elif args.axis == "initial_panic":
         raise SystemExit("--axis initial_panic requires --mode aggregate.")
     elif args.axis == "initial_overload":
@@ -152,6 +158,8 @@ def main() -> None:
         raise SystemExit("--axis initial_margin requires --mode liquidity_ladder.")
     elif args.axis == "delever_rate":
         raise SystemExit("--axis delever_rate requires --mode liquidity_ladder.")
+    elif args.axis == "initial_stock":
+        raise SystemExit("--axis initial_stock requires --mode inventory_buffer.")
     elif args.axis == "edge_weight":
         if args.mode != "network":
             raise SystemExit("--axis edge_weight requires --mode network.")
@@ -237,6 +245,18 @@ def main() -> None:
                 initial_margin=float(args.initial_margin),
                 continue_after_collapse=cont,
             )
+    elif args.mode == "inventory_buffer":
+        template = InventoryBufferWorld(
+            population=default_stablecoin_population(),
+            max_steps=max(int(args.horizon), 18),
+        )
+        payload = sweep_inventory_buffer_initial_stock(
+            genome,
+            template,
+            values=vals,
+            rollout_seed=int(args.rollout_seed),
+            continue_after_collapse=cont,
+        )
     else:
         try:
             template, topo_meta = build_stablecoin_network_world_cli(

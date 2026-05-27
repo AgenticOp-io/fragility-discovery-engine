@@ -1,0 +1,36 @@
+{
+  "baseline": {
+    "collapsed": true,
+    "collapse_timestep": 1,
+    "peak_instability": 0.534662535919346,
+    "integral_instability": 0.9698008700463799,
+    "recovery_timestep": null,
+    "attack_cost": 11.739169077009908,
+    "mode": "inventory_buffer",
+    "horizon_steps": 2,
+    "seed": 69201
+  },
+  "counterfactual": {
+    "collapsed": true,
+    "collapse_timestep": 0,
+    "peak_instability": 0.537025,
+    "integral_instability": 0.537025,
+    "recovery_timestep": null,
+    "attack_cost": 11.739169077009908,
+    "mode": "inventory_buffer",
+    "horizon_steps": 1,
+    "seed": 69201
+  },
+  "interpretation_hint": "Both collapse \u2014 compare cost/timing for marginal attribution.",
+  "intervention": "initial_stock_shift",
+  "baseline_initial_stock": 0.88,
+  "variant_initial_stock": 0.55,
+  "meta": {
+    "cli": "export_inventory_buffer_counterfactual_chain",
+    "base_seed": 69201,
+    "genome_seed": 69202,
+    "horizon": 11,
+    "initial_stock": 0.88,
+    "continue_after_collapse": false
+  }
+}

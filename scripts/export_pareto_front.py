@@ -12,6 +12,7 @@ import numpy as np
 from fragility_engine.adversary.search import genetic_search
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.coevolution.thread_safe_template import (
+    thread_safe_inventory_buffer_clone,
     thread_safe_liquidity_ladder_clone,
     thread_safe_network_clone,
     thread_safe_peg_clone,
@@ -21,6 +22,7 @@ from fragility_engine.coevolution.thread_safe_template import (
 from fragility_engine.network.graph_cli import contagion_graph_from_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
@@ -28,6 +30,7 @@ from fragility_engine.runner import (
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -56,7 +59,7 @@ def main() -> None:
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder", "inventory_buffer"),
         default="aggregate",
     )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
@@ -64,6 +67,7 @@ def main() -> None:
     ap.add_argument("--initial-overload", type=float, default=0.05, help="[resource_cascade] reset overload [0,1].")
     ap.add_argument("--initial-backlog", type=float, default=0.05, help="[service_backlog] reset backlog.")
     ap.add_argument("--initial-margin", type=float, default=0.06, help="[liquidity_ladder] reset margin utilization.")
+    ap.add_argument("--initial-stock", type=float, default=0.88, help="[inventory_buffer] reset stock level [0,1].")
     ap.add_argument(
         "--continue-after-collapse",
         action="store_true",
@@ -204,7 +208,7 @@ def main() -> None:
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
-    else:
+    elif args.mode == "liquidity_ladder":
         template = LiquidityLadderWorld(population=default_stablecoin_population(), max_steps=ms)
 
         def evaluator(genome: np.ndarray, seed: int):
@@ -214,6 +218,19 @@ def main() -> None:
                 genome,
                 seed=seed,
                 initial_margin=float(args.initial_margin),
+                continue_after_collapse=bool(args.continue_after_collapse),
+            )
+
+    else:
+        template = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=ms)
+
+        def evaluator(genome: np.ndarray, seed: int):
+            world = thread_safe_inventory_buffer_clone(template) if ew > 1 else template
+            return rollout_inventory_buffer(
+                world,
+                genome,
+                seed=seed,
+                initial_stock=float(args.initial_stock),
                 continue_after_collapse=bool(args.continue_after_collapse),
             )
 
@@ -253,6 +270,9 @@ def main() -> None:
     if args.mode == "liquidity_ladder":
         payload["domain"] = "liquidity_ladder"
         payload["initial_margin"] = float(args.initial_margin)
+    if args.mode == "inventory_buffer":
+        payload["domain"] = "inventory_buffer"
+        payload["initial_stock"] = float(args.initial_stock)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay is not None:

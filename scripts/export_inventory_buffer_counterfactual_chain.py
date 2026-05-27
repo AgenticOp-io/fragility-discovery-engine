@@ -7,9 +7,7 @@ Supports two intervention types:
 ``demand_spike``   Re-run with a different demand-spike gain (--variant-demand-spike-gain).
 
 At most one physics-shift variant is applied; if both shift flags are supplied the script exits
-with an error.  For mutation-chain path traces across multiple cumulative physics mutations, use
-the domain-specific chain modules (not yet available for inventory_buffer; use service backlog or
-resource cascade as a reference for how to add one).
+with an error.
 """
 
 from __future__ import annotations

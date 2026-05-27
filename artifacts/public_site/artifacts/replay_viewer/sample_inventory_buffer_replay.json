@@ -1,0 +1,49 @@
+{
+  "schema_version": "0.4.0",
+  "simulation_mode": "inventory_buffer",
+  "attack_cost": 6.544042877815768,
+  "integral_instability": 0.49879517944606666,
+  "recovery_timestep": null,
+  "collapsed": true,
+  "collapse_timestep": 0,
+  "final_instability": 0.49879517944606666,
+  "seed": 4242,
+  "events_lane": [
+    {
+      "timestep": 0,
+      "reserve_loss": 0.8169302707432048,
+      "rumor": 0.0,
+      "event_count": 1
+    }
+  ],
+  "trajectory": [
+    {
+      "timestep": 0,
+      "state_vector": [
+        0.07316712067738423,
+        0.9292425204304824,
+        0.9268328793226157,
+        1.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.8169302707432048
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.9792000000000001
+      },
+      "metrics": {
+        "price": 0.07316712067738423,
+        "backing_ratio": 0.9292425204304824,
+        "redeem_fraction": 0.9792000000000001,
+        "paid_out": 0.0,
+        "instability": 0.49879517944606666
+      }
+    }
+  ],
+  "steps_recorded": 1,
+  "mean_instability": 0.49879517944606666,
+  "recovery_latency_steps": null
+}

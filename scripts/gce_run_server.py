@@ -48,6 +48,18 @@ CAPS = {
     "population": (4, 32),
     "seed": (0, 2**31 - 1),
 }
+# Optional starting-level knob exposed on the run page (flag name, default value).
+MODE_INITIAL: dict[str, tuple[str, float]] = {
+    "resource_cascade": ("--initial-overload", 0.06),
+    "service_backlog": ("--initial-backlog", 0.06),
+    "liquidity_ladder": ("--initial-margin", 0.06),
+    "inventory_buffer": ("--initial-stock", 0.88),
+    "coevolution_resource_cascade": ("--initial-overload", 0.05),
+    "coevolution_service_backlog": ("--initial-backlog", 0.05),
+    "coevolution_liquidity_ladder": ("--initial-margin", 0.06),
+    "coevolution_inventory_buffer": ("--initial-stock", 0.88),
+}
+RUNS_INDEX = RUNS_DIR / "index.json"
 MODES = {
     "aggregate",
     "network",
@@ -94,7 +106,7 @@ def _validate(body: dict) -> tuple[dict, str | None]:
     mode = str(body.get("mode", "aggregate"))
     if mode not in MODES:
         return {}, f"mode must be one of {sorted(MODES)}"
-    out = {"mode": mode}
+    out: dict[str, object] = {"mode": mode}
     for k, (lo, hi) in CAPS.items():
         v = body.get(k)
         if v is None:
@@ -106,7 +118,65 @@ def _validate(body: dict) -> tuple[dict, str | None]:
         if not (lo <= iv <= hi):
             return {}, f"{k} must be in [{lo}, {hi}]"
         out[k] = iv
+    if mode in MODE_INITIAL:
+        default_initial = MODE_INITIAL[mode][1]
+        raw = body.get("initial_level")
+        if raw is None:
+            out["initial_level"] = default_initial
+        else:
+            try:
+                fv = float(raw)
+            except (TypeError, ValueError):
+                return {}, "initial_level must be a number between 0 and 1"
+            if not (0.0 <= fv <= 1.0):
+                return {}, "initial_level must be in [0.0, 1.0]"
+            out["initial_level"] = fv
     return out, None
+
+
+def _append_initial_flag(cmd: list[str], req: dict) -> None:
+    mode = str(req["mode"])
+    if mode in MODE_INITIAL:
+        flag, default = MODE_INITIAL[mode]
+        cmd.extend([flag, str(req.get("initial_level", default))])
+
+
+def _rebuild_runs_index() -> None:
+    if not RUNS_DIR.is_dir():
+        return
+    items: list[dict] = []
+    for run_dir in RUNS_DIR.iterdir():
+        if not run_dir.is_dir() or run_dir.name == "index.json":
+            continue
+        sp = run_dir / "status.json"
+        if sp.is_file():
+            try:
+                items.append(json.loads(sp.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError):
+                continue
+    items.sort(key=lambda row: str(row.get("started_utc", "")), reverse=True)
+    RUNS_INDEX.write_text(
+        json.dumps({"schema": "fragility-runs-index-v1", "runs": items[:100]}, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _update_runs_index(entry: dict) -> None:
+    try:
+        if RUNS_INDEX.is_file():
+            data = json.loads(RUNS_INDEX.read_text(encoding="utf-8"))
+            runs: list[dict] = list(data.get("runs") or [])
+        else:
+            runs = []
+    except (OSError, json.JSONDecodeError):
+        runs = []
+    run_id = entry.get("id")
+    runs = [row for row in runs if row.get("id") != run_id]
+    runs.insert(0, entry)
+    RUNS_INDEX.write_text(
+        json.dumps({"schema": "fragility-runs-index-v1", "runs": runs[:100]}, indent=2),
+        encoding="utf-8",
+    )
 
 
 def _build_cmd(req: dict, run_dir: Path) -> list[str]:
@@ -137,30 +207,37 @@ def _build_cmd(req: dict, run_dir: Path) -> list[str]:
             "--export-replay", str(replay),
         ]
     if mode == "resource_cascade":
-        return [
+        cmd = [
             PYTHON_BIN, str(scripts_dir / "run_resource_cascade_ga_demo.py"),
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
         ]
+        _append_initial_flag(cmd, req)
+        return cmd
     if mode == "service_backlog":
-        return [
+        cmd = [
             PYTHON_BIN, str(scripts_dir / "run_service_backlog_ga_demo.py"),
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
         ]
+        _append_initial_flag(cmd, req)
+        return cmd
     if mode == "liquidity_ladder":
-        return [
+        cmd = [
             PYTHON_BIN, str(scripts_dir / "run_liquidity_ladder_ga_demo.py"),
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
         ]
+        _append_initial_flag(cmd, req)
+        return cmd
     if mode == "inventory_buffer":
-        # Fixed horizon (18) — horizon field is ignored by the script.
-        return [
+        cmd = [
             PYTHON_BIN, str(scripts_dir / "run_inventory_buffer_ga_demo.py"),
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
         ]
+        _append_initial_flag(cmd, req)
+        return cmd
 
     # --- Co-evolution modes ---
     # All coevolution variants use the shared run_coevolution.py script.
@@ -185,6 +262,7 @@ def _build_cmd(req: dict, run_dir: Path) -> list[str]:
     if coev_domain == "network":
         base_coev += ["--nodes", "32", "--graph-kind", "erdos_renyi", "--er-p", "0.12",
                       "--graph-seed", seed]
+    _append_initial_flag(base_coev, req)
     return base_coev
 
     raise ValueError(f"no command builder for mode {mode!r}")
@@ -211,6 +289,7 @@ def _run(req: dict, run_dir: Path, status_path: Path) -> None:
 
     cmd = _build_cmd(req, run_dir)
     started = _now()
+    t0 = time.time()
     log_path = run_dir / "stdout.log"
     err_path = run_dir / "stderr.log"
     try:
@@ -235,6 +314,7 @@ def _run(req: dict, run_dir: Path, status_path: Path) -> None:
     urls = _viewer_urls(mode, run_dir.name, run_dir)
     extra: dict[str, object] = {
         "exit_code": rc,
+        "elapsed_s": round(time.time() - t0, 2),
         **urls,
         "artifacts": [p.name for p in run_dir.iterdir() if p.is_file()],
         "cli": [str(c) for c in cmd],
@@ -245,6 +325,10 @@ def _run(req: dict, run_dir: Path, status_path: Path) -> None:
         except OSError:
             pass
     _write_status(status_path, req=req, state=state, started=started, **extra)
+    try:
+        _update_runs_index(json.loads(status_path.read_text(encoding="utf-8")))
+    except (OSError, json.JSONDecodeError):
+        pass
 
 
 def _write_status(path: Path, *, req: dict, state: str, started: str, **extra: object) -> None:
@@ -296,10 +380,20 @@ def _enqueue(req: dict) -> dict:
 
 
 def _list_runs(limit: int = 25) -> list[dict]:
+    if RUNS_INDEX.is_file():
+        try:
+            data = json.loads(RUNS_INDEX.read_text(encoding="utf-8"))
+            rows = list(data.get("runs") or [])
+            if rows:
+                return rows[:limit]
+        except (OSError, json.JSONDecodeError):
+            pass
     if not RUNS_DIR.is_dir():
         return []
     items = []
     for run_dir in sorted(RUNS_DIR.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True)[:limit]:
+        if not run_dir.is_dir():
+            continue
         sp = run_dir / "status.json"
         if sp.is_file():
             try:
@@ -335,6 +429,7 @@ class _Handler(BaseHTTPRequestHandler):
                     "horizon_aware_modes": sorted(HORIZON_AWARE_MODES),
                     "pareto_modes": sorted(PARETO_MODES),
                     "caps": {k: list(v) for k, v in CAPS.items()},
+                    "initial_modes": sorted(MODE_INITIAL.keys()),
                     "timeout_s": RUN_TIMEOUT_S,
                 },
             )
@@ -380,6 +475,7 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=LISTEN_PORT)
     args = ap.parse_args()
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    _rebuild_runs_index()
     server = ThreadingHTTPServer((args.host, args.port), _Handler)
     sys.stderr.write(
         f"fragility runner listening on http://{args.host}:{args.port} (runs → {RUNS_DIR})\n"

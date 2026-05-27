@@ -12,6 +12,7 @@ import numpy as np
 from fragility_engine.agents.stablecoin_agents import default_stablecoin_population
 from fragility_engine.explain.counterfactual import (
     counterfactual_bundle_to_jsonable,
+    counterfactual_inventory_buffer_initial_stock_shift_with_rollouts,
     counterfactual_liquidity_ladder_delever_rate_shift_with_rollouts,
     counterfactual_liquidity_ladder_initial_margin_shift_with_rollouts,
     counterfactual_network_base_panic_with_rollouts,
@@ -27,6 +28,7 @@ from fragility_engine.explain.counterfactual import (
 from fragility_engine.network.network_world_cli import build_stablecoin_network_world_cli
 from fragility_engine.runner import (
     REPLAY_SCHEMA_VERSION,
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
@@ -34,6 +36,7 @@ from fragility_engine.runner import (
     rollout_stablecoin_network,
     rollout_to_replay_dict,
 )
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -72,6 +75,7 @@ def main() -> None:
             "process_rate_shift",
             "initial_margin_shift",
             "delever_rate_shift",
+            "initial_stock_shift",
             "base_panic_shift",
             "contagion_beta_shift",
             "edge_weight_shift",
@@ -81,7 +85,7 @@ def main() -> None:
         help=(
             "remove_steps: zero shock rows; resource_cascade: initial_overload_shift or cascade_coupling_shift; "
             "service_backlog: initial_backlog_shift or process_rate_shift; liquidity_ladder: initial_margin_shift or "
-            "delever_rate_shift; network-only: base_panic / contagion_beta / "
+            "delever_rate_shift; inventory_buffer: initial_stock_shift; network-only: base_panic / contagion_beta / "
             "edge weights (--neighbor-json for edge shifts); edge_weights_shift uses --edges-patch-json."
         ),
     )
@@ -117,10 +121,9 @@ def main() -> None:
     )
     ap.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"),
+        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder", "inventory_buffer"),
         default="aggregate",
-        help="aggregate = peg world; network = StablecoinNetworkWorld; resource_cascade = Phase J; "
-        "service_backlog = Phase M third domain.",
+        help="Simulation domain for the counterfactual pair.",
     )
     ap.add_argument("--initial-panic", type=float, default=0.05, help="[aggregate] reset panic.")
     ap.add_argument(
@@ -177,6 +180,18 @@ def main() -> None:
         default=None,
         help="[liquidity_ladder, delever_rate_shift] counterfactual delever_rate (baseline = template).",
     )
+    ap.add_argument(
+        "--initial-stock",
+        type=float,
+        default=0.88,
+        help="[inventory_buffer] baseline reset stock level [0, 1].",
+    )
+    ap.add_argument(
+        "--variant-initial-stock",
+        type=float,
+        default=None,
+        help="[inventory_buffer, initial_stock_shift] counterfactual reset stock.",
+    )
     ap.add_argument("--base-panic", type=float, default=0.05, help="[network] baseline uniform reset panic.")
     ap.add_argument(
         "--continue-after-collapse",
@@ -232,6 +247,8 @@ def main() -> None:
         raise SystemExit("--intervention initial_margin_shift requires --mode liquidity_ladder.")
     if args.intervention == "delever_rate_shift" and args.mode != "liquidity_ladder":
         raise SystemExit("--intervention delever_rate_shift requires --mode liquidity_ladder.")
+    if args.intervention == "initial_stock_shift" and args.mode != "inventory_buffer":
+        raise SystemExit("--intervention initial_stock_shift requires --mode inventory_buffer.")
     if args.intervention == "base_panic_shift" and args.variant_base_panic is None:
         raise SystemExit("--variant-base-panic required for --intervention base_panic_shift.")
     if args.intervention == "contagion_beta_shift" and args.variant_beta is None:
@@ -275,6 +292,11 @@ def main() -> None:
             raise SystemExit("--variant-initial-margin required for --intervention initial_margin_shift.")
         if args.intervention == "delever_rate_shift" and args.variant_delever_rate is None:
             raise SystemExit("--variant-delever-rate required for --intervention delever_rate_shift.")
+    if args.mode == "inventory_buffer":
+        if args.intervention not in ("remove_steps", "initial_stock_shift"):
+            raise SystemExit("inventory_buffer mode supports remove_steps or initial_stock_shift.")
+        if args.intervention == "initial_stock_shift" and args.variant_initial_stock is None:
+            raise SystemExit("--variant-initial-stock required for --intervention initial_stock_shift.")
 
     remove_ts = [int(x.strip()) for x in args.remove.split(",") if x.strip() != ""]
     rng = np.random.default_rng(args.genome_seed)
@@ -405,6 +427,32 @@ def main() -> None:
                 initial_margin=float(args.initial_margin),
                 continue_after_collapse=cont,
             )
+    elif args.mode == "inventory_buffer":
+        ms = max(args.horizon, 18)
+        template = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=ms)
+        if args.intervention == "remove_steps":
+
+            def evaluator_ib(g: np.ndarray, s: int):
+                return rollout_inventory_buffer(
+                    template,
+                    g,
+                    seed=s,
+                    initial_stock=float(args.initial_stock),
+                    continue_after_collapse=cont,
+                )
+
+            report, baseline_rr, variant_rr = counterfactual_remove_steps_with_rollouts(
+                genome, evaluator_ib, remove_timesteps=remove_ts, base_seed=args.seed
+            )
+        else:
+            report, baseline_rr, variant_rr = counterfactual_inventory_buffer_initial_stock_shift_with_rollouts(
+                genome,
+                template,
+                baseline_initial_stock=float(args.initial_stock),
+                variant_initial_stock=float(args.variant_initial_stock),
+                rollout_seed=int(args.seed),
+                continue_after_collapse=cont,
+            )
     else:
         ms = max(args.horizon, 32)
         try:
@@ -504,6 +552,9 @@ def main() -> None:
     if args.mode == "liquidity_ladder":
         payload["meta"]["domain"] = "liquidity_ladder"
         payload["meta"]["initial_margin"] = float(args.initial_margin)
+    if args.mode == "inventory_buffer":
+        payload["meta"]["domain"] = "inventory_buffer"
+        payload["meta"]["initial_stock"] = float(args.initial_stock)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     if args.export_replay_dir is not None:
@@ -546,6 +597,9 @@ def main() -> None:
         elif args.intervention == "delever_rate_shift":
             common_meta["baseline_delever_rate"] = float(report["baseline_delever_rate"])
             common_meta["variant_delever_rate"] = float(report["variant_delever_rate"])
+        elif args.intervention == "initial_stock_shift":
+            common_meta["baseline_initial_stock"] = float(args.initial_stock)
+            common_meta["variant_initial_stock"] = float(args.variant_initial_stock)
         else:
             common_meta["edges_patch"] = report.get("edges_patch")
         if topo_meta is not None:
@@ -559,6 +613,9 @@ def main() -> None:
         if args.mode == "liquidity_ladder":
             common_meta["domain"] = "liquidity_ladder"
             common_meta["initial_margin"] = float(args.initial_margin)
+        if args.mode == "inventory_buffer":
+            common_meta["domain"] = "inventory_buffer"
+            common_meta["initial_stock"] = float(args.initial_stock)
         br = rollout_to_replay_dict(baseline_rr)
         br["meta"] = {**common_meta, "variant": "baseline"}
         vr = rollout_to_replay_dict(variant_rr)

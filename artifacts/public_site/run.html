@@ -94,6 +94,10 @@
           <input type="number" id="population" name="population" value="16" min="4" max="32" required>
           <span class="fde-run-help">Candidate solutions per round. Max 32 on this server.</span>
         </label>
+        <label id="initialLevelLabel" hidden>Starting level
+          <input type="number" id="initialLevel" name="initialLevel" value="0.88" min="0" max="1" step="0.01">
+          <span class="fde-run-help" id="initialLevelHelp">Domain-specific starting condition (0 = empty, 1 = full).</span>
+        </label>
       </div>
 
       <div class="fde-run-actions">
@@ -122,7 +126,7 @@
           </tr>
         </tbody>
       </table>
-      <p>All files are saved under <code>/runs/&lt;id&gt;/</code> and stay accessible by URL until the server restarts.</p>
+      <p>All files are saved under <code>/runs/&lt;id&gt;/</code>. A run index survives server restarts; individual run folders may be removed during maintenance.</p>
       <h3>Limits on this server</h3>
       <ul>
         <li>Maximum run time: <strong>180 seconds</strong> — the run is stopped after that.</li>
@@ -142,7 +146,21 @@
         const horizonHelp = document.getElementById('horizonHelp');
         const gensHelp  = document.getElementById('gensHelp');
         const horizonInput = document.getElementById('horizon');
+        const initialLevelLabel = document.getElementById('initialLevelLabel');
+        const initialLevelInput = document.getElementById('initialLevel');
+        const initialLevelHelp = document.getElementById('initialLevelHelp');
         let polling = null;
+
+        const INITIAL_MODES = {
+          resource_cascade: { default: 0.06, label: 'Starting overload (0 = none, 1 = max)' },
+          service_backlog: { default: 0.06, label: 'Starting backlog level' },
+          liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
+          inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coevolution_resource_cascade: { default: 0.05, label: 'Starting overload' },
+          coevolution_service_backlog: { default: 0.05, label: 'Starting backlog level' },
+          coevolution_liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
+          coevolution_inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+        };
 
         const MODE_TEXT = {
           aggregate:               'The simplest domain: a stablecoin reserve and panic level. Good starting point — fast and easy to read.',
@@ -184,6 +202,14 @@
             gensHelp.textContent = 'Attacker and defender each run this many rounds of search.';
           } else {
             gensHelp.textContent = 'Search rounds. More = better results, slower.';
+          }
+          const init = INITIAL_MODES[m];
+          if (init) {
+            initialLevelLabel.hidden = false;
+            initialLevelInput.value = init.default;
+            initialLevelHelp.textContent = init.label + ' (0 to 1).';
+          } else {
+            initialLevelLabel.hidden = true;
           }
         }
         form.mode.addEventListener('change', updateMode);
@@ -242,6 +268,9 @@
             generations: Number(form.generations.value),
             population:  Number(form.population.value),
           };
+          if (INITIAL_MODES[body.mode]) {
+            body.initial_level = Number(initialLevelInput.value);
+          }
           try {
             const r = await fetch('/api/run', {
               method: 'POST',

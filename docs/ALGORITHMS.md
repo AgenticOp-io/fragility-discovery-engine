@@ -270,7 +270,7 @@ If you build on the engine, please cite the project alongside the underlying alg
 | Search loops (MC / GA / Pareto)       | `src/fragility_engine/adversary/search.py`                                                                                |
 | Counterfactual primitives             | `src/fragility_engine/explain/counterfactual.py`                                                                          |
 | Mutation chains                       | `src/fragility_engine/explain/counterfactual_chain*.py`                                                                   |
-| World physics (any domain)            | `src/fragility_engine/world/{stablecoin_peg, stablecoin_network, resource_cascade, service_backlog, liquidity_ladder}.py` |
+| World physics (any domain)            | `src/fragility_engine/world/{stablecoin_peg, stablecoin_network, resource_cascade, service_backlog, liquidity_ladder, inventory_buffer}.py` |
 | Benchmark / certificate / hypervolume | `src/fragility_engine/benchmarks/`                                                                                        |
 | Frozen JSON schemas (every export)    | `docs/REFERENCE.md` schema index                                                                                          |
 

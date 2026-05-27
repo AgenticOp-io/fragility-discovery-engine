@@ -30,6 +30,7 @@ _REPLAY_BUNDLE_MAP = {
     "sample_resource_cascade_replay.json": "resource_cascade_rollout_v1",
     "sample_service_backlog_replay.json": "service_backlog_rollout_v1",
     "sample_liquidity_ladder_replay.json": "liquidity_ladder_rollout_v1",
+    "sample_inventory_buffer_replay.json": "inventory_buffer_rollout_v1",
 }
 
 
@@ -265,6 +266,63 @@ def _write_composite_samples(py: str) -> None:
         cwd=str(ROOT),
     )
     print(f"wrote {penta.relative_to(ROOT)}")
+    hexa = COMPOSITE_DEMO / "sample_hexa_composite.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "institutional_composite_demo.py"),
+            "--hexa",
+            "--horizon",
+            "10",
+            "--genome-seed",
+            "331",
+            "--graph-seed",
+            "53",
+            "--aggregate-seed",
+            "6800",
+            "--network-seed",
+            "6801",
+            "--cascade-seed",
+            "6802",
+            "--backlog-seed",
+            "6803",
+            "--ladder-seed",
+            "6804",
+            "--inventory-seed",
+            "6805",
+            "--out",
+            str(hexa),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {hexa.relative_to(ROOT)}")
+
+
+def _write_inventory_buffer_attribution_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    out = ATTRIBUTION_VIEWER / "sample_attribution_merge_inventory_buffer.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_inventory_buffer_counterfactual_chain.py"),
+            "--out",
+            str(out),
+            "--horizon",
+            "11",
+            "--seed",
+            "69201",
+            "--genome-seed",
+            "69202",
+            "--initial-stock",
+            "0.88",
+            "--variant-initial-stock",
+            "0.55",
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {out.relative_to(ROOT)}")
 
 
 def _write_liquidity_ladder_joint_attribution_sample(py: str) -> None:
@@ -507,6 +565,25 @@ def _write_pareto_samples(py: str) -> None:
                 "60501",
             ],
         ),
+        (
+            "sample_pareto_inventory_buffer.json",
+            [
+                "--mode",
+                "inventory_buffer",
+                "--initial-stock",
+                "0.88",
+                "--horizon",
+                "10",
+                "--generations",
+                "2",
+                "--population-size",
+                "10",
+                "--max-steps",
+                "28",
+                "--seed",
+                "60601",
+            ],
+        ),
     ]
     for filename, extra in specs:
         out = PARETO_VIEWER / filename
@@ -553,6 +630,7 @@ def main() -> None:
         _write_service_backlog_chain_sample(py)
         _write_liquidity_ladder_chain_sample(py)
         _write_liquidity_ladder_joint_attribution_sample(py)
+        _write_inventory_buffer_attribution_sample(py)
     if not args.skip_composite:
         _write_composite_samples(py)
     if not args.skip_pareto:

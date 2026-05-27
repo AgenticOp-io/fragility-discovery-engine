@@ -2101,6 +2101,149 @@ def test_run_coevolution_liquidity_ladder_exports_replay(py_exe: str, tmp_path: 
     assert data["meta"]["initial_margin"] == pytest.approx(0.065)
 
 
+def test_run_coevolution_inventory_buffer_exports_replay(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "coev_ib.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "run_coevolution.py"),
+            "--mode",
+            "inventory_buffer",
+            "--rounds",
+            "1",
+            "--max-steps",
+            "30",
+            "--initial-stock",
+            "0.85",
+            "--attacker-generations",
+            "2",
+            "--attacker-population",
+            "8",
+            "--defender-generations",
+            "2",
+            "--defender-population",
+            "7",
+            "--seed",
+            "818819",
+            "--export-replay",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["simulation_mode"] == "inventory_buffer"
+    assert data["meta"]["coevolution_mode"] == "inventory_buffer"
+    assert data["meta"]["initial_stock"] == pytest.approx(0.85)
+
+
+def test_export_counterfactual_inventory_buffer_remove_steps_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_ib.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_counterfactual.py"),
+            "--mode",
+            "inventory_buffer",
+            "--intervention",
+            "remove_steps",
+            "--remove",
+            "0,1",
+            "--horizon",
+            "12",
+            "--seed",
+            "99101",
+            "--initial-stock",
+            "0.88",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["domain"] == "inventory_buffer"
+
+
+def test_export_inventory_buffer_counterfactual_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "cf_ib_chain.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_inventory_buffer_counterfactual_chain.py"),
+            "--variant-initial-stock",
+            "0.55",
+            "--horizon",
+            "12",
+            "--seed",
+            "99102",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["meta"]["initial_stock"] == pytest.approx(0.88)
+
+
+def test_counterfactual_epsilon_sweep_inventory_buffer_cli(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "sweep_ib.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "counterfactual_epsilon_sweep.py"),
+            "--mode",
+            "inventory_buffer",
+            "--axis",
+            "initial_stock",
+            "--values",
+            "0.7,0.8,0.9",
+            "--horizon",
+            "12",
+            "--rollout-seed",
+            "99103",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["mode"] == "inventory_buffer"
+    assert data["axis"] == "initial_stock"
+    assert len(data["runs"]) == 3
+
+
+def test_export_pareto_front_inventory_buffer_smoke(py_exe: str, tmp_path: Path) -> None:
+    out = tmp_path / "pf_ib.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_pareto_front.py"),
+            "--mode",
+            "inventory_buffer",
+            "--initial-stock",
+            "0.88",
+            "--horizon",
+            "10",
+            "--generations",
+            "2",
+            "--population-size",
+            "8",
+            "--seed",
+            "99104",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["schema"] == "pareto-front-v1"
+    assert data["domain"] == "inventory_buffer"
+
+
 def test_export_pareto_front_resource_cascade_smoke(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "pf_rc.json"
     subprocess.run(

@@ -22,7 +22,7 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 
 | Document | What it covers |
 |----------|----------------|
-| [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | What the engine is, what problem it solves, the five domains, who it fits |
+| [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | What the engine is, what problem it solves, the six domains, who it fits |
 | [`HOW_TO_USE.md`](HOW_TO_USE.md) | Install, tutorials, all CLI scripts, viewers, troubleshooting |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Package layout, rollout pipeline, simulation modes, determinism |
 | [`REFERENCE.md`](REFERENCE.md) | CLI flag matrix by mode, environment variables, JSON schema names |

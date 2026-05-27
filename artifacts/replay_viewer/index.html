@@ -49,7 +49,7 @@
     <details style="font-size:13px;opacity:0.9;margin-bottom:10px">
       <summary style="cursor:pointer"><strong>What the chart shows</strong></summary>
       <ul style="margin:6px 0 0 18px;padding:0;line-height:1.5">
-        <li><span style="color:#6eb5f7">Blue line</span> — the main health metric. For the peg / aggregate domain it is the <em>peg ratio</em> (1.0 = healthy). For the resource-cascade domain it is the <em>minimum layer headroom</em> (higher = more slack).</li>
+        <li><span style="color:#6eb5f7">Blue line</span> — the main health metric. For peg / aggregate runs it is the <em>peg ratio</em> (1.0 = healthy). For resource cascade it is <em>minimum layer headroom</em>. For inventory buffer it is <em>stock level</em> (higher = more stock). Other domains use their primary capacity metric on this axis.</li>
         <li><span style="color:#f3a35a">Orange line</span> — instability (how much stress the system is under right now).</li>
         <li><span style="color:#cc4dd0">Magenta marker</span> — the step where the run is marked as <em>collapsed</em>.</li>
         <li><span style="color:#5fd4ff">Cyan vertical line</span> — your scrub playhead (where the mouse is on the timeline).</li>
@@ -77,6 +77,7 @@
         <li><code>sample_resource_cascade_replay.json</code> — capacity-overload cascade (blue line is headroom, not a peg).</li>
         <li><code>sample_service_backlog_replay.json</code> — operations backlog run.</li>
         <li><code>sample_liquidity_ladder_replay.json</code> — funding ladder stress.</li>
+        <li><code>sample_inventory_buffer_replay.json</code> — stock level under demand surges and fulfillment problems.</li>
       </ul>
       <p style="margin:6px 0 0">All samples are reproducible from frozen seeds; the panel under the chart shows the exact CLI that produced the file.</p>
     </details>

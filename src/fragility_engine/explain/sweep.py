@@ -14,12 +14,14 @@ from fragility_engine.coevolution.defender import (
 )
 from fragility_engine.explain.counterfactual import neighbor_lists_explicit_weights, out_edge_index, rollout_snapshot
 from fragility_engine.runner import (
+    rollout_inventory_buffer,
     rollout_liquidity_ladder,
     rollout_resource_cascade,
     rollout_service_backlog,
     rollout_stablecoin,
     rollout_stablecoin_network,
 )
+from fragility_engine.world.inventory_buffer import InventoryBufferWorld
 from fragility_engine.world.liquidity_ladder import LiquidityLadderWorld
 from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
@@ -479,6 +481,55 @@ def sweep_liquidity_ladder_delever_rate(
         "mode": "liquidity_ladder",
         "rollout_seed": int(rollout_seed),
         "fixed_initial_margin": float(initial_margin),
+        "runs": runs,
+        "summary": summary,
+    }
+
+
+def sweep_inventory_buffer_initial_stock(
+    genome: np.ndarray,
+    template: InventoryBufferWorld,
+    *,
+    values: list[float],
+    rollout_seed: int,
+    continue_after_collapse: bool = False,
+) -> dict[str, Any]:
+    """Vary ``initial_stock`` at reset; same genome and rollout seed."""
+
+    if not values:
+        raise ValueError("values must be non-empty")
+
+    runs: list[dict[str, Any]] = []
+    integrals: list[float] = []
+
+    for v in values:
+        stock = float(np.clip(v, 0.0, 1.0))
+        r = rollout_inventory_buffer(
+            template,
+            genome,
+            seed=int(rollout_seed),
+            initial_stock=stock,
+            continue_after_collapse=bool(continue_after_collapse),
+        )
+        integrals.append(float(r.integral_instability))
+        runs.append({"initial_stock": stock, **rollout_snapshot(r)})
+
+    arr = np.asarray(integrals, dtype=np.float64)
+    collapses = sum(1 for row in runs if row["collapsed"])
+
+    summary = {
+        "count": len(values),
+        "collapse_count": int(collapses),
+        "integral_instability_min": float(arr.min()),
+        "integral_instability_max": float(arr.max()),
+        "integral_instability_mean": float(arr.mean()),
+    }
+
+    return {
+        "schema": SCHEMA,
+        "axis": "initial_stock",
+        "mode": "inventory_buffer",
+        "rollout_seed": int(rollout_seed),
         "runs": runs,
         "summary": summary,
     }

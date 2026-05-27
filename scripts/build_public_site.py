@@ -153,6 +153,10 @@ def _run_page_main() -> str:
           <input type="number" id="population" name="population" value="16" min="4" max="32" required>
           <span class="fde-run-help">Candidate solutions per round. Max 32 on this server.</span>
         </label>
+        <label id="initialLevelLabel" hidden>Starting level
+          <input type="number" id="initialLevel" name="initialLevel" value="0.88" min="0" max="1" step="0.01">
+          <span class="fde-run-help" id="initialLevelHelp">Domain-specific starting condition (0 = empty, 1 = full).</span>
+        </label>
       </div>
 
       <div class="fde-run-actions">
@@ -181,7 +185,7 @@ def _run_page_main() -> str:
           </tr>
         </tbody>
       </table>
-      <p>All files are saved under <code>/runs/&lt;id&gt;/</code> and stay accessible by URL until the server restarts.</p>
+      <p>All files are saved under <code>/runs/&lt;id&gt;/</code>. A run index survives server restarts; individual run folders may be removed during maintenance.</p>
       <h3>Limits on this server</h3>
       <ul>
         <li>Maximum run time: <strong>180 seconds</strong> — the run is stopped after that.</li>
@@ -201,7 +205,21 @@ def _run_page_main() -> str:
         const horizonHelp = document.getElementById('horizonHelp');
         const gensHelp  = document.getElementById('gensHelp');
         const horizonInput = document.getElementById('horizon');
+        const initialLevelLabel = document.getElementById('initialLevelLabel');
+        const initialLevelInput = document.getElementById('initialLevel');
+        const initialLevelHelp = document.getElementById('initialLevelHelp');
         let polling = null;
+
+        const INITIAL_MODES = {
+          resource_cascade: { default: 0.06, label: 'Starting overload (0 = none, 1 = max)' },
+          service_backlog: { default: 0.06, label: 'Starting backlog level' },
+          liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
+          inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coevolution_resource_cascade: { default: 0.05, label: 'Starting overload' },
+          coevolution_service_backlog: { default: 0.05, label: 'Starting backlog level' },
+          coevolution_liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
+          coevolution_inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+        };
 
         const MODE_TEXT = {
           aggregate:               'The simplest domain: a stablecoin reserve and panic level. Good starting point — fast and easy to read.',
@@ -243,6 +261,14 @@ def _run_page_main() -> str:
             gensHelp.textContent = 'Attacker and defender each run this many rounds of search.';
           } else {
             gensHelp.textContent = 'Search rounds. More = better results, slower.';
+          }
+          const init = INITIAL_MODES[m];
+          if (init) {
+            initialLevelLabel.hidden = false;
+            initialLevelInput.value = init.default;
+            initialLevelHelp.textContent = init.label + ' (0 to 1).';
+          } else {
+            initialLevelLabel.hidden = true;
           }
         }
         form.mode.addEventListener('change', updateMode);
@@ -301,6 +327,9 @@ def _run_page_main() -> str:
             generations: Number(form.generations.value),
             population:  Number(form.population.value),
           };
+          if (INITIAL_MODES[body.mode]) {
+            body.initial_level = Number(initialLevelInput.value);
+          }
           try {
             const r = await fetch('/api/run', {
               method: 'POST',
@@ -584,10 +613,20 @@ def build(out: Path) -> dict[str, str]:
         <h3>Liquidity ladder</h3>
         <p>Financial margin eroding step by step until a forced deleveraging spiral takes hold.</p>
       </a>
+      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_inventory_buffer_replay.json">
+        <span class="fde-card-tag">replay</span>
+        <h3>Inventory buffer</h3>
+        <p>Stock level dropping under demand surges and fulfillment problems until a stockout occurs.</p>
+      </a>
       <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">
         <span class="fde-card-tag">trade-off chart</span>
         <h3>Attack trade-off curve</h3>
         <p>Every point on this chart is an attack that is not dominated by any other — showing the full range between cheap-but-mild and expensive-but-devastating.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_inventory_buffer.json">
+        <span class="fde-card-tag">trade-off chart</span>
+        <h3>Inventory buffer trade-offs</h3>
+        <p>The severity-vs-cost frontier for the inventory buffer domain.</p>
       </a>
       <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_resource_cascade.json">
         <span class="fde-card-tag">trade-off chart</span>
@@ -604,10 +643,15 @@ def build(out: Path) -> dict[str, str]:
         <h3>Resource cascade attribution</h3>
         <p>Two counterfactual branches compared against the same baseline — which intervention mattered more?</p>
       </a>
+      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_inventory_buffer.json">
+        <span class="fde-card-tag">attribution</span>
+        <h3>Inventory buffer — lower starting stock</h3>
+        <p>Compare a baseline run against a variant with less starting stock to see how much the outcome changes.</p>
+      </a>
       <a class="fde-card" href="/artifacts/composite_viewer/index.html">
         <span class="fde-card-tag">composite</span>
         <h3>Multi-domain comparison</h3>
-        <p>The same attack applied to multiple domains at once. Use the Presets menu to load triple, quad, or penta examples.</p>
+        <p>The same attack applied to multiple domains at once. Use the Presets menu for twin through hexa (all six domains).</p>
       </a>
     </div>"""
 
@@ -672,6 +716,21 @@ def build(out: Path) -> dict[str, str]:
         md_filename="REFERENCE.md",
     )
 
+    _doc(
+        filename="scale-and-limits.html",
+        doc_id="docs-scale",
+        title="Scale and limits — Fragility Discovery Engine",
+        description="What scales how, parallelism caveats, and honest complexity bounds.",
+        md_filename="SCALE_AND_LIMITS.md",
+    )
+    _doc(
+        filename="why-inventory-buffer.html",
+        doc_id="docs-why-inv",
+        title="Why inventory buffer — Fragility Discovery Engine",
+        description="What the inventory buffer domain models and why it exists as the sixth reference world.",
+        md_filename="WHY_INVENTORY_BUFFER.md",
+    )
+
     algo_md_path = ROOT / "docs" / "ALGORITHMS.md"
     if algo_md_path.is_file():
         algo_md = algo_md_path.read_text(encoding="utf-8")
@@ -726,6 +785,16 @@ def build(out: Path) -> dict[str, str]:
           <h3>Algorithms</h3>
           <p>Which algorithms are original to this project, which are standard, and where each one is cited.</p>
         </a>
+        <a class="fde-card" href="/docs/scale-and-limits.html">
+          <span class="fde-card-tag">limits</span>
+          <h3>Scale and limits</h3>
+          <p>What scales how, when parallelism is safe, and honest complexity bounds for sweeps and search.</p>
+        </a>
+        <a class="fde-card" href="/docs/why-inventory-buffer.html">
+          <span class="fde-card-tag">domain</span>
+          <h3>Why inventory buffer</h3>
+          <p>What the sixth simulation domain models and how it differs from the other five worlds.</p>
+        </a>
       </div>"""
     docs_index_main = f"""\
     <div class="fde-hero-compact">
@@ -741,6 +810,8 @@ def build(out: Path) -> dict[str, str]:
         <li><a href="/docs/how-to-use.html#tutorial-paths">Tutorials</a> — first replay, search run, attacker/defender simulation, counterfactuals.</li>
         <li><a href="/docs/reference.html#simulation-modes">Simulation domains</a> — aggregate, network, resource cascade, service backlog, liquidity ladder, inventory buffer.</li>
         <li><a href="/docs/reference.html#common-json-schemas">Output file formats</a> — all schema IDs and what produces them.</li>
+        <li><a href="/docs/scale-and-limits.html">Scale and limits</a> — complexity, parallelism, and sweep cost.</li>
+        <li><a href="/docs/why-inventory-buffer.html">Why inventory buffer</a> — the sixth simulation domain explained.</li>
         <li><a href="/docs/algorithms.html">Algorithms</a> — what we built vs what we borrowed, with citations.</li>
         <li><a href="/run.html">Run a scenario</a> — start a search on this server right now.</li>
       </ul>
@@ -782,6 +853,15 @@ def build(out: Path) -> dict[str, str]:
 
       <h3>Live engine status</h3>
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
+
+      <h3>Public URL and HTTPS</h3>
+      <p>This workbench is currently reachable at the VM IP. To use a branded hostname with TLS:</p>
+      <ol>
+        <li>Create a DNS <strong>A record</strong> (for example <code>fragility.agenticop.io</code>) pointing at this server's external IP.</li>
+        <li>Open port <strong>443</strong> in the GCP firewall if it is not already allowed.</li>
+        <li>On the VM: <code>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</code></li>
+      </ol>
+      <p>See <code>scripts/gce_install_https.sh</code> in the repository for details.</p>
 
       <h3>Updating this server</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine
@@ -868,7 +948,7 @@ bash scripts/gce_publish_workbench.sh</pre>
               '<thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Seed</th><th>Params</th><th>Started</th><th>Duration</th><th>Results</th></tr></thead>' +
               '<tbody>' + rows.join('') + '</tbody>' +
               '</table></div>' +
-              '<p class="fde-run-help">Showing up to 25 most recent runs. Files stay available until the server restarts.</p>';
+              '<p class="fde-run-help">Showing up to 25 most recent runs. Run summaries are indexed on disk; artifact folders may be removed during maintenance.</p>';
           })
           .catch(function () {
             el.innerHTML = '<p class="fde-run-help">Run history not available — the engine server may not be running. <a href="/host.html">Check this host.</a></p>';

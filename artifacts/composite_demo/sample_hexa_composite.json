@@ -1,0 +1,55 @@
+{
+  "schema": "fragility-institutional-composite-v5",
+  "aggregate": {
+    "integral_instability": 2.9225,
+    "collapsed": true,
+    "attack_cost": 3.8748436403381574,
+    "collapse_timestep": 0,
+    "simulation_mode": "aggregate"
+  },
+  "network": {
+    "integral_instability": 2.921755559993082,
+    "collapsed": true,
+    "attack_cost": 3.8748436403381574,
+    "collapse_timestep": 0,
+    "simulation_mode": "network"
+  },
+  "resource_cascade": {
+    "integral_instability": 7.593339225679081,
+    "collapsed": true,
+    "attack_cost": 3.8748436403381574,
+    "collapse_timestep": 5,
+    "simulation_mode": "resource_cascade"
+  },
+  "service_backlog": {
+    "integral_instability": 0.08975500192043818,
+    "collapsed": false,
+    "attack_cost": 3.8748436403381574,
+    "collapse_timestep": null,
+    "simulation_mode": "service_backlog"
+  },
+  "liquidity_ladder": {
+    "integral_instability": 0.08829425108407732,
+    "collapsed": false,
+    "attack_cost": 3.8748436403381574,
+    "collapse_timestep": null,
+    "simulation_mode": "liquidity_ladder"
+  },
+  "aggregate_seed": 6800,
+  "network_seed": 6801,
+  "resource_cascade_seed": 6802,
+  "service_backlog_seed": 6803,
+  "liquidity_ladder_seed": 6804,
+  "genome_shape": [
+    10,
+    2
+  ],
+  "inventory_buffer": {
+    "integral_instability": 0.37621869581646106,
+    "collapsed": false,
+    "attack_cost": 3.8748436403381574,
+    "collapse_timestep": null,
+    "simulation_mode": "inventory_buffer"
+  },
+  "inventory_buffer_seed": 6805
+}

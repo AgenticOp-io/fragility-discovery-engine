@@ -39,6 +39,10 @@
       "path": "sample_attribution_merge_liquidity_ladder.json"
     },
     {
+      "label": "Bundled: inventory buffer attribution merge (2 branches)",
+      "path": "sample_attribution_merge_inventory_buffer.json"
+    },
+    {
       "label": "Export: test_exports joint RC attribution",
       "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }
