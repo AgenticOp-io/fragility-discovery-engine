@@ -146,6 +146,26 @@ body.fde-app li { margin-bottom: 0.3rem; }
 #fdeTourRoot .fde-tour-kicker { font-size: var(--fde-size-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fde-muted); }
 #fdeTourRoot .fde-tour-title { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
 #fdeTourRoot .fde-tour-body  { color: var(--fde-text); opacity: 0.92; margin-top: 6px; }
+#fdeTourRoot .fde-tour-caption {
+  margin-top: 8px;
+  font-size: var(--fde-size-sm);
+  color: var(--fde-muted);
+  border-left: 2px solid rgba(110,181,247,0.5);
+  padding-left: 8px;
+}
+#fdeTourRoot .fde-tour-progress-wrap {
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+#fdeTourRoot .fde-tour-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(110,181,247,0.8), rgba(124,156,255,0.9));
+}
 #fdeTourRoot .fde-tour-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
 #fdeTourRoot .fde-tour-btn {
   font: inherit;

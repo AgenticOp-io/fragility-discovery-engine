@@ -32,6 +32,7 @@
   var TOUR_INDEX = "fde_tour_index_v1";
   var TOUR_AUTOPLAY = "fde_tour_autoplay_v1";
   var TOUR_MS = "fde_tour_ms_v1";
+  var TOUR_PLAYING = "fde_tour_playing_v1";
 
   function qs(sel) {
     try { return document.querySelector(sel); } catch (e) { return null; }
@@ -79,6 +80,13 @@
     return clamp(raw, 0, steps.length - 1);
   }
   function setIndex(i) { sessionStorage.setItem(TOUR_INDEX, String(clamp(i, 0, steps.length - 1))); }
+  function setPlaying(v) { sessionStorage.setItem(TOUR_PLAYING, v ? "1" : "0"); }
+  function isPlaying() {
+    if (sessionStorage.getItem(TOUR_AUTOPLAY) !== "1") return false;
+    var raw = sessionStorage.getItem(TOUR_PLAYING);
+    if (raw == null) return true;
+    return raw === "1";
+  }
 
   function isTourActive() {
     var urlFlag = (new URLSearchParams(window.location.search)).get("tour");
@@ -90,7 +98,10 @@
     if (params.get("tour") !== "1") return;
     sessionStorage.setItem(TOUR_ACTIVE, "1");
     var ap = params.get("autoplay");
-    if (ap === "1") sessionStorage.setItem(TOUR_AUTOPLAY, "1");
+    if (ap === "1") {
+      sessionStorage.setItem(TOUR_AUTOPLAY, "1");
+      setPlaying(true);
+    }
     var ms = parseInt(params.get("ms") || "", 10);
     if (isFinite(ms) && ms >= 1500) sessionStorage.setItem(TOUR_MS, String(ms));
     params.delete("tour"); params.delete("autoplay"); params.delete("ms");
@@ -107,6 +118,7 @@
     sessionStorage.removeItem(TOUR_ACTIVE);
     sessionStorage.removeItem(TOUR_INDEX);
     sessionStorage.removeItem(TOUR_AUTOPLAY);
+    sessionStorage.removeItem(TOUR_PLAYING);
     sessionStorage.removeItem(TOUR_MS);
     teardown();
   }
@@ -152,9 +164,12 @@
       '  <div class="fde-tour-kicker">Tour</div>',
       '  <div class="fde-tour-title" id="fdeTourTitle"></div>',
       '  <div class="fde-tour-body" id="fdeTourBody"></div>',
+      '  <div class="fde-tour-caption" id="fdeTourCaption"></div>',
+      '  <div class="fde-tour-progress-wrap"><div class="fde-tour-progress-bar" id="fdeTourBar"></div></div>',
       '  <div class="fde-tour-controls">',
       '    <button type="button" class="fde-tour-btn" id="fdeTourBack">Back</button>',
       '    <button type="button" class="fde-tour-btn fde-tour-primary" id="fdeTourNext">Next</button>',
+      '    <button type="button" class="fde-tour-btn" id="fdeTourPlay">Pause</button>',
       '    <button type="button" class="fde-tour-btn fde-tour-ghost" id="fdeTourExit">Exit</button>',
       '  </div>',
       '  <div class="fde-tour-progress" id="fdeTourProgress"></div>',
@@ -164,18 +179,32 @@
 
     setText(document.getElementById("fdeTourTitle"), step.title);
     setText(document.getElementById("fdeTourBody"), step.body);
+    setText(document.getElementById("fdeTourCaption"), "Narration: " + step.body);
     setText(document.getElementById("fdeTourProgress"), (i + 1) + " / " + steps.length);
 
     var back = document.getElementById("fdeTourBack");
     var next = document.getElementById("fdeTourNext");
+    var play = document.getElementById("fdeTourPlay");
     var exit = document.getElementById("fdeTourExit");
     if (back) back.disabled = i <= 0;
     if (next) next.textContent = (i >= steps.length - 1) ? "Finish" : "Next";
+    if (play) {
+      if (sessionStorage.getItem(TOUR_AUTOPLAY) === "1") {
+        play.style.display = "";
+        play.textContent = isPlaying() ? "Pause" : "Play";
+      } else {
+        play.style.display = "none";
+      }
+    }
 
     if (back) back.onclick = function () { setIndex(i - 1); render(); };
     if (next) next.onclick = function () {
       if (i >= steps.length - 1) { exitTour(); return; }
       setIndex(i + 1); render();
+    };
+    if (play) play.onclick = function () {
+      setPlaying(!isPlaying());
+      render();
     };
     if (exit) exit.onclick = function () { exitTour(); };
 
@@ -201,10 +230,23 @@
       var ms = parseInt(sessionStorage.getItem(TOUR_MS) || "5200", 10);
       if (!isFinite(ms)) ms = 5200;
       ms = clamp(ms, 2000, 12000);
+      var bar = document.getElementById("fdeTourBar");
+      if (bar) {
+        bar.style.transition = "none";
+        bar.style.width = "0%";
+        if (isPlaying()) {
+          window.requestAnimationFrame(function () {
+            bar.style.transition = "width " + ms + "ms linear";
+            bar.style.width = "100%";
+          });
+        }
+      }
+      if (!isPlaying()) return;
       window.setTimeout(function () {
         // Don't auto-advance if user already navigated away or closed.
         if (!document.getElementById("fdeTourRoot")) return;
         if (currentIndex() !== i) return;
+        if (!isPlaying()) return;
         if (i >= steps.length - 1) { exitTour(); return; }
         setIndex(i + 1);
         render();
