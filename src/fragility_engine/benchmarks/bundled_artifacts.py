@@ -33,6 +33,7 @@ ATTRIBUTION_VIEWER_SAMPLES: tuple[str, ...] = (
     "artifacts/attribution_viewer/sample_resource_cascade_chain_coupling_rumor.json",
     "artifacts/attribution_viewer/sample_service_backlog_chain_process_ingest.json",
     "artifacts/attribution_viewer/sample_liquidity_ladder_chain_margin_haircut.json",
+    "artifacts/attribution_viewer/sample_inventory_buffer_chain_demand_fulfillment.json",
 )
 
 # Composite demo + viewer
@@ -51,6 +52,7 @@ CHAIN_FIXTURES: tuple[str, ...] = (
     "tests/fixtures/chains/resource_cascade_coupling_rumor_chain.json",
     "tests/fixtures/chains/service_backlog_process_ingest_chain.json",
     "tests/fixtures/chains/liquidity_ladder_margin_haircut_chain.json",
+    "tests/fixtures/chains/inventory_buffer_demand_fulfillment_chain.json",
 )
 
 BUNDLED_ARTIFACT_PATHS: tuple[str, ...] = (

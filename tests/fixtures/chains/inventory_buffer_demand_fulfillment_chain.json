@@ -1,0 +1,7 @@
+{
+  "schema": "inventory-buffer-mutation-chain-spec-v1",
+  "steps": [
+    {"kind": "demand_spike_gain", "value": 0.92},
+    {"kind": "fulfillment_erosion", "value": 0.18}
+  ]
+}

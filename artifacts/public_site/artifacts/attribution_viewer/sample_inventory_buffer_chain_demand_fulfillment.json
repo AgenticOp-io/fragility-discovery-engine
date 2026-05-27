@@ -1,0 +1,132 @@
+{
+  "baseline": {
+    "collapsed": true,
+    "collapse_timestep": 6,
+    "peak_instability": 0.5083030318780473,
+    "integral_instability": 1.0318867949561845,
+    "recovery_timestep": null,
+    "attack_cost": 7.978778084073249,
+    "mode": "inventory_buffer",
+    "horizon_steps": 7,
+    "seed": 66801
+  },
+  "counterfactual": {
+    "collapsed": true,
+    "collapse_timestep": 6,
+    "peak_instability": 0.5591880853724075,
+    "integral_instability": 1.2333891429128987,
+    "recovery_timestep": null,
+    "attack_cost": 7.978778084073249,
+    "mode": "inventory_buffer",
+    "horizon_steps": 7,
+    "seed": 66801
+  },
+  "interpretation_hint": "Both collapse \u2014 compare cost/timing for marginal attribution.",
+  "intervention": "inventory_buffer_mutation_chain",
+  "mutation_steps": [
+    {
+      "kind": "demand_spike_gain",
+      "value": 0.92
+    },
+    {
+      "kind": "fulfillment_erosion",
+      "value": 0.18
+    }
+  ],
+  "baseline_initial_stock": 0.86,
+  "variant_initial_stock": 0.86,
+  "delta_attack_cost": 0.0,
+  "delta_integral_instability": -0.20150234795671418,
+  "meta": {
+    "cli": "export_inventory_buffer_mutation_chain",
+    "base_seed": 66801,
+    "chain_schema": "inventory-buffer-mutation-chain-spec-v1",
+    "chain_json": "C:\\Users\\david\\projects\\fragility-discovery-engine\\tests\\fixtures\\chains\\inventory_buffer_demand_fulfillment_chain.json",
+    "continue_after_collapse": false,
+    "max_steps": 40
+  },
+  "path_trace": {
+    "schema": "explanation-mutation-chain-path-inventory-buffer-v1",
+    "source_chain_schema": "inventory-buffer-mutation-chain-spec-v1",
+    "rollout_seed": 66801,
+    "baseline_initial_stock": 0.86,
+    "variant_initial_stock": 0.86,
+    "nodes": [
+      {
+        "id": "chain_0",
+        "index": 0,
+        "mutations_applied": 0,
+        "reset_initial_stock": 0.86,
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 0.5083030318780473,
+        "integral_instability": 1.0318867949561845,
+        "recovery_timestep": null,
+        "attack_cost": 7.978778084073249,
+        "mode": "inventory_buffer",
+        "horizon_steps": 7,
+        "seed": 66801
+      },
+      {
+        "id": "chain_1",
+        "index": 1,
+        "mutations_applied": 1,
+        "reset_initial_stock": 0.86,
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 0.5319021318637862,
+        "integral_instability": 1.0749397990122287,
+        "recovery_timestep": null,
+        "attack_cost": 7.978778084073249,
+        "mode": "inventory_buffer",
+        "horizon_steps": 7,
+        "seed": 66801
+      },
+      {
+        "id": "chain_2",
+        "index": 2,
+        "mutations_applied": 2,
+        "reset_initial_stock": 0.86,
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 0.5591880853724075,
+        "integral_instability": 1.2333891429128987,
+        "recovery_timestep": null,
+        "attack_cost": 7.978778084073249,
+        "mode": "inventory_buffer",
+        "horizon_steps": 7,
+        "seed": 66801
+      }
+    ],
+    "edges": [
+      {
+        "from": "chain_0",
+        "to": "chain_1",
+        "kind": "mutation_chain_step",
+        "step_index": 0,
+        "step": {
+          "kind": "demand_spike_gain",
+          "value": 0.92
+        },
+        "delta_integral_instability": 0.043053004056044175,
+        "delta_attack_cost": 0.0,
+        "reset_initial_stock_from": 0.86,
+        "reset_initial_stock_to": 0.86
+      },
+      {
+        "from": "chain_1",
+        "to": "chain_2",
+        "kind": "mutation_chain_step",
+        "step_index": 1,
+        "step": {
+          "kind": "fulfillment_erosion",
+          "value": 0.18
+        },
+        "delta_integral_instability": 0.15844934390067,
+        "delta_attack_cost": 0.0,
+        "reset_initial_stock_from": 0.86,
+        "reset_initial_stock_to": 0.86
+      }
+    ]
+  }
+}

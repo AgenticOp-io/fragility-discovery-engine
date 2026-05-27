@@ -53,6 +53,13 @@ def test_bundled_liquidity_ladder_chain_path_trace() -> None:
     assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-liquidity-ladder-v1"
 
 
+def test_bundled_inventory_buffer_chain_path_trace() -> None:
+    p = ATTR / "sample_inventory_buffer_chain_demand_fulfillment.json"
+    obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("intervention") == "inventory_buffer_mutation_chain"
+    assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-inventory-buffer-v1"
+
+
 def test_bundled_liquidity_ladder_merge_attribution_schema() -> None:
     p = ATTR / "sample_attribution_merge_liquidity_ladder.json"
     obj = json.loads(p.read_text(encoding="utf-8"))

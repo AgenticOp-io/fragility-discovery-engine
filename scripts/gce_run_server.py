@@ -48,18 +48,25 @@ CAPS = {
     "population": (4, 32),
     "seed": (0, 2**31 - 1),
 }
-# Optional starting-level knob exposed on the run page (flag name, default value).
+# Optional starting-level knob exposed on the run page (CLI flag name, default value).
 MODE_INITIAL: dict[str, tuple[str, float]] = {
+    "aggregate": ("--initial-panic", 0.05),
+    "network": ("--base-panic", 0.05),
     "resource_cascade": ("--initial-overload", 0.06),
     "service_backlog": ("--initial-backlog", 0.06),
     "liquidity_ladder": ("--initial-margin", 0.06),
     "inventory_buffer": ("--initial-stock", 0.88),
+    "coevolution_aggregate": ("--base-panic", 0.05),
+    "coevolution_network": ("--base-panic", 0.05),
     "coevolution_resource_cascade": ("--initial-overload", 0.05),
     "coevolution_service_backlog": ("--initial-backlog", 0.05),
     "coevolution_liquidity_ladder": ("--initial-margin", 0.06),
     "coevolution_inventory_buffer": ("--initial-stock", 0.88),
 }
 RUNS_INDEX = RUNS_DIR / "index.json"
+RATE_LIMIT_FILE = RUNS_DIR / "rate_limit.json"
+MAX_RUNS_PER_IP_PER_HOUR = int(os.environ.get("FRAGILITY_MAX_RUNS_PER_IP_HOUR", "12"))
+RATE_LIMIT_WINDOW_S = 3600
 MODES = {
     "aggregate",
     "network",
@@ -179,6 +186,50 @@ def _update_runs_index(entry: dict) -> None:
     )
 
 
+def _client_ip(handler: BaseHTTPRequestHandler) -> str:
+    forwarded = handler.headers.get("X-Forwarded-For", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    host = handler.client_address[0] if handler.client_address else "unknown"
+    return host
+
+
+def _check_rate_limit(ip: str) -> str | None:
+    """Return an error message if this IP exceeded the hourly run quota."""
+
+    now = time.time()
+    try:
+        if RATE_LIMIT_FILE.is_file():
+            data = json.loads(RATE_LIMIT_FILE.read_text(encoding="utf-8"))
+            by_ip: dict[str, list[float]] = {
+                str(k): [float(t) for t in v] if isinstance(v, list) else []
+                for k, v in (data.get("by_ip") or {}).items()
+            }
+        else:
+            by_ip = {}
+    except (OSError, json.JSONDecodeError):
+        by_ip = {}
+
+    window_start = now - RATE_LIMIT_WINDOW_S
+    times = [t for t in by_ip.get(ip, []) if t >= window_start]
+    if len(times) >= MAX_RUNS_PER_IP_PER_HOUR:
+        return (
+            f"rate-limit: at most {MAX_RUNS_PER_IP_PER_HOUR} runs per hour from this address "
+            f"({len(times)} in the last hour)"
+        )
+    times.append(now)
+    by_ip[ip] = times
+    try:
+        RUNS_DIR.mkdir(parents=True, exist_ok=True)
+        RATE_LIMIT_FILE.write_text(
+            json.dumps({"schema": "fragility-rate-limit-v1", "by_ip": by_ip}, indent=2),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+    return None
+
+
 def _build_cmd(req: dict, run_dir: Path) -> list[str]:
     """Translate validated request → whitelisted CLI argv. Never accepts shell input."""
 
@@ -192,20 +243,23 @@ def _build_cmd(req: dict, run_dir: Path) -> list[str]:
     scripts_dir = ROOT / "scripts"
 
     if mode == "aggregate":
-        return [
+        cmd = [
             PYTHON_BIN, str(scripts_dir / "run_ga_demo.py"),
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
         ]
+        _append_initial_flag(cmd, req)
+        return cmd
     if mode == "network":
-        # ER topology, capped node count. Same seed drives both GA and graph for reproducibility.
-        return [
+        cmd = [
             PYTHON_BIN, str(scripts_dir / "run_network_demo.py"),
             "--ga-seed", seed, "--graph-seed", seed,
             "--horizon", horizon, "--generations", gens, "--population-size", pop,
             "--nodes", "32", "--graph-kind", "erdos_renyi", "--er-p", "0.12",
             "--export-replay", str(replay),
         ]
+        _append_initial_flag(cmd, req)
+        return cmd
     if mode == "resource_cascade":
         cmd = [
             PYTHON_BIN, str(scripts_dir / "run_resource_cascade_ga_demo.py"),
@@ -344,8 +398,11 @@ def _write_status(path: Path, *, req: dict, state: str, started: str, **extra: o
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _enqueue(req: dict) -> dict:
+def _enqueue(req: dict, client_ip: str = "unknown") -> dict:
     global _active
+    rl_err = _check_rate_limit(client_ip)
+    if rl_err:
+        return {"error": rl_err}
     with _active_lock:
         if _active >= MAX_CONCURRENT:
             return {"error": "busy", "active": _active, "max": MAX_CONCURRENT}
@@ -431,6 +488,7 @@ class _Handler(BaseHTTPRequestHandler):
                     "caps": {k: list(v) for k, v in CAPS.items()},
                     "initial_modes": sorted(MODE_INITIAL.keys()),
                     "timeout_s": RUN_TIMEOUT_S,
+                    "rate_limit_per_ip_per_hour": MAX_RUNS_PER_IP_PER_HOUR,
                 },
             )
             return
@@ -465,7 +523,7 @@ class _Handler(BaseHTTPRequestHandler):
         if err:
             self._send(400, {"error": err})
             return
-        resp = _enqueue(req)
+        resp = _enqueue(req, client_ip=_client_ip(self))
         self._send(202 if "id" in resp else 503, resp)
 
 

@@ -2187,6 +2187,44 @@ def test_export_inventory_buffer_counterfactual_chain_cli(py_exe: str, tmp_path:
     assert data["meta"]["initial_stock"] == pytest.approx(0.88)
 
 
+def test_export_inventory_buffer_mutation_chain_cli(py_exe: str, tmp_path: Path) -> None:
+    spec = tmp_path / "ib_chain.json"
+    spec.write_text(
+        '{"schema": "inventory-buffer-mutation-chain-spec-v1", "steps": ['
+        '{"kind": "demand_spike_gain", "value": 0.9}, '
+        '{"kind": "fulfillment_erosion", "value": 0.2}'
+        "]}",
+        encoding="utf-8",
+    )
+    out = tmp_path / "cf_ib_mutation_chain.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_inventory_buffer_mutation_chain.py"),
+            "--chain-json",
+            str(spec),
+            "--horizon",
+            "10",
+            "--max-steps",
+            "24",
+            "--seed",
+            "99104",
+            "--genome-seed",
+            "54",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["intervention"] == "inventory_buffer_mutation_chain"
+    assert len(payload["mutation_steps"]) == 2
+    assert payload["path_trace"]["schema"] == "explanation-mutation-chain-path-inventory-buffer-v1"
+    assert len(payload["path_trace"]["edges"]) == 2
+
+
 def test_counterfactual_epsilon_sweep_inventory_buffer_cli(py_exe: str, tmp_path: Path) -> None:
     out = tmp_path / "sweep_ib.json"
     subprocess.run(

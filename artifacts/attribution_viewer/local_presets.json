@@ -43,6 +43,10 @@
       "path": "sample_attribution_merge_inventory_buffer.json"
     },
     {
+      "label": "Bundled: inventory buffer chain (demand spike + fulfillment erosion)",
+      "path": "sample_inventory_buffer_chain_demand_fulfillment.json"
+    },
+    {
       "label": "Export: test_exports joint RC attribution",
       "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }

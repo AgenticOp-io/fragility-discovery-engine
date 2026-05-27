@@ -89,6 +89,7 @@ Flags shared across most scripts:
 | GCE write status | `gce_write_workbench_status.py` |
 | Static dashboard export | `export_static_dashboard.py` |
 | Inventory buffer counterfactual | `export_inventory_buffer_counterfactual_chain.py` |
+| Inventory buffer mutation chain | `export_inventory_buffer_mutation_chain.py` |
 | Local CI parity | `ci_local.sh` / `ci_local.ps1` |
 
 One-line descriptions for every script: root [README.md](../README.md) scripts table.
@@ -156,6 +157,20 @@ python scripts/export_inventory_buffer_counterfactual_chain.py \
 | `--export-replay-dir PATH` | none | Write `baseline.json` and `counterfactual.json` replay files here |
 
 Supply at most one of `--variant-initial-stock` / `--variant-demand-spike-gain`. If neither is supplied the script uses `remove_steps`. Output is an `attribution-merge-v1`-compatible JSON readable by the Attribution viewer.
+
+---
+
+## export_inventory_buffer_mutation_chain.py — inventory buffer mutation chain
+
+Applies an ordered list of physics mutations cumulatively on an inventory-buffer template, then compares baseline vs final clone. Optional path trace emits one rollout per cumulative prefix (Attribution viewer).
+
+```bash
+python scripts/export_inventory_buffer_mutation_chain.py \
+  --chain-json tests/fixtures/chains/inventory_buffer_demand_fulfillment_chain.json \
+  --emit-path-trace --out cf_ib_chain.json
+```
+
+Chain spec schema: `inventory-buffer-mutation-chain-spec-v1`. Step kinds include `demand_spike_gain`, `fulfillment_erosion`, `replenish_rate`, `stock_recovery`, `stockout_collapse`, `fulfillment_floor_collapse`, `recovery_stock`, `max_steps`.
 
 ---
 

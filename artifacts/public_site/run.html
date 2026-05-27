@@ -131,6 +131,7 @@
       <ul>
         <li>Maximum run time: <strong>180 seconds</strong> — the run is stopped after that.</li>
         <li>Maximum concurrent runs: <strong>2</strong>. Extra submissions get a "busy" error.</li>
+        <li>Maximum <strong>12 runs per hour</strong> per client address (rate limit).</li>
         <li>All inputs are validated; no direct server access is possible.</li>
         <li>For longer searches, larger populations, or local use: <code>pip install fragility-engine</code> — see <a href="/docs/how-to-use.html">How to Use</a>.</li>
       </ul>
@@ -152,10 +153,14 @@
         let polling = null;
 
         const INITIAL_MODES = {
+          aggregate: { default: 0.05, label: 'Starting panic level (0 = calm, 1 = high panic)' },
+          network: { default: 0.05, label: 'Starting panic on all nodes' },
           resource_cascade: { default: 0.06, label: 'Starting overload (0 = none, 1 = max)' },
           service_backlog: { default: 0.06, label: 'Starting backlog level' },
           liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
           inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coevolution_aggregate: { default: 0.05, label: 'Starting panic level' },
+          coevolution_network: { default: 0.05, label: 'Starting panic on all nodes' },
           coevolution_resource_cascade: { default: 0.05, label: 'Starting overload' },
           coevolution_service_backlog: { default: 0.05, label: 'Starting backlog level' },
           coevolution_liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },

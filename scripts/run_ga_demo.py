@@ -32,6 +32,7 @@ def main() -> None:
     p.add_argument("--generations", type=int, default=12)
     p.add_argument("--population-size", type=int, default=24)
     p.add_argument("--seed", type=int, default=999)
+    p.add_argument("--initial-panic", type=float, default=0.05, help="Reset panic level at start of run.")
     p.add_argument(
         "--eval-workers",
         type=int,
@@ -46,10 +47,14 @@ def main() -> None:
 
     def ga_evaluator(genome, seed: int):
         world = thread_safe_peg_clone(template) if ew > 1 else template
-        return rollout_stablecoin(world, genome, seed=seed)
+        return rollout_stablecoin(
+            world, genome, seed=seed, initial_panic=float(args.initial_panic)
+        )
 
     def minimize_evaluator(genome, seed: int):
-        return rollout_stablecoin(template, genome, seed=seed)
+        return rollout_stablecoin(
+            template, genome, seed=seed, initial_panic=float(args.initial_panic)
+        )
 
     search = genetic_search(
         ga_evaluator,

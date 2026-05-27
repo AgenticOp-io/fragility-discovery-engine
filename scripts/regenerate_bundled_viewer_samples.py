@@ -437,6 +437,34 @@ def _write_service_backlog_chain_sample(py: str) -> None:
     print(f"wrote {out.relative_to(ROOT)}")
 
 
+def _write_inventory_buffer_chain_sample(py: str) -> None:
+    ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
+    chain_path = ROOT / "tests" / "fixtures" / "chains" / "inventory_buffer_demand_fulfillment_chain.json"
+    out = ATTRIBUTION_VIEWER / "sample_inventory_buffer_chain_demand_fulfillment.json"
+    subprocess.run(
+        [
+            py,
+            str(ROOT / "scripts" / "export_inventory_buffer_mutation_chain.py"),
+            "--chain-json",
+            str(chain_path),
+            "--horizon",
+            "12",
+            "--seed",
+            "66801",
+            "--genome-seed",
+            "66802",
+            "--initial-stock",
+            "0.86",
+            "--emit-path-trace",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    print(f"wrote {out.relative_to(ROOT)}")
+
+
 def _write_liquidity_ladder_chain_sample(py: str) -> None:
     ATTRIBUTION_VIEWER.mkdir(parents=True, exist_ok=True)
     chain_path = ROOT / "tests" / "fixtures" / "chains" / "liquidity_ladder_margin_haircut_chain.json"
@@ -631,6 +659,7 @@ def main() -> None:
         _write_liquidity_ladder_chain_sample(py)
         _write_liquidity_ladder_joint_attribution_sample(py)
         _write_inventory_buffer_attribution_sample(py)
+        _write_inventory_buffer_chain_sample(py)
     if not args.skip_composite:
         _write_composite_samples(py)
     if not args.skip_pareto:

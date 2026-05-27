@@ -141,6 +141,7 @@
 <tr><td>GCE write status</td><td><code>gce_write_workbench_status.py</code></td></tr>
 <tr><td>Static dashboard export</td><td><code>export_static_dashboard.py</code></td></tr>
 <tr><td>Inventory buffer counterfactual</td><td><code>export_inventory_buffer_counterfactual_chain.py</code></td></tr>
+<tr><td>Inventory buffer mutation chain</td><td><code>export_inventory_buffer_mutation_chain.py</code></td></tr>
 <tr><td>Local CI parity</td><td><code>ci_local.sh</code> / <code>ci_local.ps1</code></td></tr>
 </tbody></table>
 <p>One-line descriptions for every script: root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md">README.md</a> scripts table.</p>
@@ -194,6 +195,15 @@
 <tr><td><code>--export-replay-dir PATH</code></td><td>none</td><td>Write <code>baseline.json</code> and <code>counterfactual.json</code> replay files here</td></tr>
 </tbody></table>
 <p>Supply at most one of <code>--variant-initial-stock</code> / <code>--variant-demand-spike-gain</code>. If neither is supplied the script uses <code>remove_steps</code>. Output is an <code>attribution-merge-v1</code>-compatible JSON readable by the Attribution viewer.</p>
+<hr>
+<h3>export_inventory_buffer_mutation_chain.py — inventory buffer mutation chain</h3>
+<p>Applies an ordered list of physics mutations cumulatively on an inventory-buffer template, then compares baseline vs final clone. Optional path trace emits one rollout per cumulative prefix (Attribution viewer).</p>
+<p>```bash</p>
+<p>python scripts/export_inventory_buffer_mutation_chain.py \</p>
+<p>  --chain-json tests/fixtures/chains/inventory_buffer_demand_fulfillment_chain.json \</p>
+<p>  --emit-path-trace --out cf_ib_chain.json</p>
+<p>```</p>
+<p>Chain spec schema: <code>inventory-buffer-mutation-chain-spec-v1</code>. Step kinds include <code>demand_spike_gain</code>, <code>fulfillment_erosion</code>, <code>replenish_rate</code>, <code>stock_recovery</code>, <code>stockout_collapse</code>, <code>fulfillment_floor_collapse</code>, <code>recovery_stock</code>, <code>max_steps</code>.</p>
 <hr>
 <h3>Frozen reference bundles</h3>
 <p>Each bundle has pinned seeds and known-good metric values that are checked on every CI run.</p>

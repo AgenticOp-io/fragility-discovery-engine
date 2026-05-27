@@ -34,6 +34,7 @@ def main() -> None:
     p.add_argument("--population-size", type=int, default=20)
     p.add_argument("--ga-seed", type=int, default=131)
     p.add_argument("--horizon", type=int, default=20)
+    p.add_argument("--base-panic", type=float, default=0.05, help="Uniform panic at reset for all nodes.")
     p.add_argument("--beta", type=float, default=0.38)
     p.add_argument("--whale-frac", type=float, default=0.24)
     p.add_argument(
@@ -107,7 +108,9 @@ def main() -> None:
 
     def evaluator(genome: np.ndarray, seed: int):
         world = thread_safe_network_clone(template) if ew > 1 else template
-        return rollout_stablecoin_network(world, genome, seed=seed)
+        return rollout_stablecoin_network(
+            world, genome, seed=seed, base_panic=float(args.base_panic)
+        )
 
     ga = genetic_search(
         evaluator,

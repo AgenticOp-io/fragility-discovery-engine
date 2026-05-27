@@ -7,6 +7,7 @@ from typing import Any
 from fragility_engine.explain.counterfactual import rollout_snapshot
 from fragility_engine.explain.counterfactual_chain import CHAIN_SPEC_SCHEMA, network_reset_panic_after_steps
 from fragility_engine.explain.counterfactual_chain_aggregate import AGGREGATE_CHAIN_SPEC_SCHEMA
+from fragility_engine.explain.counterfactual_chain_inventory_buffer import INVENTORY_BUFFER_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_liquidity_ladder import LIQUIDITY_LADDER_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_resource_cascade import RESOURCE_CASCADE_CHAIN_SPEC_SCHEMA
 from fragility_engine.explain.counterfactual_chain_service_backlog import SERVICE_BACKLOG_CHAIN_SPEC_SCHEMA
@@ -19,6 +20,7 @@ CHAIN_PATH_TRACE_RESOURCE_CASCADE_SCHEMA = "explanation-mutation-chain-path-reso
 CHAIN_PATH_TRACE_SERVICE_BACKLOG_SCHEMA = "explanation-mutation-chain-path-service-backlog-v1"
 CHAIN_PATH_TRACE_LIQUIDITY_LADDER_SCHEMA = "explanation-mutation-chain-path-liquidity-ladder-v1"
 CHAIN_PATH_TRACE_AGGREGATE_SCHEMA = "explanation-mutation-chain-path-aggregate-v1"
+CHAIN_PATH_TRACE_INVENTORY_BUFFER_SCHEMA = "explanation-mutation-chain-path-inventory-buffer-v1"
 
 
 def linear_epsilon_sweep_to_trace(sweep: dict[str, Any]) -> dict[str, Any]:
@@ -423,6 +425,71 @@ def mutation_chain_path_to_trace_aggregate(
         "rollout_seed": int(rollout_seed),
         "baseline_initial_panic": bip,
         "variant_initial_panic": vip,
+        "nodes": nodes,
+        "edges": edges,
+    }
+
+
+def mutation_chain_path_to_trace_inventory_buffer(
+    rollouts: list[RolloutResult],
+    steps: list[dict[str, Any]],
+    *,
+    rollout_seed: int,
+    baseline_initial_stock: float,
+    variant_initial_stock: float,
+) -> dict[str, Any]:
+    """Path trace for inventory-buffer cumulative mutation prefixes."""
+
+    if len(rollouts) != len(steps) + 1:
+        raise ValueError("expected len(rollouts) == len(steps) + 1")
+    if not steps:
+        raise ValueError("steps must be non-empty")
+
+    bis = float(baseline_initial_stock)
+    vis = float(variant_initial_stock)
+
+    nodes: list[dict[str, Any]] = []
+    for i, r in enumerate(rollouts):
+        snap = rollout_snapshot(r)
+        stock_used = bis if i < len(rollouts) - 1 else vis
+        nodes.append(
+            {
+                "id": f"chain_{i}",
+                "index": i,
+                "mutations_applied": i,
+                "reset_initial_stock": stock_used,
+                **snap,
+            }
+        )
+
+    edges: list[dict[str, Any]] = []
+    for i in range(len(steps)):
+        a = rollouts[i]
+        b = rollouts[i + 1]
+        di = float(b.integral_instability - a.integral_instability)
+        dc = float(b.attack_cost - a.attack_cost)
+        stock_from = bis
+        stock_to = bis if i < len(steps) - 1 else vis
+        edges.append(
+            {
+                "from": f"chain_{i}",
+                "to": f"chain_{i + 1}",
+                "kind": "mutation_chain_step",
+                "step_index": i,
+                "step": dict(steps[i]),
+                "delta_integral_instability": di,
+                "delta_attack_cost": dc,
+                "reset_initial_stock_from": stock_from,
+                "reset_initial_stock_to": stock_to,
+            }
+        )
+
+    return {
+        "schema": CHAIN_PATH_TRACE_INVENTORY_BUFFER_SCHEMA,
+        "source_chain_schema": INVENTORY_BUFFER_CHAIN_SPEC_SCHEMA,
+        "rollout_seed": int(rollout_seed),
+        "baseline_initial_stock": bis,
+        "variant_initial_stock": vis,
         "nodes": nodes,
         "edges": edges,
     }
