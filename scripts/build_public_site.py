@@ -1245,6 +1245,7 @@ bash scripts/gce_publish_workbench.sh</pre>
     built = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     meta = {"out": str(out), "built_utc": built, "release": RELEASE, "kind": "product-workbench"}
     _write(out / "build.json", json.dumps(meta, indent=2))
+    (out / ".nojekyll").write_text("", encoding="utf-8")
     return meta
 
 

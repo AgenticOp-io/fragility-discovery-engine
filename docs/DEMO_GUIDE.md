@@ -56,4 +56,5 @@ Outputs are written only on the server (`/var/www/fragility/public/runs/` on GCE
 ## Operators
 
 - Validation: `/status.json` and `/host.html`
-- Republish: `scripts/gce_publish_workbench.sh` on the VM (see [GCE validation](GCE_VALIDATION.md))
+- Republish GCE: `powershell -File scripts/gce_deploy_public_site.ps1`
+- Republish GitHub Pages (manual, not Actions): `powershell -File scripts/deploy_github_pages.ps1`

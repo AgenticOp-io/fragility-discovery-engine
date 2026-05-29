@@ -99,7 +99,8 @@
 <h3>Operators</h3>
 <ul>
 <li>Validation: <code>/status.json</code> and <code>/host.html</code></li>
-<li>Republish: <code>scripts/gce_publish_workbench.sh</code> on the VM (see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/GCE_VALIDATION.md">GCE validation</a>)</li>
+<li>Republish GCE: <code>powershell -File scripts/gce_deploy_public_site.ps1</code></li>
+<li>Republish GitHub Pages (manual, not Actions): <code>powershell -File scripts/deploy_github_pages.ps1</code></li>
 </ul></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">

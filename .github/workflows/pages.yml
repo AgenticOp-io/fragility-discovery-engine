@@ -1,15 +1,8 @@
 name: GitHub Pages
 
+# Deploy Pages manually: powershell -File scripts/deploy_github_pages.ps1
+# (push to gh-pages branch). This workflow is disabled to avoid racing local deploys.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "docs/public/**"
-      - "docs/WHITEPAPER_INTRODUCTION.md"
-      - "scripts/build_public_site.py"
-      - "scripts/public_site_lib.py"
-      - "artifacts/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
