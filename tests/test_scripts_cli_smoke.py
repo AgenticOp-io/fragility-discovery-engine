@@ -4867,3 +4867,36 @@ def test_run_coupled_fork_demo_help(py_exe: str) -> None:
         check=True,
         cwd=str(ROOT),
     )
+
+
+def test_plot_coupling_sweep_cli(py_exe: str, tmp_path: Path) -> None:
+    sweep_p = tmp_path / "coupling.json"
+    sweep_p.write_text(
+        json.dumps(
+            {
+                "schema": "coupled-institution-coupling-sweep-v1",
+                "fixture": "tests/fixtures/pinned_rollout_schedule.json",
+                "rollout_seed": 8801,
+                "rows": [
+                    {"coupling_strength": 0.0, "integral_instability": 4.0, "collapsed": False},
+                    {"coupling_strength": 0.5, "integral_instability": 8.0, "collapsed": True},
+                ],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    png = tmp_path / "coupling.png"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "plot_coupling_sweep.py"),
+            str(sweep_p),
+            "--out",
+            str(png),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    raw = png.read_bytes()
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")

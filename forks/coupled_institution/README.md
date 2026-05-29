@@ -18,6 +18,7 @@ pytest -q
 python scripts/run_coupled_ga_demo.py --export-replay /tmp/coupled_demo.json
 python scripts/regenerate_golden.py
 python scripts/coupling_strength_sweep.py
+python ../../scripts/plot_coupling_sweep.py artifacts/coupling_strength_sweep.json
 ```
 
 From **repo root** (after `pip install -e ".[dev]"`):
