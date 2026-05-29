@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coupling strength sweep — research fork</title>
+    <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+  <meta name="fde-public-demo" content="1"/>
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+      <span class="fde-pill">live demos</span>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+  <main class="fde-main fde-viewer-main">
+<nav class="fde-viewer-strip" aria-label="Artifact viewers">
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/artifacts/coupling_sweep_viewer/index.html">Coupling sweep</a>
+</nav>
+
+  <strong>Coupling strength sweep</strong>
+  <span>research fork</span>
+  <p>
+    Pinned attack schedule; only <code>coupling_strength</code> varies. Shows how integral instability rises as peg panic and overload exchange more signal each step.
+  </p>
+  <p>
+    <a href="../coupled_fork_demo/">Fork JSON bundle</a> ·
+    <a href="../replay_viewer/index.html#src=sample_coupled_institution_replay.json">Coupled replay</a> ·
+    <a href="../attribution_viewer/index.html#src=sample_coupled_mutation_chain.json">Mutation chain</a> ·
+    <a href="../../docs/fork-coupling.html">Fork policy</a>
+  </p>
+  <div>
+    <button type="button" class="btn" id="btnPick">Choose sweep JSON…</button>
+    <span id="presetRow" hidden>
+      <label for="presetSelect">Presets</label>
+      <select id="presetSelect" aria-label="Load preset sweep JSON">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <canvas id="cv" width="920" height="380" tabindex="0" aria-label="Coupling strength vs integral instability"></canvas>
+  <pre id="meta">Load JSON to begin.</pre>
+  <div id="tableWrap"></div>
+
+  <script>
+    const SWEEP_SCHEMA = 'coupled-institution-coupling-sweep-v1';
+    const cv = document.getElementById('cv');
+    const ctx = cv.getContext('2d');
+    const meta = document.getElementById('meta');
+    const tableWrap = document.getElementById('tableWrap');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    const btnPick = document.getElementById('btnPick');
+
+    let rows = [];
+    let hoverIdx = -1;
+    let lastData = null;
+
+    function xPix(v, lo, hi, W, m) {
+      const t = hi === lo ? 0.5 : (v - lo) / (hi - lo);
+      return m + t * (W - 2 * m);
+    }
+    function yPix(v, lo, hi, H, m) {
+      const t = hi === lo ? 0.5 : (v - lo) / (hi - lo);
+      return H - m - t * (H - 2 * m);
+    }
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      btnPick.hidden = true;
+      fileInput.hidden = true;
+    }
+
+    function hashParams() {
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    function drawSweep(data) {
+      lastData = data;
+      if (data.schema !== SWEEP_SCHEMA) {
+        meta.textContent = 'Expected schema ' + SWEEP_SCHEMA + ', got ' + (data.schema || '(missing)');
+        return;
+      }
+      rows = (data.rows || []).slice().sort((a, b) => a.coupling_strength - b.coupling_strength);
+      if (!rows.length) {
+        meta.textContent = 'No rows in sweep.';
+        return;
+      }
+
+      const W = cv.width, H = cv.height, m = 52;
+      ctx.clearRect(0, 0, W, H);
+      const xs = rows.map(r => r.coupling_strength);
+      const ys = rows.map(r => r.integral_instability);
+      const xLo = Math.min(...xs), xHi = Math.max(...xs);
+      const yLo = 0, yHi = Math.max(...ys) * 1.08;
+
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(m, H - m);
+      ctx.lineTo(W - m, H - m);
+      ctx.lineTo(W - m, m);
+      ctx.stroke();
+
+      ctx.fillStyle = '#aaa';
+      ctx.font = '12px system-ui,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('coupling_strength', (W) / 2, H - 12);
+      ctx.save();
+      ctx.translate(14, H / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('integral_instability', 0, 0);
+      ctx.restore();
+
+      ctx.strokeStyle = '#6eb5f7';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      rows.forEach((r, i) => {
+        const px = xPix(r.coupling_strength, xLo, xHi, W, m);
+        const py = yPix(r.integral_instability, yLo, yHi, H, m);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+
+      rows.forEach((r, i) => {
+        const px = xPix(r.coupling_strength, xLo, xHi, W, m);
+        const py = yPix(r.integral_instability, yLo, yHi, H, m);
+        ctx.beginPath();
+        ctx.fillStyle = r.collapsed ? '#f88' : '#6eb5f7';
+        ctx.arc(px, py, i === hoverIdx ? 7 : 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      const seed = data.rollout_seed != null ? data.rollout_seed : '—';
+      meta.textContent =
+        'schema: ' + data.schema + '\n' +
+        'rollout_seed: ' + seed + '\n' +
+        'points: ' + rows.length + ' (red = collapsed at horizon)';
+
+      let th = '<table><tr><th>c</th><th>∫ instability</th><th>collapsed</th><th>t collapse</th><th>final I</th></tr>';
+      for (const r of rows) {
+        const cls = r.collapsed ? ' class="collapsed"' : '';
+        th += '<tr' + cls + '><td>' + r.coupling_strength + '</td><td>' +
+          Number(r.integral_instability).toFixed(3) + '</td><td>' + r.collapsed + '</td><td>' +
+          (r.collapse_timestep == null ? '—' : r.collapse_timestep) + '</td><td>' +
+          Number(r.final_instability).toFixed(3) + '</td></tr>';
+      }
+      th += '</table>';
+      tableWrap.innerHTML = th;
+    }
+
+    cv.addEventListener('mousemove', (ev) => {
+      if (!rows.length) return;
+      const rect = cv.getBoundingClientRect();
+      const sx = cv.width / rect.width;
+      const sy = cv.height / rect.height;
+      const mx = (ev.clientX - rect.left) * sx;
+      const my = (ev.clientY - rect.top) * sy;
+      const xs = rows.map(r => r.coupling_strength);
+      const ys = rows.map(r => r.integral_instability);
+      const xLo = Math.min(...xs), xHi = Math.max(...xs);
+      const yLo = 0, yHi = Math.max(...ys) * 1.08;
+      const m = 52, W = cv.width, H = cv.height;
+      let best = -1, bestD = 1e9;
+      rows.forEach((r, i) => {
+        const px = xPix(r.coupling_strength, xLo, xHi, W, m);
+        const py = yPix(r.integral_instability, yLo, yHi, H, m);
+        const d = (px - mx) ** 2 + (py - my) ** 2;
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      hoverIdx = bestD < 400 ? best : -1;
+      if (lastData) drawSweep(lastData);
+    });
+
+    cv.addEventListener('mouseleave', () => {
+      hoverIdx = -1;
+      if (lastData) drawSweep(lastData);
+    });
+
+    async function loadUrl(path) {
+      const res = await fetch(new URL(path, document.location));
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      window._sweepSeed = data.rollout_seed;
+      drawSweep(data);
+      return true;
+    }
+
+    btnPick.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try {
+          const data = JSON.parse(t);
+          window._sweepSeed = data.rollout_seed;
+          drawSweep(data);
+        } catch (e) { meta.textContent = 'Invalid JSON: ' + e; }
+      });
+      fileInput.value = '';
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        await loadUrl(path);
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      hideLocalFileUi();
+      const src = hashParams().get('src');
+      if (src) {
+        try { if (await loadUrl(src)) return; } catch (_) {}
+      }
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (res.ok) {
+          const cfg = await res.json();
+          for (const p of cfg.presets || []) {
+            if (!p.path || !p.label) continue;
+            const opt = document.createElement('option');
+            opt.value = p.path;
+            opt.textContent = p.label;
+            presetSelect.appendChild(opt);
+          }
+          presetRow.hidden = false;
+          presetRow.style.display = 'inline-flex';
+        }
+      } catch (_) {}
+      const defaults = [
+        '../coupled_fork_demo/coupling_strength_sweep.json',
+        'coupling_strength_sweep.json',
+      ];
+      for (const path of defaults) {
+        try {
+          if (await loadUrl(path)) {
+            for (let i = 0; i < presetSelect.options.length; i++) {
+              if (presetSelect.options[i].value === path) {
+                presetSelect.selectedIndex = i;
+                break;
+              }
+            }
+            return;
+          }
+        } catch (_) {}
+      }
+    }
+    boot();
+  </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

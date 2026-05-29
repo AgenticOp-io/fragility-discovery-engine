@@ -10,7 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
 
 # Presets whose paths must exist when they start with these prefixes (checked-in bundles).
-_REQUIRED_PREFIXES = ("sample_", "../composite_demo/sample_", "../flagship/bundled/")
+_REQUIRED_PREFIXES = (
+    "sample_",
+    "../composite_demo/sample_",
+    "../flagship/bundled/",
+    "../coupled_fork_demo/",
+)
 
 
 def _check_viewer(viewer_dir: Path) -> list[str]:

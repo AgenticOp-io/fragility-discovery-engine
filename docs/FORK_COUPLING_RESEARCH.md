@@ -27,6 +27,7 @@ On the GCE workbench (or after `python scripts/build_public_site.py`):
 |------|-----|
 | Coupled replay | `/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json` |
 | Coupling mutation chain | `/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json` |
+| Coupling strength sweep chart | `/artifacts/coupling_sweep_viewer/index.html` |
 | Fork JSON bundle (download) | `/artifacts/coupled_fork_demo/` |
 | Policy (this page) | `/docs/fork-coupling.html` |
 

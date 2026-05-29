@@ -3,7 +3,7 @@
   "fragility_engine_version": "0.5.0",
   "python_version": "3.12.10",
   "numpy_version": "2.4.6",
-  "git_commit": "e26b6de91ca09551c69cca6ca66b914c650746b0",
+  "git_commit": "bbcfcb75f7f190a749b427defc15effa33c0c6e2",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -152,7 +152,7 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "e26b6de91ca09551c69cca6ca66b914c650746b0",
+      "git_commit": "bbcfcb75f7f190a749b427defc15effa33c0c6e2",
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.5.0",
@@ -166,7 +166,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.5.0",
-      "git_commit": "e26b6de91ca09551c69cca6ca66b914c650746b0"
+      "git_commit": "bbcfcb75f7f190a749b427defc15effa33c0c6e2"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -375,5 +375,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "8b0063912efc1bce32b4014f725ad1d1d75a9986cc5984779cde61abde32c620"
+  "certificate_content_sha256": "bb3f9ee2b595f7a7cf06d98c1662dea3a6a339dd08aa011134e759c378e8ccd3"
 }

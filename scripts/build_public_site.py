@@ -30,6 +30,7 @@ VIEWER_PAGE_IDS = {
     "pareto_viewer": "pareto",
     "attribution_viewer": "attribution",
     "composite_viewer": "composite",
+    "coupling_sweep_viewer": "coupling",
 }
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,8 +43,10 @@ ARTIFACT_DIRS = [
     "pareto_viewer",
     "attribution_viewer",
     "composite_viewer",
+    "coupling_sweep_viewer",
     "composite_demo",
     "flagship",
+    "coupled_fork_demo",
 ]
 
 DEMOS = [
@@ -795,6 +798,11 @@ def build(out: Path) -> dict[str, str]:
         <span class="fde-card-tag">attribution · research fork</span>
         <h3>Coupled institution mutation chain</h3>
         <p>Coupling strength stepped up on a pinned schedule — peg panic and overload exchange signals each step.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/coupling_sweep_viewer/index.html">
+        <span class="fde-card-tag">chart · research fork</span>
+        <h3>Coupling strength sweep</h3>
+        <p>How integral instability grows as in-step peg–overload coupling tightens on a fixed attack schedule.</p>
       </a>
       <a class="fde-card" href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">
         <span class="fde-card-tag">composite</span>

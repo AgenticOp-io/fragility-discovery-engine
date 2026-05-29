@@ -51,6 +51,7 @@ VIEWER_NAV = [
     ("pareto", "/artifacts/pareto_viewer/index.html", "Pareto"),
     ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
     ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
+    ("coupling", "/artifacts/coupling_sweep_viewer/index.html", "Coupling sweep"),
 ]
 
 
