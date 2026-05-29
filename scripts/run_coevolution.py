@@ -16,6 +16,7 @@ from fragility_engine.coevolution import (
     alternating_coevolution_resource_cascade,
     alternating_coevolution_service_backlog,
 )
+from fragility_engine.coevolution.coupled_institution import alternating_coevolution_coupled_institution
 from fragility_engine.coevolution.pareto_export import (
     flatten_coevolution_attacker_pareto,
     pareto_front_payload_from_archive_dicts,
@@ -38,8 +39,28 @@ def main() -> None:
     )
     p.add_argument(
         "--mode",
-        choices=("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder", "inventory_buffer"),
+        choices=(
+            "aggregate",
+            "network",
+            "resource_cascade",
+            "service_backlog",
+            "liquidity_ladder",
+            "inventory_buffer",
+            "coupled_institution",
+        ),
         default="aggregate",
+    )
+    p.add_argument(
+        "--coupling",
+        type=float,
+        default=0.3,
+        help="[coupled_institution] in-step coupling strength between peg panic and overload.",
+    )
+    p.add_argument(
+        "--initial-panic",
+        type=float,
+        default=0.05,
+        help="[coupled_institution] peg panic at reset.",
     )
     p.add_argument("--max-steps", type=int, default=40, help="World horizon cap (all modes).")
     p.add_argument(
@@ -278,6 +299,41 @@ def main() -> None:
             seed=int(args.seed),
             eval_workers=ew,
         )
+    elif args.mode == "coupled_institution":
+        try:
+            from coupled_institution.world import CoupledInstitutionWorld
+        except ImportError as e:
+            print(
+                "coupled_institution fork not installed; run: pip install -e forks/coupled_institution",
+                file=sys.stderr,
+            )
+            raise SystemExit(2) from e
+        template = CoupledInstitutionWorld(
+            coupling_strength=float(args.coupling),
+            max_steps=int(args.max_steps),
+        )
+        enriched_topo = {
+            "domain": "coupled_institution",
+            "coupling_strength": float(args.coupling),
+            "initial_panic": float(args.initial_panic),
+            "initial_overload": float(args.initial_overload),
+        }
+        summary = alternating_coevolution_coupled_institution(
+            template,
+            coupling=float(args.coupling),
+            initial_panic=float(args.initial_panic),
+            initial_overload=float(args.initial_overload),
+            horizon=int(args.attacker_horizon),
+            collect_attacker_pareto=collect_pareto,
+            attacker_horizon=int(args.attacker_horizon),
+            rounds=int(args.rounds),
+            attacker_generations=int(args.attacker_generations),
+            attacker_population=int(args.attacker_population),
+            defender_generations=int(args.defender_generations),
+            defender_population=int(args.defender_population),
+            seed=int(args.seed),
+            eval_workers=ew,
+        )
     else:  # inventory_buffer
         template = InventoryBufferWorld(population=default_stablecoin_population(), max_steps=int(args.max_steps))
         enriched_topo = {"domain": "inventory_buffer", "initial_stock": float(args.initial_stock)}
@@ -336,6 +392,11 @@ def main() -> None:
         if args.mode == "inventory_buffer":
             meta["domain"] = "inventory_buffer"
             meta["initial_stock"] = float(args.initial_stock)
+        if args.mode == "coupled_institution":
+            meta["domain"] = "coupled_institution"
+            meta["coupling_strength"] = float(args.coupling)
+            meta["initial_panic"] = float(args.initial_panic)
+            meta["initial_overload"] = float(args.initial_overload)
         replay["meta"] = meta
         args.export_replay.write_text(json.dumps(replay, indent=2), encoding="utf-8")
 

@@ -99,3 +99,61 @@ def counterfactual_bundle_to_dag(bundle: dict[str, Any], *, source: str = "") ->
     if source:
         out["source"] = source
     return out
+
+
+def mutation_chain_path_to_dag(bundle: dict[str, Any], *, source: str = "") -> dict[str, Any]:
+    """
+    Build explanation-dag-v1 from a coupled-institution mutation-chain export
+    (``path_trace`` with ``nodes`` and ``edges``).
+    """
+
+    trace = bundle.get("path_trace")
+    if not isinstance(trace, dict):
+        raise ValueError("bundle must contain path_trace object")
+    raw_nodes = trace.get("nodes")
+    raw_edges = trace.get("edges")
+    if not isinstance(raw_nodes, list) or not raw_nodes:
+        raise ValueError("path_trace.nodes must be a non-empty list")
+    if not isinstance(raw_edges, list):
+        raise ValueError("path_trace.edges must be a list")
+
+    nodes: list[dict[str, Any]] = []
+    for n in raw_nodes:
+        if not isinstance(n, dict):
+            continue
+        nid = str(n.get("id", f"chain_{n.get('index', len(nodes))}"))
+        nodes.append(
+            {
+                "id": nid,
+                "label": f"mutations_applied={n.get('mutations_applied', '?')}",
+                "collapsed": n.get("collapsed"),
+                "integral_instability": n.get("integral_instability"),
+                "attack_cost": n.get("attack_cost"),
+                "reset_coupling": n.get("reset_coupling"),
+            }
+        )
+    edges: list[dict[str, Any]] = []
+    for e in raw_edges:
+        if not isinstance(e, dict):
+            continue
+        edges.append(
+            {
+                "from": str(e.get("from", "")),
+                "to": str(e.get("to", "")),
+                "kind": e.get("kind", "mutation_chain_step"),
+                "step_index": e.get("step_index"),
+                "step": e.get("step"),
+                "delta_integral_instability": e.get("delta_integral_instability"),
+                "delta_attack_cost": e.get("delta_attack_cost"),
+            }
+        )
+    out: dict[str, Any] = {
+        "schema": EXPLANATION_DAG_SCHEMA,
+        "kind": "mutation_chain_path",
+        "nodes": nodes,
+        "edges": edges,
+        "intervention": bundle.get("intervention"),
+    }
+    if source:
+        out["source"] = source
+    return out

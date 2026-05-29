@@ -12,6 +12,7 @@ from fragility_engine.explain.explanation_dag import (
     EXPLANATION_DAG_SCHEMA,
     counterfactual_bundle_to_dag,
     minimization_report_to_dag,
+    mutation_chain_path_to_dag,
 )
 
 
@@ -43,14 +44,23 @@ def main() -> None:
         metavar="PATH",
         help="Counterfactual export JSON with baseline + counterfactual + intervention.",
     )
+    src.add_argument(
+        "--from-mutation-chain",
+        type=Path,
+        metavar="PATH",
+        help="Coupled fork mutation-chain export JSON with path_trace.nodes/edges.",
+    )
     args = ap.parse_args()
 
     if args.from_minimization_report is not None:
         raw = _load(args.from_minimization_report)
         dag = minimization_report_to_dag(raw, source=str(args.from_minimization_report.resolve()))
-    else:
+    elif args.from_counterfactual is not None:
         raw = _load(args.from_counterfactual)
         dag = counterfactual_bundle_to_dag(raw, source=str(args.from_counterfactual.resolve()))
+    else:
+        raw = _load(args.from_mutation_chain)
+        dag = mutation_chain_path_to_dag(raw, source=str(args.from_mutation_chain.resolve()))
 
     if dag.get("schema") != EXPLANATION_DAG_SCHEMA:
         print("internal error: wrong schema", file=sys.stderr)

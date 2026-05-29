@@ -33,5 +33,12 @@
       1.6445982765365719
     ],
     "expected_hypervolume": 0.003172446883500036
+  },
+  "sample_pareto_coupled_institution.json": {
+    "hypervolume_reference": [
+      4.226666666666667,
+      2.920855421032651
+    ],
+    "expected_hypervolume": 0.21821900466673233
   }
 }

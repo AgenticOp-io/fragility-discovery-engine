@@ -207,6 +207,14 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"genome_shape: {data.get('genome_shape')}")
         return "\n".join(lines)
 
+    if schema == "coupled-fork-reviewer-input-v1":
+        lines.append("kind: coupled fork reviewer manifest summary")
+        lines.append(f"bundle_id: {data.get('bundle_id')}")
+        lines.append(f"export_count: {data.get('export_count')}")
+        if data.get("narration"):
+            lines.append(str(data.get("narration")))
+        return "\n".join(lines)
+
     if schema == "explanation-dag-v1":
         lines.append("kind: explanation DAG (mechanical)")
         lines.append(f"dag_kind: {data.get('kind')}")

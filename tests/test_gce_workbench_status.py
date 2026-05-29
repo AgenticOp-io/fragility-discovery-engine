@@ -18,7 +18,10 @@ def test_gce_write_workbench_status_includes_research_fork(tmp_path: Path) -> No
         check=True,
     )
     data = json.loads(out.read_text(encoding="utf-8"))
-    assert data["schema"] == "fragility-workbench-status-v1"
+    assert data["schema"] == "fragility-workbench-status-v2"
+    assert "dns_ready" in data
+    assert "coupled_fork_pareto_v1" in data
+    assert "bundled_pareto_hypervolume" in data
     assert data["benchmark_validate"] == "ok"
     assert data["research_fork_validate"] == "ok"
     assert data["research_fork_bundle_id"] == "coupled_institution_rollout_v1"

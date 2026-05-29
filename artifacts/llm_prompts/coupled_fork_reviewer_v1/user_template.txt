@@ -1,0 +1,13 @@
+Coupled institution research fork — reviewer memo input.
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 5–8 sentences for engineering reviewers covering:
+- Which artifact types are bundled (replay, sweep, comparison, mutation chain, Pareto).
+- That physics is coupled peg–overload (research fork, not charter domain).
+- What a reviewer should spot-check first (replay collapse, chain path, Pareto spread).
+Do not invent metrics or claim regulatory compliance.

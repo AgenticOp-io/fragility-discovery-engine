@@ -132,6 +132,29 @@ def main() -> None:
         cwd=str(ROOT),
         check=True,
     )
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "export_coupled_fork_reviewer_memo.py"), "--cite-digest"],
+        cwd=str(ROOT),
+        check=True,
+    )
+    chain_src = FORK / "artifacts" / "sample_coupled_mutation_chain.json"
+    if chain_src.is_file():
+        dag_out = DEMO_DIR / "sample_coupled_mutation_chain.dag.json"
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "export_explanation_dag.py"),
+                "--from-mutation-chain",
+                str(chain_src),
+                "--out",
+                str(dag_out),
+            ],
+            cwd=str(ROOT),
+            check=True,
+        )
+        attr_dag = ROOT / "artifacts" / "attribution_viewer" / "sample_coupled_mutation_chain.dag.json"
+        attr_dag.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(dag_out, attr_dag)
 
 
 if __name__ == "__main__":

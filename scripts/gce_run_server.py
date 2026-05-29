@@ -63,6 +63,7 @@ MODE_INITIAL: dict[str, tuple[str, float]] = {
     "coevolution_liquidity_ladder": ("--initial-margin", 0.06),
     "coevolution_inventory_buffer": ("--initial-stock", 0.88),
     "coupled_institution": ("--coupling", 0.3),
+    "coevolution_coupled_institution": ("--coupling", 0.3),
 }
 RUNS_INDEX = RUNS_DIR / "index.json"
 RATE_LIMIT_FILE = RUNS_DIR / "rate_limit.json"
@@ -88,6 +89,7 @@ MODES = {
     "coevolution_service_backlog",
     "coevolution_liquidity_ladder",
     "coevolution_inventory_buffer",
+    "coevolution_coupled_institution",
 }
 # Modes whose CLI honors --horizon / --attacker-horizon.
 # Fixed-horizon modes ignore the horizon field (script uses its own default).
@@ -97,6 +99,7 @@ HORIZON_AWARE_MODES = {
     "coevolution_aggregate",
     "coevolution_network",
     "coupled_institution",
+    "coevolution_coupled_institution",
 }
 # Modes that output a Pareto front as primary artifact (linked to pareto viewer).
 PARETO_MODES = {
@@ -106,6 +109,8 @@ PARETO_MODES = {
     "coevolution_service_backlog",
     "coevolution_liquidity_ladder",
     "coevolution_inventory_buffer",
+    "coevolution_coupled_institution",
+    "coupled_institution",
 }
 
 _active = 0
@@ -362,7 +367,7 @@ def _build_cmd(req: dict, run_dir: Path) -> list[str]:
         "--export-pareto-json", str(pareto),
         "--export-replay", str(replay),
     ]
-    if coev_domain in ("aggregate", "network"):
+    if coev_domain in ("aggregate", "network", "coupled_institution"):
         base_coev += ["--attacker-horizon", horizon]
     if coev_domain == "network":
         base_coev += ["--nodes", "32", "--graph-kind", "erdos_renyi", "--er-p", "0.12",

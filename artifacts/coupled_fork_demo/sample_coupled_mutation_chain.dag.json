@@ -1,0 +1,78 @@
+{
+  "schema": "explanation-dag-v1",
+  "kind": "mutation_chain_path",
+  "nodes": [
+    {
+      "id": "chain_0",
+      "label": "mutations_applied=0",
+      "collapsed": true,
+      "integral_instability": 6.80391937052433,
+      "attack_cost": 2.0949999999999998,
+      "reset_coupling": 0.3
+    },
+    {
+      "id": "chain_1",
+      "label": "mutations_applied=1",
+      "collapsed": true,
+      "integral_instability": 4.515782004812992,
+      "attack_cost": 2.0949999999999998,
+      "reset_coupling": 0.3
+    },
+    {
+      "id": "chain_2",
+      "label": "mutations_applied=2",
+      "collapsed": true,
+      "integral_instability": 7.781787619436342,
+      "attack_cost": 2.0949999999999998,
+      "reset_coupling": 0.3
+    },
+    {
+      "id": "chain_3",
+      "label": "mutations_applied=3",
+      "collapsed": true,
+      "integral_instability": 9.816992818121953,
+      "attack_cost": 2.0949999999999998,
+      "reset_coupling": 0.3
+    }
+  ],
+  "edges": [
+    {
+      "from": "chain_0",
+      "to": "chain_1",
+      "kind": "mutation_chain_step",
+      "step_index": 0,
+      "step": {
+        "kind": "coupling_strength",
+        "value": 0.2
+      },
+      "delta_integral_instability": -2.2881373657113375,
+      "delta_attack_cost": 0.0
+    },
+    {
+      "from": "chain_1",
+      "to": "chain_2",
+      "kind": "mutation_chain_step",
+      "step_index": 1,
+      "step": {
+        "kind": "coupling_strength",
+        "value": 0.35
+      },
+      "delta_integral_instability": 3.2660056146233494,
+      "delta_attack_cost": 0.0
+    },
+    {
+      "from": "chain_2",
+      "to": "chain_3",
+      "kind": "mutation_chain_step",
+      "step_index": 2,
+      "step": {
+        "kind": "coupling_strength",
+        "value": 0.5
+      },
+      "delta_integral_instability": 2.0352051986856114,
+      "delta_attack_cost": 0.0
+    }
+  ],
+  "intervention": "coupled_institution_mutation_chain",
+  "source": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json"
+}
