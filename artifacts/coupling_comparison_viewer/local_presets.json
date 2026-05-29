@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "presets": [
+    {
+      "label": "Research fork: coupling 0.1 vs 0.5 (pinned schedule)",
+      "path": "../coupled_fork_demo/sample_coupling_comparison.json"
+    }
+  ]
+}

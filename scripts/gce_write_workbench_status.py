@@ -61,10 +61,21 @@ def main() -> None:
         if proc.returncode != 0:
             status["validate_stderr"] = (proc.stderr or proc.stdout or "")[-2000:]
 
+        fork_proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "validate_coupled_fork_bundle.py")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        status["research_fork_validate"] = "ok" if fork_proc.returncode == 0 else "failed"
+        status["research_fork_bundle_id"] = "coupled_institution_rollout_v1"
+        if fork_proc.returncode != 0:
+            status["research_fork_stderr"] = (fork_proc.stderr or fork_proc.stdout or "")[-2000:]
+
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(status, indent=2), encoding="utf-8")
     print(json.dumps(status, indent=2))
-    if status.get("benchmark_validate") == "failed":
+    if status.get("benchmark_validate") == "failed" or status.get("research_fork_validate") == "failed":
         raise SystemExit(1)
 
 

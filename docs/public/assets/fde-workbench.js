@@ -7,8 +7,14 @@
       return r.json();
     })
     .then(function (s) {
-      var ok = s.benchmark_validate === "ok";
+      var benchOk = s.benchmark_validate === "ok";
+      var forkOk = s.research_fork_validate == null || s.research_fork_validate === "ok";
+      var ok = benchOk && forkOk;
       var cls = ok ? "fde-status-ok" : "fde-status-warn";
+      var forkBit =
+        s.research_fork_validate != null
+          ? " · coupled fork " + s.research_fork_validate
+          : "";
       el.innerHTML =
         '<span class="' +
         cls +
@@ -18,6 +24,7 @@
         (s.git_head || "?") +
         " · benchmarks " +
         (s.benchmark_validate || "?") +
+        forkBit +
         "</span> · updated " +
         (s.checked_utc || "?");
     })
@@ -146,6 +153,13 @@
       title: "4) Coupled fork chain",
       body: "Research fork: peg panic and overload exchange signals each step. Coupling strength mutations stack on a pinned schedule — not the six-domain composite.",
       say: "Step four: the coupled research fork. Coupling strength steps up on a pinned schedule while panic and overload trade signals inside one simulation step.",
+    },
+    {
+      url: "/artifacts/coupling_sweep_viewer/index.html",
+      selector: "#cv",
+      title: "5) Coupling sweep",
+      body: "Same attack schedule with only coupling strength changing. Red points collapsed within the horizon — see how instability climbs as coupling tightens.",
+      say: "Step five: the coupling sweep chart. Watch integral instability rise as peg panic and overload exchange more signal each step.",
     },
     {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",

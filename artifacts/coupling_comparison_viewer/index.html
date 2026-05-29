@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coupling comparison — research fork</title>
+  <style>
+    :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
+    body { margin: 0; padding: 16px; max-width: 900px; margin-inline: auto; }
+    .btn {
+      font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #8886;
+      background: #2a2a30; color: #eee; cursor: pointer; margin-right: 8px;
+    }
+    .btn:hover { background: #3a3a44; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+    .card { border: 1px solid #8886; border-radius: 8px; padding: 12px 14px; background: #1a1a1e; }
+    .card h3 { margin: 0 0 8px; font-size: 14px; }
+    .card dl { margin: 0; font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+    .card dt { opacity: 0.75; }
+    .delta { margin-top: 14px; padding: 12px; border-radius: 8px; background: #252528; font-size: 13px; }
+    .collapsed-yes { color: #f88; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 12px; }
+    th, td { border: 1px solid #8886; padding: 6px 10px; text-align: left; }
+    th { background: #2224; }
+  </style>
+</head>
+<body>
+  <strong>Coupling comparison</strong>
+  <span style="font-size:12px;opacity:0.75;margin-left:8px">research fork</span>
+  <p style="font-size:13px;opacity:0.9;margin:6px 0 10px">
+    Same pinned attack schedule; only <code>coupling_strength</code> differs between baseline and variant.
+  </p>
+  <p style="font-size:12px;opacity:0.7;margin:0">
+    <a href="../coupling_sweep_viewer/index.html">Sweep chart</a> ·
+    <a href="../coupled_fork_demo/">JSON bundle</a> ·
+    <a href="../../docs/fork-coupling.html">Fork policy</a>
+  </p>
+  <div style="margin:12px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+    <button type="button" class="btn" id="btnPick">Choose comparison JSON…</button>
+    <span id="presetRow" hidden style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <label for="presetSelect" style="font-size:13px;opacity:0.9">Presets</label>
+      <select id="presetSelect" style="font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #8886;background:#252528;color:#eee;min-width:min(280px,100%)">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus" style="font-size:12px;opacity:0.8"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <div id="panel">Load JSON to begin.</div>
+
+  <script>
+    const SCHEMA = 'coupled-institution-coupling-comparison-v1';
+    const panel = document.getElementById('panel');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    const btnPick = document.getElementById('btnPick');
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function branchCard(label, b) {
+      const col = b.collapsed ? 'collapsed-yes' : '';
+      return (
+        '<div class="card"><h3>' + esc(label) + '</h3><dl>' +
+        '<dt>coupling</dt><dd>' + esc(b.coupling_strength) + '</dd>' +
+        '<dt>∫ instability</dt><dd>' + esc(Number(b.integral_instability).toFixed(4)) + '</dd>' +
+        '<dt>attack cost</dt><dd>' + esc(b.attack_cost) + '</dd>' +
+        '<dt>collapsed</dt><dd class="' + col + '">' + esc(b.collapsed) + '</dd>' +
+        '<dt>collapse t</dt><dd>' + esc(b.collapse_timestep == null ? '—' : b.collapse_timestep) + '</dd>' +
+        '<dt>final I</dt><dd>' + esc(Number(b.final_instability).toFixed(4)) + '</dd>' +
+        '</dl></div>'
+      );
+    }
+
+    function render(data) {
+      if (data.schema !== SCHEMA) {
+        panel.textContent = 'Expected ' + SCHEMA + ', got ' + (data.schema || '(missing)');
+        return;
+      }
+      let h = '<p style="font-size:13px;margin:0 0 8px">intervention: <code>' + esc(data.intervention) + '</code>';
+      if (data.rollout_seed != null) h += ' · seed ' + esc(data.rollout_seed);
+      h += '</p>';
+      h += '<div class="grid">' + branchCard('Baseline', data.baseline) + branchCard('Variant', data.variant) + '</div>';
+      h += '<div class="delta"><strong>Δ integral instability</strong> (variant − baseline): ' +
+        esc(Number(data.delta_integral_instability).toFixed(4)) + '<br>' +
+        '<strong>Δ attack cost</strong>: ' + esc(Number(data.delta_attack_cost).toFixed(4));
+      if (data.interpretation_hint) h += '<br><em>' + esc(data.interpretation_hint) + '</em>';
+      h += '</div>';
+      h += '<table><tr><th></th><th>baseline</th><th>variant</th></tr>';
+      const keys = ['coupling_strength', 'integral_instability', 'attack_cost', 'collapsed', 'collapse_timestep', 'final_instability'];
+      for (const k of keys) {
+        h += '<tr><td>' + esc(k) + '</td><td>' + esc(data.baseline[k]) + '</td><td>' + esc(data.variant[k]) + '</td></tr>';
+      }
+      h += '</table>';
+      panel.innerHTML = h;
+    }
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      btnPick.hidden = true;
+      fileInput.hidden = true;
+    }
+
+    function hashParams() {
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    async function loadUrl(path) {
+      const res = await fetch(new URL(path, document.location));
+      if (!res.ok) throw new Error(res.statusText);
+      render(await res.json());
+    }
+
+    btnPick.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try { render(JSON.parse(t)); } catch (e) { panel.textContent = 'Invalid JSON: ' + e; }
+      });
+      fileInput.value = '';
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        await loadUrl(path);
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      hideLocalFileUi();
+      const src = hashParams().get('src');
+      if (src) {
+        try { await loadUrl(src); return; } catch (_) {}
+      }
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (res.ok) {
+          for (const p of (await res.json()).presets || []) {
+            if (!p.path || !p.label) continue;
+            const opt = document.createElement('option');
+            opt.value = p.path;
+            opt.textContent = p.label;
+            presetSelect.appendChild(opt);
+          }
+          presetRow.hidden = false;
+          presetRow.style.display = 'inline-flex';
+        }
+      } catch (_) {}
+      for (const path of [
+        '../coupled_fork_demo/sample_coupling_comparison.json',
+        'sample_coupling_comparison.json',
+      ]) {
+        try {
+          await loadUrl(path);
+          for (let i = 0; i < presetSelect.options.length; i++) {
+            if (presetSelect.options[i].value === path) {
+              presetSelect.selectedIndex = i;
+              break;
+            }
+          }
+          return;
+        } catch (_) {}
+      }
+    }
+    boot();
+  </script>
+</body>
+</html>

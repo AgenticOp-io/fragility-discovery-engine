@@ -31,6 +31,7 @@ VIEWER_PAGE_IDS = {
     "attribution_viewer": "attribution",
     "composite_viewer": "composite",
     "coupling_sweep_viewer": "coupling",
+    "coupling_comparison_viewer": "coupling_compare",
 }
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,6 +45,7 @@ ARTIFACT_DIRS = [
     "attribution_viewer",
     "composite_viewer",
     "coupling_sweep_viewer",
+    "coupling_comparison_viewer",
     "composite_demo",
     "flagship",
     "coupled_fork_demo",
@@ -803,6 +805,11 @@ def build(out: Path) -> dict[str, str]:
         <span class="fde-card-tag">chart · research fork</span>
         <h3>Coupling strength sweep</h3>
         <p>How integral instability grows as in-step peg–overload coupling tightens on a fixed attack schedule.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/coupling_comparison_viewer/index.html">
+        <span class="fde-card-tag">compare · research fork</span>
+        <h3>Coupling baseline vs variant</h3>
+        <p>Same schedule, two coupling strengths — side-by-side collapse metrics and deltas.</p>
       </a>
       <a class="fde-card" href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">
         <span class="fde-card-tag">composite</span>

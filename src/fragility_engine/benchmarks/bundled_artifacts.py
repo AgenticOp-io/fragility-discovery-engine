@@ -50,6 +50,16 @@ COMPOSITE_DEMO_SAMPLES: tuple[str, ...] = (
     "artifacts/attribution_viewer/sample_attribution_merge_service_backlog.json",
 )
 
+# Research fork (coupled_institution) — not charter domains on main
+COUPLED_FORK_DEMO: tuple[str, ...] = (
+    "artifacts/replay_viewer/sample_coupled_institution_replay.json",
+    "artifacts/attribution_viewer/sample_coupled_mutation_chain.json",
+    "artifacts/coupled_fork_demo/coupling_strength_sweep.json",
+    "artifacts/coupled_fork_demo/sample_coupling_comparison.json",
+    "artifacts/coupled_fork_demo/sample_coupled_replay.json",
+    "artifacts/coupled_fork_demo/sample_coupled_mutation_chain.json",
+)
+
 CHAIN_FIXTURES: tuple[str, ...] = (
     "tests/fixtures/chains/aggregate_panic_depeg_chain.json",
     "tests/fixtures/chains/network_contagion_base_panic_chain.json",
@@ -64,4 +74,5 @@ BUNDLED_ARTIFACT_PATHS: tuple[str, ...] = (
     *PARETO_VIEWER_SAMPLES,
     *ATTRIBUTION_VIEWER_SAMPLES,
     *COMPOSITE_DEMO_SAMPLES,
+    *COUPLED_FORK_DEMO,
 )

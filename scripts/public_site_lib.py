@@ -52,6 +52,11 @@ VIEWER_NAV = [
     ("attribution", "/artifacts/attribution_viewer/index.html", "Attribution"),
     ("composite", "/artifacts/composite_viewer/index.html", "Composite"),
     ("coupling", "/artifacts/coupling_sweep_viewer/index.html", "Coupling sweep"),
+    (
+        "coupling_compare",
+        "/artifacts/coupling_comparison_viewer/index.html",
+        "Coupling compare",
+    ),
 ]
 
 
