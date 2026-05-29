@@ -3,7 +3,7 @@
   "fragility_engine_version": "0.5.0",
   "python_version": "3.12.10",
   "numpy_version": "2.4.6",
-  "git_commit": "bbcfcb75f7f190a749b427defc15effa33c0c6e2",
+  "git_commit": "da3c7e39ebaceb16f77198846091889f516d9e9b",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -152,7 +152,7 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "bbcfcb75f7f190a749b427defc15effa33c0c6e2",
+      "git_commit": "da3c7e39ebaceb16f77198846091889f516d9e9b",
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.5.0",
@@ -166,7 +166,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.5.0",
-      "git_commit": "bbcfcb75f7f190a749b427defc15effa33c0c6e2"
+      "git_commit": "da3c7e39ebaceb16f77198846091889f516d9e9b"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -346,19 +346,19 @@
   },
   "research_fork_artifact_sha256": [
     {
-      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_replay.json",
+      "path": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
       "sha256": "973275ee5647003b684f0f3e6d5df7aa909bede2868296e2ff2820a5f4b22be7"
     },
     {
-      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\coupling_strength_sweep.json",
+      "path": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",
       "sha256": "d7f785e58d077b9362b4bd3bee7a99e25ae827454fbb20993672ae42b4a97a7f"
     },
     {
-      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupling_comparison.json",
+      "path": "forks/coupled_institution/artifacts/sample_coupling_comparison.json",
       "sha256": "f0edd0f2403526076eee705713334cd54417dcc59a8f774597fb1406b337dacb"
     },
     {
-      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json",
+      "path": "forks/coupled_institution/artifacts/sample_coupled_mutation_chain.json",
       "sha256": "173b68c116b5875fa70ec6d942ede3527811ddebb17a3eb70ac606ee32d0ad5d"
     }
   ],
@@ -375,5 +375,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "bb3f9ee2b595f7a7cf06d98c1662dea3a6a339dd08aa011134e759c378e8ccd3"
+  "certificate_content_sha256": "574df8cf1c1c599ea56565e8783d734becc578b89d3480fc7497b7f75ad9dcd6"
 }

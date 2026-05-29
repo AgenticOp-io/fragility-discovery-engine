@@ -77,17 +77,17 @@ REPO=~/fragility-discovery-engine
 mkdir -p "$REPO/scripts"
 cd "$REPO"
 if [ -f scripts/gce_git_auth.sh ]; then . scripts/gce_git_auth.sh; elif [ -f ~/gce_git_auth.sh ]; then . ~/gce_git_auth.sh; fi
-# Discard any drift from earlier scp-uploaded scripts and built artifacts.
-git checkout -- scripts/ artifacts/public_site/ 2>/dev/null || true
+# Discard drift from prior publishes (regenerate_coupled_fork_artifacts rewrites bundled JSON).
+git checkout -- . 2>/dev/null || true
 git clean -fd artifacts/public_site/ 2>/dev/null || true
 if declare -F fragility_gce_git >/dev/null 2>&1; then
   fragility_gce_git fetch origin main
   fragility_gce_git checkout main
-  fragility_gce_git pull --ff-only origin main
+  fragility_gce_git reset --hard origin/main
 else
   git fetch origin main
   git checkout main
-  git pull --ff-only origin main
+  git reset --hard origin/main
 fi
 # After pull, overlay the freshly uploaded copies (lets us iterate without a push).
 for f in gce_publish_workbench.sh gce_install_public_web.sh; do

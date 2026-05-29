@@ -50,10 +50,19 @@ def sha256_file(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
 
 
-def digest_json_files(paths: list[Path]) -> list[dict[str, str]]:
+def digest_json_files(paths: list[Path], *, repo_root: Path | None = None) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
+    root = repo_root.resolve() if repo_root is not None else None
     for p in paths:
-        rows.append({"path": str(p.resolve()), "sha256": sha256_file(p)})
+        resolved = p.resolve()
+        if root is not None:
+            try:
+                path_str = resolved.relative_to(root).as_posix()
+            except ValueError:
+                path_str = str(resolved)
+        else:
+            path_str = str(resolved)
+        rows.append({"path": path_str, "sha256": sha256_file(resolved)})
     return rows
 
 
@@ -98,7 +107,9 @@ def build_fragility_certificate(
     if research_fork_validation is not None:
         payload["research_fork_validation"] = research_fork_validation
     if research_fork_artifact_paths:
-        payload["research_fork_artifact_sha256"] = digest_json_files(research_fork_artifact_paths)
+        payload["research_fork_artifact_sha256"] = digest_json_files(
+            research_fork_artifact_paths, repo_root=repo_root
+        )
     if flagship_run is not None:
         payload["flagship_run"] = flagship_run
     if notes.strip():
