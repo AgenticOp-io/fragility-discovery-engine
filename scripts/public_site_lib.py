@@ -38,13 +38,16 @@ NAV = [
 ]
 
 DOCS_SECTIONS = [
-    ("docs-index",    "/docs/",                     "Overview"),
-    ("docs-demo",     "/docs/demo-guide.html",      "Demo guide"),
-    ("docs-install",  "/docs/installation.html",    "Installation"),
-    ("docs-use",      "/docs/how-to-use.html",       "How to Use"),
-    ("docs-arch",     "/docs/architecture.html",    "Architecture"),
-    ("docs-ref",      "/docs/reference.html",       "Reference"),
-    ("docs-algo",     "/docs/algorithms.html",      "Algorithms"),
+    ("docs-index",    "/docs/",                         "All docs"),
+    ("docs-overview", "/docs/overview.html",            "Overview"),
+    ("docs-demo",     "/docs/demo-guide.html",          "Demo guide"),
+    ("docs-use",      "/docs/how-to-use.html",          "How to Use"),
+    ("docs-install",  "/docs/installation.html",        "Installation"),
+    ("docs-arch",     "/docs/architecture.html",        "Architecture"),
+    ("docs-ref",      "/docs/reference.html",           "Reference"),
+    ("docs-algo",     "/docs/algorithms.html",          "Algorithms"),
+    ("docs-scale",    "/docs/scale-and-limits.html",    "Scale & limits"),
+    ("docs-fork",     "/docs/fork-coupling.html",       "Research fork"),
 ]
 
 VIEWER_NAV = [
@@ -173,10 +176,11 @@ _MD_TO_HTML_LINKS: dict[str, str] = {
     "ALGORITHMS.md": "/docs/algorithms.html",
     "WHITEPAPER_INTRODUCTION.md": "/docs/overview.html",
     "INSTALLATION.md": "/docs/installation.html",
+    "SCALE_AND_LIMITS.md": "/docs/scale-and-limits.html",
+    "FORK_COUPLING_RESEARCH.md": "/docs/fork-coupling.html",
     "README.md": "https://github.com/AgenticOp-io/fragility-discovery-engine#readme",
     "BOUNDARIES.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md",
     "../BOUNDARIES.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md",
-    "SCALE_AND_LIMITS.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/SCALE_AND_LIMITS.md",
 }
 
 _GITHUB_BLOB = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main"

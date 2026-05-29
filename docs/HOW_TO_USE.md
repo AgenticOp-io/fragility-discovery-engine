@@ -56,8 +56,6 @@ Optional acceleration (resource cascade): `pip install -e ".[accelerate]"` — s
 
 ### Linux / macOS
 
-**Validation (Windows or GCE, not GitHub Actions on push):** after activating a venv, run `powershell -File scripts/ci_local.ps1` on Windows or `bash scripts/ci_local.sh` on WSL/Linux. On the GCE VM: `bash scripts/gce_pull_and_test.sh`. See [Installation](/docs/installation.html) for platform notes.
-
 **Debian / Ubuntu:**
 
 ```bash
@@ -321,7 +319,7 @@ python scripts/check_coupled_fork_pareto.py
 | `sample_coupling_comparison.json` | Coupling comparison viewer |
 | `sample_coupled_mutation_chain.json` | Attribution viewer |
 
-Static bundle: [`artifacts/coupled_fork_demo/`](../artifacts/coupled_fork_demo/). On the public workbench, choose **Coupled institution (research fork)** on [Run a scenario](https://agenticop-io.github.io/fragility-discovery-engine/run.html) when the server exposes that mode.
+Static bundle: [`artifacts/coupled_fork_demo/`](../artifacts/coupled_fork_demo/). On the public workbench, choose **Coupled institution (research fork)** on [Run a scenario](http://34.61.255.147/run.html) when the server is running.
 
 ---
 

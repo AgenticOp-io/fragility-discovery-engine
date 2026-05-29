@@ -860,7 +860,7 @@ def build(out: Path) -> dict[str, str]:
     )
     _doc(
         filename="overview.html",
-        doc_id="docs-index",
+        doc_id="docs-overview",
         title="Overview — Fragility Discovery Engine",
         description="What the engine is, what problems it solves, and who it fits.",
         md_filename="WHITEPAPER_INTRODUCTION.md",
@@ -1214,8 +1214,8 @@ bash scripts/gce_publish_workbench.sh</pre>
     )
     _write(
         out / "install.html",
-        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/host.html"/>'
-        '<title>Redirect</title></head><body></body></html>',
+        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/docs/installation.html"/>'
+        '<title>Redirect</title></head><body><p><a href="/docs/installation.html">Installation</a></p></body></html>',
     )
     _write(
         out / "404.html",
@@ -1238,8 +1238,8 @@ bash scripts/gce_publish_workbench.sh</pre>
     )
     _write(
         out / "cli.html",
-        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/host.html"/>'
-        '<title>Redirect</title></head><body></body></html>',
+        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/docs/how-to-use.html"/>'
+        '<title>Redirect</title></head><body><p><a href="/docs/how-to-use.html">How to Use</a></p></body></html>',
     )
 
     built = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
