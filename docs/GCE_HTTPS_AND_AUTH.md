@@ -22,6 +22,14 @@ powershell -File scripts/check_fragility_dns.ps1
 powershell -File scripts/gce_enable_https.ps1
 ```
 
+**DNS not configured yet:** `fragility.agenticop.io` needs an **A → 34.61.255.147** record at your DNS provider (see `scripts/check_fragility_dns.ps1`).
+
+Operator checklist (DNS, deploy key, PyPI secret, live status):
+
+```powershell
+powershell -File scripts/gce_operator_preflight.ps1
+```
+
 Or on the VM:
 
 ```bash
@@ -65,5 +73,12 @@ python scripts/check_pypi_ready.py --tag v0.5.0
 ```
 
 CI job **`pypi-smoke`** on every push/PR builds the wheel/sdist and runs `twine check` (no upload).
+
+**Note:** GitHub Actions may refuse to run workflows if org **billing** is blocked; use local publish as fallback:
+
+```bash
+python scripts/check_pypi_ready.py --tag v0.5.0
+python -m twine upload dist/*   # needs TWINE_PASSWORD / PYPI_API_TOKEN in env
+```
 
 See [RELEASING.md](../RELEASING.md) for tagging and GitHub Release wheels.
