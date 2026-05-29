@@ -41,29 +41,16 @@ def main() -> None:
     fork_paths: list[Path] = []
     fork_val: dict | None = None
     if args.research_fork:
-        fork_root = repo_root / "forks" / "coupled_institution" / "artifacts"
-        for name in (
-            "sample_coupled_replay.json",
-            "coupling_strength_sweep.json",
-            "sample_coupling_comparison.json",
-            "sample_coupled_mutation_chain.json",
-        ):
-            p = fork_root / name
-            if p.is_file():
-                fork_paths.append(p)
-        import subprocess
-
-        proc = subprocess.run(
-            [sys.executable, str(repo_root / "scripts" / "validate_coupled_fork_bundle.py")],
-            cwd=str(repo_root),
-            capture_output=True,
-            text=True,
+        from fragility_engine.benchmarks.coupled_fork import (
+            coupled_fork_artifact_paths,
+            run_coupled_fork_bundle_validation,
         )
-        if proc.returncode != 0:
-            print(proc.stderr or proc.stdout, file=sys.stderr)
-            fork_val = {"status": "failed", "bundle_id": "coupled_institution_rollout_v1"}
-            raise SystemExit(proc.returncode)
-        fork_val = {"status": "passed", "bundle_id": "coupled_institution_rollout_v1"}
+
+        fork_val = run_coupled_fork_bundle_validation(repo_root)
+        if fork_val["status"] != "passed":
+            print(fork_val.get("error", fork_val), file=sys.stderr)
+            raise SystemExit(1)
+        fork_paths = coupled_fork_artifact_paths(repo_root)
 
     bench: dict | None = None
     if args.validate_bundles:

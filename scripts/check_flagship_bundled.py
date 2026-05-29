@@ -55,6 +55,16 @@ def main() -> None:
         print("best_replay.json missing trajectory", file=sys.stderr)
         raise SystemExit(1)
 
+    rf = cert.get("research_fork_validation")
+    if rf is not None:
+        if rf.get("status") != "passed":
+            print(f"research_fork_validation not passed: {rf}", file=sys.stderr)
+            raise SystemExit(1)
+        rows = cert.get("research_fork_artifact_sha256") or []
+        if len(rows) < 3:
+            print("expected research_fork_artifact_sha256 with >= 3 entries", file=sys.stderr)
+            raise SystemExit(1)
+
     print("OK: flagship bundled certificate, pareto HV, and replay validated")
 
 

@@ -22,6 +22,7 @@ def run_flagship_demo(
     output_dir: Path,
     *,
     validate_bundles_first: bool = True,
+    include_research_fork: bool = False,
     horizon: int = 14,
     generations: int = 3,
     population_size: int = 12,
@@ -125,10 +126,25 @@ def run_flagship_demo(
             "pareto_front": str(pareto_path.name),
         },
     }
+    fork_val = None
+    fork_paths: list[Path] = []
+    if include_research_fork:
+        from fragility_engine.benchmarks.coupled_fork import (
+            coupled_fork_artifact_paths,
+            run_coupled_fork_bundle_validation,
+        )
+
+        fork_val = run_coupled_fork_bundle_validation(_REPO_ROOT)
+        if fork_val["status"] != "passed":
+            raise RuntimeError(fork_val.get("error", fork_val))
+        fork_paths = coupled_fork_artifact_paths(_REPO_ROOT)
+
     cert = build_fragility_certificate(
         artifact_paths=[replay_path, pareto_path],
         include_benchmark_manifest=True,
         benchmark_validation=bench_meta,
+        research_fork_validation=fork_val,
+        research_fork_artifact_paths=fork_paths or None,
         flagship_run=flagship_run,
         repo_root=_REPO_ROOT,
         notes="Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",

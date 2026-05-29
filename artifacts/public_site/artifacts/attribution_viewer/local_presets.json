@@ -45,6 +45,10 @@
     {
       "label": "Bundled: inventory buffer chain (demand spike + fulfillment erosion)",
       "path": "sample_inventory_buffer_chain_demand_fulfillment.json"
+    },
+    {
+      "label": "Research fork: coupled institution mutation chain (coupling_strength)",
+      "path": "sample_coupled_mutation_chain.json"
     }
   ]
 }

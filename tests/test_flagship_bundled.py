@@ -52,3 +52,13 @@ def test_flagship_bundled_certificate_manifest_digest_link() -> None:
     cert = json.loads((BUNDLED / "fragility_certificate.json").read_text(encoding="utf-8"))
     assert cert.get("benchmark_golden_metrics_sha256") == cert["benchmark_manifest"]["golden_metrics_sha256"]
     assert cert.get("benchmark_bundle_ids") == cert["benchmark_manifest"]["bundle_ids"]
+
+
+def test_flagship_bundled_certificate_includes_research_fork_when_present() -> None:
+    cert = json.loads((BUNDLED / "fragility_certificate.json").read_text(encoding="utf-8"))
+    rf = cert.get("research_fork_validation")
+    if rf is None:
+        return
+    assert rf["status"] == "passed"
+    assert rf["bundle_id"] == "coupled_institution_rollout_v1"
+    assert len(cert.get("research_fork_artifact_sha256") or []) >= 3

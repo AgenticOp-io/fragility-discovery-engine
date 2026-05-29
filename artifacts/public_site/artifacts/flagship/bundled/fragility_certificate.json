@@ -1,9 +1,9 @@
 {
   "schema": "fragility-certificate-v1",
-  "fragility_engine_version": "0.4.0",
+  "fragility_engine_version": "0.5.0",
   "python_version": "3.12.10",
-  "numpy_version": "2.4.4",
-  "git_commit": "cedabc646af142720b83b013d950030fd047109b",
+  "numpy_version": "2.4.6",
+  "git_commit": "6c7ea45565618352f2641804fa662955bc800e11",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -152,10 +152,10 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "da26c1c087bab78b04a8351258eddcbc6b366718",
+      "git_commit": "6c7ea45565618352f2641804fa662955bc800e11",
       "python_version": "3.12.10",
-      "numpy_version": "2.4.4",
-      "fragility_engine_version": "0.4.0",
+      "numpy_version": "2.4.6",
+      "fragility_engine_version": "0.5.0",
       "replay_schema_version": "0.4.0"
     },
     "resource_cascade_backend": {
@@ -164,9 +164,9 @@
     },
     "provenance": {
       "python_version": "3.12.10",
-      "numpy_version": "2.4.4",
-      "fragility_engine_version": "0.4.0",
-      "git_commit": "da26c1c087bab78b04a8351258eddcbc6b366718"
+      "numpy_version": "2.4.6",
+      "fragility_engine_version": "0.5.0",
+      "git_commit": "6c7ea45565618352f2641804fa662955bc800e11"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -218,20 +218,23 @@
         "explanation-mutation-chain-path-resource-cascade-v1",
         "explanation-mutation-chain-path-service-backlog-v1",
         "explanation-mutation-chain-path-liquidity-ladder-v1",
-        "explanation-mutation-chain-path-aggregate-v1"
+        "explanation-mutation-chain-path-aggregate-v1",
+        "explanation-mutation-chain-path-inventory-buffer-v1"
       ],
       "aggregate_mutation_chain_spec": "aggregate-mutation-chain-spec-v1",
       "service_backlog_mutation_chain_spec": "service-backlog-mutation-chain-spec-v1",
       "liquidity_ladder_mutation_chain_spec": "liquidity-ladder-mutation-chain-spec-v1",
       "resource_cascade_mutation_chain_spec": "resource-cascade-mutation-chain-spec-v1",
-      "network_mutation_chain_spec": "network-mutation-chain-spec-v1"
+      "network_mutation_chain_spec": "network-mutation-chain-spec-v1",
+      "inventory_buffer_mutation_chain_spec": "inventory-buffer-mutation-chain-spec-v1"
     },
     "mutation_chain_fixtures": [
       "tests/fixtures/chains/aggregate_panic_depeg_chain.json",
       "tests/fixtures/chains/network_contagion_base_panic_chain.json",
       "tests/fixtures/chains/resource_cascade_coupling_rumor_chain.json",
       "tests/fixtures/chains/service_backlog_process_ingest_chain.json",
-      "tests/fixtures/chains/liquidity_ladder_margin_haircut_chain.json"
+      "tests/fixtures/chains/liquidity_ladder_margin_haircut_chain.json",
+      "tests/fixtures/chains/inventory_buffer_demand_fulfillment_chain.json"
     ],
     "bundled_artifact_paths": [
       "artifacts/replay_viewer/sample_replay.json",
@@ -239,11 +242,13 @@
       "artifacts/replay_viewer/sample_resource_cascade_replay.json",
       "artifacts/replay_viewer/sample_service_backlog_replay.json",
       "artifacts/replay_viewer/sample_liquidity_ladder_replay.json",
+      "artifacts/replay_viewer/sample_inventory_buffer_replay.json",
       "artifacts/pareto_viewer/sample_pareto_front.json",
       "artifacts/pareto_viewer/sample_pareto_resource_cascade.json",
       "artifacts/pareto_viewer/sample_pareto_service_backlog.json",
       "artifacts/pareto_viewer/sample_pareto_network.json",
       "artifacts/pareto_viewer/sample_pareto_liquidity_ladder.json",
+      "artifacts/pareto_viewer/sample_pareto_inventory_buffer.json",
       "artifacts/flagship/bundled/pareto_front.json",
       "artifacts/flagship/bundled/best_replay.json",
       "artifacts/flagship/bundled/fragility_certificate.json",
@@ -255,10 +260,13 @@
       "artifacts/attribution_viewer/sample_resource_cascade_chain_coupling_rumor.json",
       "artifacts/attribution_viewer/sample_service_backlog_chain_process_ingest.json",
       "artifacts/attribution_viewer/sample_liquidity_ladder_chain_margin_haircut.json",
+      "artifacts/attribution_viewer/sample_inventory_buffer_chain_demand_fulfillment.json",
+      "artifacts/attribution_viewer/sample_attribution_merge_inventory_buffer.json",
       "artifacts/composite_demo/sample_twin_composite.json",
       "artifacts/composite_demo/sample_triple_composite.json",
       "artifacts/composite_demo/sample_quad_composite.json",
       "artifacts/composite_demo/sample_penta_composite.json",
+      "artifacts/composite_demo/sample_hexa_composite.json",
       "artifacts/attribution_viewer/sample_attribution_merge_liquidity_ladder.json",
       "artifacts/attribution_viewer/sample_attribution_merge_service_backlog.json"
     ],
@@ -272,6 +280,26 @@
       "coupled_fork_path": "forks/coupled_institution",
       "pypi_workflow": ".github/workflows/pypi.yml"
     },
+    "research_fork_bundles": [
+      {
+        "bundle_id": "coupled_institution_rollout_v1",
+        "package_path": "forks/coupled_institution",
+        "fixture": "forks/coupled_institution/tests/fixtures/pinned_rollout_schedule.json",
+        "validate_cli": "scripts/validate_coupled_fork_bundle.py",
+        "replay_schema_version": "coupled-fork-0.1.0",
+        "sample_replay": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
+        "coupling_sweep_schema": "coupled-institution-coupling-sweep-v1",
+        "coupling_sweep_artifact": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",
+        "llm_prompt_packs": [
+          "coupled_institution_replay_v1",
+          "coupled_institution_coupling_sweep_v1",
+          "coupled_institution_comparison_v1",
+          "coupled_institution_mutation_chain_v1"
+        ],
+        "mutation_chain_artifact": "forks/coupled_institution/artifacts/sample_coupled_mutation_chain.json",
+        "certificate_cli": "scripts/export_coupled_fork_certificate.py"
+      }
+    ],
     "pareto_hypervolume_fixtures": [
       {
         "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",
@@ -312,6 +340,28 @@
     "resource_cascade_rollout_v1",
     "service_backlog_rollout_v1"
   ],
+  "research_fork_validation": {
+    "status": "passed",
+    "bundle_id": "coupled_institution_rollout_v1"
+  },
+  "research_fork_artifact_sha256": [
+    {
+      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_replay.json",
+      "sha256": "973275ee5647003b684f0f3e6d5df7aa909bede2868296e2ff2820a5f4b22be7"
+    },
+    {
+      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\coupling_strength_sweep.json",
+      "sha256": "d7f785e58d077b9362b4bd3bee7a99e25ae827454fbb20993672ae42b4a97a7f"
+    },
+    {
+      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupling_comparison.json",
+      "sha256": "f0edd0f2403526076eee705713334cd54417dcc59a8f774597fb1406b337dacb"
+    },
+    {
+      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json",
+      "sha256": "173b68c116b5875fa70ec6d942ede3527811ddebb17a3eb70ac606ee32d0ad5d"
+    }
+  ],
   "flagship_run": {
     "mode": "aggregate_stablecoin_peg",
     "horizon": 10,
@@ -325,5 +375,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "8e8ef969b0346104abe5ccf5b133c1f04262715fa7f3b4fe8d5f633b610cd3fe"
+  "certificate_content_sha256": "e40663c576d1d3f452101fd9cfa6152652181037c1c4ae6c2f032b74ebef4dab"
 }

@@ -21,6 +21,9 @@ source .venv/bin/activate
 pip install -q -U pip setuptools wheel
 pip install -q -e ".[dev]"
 
+echo "==> coupled fork artifacts (replay + attribution samples)"
+python scripts/regenerate_coupled_fork_artifacts.py
+
 echo "==> build public site bundle"
 python scripts/build_public_site.py
 

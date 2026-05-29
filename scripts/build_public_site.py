@@ -626,6 +626,15 @@ def build(out: Path) -> dict[str, str]:
     coupled_replay = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_replay.json"
     if coupled_replay.is_file():
         shutil.copy2(coupled_replay, art_root / "replay_viewer" / "sample_coupled_institution_replay.json")
+    coupled_chain = ROOT / "artifacts" / "attribution_viewer" / "sample_coupled_mutation_chain.json"
+    if not coupled_chain.is_file():
+        fork_chain = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_mutation_chain.json"
+        if fork_chain.is_file():
+            coupled_chain = fork_chain
+    if coupled_chain.is_file():
+        attr_dir = art_root / "attribution_viewer"
+        attr_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(coupled_chain, attr_dir / "sample_coupled_mutation_chain.json")
 
     index_main = """    <div id="fde-status" class="fde-status-bar" style="display:none"></div>
 
@@ -764,6 +773,11 @@ def build(out: Path) -> dict[str, str]:
         <span class="fde-card-tag">attribution · chain</span>
         <h3>Inventory buffer mutation chain</h3>
         <p>Demand spike plus fulfillment erosion applied step by step — see which mutation moves the needle.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json">
+        <span class="fde-card-tag">attribution · research fork</span>
+        <h3>Coupled institution mutation chain</h3>
+        <p>Coupling strength stepped up on a pinned schedule — peg panic and overload exchange signals each step.</p>
       </a>
       <a class="fde-card" href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">
         <span class="fde-card-tag">composite</span>

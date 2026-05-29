@@ -140,6 +140,7 @@
         'explanation-mutation-chain-path-resource-cascade-v1',
         'explanation-mutation-chain-path-service-backlog-v1',
         'explanation-mutation-chain-path-aggregate-v1',
+        'explanation-mutation-chain-path-coupled-institution-v1',
       ]);
       if (sch === 'attribution-merge-v1') renderMerge(data);
       else if (pathSchemas.has(sch)) renderChainPath(data);
@@ -174,13 +175,18 @@
     function renderChainPath(data) {
       const nodes = data.nodes || [];
       const edges = data.edges || [];
+      const useCoupling = data.baseline_coupling != null;
+      const knob = useCoupling ? 'coupling' : 'panic';
+      const baselineKnob = useCoupling ? data.baseline_coupling : data.baseline_base_panic;
+      const variantKnob = useCoupling ? data.variant_coupling : data.variant_base_panic;
       let h = '<h2>' + esc(data.schema || 'mutation-chain-path') + '</h2>';
-      h += '<p>rollout_seed=' + esc(data.rollout_seed) + ' · baseline panic=' + esc(data.baseline_base_panic) +
-        ' · variant panic=' + esc(data.variant_base_panic) + '</p>';
+      h += '<p>rollout_seed=' + esc(data.rollout_seed) + ' · baseline ' + knob + '=' + esc(baselineKnob) +
+        ' · variant ' + knob + '=' + esc(variantKnob) + '</p>';
       h += '<h2>Path</h2>';
       for (const n of nodes) {
+        const resetVal = useCoupling ? n.reset_coupling : n.reset_panic;
         h += '<div class="path-step"><span class="chip">' + esc(n.id) + '</span> mutations=' + esc(n.mutations_applied) +
-          ' panic=' + esc(n.reset_panic) + ' II=' + esc(n.integral_instability) + ' cost=' + esc(n.attack_cost) + '</div>';
+          ' ' + knob + '=' + esc(resetVal) + ' II=' + esc(n.integral_instability) + ' cost=' + esc(n.attack_cost) + '</div>';
       }
       h += '<h2>Steps</h2><table><tr><th>edge</th><th>kind</th><th>step</th><th>Δ II</th><th>panic →</th></tr>';
       for (const e of edges) {
