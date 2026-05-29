@@ -20,6 +20,7 @@ fi
 source .venv/bin/activate
 pip install -q -U pip setuptools wheel
 pip install -q -e ".[dev]"
+pip install -q -e forks/coupled_institution
 
 echo "==> coupled fork artifacts (replay + attribution samples)"
 python scripts/regenerate_coupled_fork_artifacts.py
