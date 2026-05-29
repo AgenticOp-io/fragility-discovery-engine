@@ -35,12 +35,39 @@
   var TOUR_PLAYING = "fde_tour_playing_v1";
   var TOUR_VOICE = "fde_tour_voice_v1";
   var TOUR_VOICE_MUTED = "fde_tour_voice_muted_v1";
+  var TOUR_REDIRECTS = "fde_tour_redirects_v1";
 
   function qs(sel) {
     try { return document.querySelector(sel); } catch (e) { return null; }
   }
   function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
-  function pagePath() { return (window.location.pathname || "/") + (window.location.hash || ""); }
+
+  function normalizeHash(hash) {
+    if (!hash) return "";
+    var h = hash;
+    h = h.replace(/\?tour=1(&|$)/, "$1").replace(/&tour=1/g, "");
+    if (h === "#" || h === "#&") return "";
+    return h;
+  }
+
+  function pagePath() {
+    return (window.location.pathname || "/") + normalizeHash(window.location.hash || "");
+  }
+
+  function isTourPage() {
+    var p = window.location.pathname || "/";
+    if (p === "/" || p === "/run.html" || p === "/tour.html") return true;
+    return /\/artifacts\/[a-z_]+_viewer\/index\.html$/i.test(p);
+  }
+
+  function navigateToStepUrl(want) {
+    stopSpeech();
+    var parts = want.split("#");
+    var base = parts[0] || "/";
+    var hash = parts.length > 1 ? "#" + parts.slice(1).join("#") : "";
+    var sep = base.indexOf("?") >= 0 ? "&" : "?";
+    window.location.assign(base + sep + "tour=1" + hash);
+  }
   function setText(el, txt) { if (el) el.textContent = String(txt || ""); }
 
   var steps = [
@@ -165,6 +192,7 @@
     sessionStorage.removeItem(TOUR_MS);
     sessionStorage.removeItem(TOUR_VOICE);
     sessionStorage.removeItem(TOUR_VOICE_MUTED);
+    sessionStorage.removeItem(TOUR_REDIRECTS);
     teardown();
   }
 
@@ -173,9 +201,18 @@
     if (!step) return false;
     var here = pagePath();
     var want = step.url;
-    if (here === want) return true;
-    stopSpeech();
-    window.location.href = want + (want.indexOf("?") >= 0 ? "&" : "?") + "tour=1";
+    if (here === want) {
+      sessionStorage.removeItem(TOUR_REDIRECTS);
+      return true;
+    }
+    var redirects = parseInt(sessionStorage.getItem(TOUR_REDIRECTS) || "0", 10);
+    if (!isFinite(redirects)) redirects = 0;
+    if (redirects >= 6) {
+      exitTour();
+      return false;
+    }
+    sessionStorage.setItem(TOUR_REDIRECTS, String(redirects + 1));
+    navigateToStepUrl(want);
     return false;
   }
 
@@ -335,8 +372,17 @@
     }
   }
 
+  function onTourEscape(e) {
+    if (e.key === "Escape" && isTourActive()) exitTour();
+  }
+
   ensureTourStartedFromUrl();
   if (!isTourActive()) return;
+  if (!isTourPage()) {
+    exitTour();
+    return;
+  }
+  document.addEventListener("keydown", onTourEscape);
   if (!sessionStorage.getItem(TOUR_INDEX)) sessionStorage.setItem(TOUR_INDEX, "0");
   render();
 })();

@@ -556,7 +556,13 @@ def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
     close_match = _BODY_CLOSE_RE.search(text)
     if close_match:
         idx = close_match.start()
-        text = text[:idx] + "  </main>\n" + site_chrome_footer() + text[idx:]
+        text = (
+            text[:idx]
+            + "  </main>\n"
+            + site_chrome_footer()
+            + '  <script src="/assets/fde-workbench.js" defer></script>\n'
+            + text[idx:]
+        )
     text = _strip_inline_styles_in_viewer_main(text)
     html_path.write_text(text, encoding="utf-8")
 
