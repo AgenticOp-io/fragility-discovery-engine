@@ -4859,3 +4859,11 @@ def test_export_llm_narration_prompt_institution_composite_quad_bundled_cli(
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["prompt_pack"] == "institution_composite_v1"
     assert "fragility-institutional-composite-v3" in data["user_prompt"]
+
+
+def test_run_coupled_fork_demo_help(py_exe: str) -> None:
+    subprocess.run(
+        [py_exe, str(ROOT / "scripts" / "run_coupled_fork_demo.py"), "--help"],
+        check=True,
+        cwd=str(ROOT),
+    )

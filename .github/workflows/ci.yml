@@ -90,6 +90,24 @@ jobs:
           pip install dist/*.whl
           python -c "import fragility_engine; print('import_ok', fragility_engine.__file__)"
 
+  coupled-fork:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install main engine + coupled fork
+        run: |
+          pip install -e ".[dev]"
+          pip install -e forks/coupled_institution
+
+      - name: Coupled fork tests
+        working-directory: forks/coupled_institution
+        run: python -m pytest -q
+
   # Numba wheels are platform-specific; exercise JIT parity on Linux and Windows x86_64 runners.
   numba-parity:
     strategy:

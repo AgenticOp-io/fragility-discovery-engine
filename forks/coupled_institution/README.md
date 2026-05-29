@@ -13,10 +13,19 @@ Sibling package for **coupled multi-kernel physics** — state exchange inside o
 ```bash
 cd forks/coupled_institution
 pip install -e .
-pip install -e ../..   # optional: GA demo
+pip install -e ../..   # GA demo needs main engine adversary
 pytest -q
 python scripts/run_coupled_ga_demo.py --export-replay /tmp/coupled_demo.json
 python scripts/regenerate_golden.py
+python scripts/coupling_strength_sweep.py
+```
+
+From **repo root** (after `pip install -e ".[dev]"`):
+
+```bash
+python scripts/run_coupled_fork_demo.py --regenerate
+python scripts/regenerate_coupled_fork_artifacts.py   # also copies into replay_viewer/
+python scripts/run_coupled_fork_demo.py --export-replay /tmp/coupled_ga.json
 ```
 
 ## Relationship to main engine
