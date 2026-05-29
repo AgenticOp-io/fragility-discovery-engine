@@ -120,7 +120,7 @@
       say: "Step one: watch a collapse. Open the flagship replay, then step through the timeline to see when the system breaks.",
     },
     {
-      url: "/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json",
+      url: "/artifacts/replay_viewer/index.html#src=sample_replay.json",
       selector: "canvas",
       title: "Replay timeline",
       body: "Drag or click on the chart to scrub through time. Look for the collapse marker and the instability curve.",

@@ -530,7 +530,7 @@ def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
 
     text = _VIEWER_STYLE_RE.sub("", text, count=1)
     if "</head>" in text:
-        text = text.replace("</head>", site_chrome_head() + "</head>", 1)
+        text = text.replace("</head>", site_chrome_head() + _public_demo_meta() + "</head>", 1)
 
     body_match = _BODY_OPEN_RE.search(text)
     if not body_match:
@@ -572,6 +572,32 @@ def _write(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def _public_demo_meta() -> str:
+    return '  <meta name="fde-public-demo" content="1"/>\n'
+
+
+def _filter_local_presets(presets_path: Path) -> None:
+    """Keep only preset paths that exist on the built public site (no test_exports)."""
+    if not presets_path.is_file():
+        return
+    base = presets_path.parent
+    cfg = json.loads(presets_path.read_text(encoding="utf-8"))
+    kept: list[dict[str, str]] = []
+    for entry in cfg.get("presets", []):
+        rel = str(entry.get("path", "")).replace("\\", "/")
+        if not rel or "test_exports" in rel:
+            continue
+        if not (base / rel).resolve().is_file():
+            continue
+        kept.append({"label": entry["label"], "path": entry["path"]})
+    cfg["presets"] = kept
+    cfg["note"] = (
+        "Bundled demos on this server — pick a preset below. "
+        "No files on your computer are required."
+    )
+    presets_path.write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
+
+
 def build(out: Path) -> dict[str, str]:
     if out.exists():
         shutil.rmtree(out)
@@ -593,6 +619,9 @@ def build(out: Path) -> dict[str, str]:
             page_id = VIEWER_PAGE_IDS.get(name)
             if page_id:
                 _inject_viewer_chrome(art_root / name / "index.html", page_id)
+            presets = art_root / name / "local_presets.json"
+            if presets.is_file():
+                _filter_local_presets(presets)
 
     coupled_replay = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_replay.json"
     if coupled_replay.is_file():

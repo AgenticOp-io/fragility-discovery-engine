@@ -74,7 +74,34 @@
     const presetRow = document.getElementById('presetRow');
     const presetSelect = document.getElementById('presetSelect');
     const presetStatus = document.getElementById('presetStatus');
-    document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+    const btnPick = document.getElementById('btnPick');
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hashParams() {
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      btnPick.hidden = true;
+      fileInput.hidden = true;
+    }
+
+    async function loadCompositeUrl(path) {
+      const res = await fetch(new URL(path, document.location));
+      if (!res.ok) return false;
+      renderComposite(await res.json());
+      presetStatus.textContent = 'Loaded';
+      return true;
+    }
+
+    btnPick.addEventListener('click', () => fileInput.click());
 
     function esc(s) {
       const d = document.createElement('div');
@@ -139,18 +166,50 @@
     });
 
     async function boot() {
+      hideLocalFileUi();
+      const src = hashParams().get('src');
+      if (src) {
+        try {
+          if (await loadCompositeUrl(src)) {
+            presetRow.hidden = false;
+            presetRow.style.display = 'inline-flex';
+            return;
+          }
+        } catch (_) { /* fall through */ }
+      }
       try {
         const res = await fetch('local_presets.json');
         if (!res.ok) return;
         const data = await res.json();
         presetRow.hidden = false;
+        presetRow.style.display = 'inline-flex';
         for (const p of data.presets || []) {
           const o = document.createElement('option');
           o.value = p.path;
           o.textContent = p.label;
           presetSelect.appendChild(o);
         }
+        const defaults = [
+          '../composite_demo/sample_hexa_composite.json',
+          '../composite_demo/sample_quad_composite.json',
+        ];
+        for (const path of defaults) {
+          try {
+            if (await loadCompositeUrl(path)) {
+              for (let i = 0; i < presetSelect.options.length; i++) {
+                if (presetSelect.options[i].value === path) {
+                  presetSelect.selectedIndex = i;
+                  break;
+                }
+              }
+              return;
+            }
+          } catch (_) { /* try next */ }
+        }
       } catch (_) { /* file:// */ }
+      if (isPublicDemo()) {
+        panel.textContent = 'Loading bundled composite from server…';
+      }
     }
     boot();
   </script>

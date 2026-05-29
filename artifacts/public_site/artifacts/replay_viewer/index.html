@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/assets/fde-product.css"/>
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+  <meta name="fde-public-demo" content="1"/>
 </head>
 <body class="fde-app">
 <!-- fdeSiteChrome -->
@@ -146,6 +147,47 @@
     const presetRow = document.getElementById('presetRow');
     const presetSelect = document.getElementById('presetSelect');
     const presetStatus = document.getElementById('presetStatus');
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hashParams() {
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      drop.hidden = true;
+      btnFolder.hidden = true;
+      btnFile.hidden = true;
+      folderList.hidden = true;
+    }
+
+    async function loadReplayUrl(path) {
+      const res = await fetch(new URL(path, document.location));
+      if (!res.ok) return false;
+      handleText(await res.text());
+      presetStatus.textContent = 'Loaded';
+      return true;
+    }
+
+    async function autoLoadBundledDefault() {
+      if (bundle) return;
+      const paths = [
+        'sample_replay.json',
+        '../flagship/bundled/best_replay.json',
+        'sample_network_replay.json',
+      ];
+      for (const path of paths) {
+        try {
+          if (await loadReplayUrl(path)) return;
+        } catch (_) { /* try next */ }
+      }
+    }
 
     /** @type {{ data: object, traj: object[], lane: object[], tmax: number, pad: number, W: number, H: number, mainBottom: number, laneTop: number, laneBot: number, laneH: number, prices: number[], instab: number[], collapseT: number|null, xScale: function, yPrice: function, yInst: function, validInst: boolean, mode: string, maxPanic: number[], panicStd: number[], validNetworkPanic: boolean, yPanicAux: function } | null} */
     let bundle = null;
@@ -788,18 +830,12 @@
     });
 
     async function applyReplayHashLoads() {
-      const raw = location.hash.replace(/^#/, '');
-      if (!raw) return;
-      const q = new URLSearchParams(raw);
+      const q = hashParams();
       const src = q.get('src');
       const cmp = q.get('compare');
       if (src) {
         try {
-          const res = await fetch(new URL(src, document.location));
-          if (res.ok) {
-            handleText(await res.text());
-            presetStatus.textContent = 'Loaded (hash)';
-          }
+          if (await loadReplayUrl(src)) presetStatus.textContent = 'Loaded (link)';
         } catch (_) { /* ignore */ }
       }
       if (cmp) {
@@ -816,7 +852,7 @@
     }
 
     window.addEventListener('hashchange', () => {
-      const q = new URLSearchParams(location.hash.replace(/^#/, ''));
+      const q = hashParams();
       if (!q.get('compare')) {
         bundleB = null;
         compareFile.value = '';
@@ -868,14 +904,26 @@
     });
 
     (async () => {
+      hideLocalFileUi();
       await applyReplayHashLoads();
+      if (!bundle) await autoLoadBundledDefault();
       await initPresets();
+      if (!bundle) await autoLoadBundledDefault();
+      if (isPublicDemo() && bundle) {
+        meta.textContent = 'Bundled server replay — scrub the chart or use Presets for more demos.';
+      } else if (!bundle) {
+        meta.textContent = isPublicDemo()
+          ? 'Loading bundled replay from server…'
+          : 'Load a replay JSON to begin.';
+      }
     })();
 
-    meta.textContent = 'Load a replay JSON to begin.';
-    ctx.fillStyle = '#888';
-    ctx.font = '14px system-ui';
-    ctx.fillText('Load a replay JSON…', 16, 40);
+    if (!isPublicDemo()) {
+      meta.textContent = 'Load a replay JSON to begin.';
+      ctx.fillStyle = '#888';
+      ctx.font = '14px system-ui';
+      ctx.fillText('Load a replay JSON…', 16, 40);
+    }
   </script>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">

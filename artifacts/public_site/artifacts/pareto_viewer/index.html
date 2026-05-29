@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/assets/fde-product.css"/>
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+  <meta name="fde-public-demo" content="1"/>
 </head>
 <body class="fde-app">
 <!-- fdeSiteChrome -->
@@ -102,7 +103,19 @@
     const presetRow = document.getElementById('presetRow');
     const presetSelect = document.getElementById('presetSelect');
     const presetStatus = document.getElementById('presetStatus');
-    document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+    const btnPick = document.getElementById('btnPick');
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      btnPick.hidden = true;
+      fileInput.hidden = true;
+    }
+
+    btnPick.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', () => {
       const f = fileInput.files?.[0];
@@ -125,7 +138,8 @@
     let pinnedIndex = null;
 
     function hashParams() {
-      const raw = location.hash.replace(/^#/, '');
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
       if (!raw) return new URLSearchParams();
       return new URLSearchParams(raw);
     }
@@ -368,6 +382,7 @@
     });
 
     async function boot() {
+      hideLocalFileUi();
       const hp = hashParams();
       const src = hp.get('src');
       if (src) {

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "note": "Paths relative to attribution_viewer/. Serve repo root (python -m http.server), then open artifacts/attribution_viewer/index.html. Regenerate bundled sample: python scripts/regenerate_bundled_viewer_samples.py",
+  "note": "Bundled demos on this server \u2014 pick a preset below. No files on your computer are required.",
   "presets": [
     {
       "label": "Bundled: resource_cascade attribution merge (2 branches)",
@@ -45,10 +45,6 @@
     {
       "label": "Bundled: inventory buffer chain (demand spike + fulfillment erosion)",
       "path": "sample_inventory_buffer_chain_demand_fulfillment.json"
-    },
-    {
-      "label": "Export: test_exports joint RC attribution",
-      "path": "../test_exports/counterfactual_resource_cascade_remove.json"
     }
   ]
 }
