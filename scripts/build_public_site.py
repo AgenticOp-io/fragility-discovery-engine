@@ -641,6 +641,10 @@ def build(out: Path) -> dict[str, str]:
         attr_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(coupled_chain, attr_dir / "sample_coupled_mutation_chain.json")
 
+    llm_exports = ROOT / "artifacts" / "llm_prompts" / "coupled_fork_exports"
+    if llm_exports.is_dir():
+        _copytree(llm_exports, out / "artifacts" / "llm_prompts" / "coupled_fork_exports")
+
     fork_art = ROOT / "forks" / "coupled_institution" / "artifacts"
     demo_out = art_root / "coupled_fork_demo"
     demo_src = ROOT / "artifacts" / "coupled_fork_demo"

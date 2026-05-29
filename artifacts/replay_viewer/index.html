@@ -78,7 +78,7 @@
         <li><code>sample_service_backlog_replay.json</code> — operations backlog run.</li>
         <li><code>sample_liquidity_ladder_replay.json</code> — funding ladder stress.</li>
         <li><code>sample_inventory_buffer_replay.json</code> — stock level under demand surges and fulfillment problems.</li>
-        <li><code>sample_coupled_institution_replay.json</code> — research fork: peg panic and overload coupled in one <code>step()</code>.</li>
+        <li><code>sample_coupled_institution_replay.json</code> — research fork: blue = peg price, orange = instability, teal = overload (coupled in one <code>step()</code>).</li>
       </ul>
       <p style="margin:6px 0 0">All samples are reproducible from frozen seeds; the panel under the chart shows the exact CLI that produced the file.</p>
     </details>
@@ -229,6 +229,16 @@
           panicStd.every(Number.isFinite);
       }
 
+      let overload = [];
+      let validCoupledOverload = false;
+      if (mode === 'coupled_institution_v1') {
+        overload = traj.map(s =>
+          Number(s.metrics?.overload ?? s.state_vector?.[1] ?? NaN)
+        );
+        validCoupledOverload =
+          overload.length === traj.length && overload.every(Number.isFinite);
+      }
+
       const minP = traj.length ? Math.min(...prices.filter(Number.isFinite)) : 1;
       const maxP = traj.length ? Math.max(...prices.filter(Number.isFinite)) : 1;
 
@@ -238,6 +248,9 @@
             ...panicStd.filter(Number.isFinite),
             1e-9,
           )
+        : 1;
+      const hiCoupledOverload = validCoupledOverload
+        ? Math.max(...overload.filter(Number.isFinite), 1e-9)
         : 1;
 
       function xScale(i) {
@@ -257,11 +270,16 @@
         const u = q / (hiPanicAux + 1e-9);
         return mainBottom - pad - u * (mainBottom - 2 * pad);
       }
+      function yOverload(q) {
+        const u = q / (hiCoupledOverload + 1e-9);
+        return mainBottom - pad - u * (mainBottom - 2 * pad);
+      }
 
       return {
         data, traj, lane, tmax, pad, W, H, mainBottom, laneTop, laneBot, laneH,
         prices, instab, collapseT, xScale, yPrice, yInst, validInst,
         mode, maxPanic, panicStd, validNetworkPanic, yPanicAux,
+        overload, validCoupledOverload, yOverload,
       };
     }
 
@@ -350,6 +368,19 @@
         ctx.stroke();
       }
 
+      if (b.validCoupledOverload) {
+        ctx.strokeStyle = '#5c8';
+        ctx.lineWidth = 1.75;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        b.overload.forEach((q, i) => {
+          const x = b.xScale(i), y = b.yOverload(q);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
       if (b.validNetworkPanic) {
         ctx.save();
         ctx.strokeStyle = '#daf';
@@ -419,6 +450,12 @@
         ctx.arc(xp, b.yInst(instab[si]), 5, 0, Math.PI * 2);
         ctx.stroke();
       }
+      if (b.validCoupledOverload) {
+        ctx.fillStyle = '#5c8';
+        ctx.beginPath();
+        ctx.arc(xp, b.yOverload(b.overload[si]), 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
       if (b.validNetworkPanic) {
         ctx.fillStyle = '#daf';
         ctx.beginPath();
@@ -436,9 +473,17 @@
       const blueLabel =
         b.mode === 'resource_cascade' ? 'min headroom (blue)' : 'price (blue)';
       ctx.fillText(blueLabel, pad, 16);
-      ctx.fillText('instability (orange)', pad + (b.mode === 'resource_cascade' ? 168 : 110), 16);
-      ctx.fillText('collapse (magenta)', pad + (b.mode === 'resource_cascade' ? 352 : 260), 16);
-      let lx = pad + (b.mode === 'resource_cascade' ? 530 : 410);
+      let instX = pad + (b.mode === 'resource_cascade' ? 168 : 110);
+      ctx.fillText('instability (orange)', instX, 16);
+      let collX = pad + (b.mode === 'resource_cascade' ? 352 : 260);
+      if (b.validCoupledOverload) {
+        ctx.fillStyle = '#5c8';
+        ctx.fillText('overload (teal)', instX + 130, 16);
+        collX += 120;
+      }
+      ctx.fillStyle = '#ddd';
+      ctx.fillText('collapse (magenta)', collX, 16);
+      let lx = pad + (b.mode === 'resource_cascade' ? 530 : b.validCoupledOverload ? 520 : 410);
       ctx.fillText(`scrub: step ${si} / ${tmax}`, lx, 16);
       if (b.validNetworkPanic) {
         ctx.fillStyle = '#daf';
@@ -520,14 +565,26 @@
         } else if ((d.simulation_mode || '') === 'resource_cascade' && sv.length >= 4) {
           svNote =
             `state_vector: h0=${sv[0]?.toFixed?.(4) ?? sv[0]} h1=${sv[1]?.toFixed?.(4) ?? sv[1]} overload=${sv[2]?.toFixed?.(4) ?? sv[2]} t=${sv[3]}\n`;
+        } else if ((d.simulation_mode || '') === 'coupled_institution_v1' && sv.length >= 3) {
+          svNote =
+            `state_vector: panic=${sv[0]?.toFixed?.(4) ?? sv[0]} overload=${sv[1]?.toFixed?.(4) ?? sv[1]} instability=${sv[2]?.toFixed?.(4) ?? sv[2]}\n`;
         } else if (sv.length >= 5) {
           svNote = `state_vector: panic=${sv[3]?.toFixed?.(4) ?? sv[3]} (aggregate layout)\n`;
         }
         const blueScrub = (d.simulation_mode || '') === 'resource_cascade' ? 'headroom (min layer)' : 'price';
+        let metricLine =
+          `${blueScrub}: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}`;
+        if ((d.simulation_mode || '') === 'coupled_institution_v1') {
+          metricLine =
+            `peg/panic: ${m.panic ?? m.price ?? '—'}  overload: ${m.overload ?? '—'}  instability: ${m.instability ?? '—'}`;
+          if (d.coupling_strength != null) {
+            metricLine += `  coupling_strength: ${d.coupling_strength}`;
+          }
+        }
         scrubBlock =
           `\n--- scrub (index ${scrubI}) ---\n` +
           `timestep: ${step.timestep}\n` +
-          `${blueScrub}: ${m.price ?? '—'}  instability: ${m.instability ?? '—'}\n` +
+          metricLine + '\n' +
           svNote +
           `events: ${evs.length ? JSON.stringify(evs) : '(none)'}\n`;
       }

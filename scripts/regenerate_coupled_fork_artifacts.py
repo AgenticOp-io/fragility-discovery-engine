@@ -66,6 +66,15 @@ def main() -> None:
         cwd=str(ROOT),
         check=True,
     )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "export_coupled_fork_llm_prompts.py"),
+            "--cite-digest",
+        ],
+        cwd=str(ROOT),
+        check=True,
+    )
 
 
 if __name__ == "__main__":

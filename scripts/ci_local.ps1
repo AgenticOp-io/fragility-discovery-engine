@@ -25,6 +25,8 @@ python scripts/check_manifest_summary.py
 python scripts/validate_viewer_presets.py
 python scripts/check_bundled_artifacts.py
 python scripts/check_bundled_pareto_hypervolume.py
+python scripts/validate_coupled_fork_bundle.py
+python scripts/check_coupled_fork_llm_bundles.py
 if ($env:FRAGILITY_CI_LOCAL_BUILD) {
   python -m pip install -q build
   python -m build
