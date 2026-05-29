@@ -18,3 +18,21 @@ Treat as a **fork** (or a clearly named sibling package):
 ## Related shipped tooling
 
 Use **institutional composite v1–v3** only for **side-by-side** metrics under identical schedules (`scripts/institutional_composite_demo.py`).
+
+## Public demo (when built)
+
+On the GCE workbench (or after `python scripts/build_public_site.py`):
+
+| Demo | URL |
+|------|-----|
+| Coupled replay | `/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json` |
+| Coupling mutation chain | `/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json` |
+| Fork JSON bundle (download) | `/artifacts/coupled_fork_demo/` |
+| Policy (this page) | `/docs/fork-coupling.html` |
+
+Regenerate fork artifacts and refresh the flagship certificate digests:
+
+```bash
+python scripts/regenerate_coupled_fork_artifacts.py
+python scripts/narrate_coupled_fork_bundle.py --cite-digest
+```

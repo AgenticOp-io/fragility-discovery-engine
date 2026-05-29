@@ -1,0 +1,223 @@
+{
+  "schema_version": "coupled-fork-0.1.0",
+  "simulation_mode": "coupled_institution_v1",
+  "attack_cost": 2.0949999999999998,
+  "integral_instability": 6.80391937052433,
+  "mean_instability": 0.8504899213155412,
+  "steps_recorded": 8,
+  "recovery_latency_steps": null,
+  "recovery_timestep": null,
+  "collapsed": true,
+  "collapse_timestep": 5,
+  "final_instability": 2.0,
+  "seed": 8801,
+  "coupling_strength": 0.3,
+  "trajectory": [
+    {
+      "timestep": 0,
+      "state_vector": [
+        0.20515913962918847,
+        0.11051440377270855,
+        0.1578367717009485,
+        1.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.35
+        },
+        {
+          "kind": "rumor",
+          "magnitude": 0.1
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.20515913962918847,
+        "backing_ratio": 0.9447427981136457,
+        "panic": 0.20515913962918847,
+        "overload": 0.11051440377270855,
+        "instability": 0.1578367717009485,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 1,
+      "state_vector": [
+        0.2649596082181509,
+        0.2458024423779521,
+        0.2553810252980515,
+        2.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.25
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.2649596082181509,
+        "backing_ratio": 0.8770987788110239,
+        "panic": 0.2649596082181509,
+        "overload": 0.2458024423779521,
+        "instability": 0.2553810252980515,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 2,
+      "state_vector": [
+        0.30460592502765543,
+        0.33351289291035835,
+        0.31905940896900686,
+        3.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.30460592502765543,
+        "backing_ratio": 0.8332435535448208,
+        "panic": 0.30460592502765543,
+        "overload": 0.33351289291035835,
+        "instability": 0.31905940896900686,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 3,
+      "state_vector": [
+        0.5970458907033368,
+        0.5292526379249235,
+        0.5631492643141301,
+        4.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.5
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.5970458907033368,
+        "backing_ratio": 0.7353736810375382,
+        "panic": 0.5970458907033368,
+        "overload": 0.5292526379249235,
+        "instability": 0.5631492643141301,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 4,
+      "state_vector": [
+        0.7488440438376696,
+        0.8137254421163648,
+        0.7812847429770171,
+        5.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.15
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.7488440438376696,
+        "backing_ratio": 0.5931372789418177,
+        "panic": 0.7488440438376696,
+        "overload": 0.8137254421163648,
+        "instability": 0.7812847429770171,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 5,
+      "state_vector": [
+        1.0911527041926126,
+        1.2093847454332292,
+        1.1502687248129209,
+        6.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.2
+        },
+        {
+          "kind": "rumor",
+          "magnitude": 0.2
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 1.0911527041926126,
+        "backing_ratio": 0.3953076272833854,
+        "panic": 1.0911527041926126,
+        "overload": 1.2093847454332292,
+        "instability": 1.1502687248129209,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 6,
+      "state_vector": [
+        1.4539779682794889,
+        1.69990089662502,
+        1.5769394324522543,
+        7.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 1.4539779682794889,
+        "backing_ratio": 0.15004955168749,
+        "panic": 1.4539779682794889,
+        "overload": 1.69990089662502,
+        "instability": 1.5769394324522543,
+        "coupling_strength": 0.3
+      }
+    },
+    {
+      "timestep": 7,
+      "state_vector": [
+        2.0,
+        2.0,
+        2.0,
+        8.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.45
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 2.0,
+        "backing_ratio": 0.0,
+        "panic": 2.0,
+        "overload": 2.0,
+        "instability": 2.0,
+        "coupling_strength": 0.3
+      }
+    }
+  ]
+}

@@ -13,6 +13,14 @@ FORK = ROOT / "forks" / "coupled_institution"
 SAMPLE = FORK / "artifacts" / "sample_coupled_replay.json"
 VIEWER_COPY = ROOT / "artifacts" / "replay_viewer" / "sample_coupled_institution_replay.json"
 ATTR_COPY = ROOT / "artifacts" / "attribution_viewer" / "sample_coupled_mutation_chain.json"
+DEMO_DIR = ROOT / "artifacts" / "coupled_fork_demo"
+FORK_ART = FORK / "artifacts"
+DEMO_NAMES = (
+    "sample_coupled_replay.json",
+    "coupling_strength_sweep.json",
+    "sample_coupling_comparison.json",
+    "sample_coupled_mutation_chain.json",
+)
 
 
 def main() -> None:
@@ -45,6 +53,19 @@ def main() -> None:
     print(f"OK: {VIEWER_COPY.relative_to(ROOT)}")
     if ATTR_COPY.is_file():
         print(f"OK: {ATTR_COPY.relative_to(ROOT)}")
+
+    DEMO_DIR.mkdir(parents=True, exist_ok=True)
+    for name in DEMO_NAMES:
+        src = FORK_ART / name
+        if src.is_file():
+            shutil.copy2(src, DEMO_DIR / name)
+            print(f"OK: {(DEMO_DIR / name).relative_to(ROOT)}")
+
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "refresh_flagship_bundled_certificate.py")],
+        cwd=str(ROOT),
+        check=True,
+    )
 
 
 if __name__ == "__main__":

@@ -65,7 +65,22 @@
 <p>3. New <strong>golden benchmark bundles</strong> (same style as <code>*_rollout_v1</code> in <code>fragility_engine.benchmarks.suite</code>); do <strong>not</strong> overload <code>fragility-institutional-composite-v*</code> JSON as if it were coupled physics.</p>
 <p>4. Link back to this engine for <strong>schedule encoding</strong>, <strong>search</strong>, and <strong>counterfactual</strong> patterns where reuse is honest.</p>
 <h3>Related shipped tooling</h3>
-<p>Use <strong>institutional composite v1–v3</strong> only for <strong>side-by-side</strong> metrics under identical schedules (<code>scripts/institutional_composite_demo.py</code>).</p></article>
+<p>Use <strong>institutional composite v1–v3</strong> only for <strong>side-by-side</strong> metrics under identical schedules (<code>scripts/institutional_composite_demo.py</code>).</p>
+<h3>Public demo (when built)</h3>
+<p>On the GCE workbench (or after <code>python scripts/build_public_site.py</code>):</p>
+<table><thead>
+<tr><th>Demo</th><th>URL</th></tr>
+</thead><tbody>
+<tr><td>Coupled replay</td><td><code>/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json</code></td></tr>
+<tr><td>Coupling mutation chain</td><td><code>/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json</code></td></tr>
+<tr><td>Fork JSON bundle (download)</td><td><code>/artifacts/coupled_fork_demo/</code></td></tr>
+<tr><td>Policy (this page)</td><td><code>/docs/fork-coupling.html</code></td></tr>
+</tbody></table>
+<p>Regenerate fork artifacts and refresh the flagship certificate digests:</p>
+<p>```bash</p>
+<p>python scripts/regenerate_coupled_fork_artifacts.py</p>
+<p>python scripts/narrate_coupled_fork_bundle.py --cite-digest</p>
+<p>```</p></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>

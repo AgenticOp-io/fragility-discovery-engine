@@ -1,0 +1,63 @@
+{
+  "schema": "coupled-institution-coupling-sweep-v1",
+  "fixture": "tests/fixtures/pinned_rollout_schedule.json",
+  "rollout_seed": 8801,
+  "rows": [
+    {
+      "coupling_strength": 0.0,
+      "integral_instability": 2.1442640097642895,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": false,
+      "collapse_timestep": null,
+      "final_instability": 0.46711292685672423
+    },
+    {
+      "coupling_strength": 0.1,
+      "integral_instability": 3.04178524796247,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": false,
+      "collapse_timestep": null,
+      "final_instability": 0.742042505057496
+    },
+    {
+      "coupling_strength": 0.2,
+      "integral_instability": 4.515782004812992,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": true,
+      "collapse_timestep": 7,
+      "final_instability": 1.253143305805248
+    },
+    {
+      "coupling_strength": 0.3,
+      "integral_instability": 6.80391937052433,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": true,
+      "collapse_timestep": 5,
+      "final_instability": 2.0
+    },
+    {
+      "coupling_strength": 0.4,
+      "integral_instability": 8.6073910999216,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": true,
+      "collapse_timestep": 4,
+      "final_instability": 2.0
+    },
+    {
+      "coupling_strength": 0.5,
+      "integral_instability": 9.816992818121953,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": true,
+      "collapse_timestep": 3,
+      "final_instability": 2.0
+    },
+    {
+      "coupling_strength": 0.6,
+      "integral_instability": 10.710054185520386,
+      "attack_cost": 2.0949999999999998,
+      "collapsed": true,
+      "collapse_timestep": 3,
+      "final_instability": 2.0
+    }
+  ]
+}

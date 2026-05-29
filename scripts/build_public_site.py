@@ -636,6 +636,23 @@ def build(out: Path) -> dict[str, str]:
         attr_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(coupled_chain, attr_dir / "sample_coupled_mutation_chain.json")
 
+    fork_art = ROOT / "forks" / "coupled_institution" / "artifacts"
+    demo_out = art_root / "coupled_fork_demo"
+    demo_src = ROOT / "artifacts" / "coupled_fork_demo"
+    if demo_src.is_dir():
+        _copytree(demo_src, demo_out)
+    if fork_art.is_dir():
+        demo_out.mkdir(parents=True, exist_ok=True)
+        for name in (
+            "sample_coupled_replay.json",
+            "coupling_strength_sweep.json",
+            "sample_coupling_comparison.json",
+            "sample_coupled_mutation_chain.json",
+        ):
+            src = fork_art / name
+            if src.is_file():
+                shutil.copy2(src, demo_out / name)
+
     index_main = """    <div id="fde-status" class="fde-status-bar" style="display:none"></div>
 
     <div class="fde-hero">
@@ -938,6 +955,11 @@ def build(out: Path) -> dict[str, str]:
           <h3>Why inventory buffer</h3>
           <p>What the sixth simulation domain models and how it differs from the other five worlds.</p>
         </a>
+        <a class="fde-card" href="/docs/fork-coupling.html">
+          <span class="fde-card-tag">research</span>
+          <h3>Coupled fork</h3>
+          <p>In-step peg–overload coupling, mutation-chain attribution, and downloadable fork JSON.</p>
+        </a>
       </div>"""
     docs_index_main = f"""\
     <div class="fde-hero-compact">
@@ -955,7 +977,7 @@ def build(out: Path) -> dict[str, str]:
         <li><a href="/docs/reference.html#common-json-schemas">Output file formats</a> — all schema IDs and what produces them.</li>
         <li><a href="/docs/scale-and-limits.html">Scale and limits</a> — complexity, parallelism, and sweep cost.</li>
         <li><a href="/docs/why-inventory-buffer.html">Why inventory buffer</a> — the sixth simulation domain explained.</li>
-        <li><a href="/docs/fork-coupling.html">Coupled fork</a> — research physics with in-step coupling (sample replay on the workbench).</li>
+        <li><a href="/docs/fork-coupling.html">Coupled fork</a> — research physics with in-step coupling (replay, attribution chain, <a href="/artifacts/coupled_fork_demo/">JSON bundle</a>).</li>
         <li><a href="/docs/algorithms.html">Algorithms</a> — what we built vs what we borrowed, with citations.</li>
         <li><a href="/run.html">Run a scenario</a> — start a search on this server right now.</li>
       </ul>

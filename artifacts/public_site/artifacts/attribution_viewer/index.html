@@ -188,11 +188,14 @@
         h += '<div class="path-step"><span class="chip">' + esc(n.id) + '</span> mutations=' + esc(n.mutations_applied) +
           ' ' + knob + '=' + esc(resetVal) + ' II=' + esc(n.integral_instability) + ' cost=' + esc(n.attack_cost) + '</div>';
       }
-      h += '<h2>Steps</h2><table><tr><th>edge</th><th>kind</th><th>step</th><th>Δ II</th><th>panic →</th></tr>';
+      const resetHdr = useCoupling ? 'coupling →' : 'panic →';
+      h += '<h2>Steps</h2><table><tr><th>edge</th><th>kind</th><th>step</th><th>Δ II</th><th>' + resetHdr + '</th></tr>';
       for (const e of edges) {
+        const resetFrom = useCoupling ? e.reset_coupling_from : e.reset_panic_from;
+        const resetTo = useCoupling ? e.reset_coupling_to : e.reset_panic_to;
         h += '<tr><td>' + esc(e.from) + ' → ' + esc(e.to) + '</td><td>' + esc(e.kind) + '</td><td><code>' +
           esc(JSON.stringify(e.step)) + '</code></td><td>' + esc(e.delta_integral_instability) + '</td><td>' +
-          esc(e.reset_panic_from) + '→' + esc(e.reset_panic_to) + '</td></tr>';
+          esc(resetFrom) + '→' + esc(resetTo) + '</td></tr>';
       }
       h += '</table>';
       panel.innerHTML = h;

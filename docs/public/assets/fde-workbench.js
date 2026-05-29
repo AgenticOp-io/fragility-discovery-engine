@@ -141,6 +141,13 @@
       say: "Step three: ask what caused it. Each link in the chain adds one mutation and shows how much instability and cost it added.",
     },
     {
+      url: "/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json",
+      selector: "#panel table, #panel .path-step",
+      title: "4) Coupled fork chain",
+      body: "Research fork: peg panic and overload exchange signals each step. Coupling strength mutations stack on a pinned schedule — not the six-domain composite.",
+      say: "Step four: the coupled research fork. Coupling strength steps up on a pinned schedule while panic and overload trade signals inside one simulation step.",
+    },
+    {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",
       selector: "select, .btn, button",
       title: "Bonus: compare all six domains",
