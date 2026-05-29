@@ -119,12 +119,30 @@ body.fde-app ol { margin: 0.35rem 0 0.75rem 1.3rem; padding: 0; }
 body.fde-app li { margin-bottom: 0.3rem; }
 
 /* ─── Guided tour overlay ─── */
+.fde-tour-float-exit {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10050;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: rgba(40, 12, 12, 0.92);
+  color: #fecaca;
+  padding: 10px 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+.fde-tour-float-exit:hover { background: rgba(60, 16, 16, 0.96); }
+
 #fdeTourRoot { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
 #fdeTourRoot .fde-tour-dim {
   position: absolute; inset: 0;
   background: rgba(0,0,0,0.62);
   backdrop-filter: blur(1px);
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
 }
 #fdeTourRoot .fde-tour-spot {
   position: absolute;
@@ -180,6 +198,7 @@ body.fde-app li { margin-bottom: 0.3rem; }
 }
 #fdeTourRoot .fde-tour-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 #fdeTourRoot .fde-tour-primary { border-color: rgba(110,181,247,0.65); background: rgba(110,181,247,0.14); }
+#fdeTourRoot .fde-tour-voice-play { border-color: rgba(134, 239, 172, 0.55); background: rgba(34, 80, 50, 0.35); }
 #fdeTourRoot .fde-tour-muted { opacity: 0.72; border-style: dashed; }
 #fdeTourRoot .fde-tour-ghost { background: transparent; }
 #fdeTourRoot .fde-tour-progress { margin-top: 8px; font-size: var(--fde-size-xs); color: var(--fde-muted); }

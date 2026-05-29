@@ -950,7 +950,7 @@ def build(out: Path) -> dict[str, str]:
         <a class="fde-btn-primary" href="/?tour=1&voice=1">Start guided tour</a>
         <a class="fde-btn-secondary" href="/?tour=1&autoplay=1&voice=1&ms=5200">Autoplay with voice</a>
       </div>
-      <p class="fde-run-help">Voice uses your browser&apos;s speech engine (mute anytime). Exit at any time. If runs require a key, set it once on <a href="/run.html">Run a scenario</a> via <code>?run_key=…</code>.</p>
+      <p class="fde-run-help">Click <strong>Play voice</strong> once so your browser allows narration. Exit anytime via the red <strong>Exit tour</strong> button (top-right), <strong>Esc</strong>, or the dark backdrop. If runs require a key, set it once on <a href="/run.html">Run a scenario</a> via <code>?run_key=…</code>.</p>
     </article>""",
         ),
     )
