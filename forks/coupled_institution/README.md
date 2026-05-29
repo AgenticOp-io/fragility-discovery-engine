@@ -27,6 +27,8 @@ python ../../scripts/export_llm_narration_prompt.py artifacts/sample_coupled_par
 
 From repo root after regenerate: `python scripts/validate_coupled_fork_bundle.py` (also runs in CI benchmark validate).
 
+**Pinned GA Pareto search** (`coupled_institution_pareto_search_v1`): small budget in `scripts/export_coupled_fork_pareto.py` (seed 61001, 2×10×horizon 10). CI pins `best_fitness`, archive size, and hypervolume via `python scripts/check_coupled_fork_pareto.py`.
+
 **Mutation chain** (attribution viewer): `python scripts/export_coupled_mutation_chain.py` → `artifacts/sample_coupled_mutation_chain.json` (copied to `artifacts/attribution_viewer/` on regenerate).
 
 **Citation certificate:** `python scripts/export_coupled_fork_certificate.py --out /tmp/coupled_cert.json`  

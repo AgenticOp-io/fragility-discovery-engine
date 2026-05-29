@@ -47,6 +47,7 @@ jobs:
           python scripts/check_bundled_pareto_hypervolume.py
           python scripts/validate_coupled_fork_bundle.py
           python scripts/check_coupled_fork_llm_bundles.py
+          python scripts/check_coupled_fork_pareto.py
 
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
@@ -109,6 +110,11 @@ jobs:
       - name: Coupled fork tests
         working-directory: forks/coupled_institution
         run: python -m pytest -q
+
+      - name: Coupled fork Pareto search pins (main tree)
+        run: |
+          pip install -q -e forks/coupled_institution
+          python scripts/check_coupled_fork_pareto.py
 
   # Numba wheels are platform-specific; exercise JIT parity on Linux and Windows x86_64 runners.
   numba-parity:

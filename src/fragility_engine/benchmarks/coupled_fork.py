@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 COUPLED_FORK_BUNDLE_ID = "coupled_institution_rollout_v1"
+COUPLED_FORK_PARETO_SEARCH_BUNDLE_ID = "coupled_institution_pareto_search_v1"
 
 COUPLED_FORK_ARTIFACT_NAMES: tuple[str, ...] = (
     "sample_coupled_replay.json",

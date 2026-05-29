@@ -25,6 +25,7 @@
 - [x] Batch LLM exports (`export_coupled_fork_llm_prompts.py`), replay viewer peg+overload series, viewer contract tests
 - [x] Coupled fork GA Pareto sample (`export_coupled_fork_pareto.py`), sweep PNG in `coupled_fork_demo`, workbench card + tour step 8
 - [x] Fifth LLM pack (`coupled_institution_pareto_v1`), Pareto PNG, live **Run a scenario** mode `coupled_institution` on GCE
+- [x] Pinned GA Pareto search metrics (`coupled_institution_pareto_search_v1`, `check_coupled_fork_pareto.py`, pytest golden)
 
 ## 4. Not planned on `main`
 

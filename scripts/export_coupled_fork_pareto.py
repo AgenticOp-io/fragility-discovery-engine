@@ -115,7 +115,11 @@ def main() -> None:
     out = args.out
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(json.dumps({"out": str(out.relative_to(_repo_root())), "points": len(payload["archive"])}, indent=2))
+    try:
+        out_rel = out.resolve().relative_to(_repo_root().resolve()).as_posix()
+    except ValueError:
+        out_rel = str(out.resolve())
+    print(json.dumps({"out": out_rel, "points": len(payload["archive"])}, indent=2))
 
     if args.also_fork_artifacts:
         fork_out = FORK_ART / "sample_coupled_pareto_front.json"

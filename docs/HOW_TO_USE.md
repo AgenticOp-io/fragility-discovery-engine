@@ -310,6 +310,7 @@ python scripts/regenerate_coupled_fork_artifacts.py
 python scripts/run_coupled_fork_demo.py --export-replay /tmp/coupled.json --export-pareto /tmp/coupled_pareto.json
 python scripts/export_coupled_fork_llm_prompts.py --cite-digest
 python scripts/check_coupled_fork_llm_bundles.py
+python scripts/check_coupled_fork_pareto.py
 ```
 
 | Artifact | Viewer / tool |

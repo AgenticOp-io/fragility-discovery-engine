@@ -1,0 +1,18 @@
+{
+  "bundle_id": "coupled_institution_pareto_search_v1",
+  "artifact_relpath": "artifacts/pareto_viewer/sample_pareto_coupled_institution.json",
+  "search": {
+    "seed": 61001,
+    "generations": 2,
+    "population_size": 10,
+    "horizon": 10,
+    "coupling_strength": 0.3
+  },
+  "expected": {
+    "best_fitness": 5.333333333333334,
+    "archive_points": 4,
+    "hypervolume_reference": [4.226666666666667, 2.920855421032651],
+    "expected_hypervolume": 0.21821900466673233
+  },
+  "note": "Small GA with collect_pareto on CoupledInstitutionWorld. Re-pin via scripts/check_coupled_fork_pareto.py --write-pins after intentional search changes."
+}
