@@ -168,6 +168,32 @@ def test_narrate_frozen_artifact_counterfactual_bundle() -> None:
     assert "remove_steps" in text
 
 
+def test_narrate_coupled_coupling_sweep() -> None:
+    text = narrate_frozen_artifact(
+        {
+            "schema": "coupled-institution-coupling-sweep-v1",
+            "rollout_seed": 8801,
+            "rows": [{"coupling_strength": 0.0, "integral_instability": 4.0, "collapsed": False}],
+        },
+        source="inline",
+    )
+    assert "coupling_strength sweep" in text
+
+
+def test_narrate_coupled_coupling_comparison() -> None:
+    text = narrate_frozen_artifact(
+        {
+            "schema": "coupled-institution-coupling-comparison-v1",
+            "intervention": "coupling_strength 0.1 -> 0.5",
+            "baseline": {"coupling_strength": 0.1, "integral_instability": 4.0, "collapsed": False},
+            "variant": {"coupling_strength": 0.5, "integral_instability": 8.0, "collapsed": True},
+            "delta_integral_instability": -4.0,
+        },
+        source="inline",
+    )
+    assert "coupling comparison" in text
+
+
 def test_load_frozen_json_artifact_bad(tmp_path: Path) -> None:
     p = tmp_path / "x.json"
     p.write_text("[]", encoding="utf-8")

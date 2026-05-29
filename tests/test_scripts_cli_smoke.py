@@ -4869,6 +4869,48 @@ def test_run_coupled_fork_demo_help(py_exe: str) -> None:
     )
 
 
+def test_export_llm_narration_prompt_coupled_replay_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    replay = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_replay.json"
+    out = tmp_path / "coupled_llm.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(replay),
+            "--prompt-pack",
+            "coupled_institution_replay_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "coupled_institution_replay_v1"
+    assert "coupled_institution" in data["user_prompt"]
+
+
+def test_export_llm_narration_prompt_coupled_sweep_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    sweep = ROOT / "forks" / "coupled_institution" / "artifacts" / "coupling_strength_sweep.json"
+    out = tmp_path / "sweep_llm.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(sweep),
+            "--prompt-pack",
+            "coupled_institution_coupling_sweep_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "coupled_institution_coupling_sweep_v1"
+    assert "coupling" in data["user_prompt"].lower()
+
+
 def test_plot_coupling_sweep_cli(py_exe: str, tmp_path: Path) -> None:
     sweep_p = tmp_path / "coupling.json"
     sweep_p.write_text(

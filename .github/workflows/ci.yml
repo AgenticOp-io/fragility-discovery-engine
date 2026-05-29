@@ -45,6 +45,7 @@ jobs:
           python scripts/validate_viewer_presets.py
           python scripts/check_bundled_artifacts.py
           python scripts/check_bundled_pareto_hypervolume.py
+          python scripts/validate_coupled_fork_bundle.py
 
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}

@@ -17,6 +17,16 @@ VIEWER_COPY = ROOT / "artifacts" / "replay_viewer" / "sample_coupled_institution
 def main() -> None:
     regen = FORK / "scripts" / "regenerate_golden.py"
     subprocess.run([sys.executable, str(regen)], cwd=FORK, check=True)
+    subprocess.run(
+        [sys.executable, str(FORK / "scripts" / "coupling_strength_sweep.py")],
+        cwd=FORK,
+        check=True,
+    )
+    subprocess.run(
+        [sys.executable, str(FORK / "scripts" / "export_coupling_comparison.py")],
+        cwd=FORK,
+        check=True,
+    )
     if not SAMPLE.is_file():
         raise SystemExit(f"Expected {SAMPLE} after regenerate")
     VIEWER_COPY.parent.mkdir(parents=True, exist_ok=True)

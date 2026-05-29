@@ -1,0 +1,10 @@
+Coupling strength sweep (schema coupled-institution-coupling-sweep-v1).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 3–6 sentences summarizing how integral_instability and collapse change as coupling_strength increases across the pinned schedule.
+Do not invent data beyond the narration table. Plain prose only.

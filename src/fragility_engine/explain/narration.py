@@ -47,6 +47,40 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"meta.cli: {meta.get('cli')}")
         return "\n".join(lines)
 
+    if schema == "coupled-institution-coupling-sweep-v1":
+        lines.append("kind: coupled fork coupling_strength sweep (pinned schedule)")
+        rows = data.get("rows") or []
+        lines.append(f"points: {len(rows)}  rollout_seed: {data.get('rollout_seed')}")
+        for row in rows[:12]:
+            if isinstance(row, dict):
+                lines.append(
+                    f"  c={row.get('coupling_strength')} "
+                    f"integral={row.get('integral_instability')} "
+                    f"collapsed={row.get('collapsed')}"
+                )
+        return "\n".join(lines)
+
+    if schema == "coupled-institution-coupling-comparison-v1":
+        lines.append("kind: coupled fork coupling comparison (same schedule)")
+        lines.append(f"intervention: {data.get('intervention')}")
+        bs = data.get("baseline") or {}
+        var = data.get("variant") or {}
+        if isinstance(bs, dict):
+            lines.append(
+                f"baseline c={bs.get('coupling_strength')} "
+                f"integral={bs.get('integral_instability')} collapsed={bs.get('collapsed')}"
+            )
+        if isinstance(var, dict):
+            lines.append(
+                f"variant c={var.get('coupling_strength')} "
+                f"integral={var.get('integral_instability')} collapsed={var.get('collapsed')}"
+            )
+        if data.get("delta_integral_instability") is not None:
+            lines.append(f"delta_integral_instability (base - var): {data.get('delta_integral_instability')}")
+        if data.get("interpretation_hint"):
+            lines.append(f"hint: {data.get('interpretation_hint')}")
+        return "\n".join(lines)
+
     if schema == "counterfactual-epsilon-sweep-v1":
         lines.append("kind: epsilon sweep")
         lines.append(f"mode: {data.get('mode')}  axis: {data.get('axis')}")
@@ -107,10 +141,18 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
         "fragility-institutional-composite-v2",
         "fragility-institutional-composite-v3",
         "fragility-institutional-composite-v4",
+        "fragility-institutional-composite-v5",
     ):
         lines.append("kind: institutional composite (decoupled kernels, one shock schedule)")
         lines.append(f"schema: {schema}")
-        for branch in ("aggregate", "network", "resource_cascade", "service_backlog", "liquidity_ladder"):
+        for branch in (
+            "aggregate",
+            "network",
+            "resource_cascade",
+            "service_backlog",
+            "liquidity_ladder",
+            "inventory_buffer",
+        ):
             b = data.get(branch)
             if isinstance(b, dict):
                 lines.append(
@@ -143,8 +185,12 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
         lines.append(f"collapsed: {data.get('collapsed')}  timestep: {data.get('collapse_timestep')}")
         lines.append(f"integral_instability: {data.get('integral_instability')}")
         lines.append(f"attack_cost: {data.get('attack_cost')}")
+        if data.get("coupling_strength") is not None:
+            lines.append(f"coupling_strength: {data.get('coupling_strength')}")
         traj = data.get("trajectory") or []
         lines.append(f"trajectory_steps: {len(traj)}")
+        if schema_ver == "coupled-fork-0.1.0":
+            lines.append("note: coupled peg panic and overload in one step (research fork)")
         meta = data.get("meta")
         if isinstance(meta, dict) and meta.get("cli"):
             lines.append(f"meta.cli: {meta.get('cli')}")

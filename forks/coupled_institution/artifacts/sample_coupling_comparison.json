@@ -1,0 +1,27 @@
+{
+  "schema": "coupled-institution-coupling-comparison-v1",
+  "fixture": "tests/fixtures/pinned_rollout_schedule.json",
+  "rollout_seed": 8801,
+  "intervention": "coupling_strength 0.1 -> 0.5",
+  "baseline": {
+    "coupling_strength": 0.1,
+    "integral_instability": 3.04178524796247,
+    "attack_cost": 2.0949999999999998,
+    "collapsed": false,
+    "collapse_timestep": null,
+    "final_instability": 0.742042505057496,
+    "simulation_mode": "coupled_institution_v1"
+  },
+  "variant": {
+    "coupling_strength": 0.5,
+    "integral_instability": 9.816992818121953,
+    "attack_cost": 2.0949999999999998,
+    "collapsed": true,
+    "collapse_timestep": 3,
+    "final_instability": 2.0,
+    "simulation_mode": "coupled_institution_v1"
+  },
+  "delta_integral_instability": -6.775207570159483,
+  "delta_attack_cost": 0.0,
+  "interpretation_hint": "Higher coupling_strength feeds panic into overload and overload into panic each step."
+}

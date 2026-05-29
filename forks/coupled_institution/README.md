@@ -19,7 +19,12 @@ python scripts/run_coupled_ga_demo.py --export-replay /tmp/coupled_demo.json
 python scripts/regenerate_golden.py
 python scripts/coupling_strength_sweep.py
 python ../../scripts/plot_coupling_sweep.py artifacts/coupling_strength_sweep.json
+python scripts/export_coupling_comparison.py
+python ../../scripts/export_llm_narration_prompt.py artifacts/sample_coupled_replay.json --prompt-pack coupled_institution_replay_v1
+python ../../scripts/export_llm_narration_prompt.py artifacts/coupling_strength_sweep.json --prompt-pack coupled_institution_coupling_sweep_v1
 ```
+
+From repo root after regenerate: `python scripts/validate_coupled_fork_bundle.py` (also runs in CI benchmark validate).
 
 From **repo root** (after `pip install -e ".[dev]"`):
 

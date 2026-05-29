@@ -25,6 +25,7 @@ python scripts/check_manifest_summary.py
 python scripts/validate_viewer_presets.py
 python scripts/check_bundled_artifacts.py
 python scripts/check_bundled_pareto_hypervolume.py
+python scripts/validate_coupled_fork_bundle.py
 if [[ -n "${FRAGILITY_CI_COUPLED_FORK:-}" ]]; then
   python -m pip install -e forks/coupled_institution -q
   (cd forks/coupled_institution && python -m pytest -q)

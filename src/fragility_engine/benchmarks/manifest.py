@@ -222,6 +222,22 @@ def build_benchmark_manifest() -> dict[str, Any]:
             "coupled_fork_path": "forks/coupled_institution",
             "pypi_workflow": ".github/workflows/pypi.yml",
         },
+        "research_fork_bundles": [
+            {
+                "bundle_id": "coupled_institution_rollout_v1",
+                "package_path": "forks/coupled_institution",
+                "fixture": "forks/coupled_institution/tests/fixtures/pinned_rollout_schedule.json",
+                "validate_cli": "scripts/validate_coupled_fork_bundle.py",
+                "replay_schema_version": "coupled-fork-0.1.0",
+                "sample_replay": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
+                "coupling_sweep_schema": "coupled-institution-coupling-sweep-v1",
+                "coupling_sweep_artifact": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",
+                "llm_prompt_packs": [
+                    "coupled_institution_replay_v1",
+                    "coupled_institution_coupling_sweep_v1",
+                ],
+            }
+        ],
         "pareto_hypervolume_fixtures": [
             {
                 "path": "tests/fixtures/benchmarks/pinned_pareto_front_minimal.json",

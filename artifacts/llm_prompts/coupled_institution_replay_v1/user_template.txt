@@ -1,0 +1,15 @@
+Coupled institution replay (schema_version coupled-fork-0.1.0, simulation_mode coupled_institution_v1).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 4–7 sentences for engineering reviewers:
+- State coupling_strength if present, collapsed flag, integral_instability, attack_cost, and trajectory length.
+- Explain that panic and overload co-evolve through the coupling term (research fork — not main charter physics).
+- Do not invent market data, policy recommendations, or live forecasts.
+- Commentary only — not simulator input.
+
+Plain prose only.
