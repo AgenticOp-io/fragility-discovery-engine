@@ -20,6 +20,7 @@ _EXPECTED_STEMS = (
     "coupling_strength_sweep",
     "sample_coupling_comparison",
     "sample_coupled_mutation_chain",
+    "sample_coupled_pareto_front",
 )
 
 
@@ -40,6 +41,7 @@ def main() -> None:
         "coupling_strength_sweep": "coupling_strength_sweep.json",
         "sample_coupling_comparison": "sample_coupling_comparison.json",
         "sample_coupled_mutation_chain": "sample_coupled_mutation_chain.json",
+        "sample_coupled_pareto_front": "sample_coupled_pareto_front.json",
     }
 
     errors: list[str] = []
@@ -65,7 +67,8 @@ def main() -> None:
         errors.append(f"manifest exports count {len(exports)} != {len(_EXPECTED_STEMS)}")
 
     narr_dir = EXPORT_DIR / "narration_summaries"
-    for name in COUPLED_FORK_ARTIFACT_NAMES:
+    narr_names = tuple(dict.fromkeys((*COUPLED_FORK_ARTIFACT_NAMES, "sample_coupled_pareto_front.json")))
+    for name in narr_names:
         narr = narr_dir / f"{Path(name).stem}_narration.json"
         if not narr.is_file():
             errors.append(f"missing narration summary: {narr.relative_to(ROOT)}")

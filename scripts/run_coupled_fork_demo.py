@@ -29,6 +29,12 @@ def main() -> None:
         default=None,
         help="Path for fork replay JSON after GA (coupled-fork-0.1.0 schema).",
     )
+    p.add_argument(
+        "--export-pareto",
+        type=Path,
+        default=None,
+        help="Write pareto-front-v1 JSON after GA (same search budget as replay).",
+    )
     p.add_argument("--generations", type=int, default=8)
     p.add_argument("--population-size", type=int, default=16)
     p.add_argument("--seed", type=int, default=1201)
@@ -62,6 +68,24 @@ def main() -> None:
     if args.export_replay:
         cmd.extend(["--export-replay", str(args.export_replay)])
     subprocess.run(cmd, cwd=ROOT, check=True)
+    if args.export_pareto:
+        pareto_cmd = [
+            sys.executable,
+            str(ROOT / "scripts" / "export_coupled_fork_pareto.py"),
+            "--out",
+            str(args.export_pareto),
+            "--generations",
+            str(args.generations),
+            "--population-size",
+            str(args.population_size),
+            "--seed",
+            str(args.seed),
+            "--coupling",
+            str(args.coupling),
+            "--horizon",
+            str(args.horizon),
+        ]
+        subprocess.run(pareto_cmd, cwd=ROOT, check=True)
 
 
 if __name__ == "__main__":

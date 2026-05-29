@@ -10,6 +10,9 @@ import sys
 from pathlib import Path
 
 from fragility_engine.benchmarks.coupled_fork import COUPLED_FORK_ARTIFACT_NAMES, coupled_fork_artifacts_dir
+
+# Optional fork artifacts narrated with the four golden-bundle files.
+_EXTRA_NARRATION_NAMES: tuple[str, ...] = ("sample_coupled_pareto_front.json",)
 from fragility_engine.explain.narration import load_frozen_json_artifact, narrate_frozen_artifact
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,7 +39,8 @@ def main() -> None:
     if args.json_out_dir:
         args.json_out_dir.mkdir(parents=True, exist_ok=True)
 
-    for name in COUPLED_FORK_ARTIFACT_NAMES:
+    names = tuple(dict.fromkeys((*COUPLED_FORK_ARTIFACT_NAMES, *_EXTRA_NARRATION_NAMES)))
+    for name in names:
         path = art / name
         resolved = path.resolve()
         cite = ""

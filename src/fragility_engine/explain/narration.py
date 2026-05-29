@@ -132,8 +132,20 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
         lines.append(f"archive_points: {len(arch)}")
         if data.get("domain"):
             lines.append(f"domain: {data.get('domain')}")
+        if data.get("simulation_mode"):
+            lines.append(f"simulation_mode: {data.get('simulation_mode')}")
+        if data.get("coupling_strength") is not None:
+            lines.append(f"coupling_strength: {data.get('coupling_strength')}")
         if data.get("initial_overload") is not None:
             lines.append(f"initial_overload: {data.get('initial_overload')}")
+        if arch:
+            costs = [float(r.get("attack_cost", 0)) for r in arch if isinstance(r, dict)]
+            sevs = [float(r.get("severity", 0)) for r in arch if isinstance(r, dict)]
+            if costs and sevs:
+                lines.append(
+                    f"cost_range: [{min(costs):.4f}, {max(costs):.4f}]  "
+                    f"severity_range: [{min(sevs):.4f}, {max(sevs):.4f}]"
+                )
         return "\n".join(lines)
 
     bs = data.get("baseline")

@@ -1,0 +1,10 @@
+Coupled institution Pareto archive (schema pareto-front-v1).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 3–6 sentences on the severity-vs-attack_cost trade-off for this fork world. Note coupling_strength if present.
+Do not invent archive points beyond the narration. Plain prose only.

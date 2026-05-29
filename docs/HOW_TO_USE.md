@@ -299,6 +299,29 @@ python scripts/export_explanation_dag.py --from-minimization-report minimize_rep
 python scripts/narrate_frozen_json.py dag.json
 ```
 
+### 4.18 Coupled institution research fork
+
+Coupled peg–overload physics lives in **`forks/coupled_institution/`** (not a charter domain on `main`). Policy: [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
+
+```bash
+pip install -e ".[dev]"
+pip install -e forks/coupled_institution
+python scripts/regenerate_coupled_fork_artifacts.py
+python scripts/run_coupled_fork_demo.py --export-replay /tmp/coupled.json --export-pareto /tmp/coupled_pareto.json
+python scripts/export_coupled_fork_llm_prompts.py --cite-digest
+python scripts/check_coupled_fork_llm_bundles.py
+```
+
+| Artifact | Viewer / tool |
+|----------|----------------|
+| `sample_coupled_replay.json` | Replay (`coupled_institution_v1`, peg + overload series) |
+| `sample_coupled_pareto_front.json` | Pareto (`pareto-front-v1`, `domain: coupled_institution`) |
+| `coupling_strength_sweep.json` | [`artifacts/coupling_sweep_viewer/`](../artifacts/coupling_sweep_viewer/index.html) |
+| `sample_coupling_comparison.json` | Coupling comparison viewer |
+| `sample_coupled_mutation_chain.json` | Attribution viewer |
+
+Static bundle: [`artifacts/coupled_fork_demo/`](../artifacts/coupled_fork_demo/). On the public workbench, choose **Coupled institution (research fork)** on [Run a scenario](https://agenticop-io.github.io/fragility-discovery-engine/run.html) when the server exposes that mode.
+
 ---
 
 ## 5. Static viewers (replay, Pareto, attribution)
@@ -308,6 +331,8 @@ python scripts/narrate_frozen_json.py dag.json
 | Replay timeline | `artifacts/replay_viewer/index.html` | Rollout replay JSON |
 | Trade-off chart | `artifacts/pareto_viewer/index.html` | `pareto-front-v1` / `pareto_front.json` |
 | Attribution chains | `artifacts/attribution_viewer/index.html` | `attribution-merge-v1`, path traces |
+| Coupling sweep (fork) | `artifacts/coupling_sweep_viewer/index.html` | `coupled-institution-coupling-sweep-v1` |
+| Coupling compare (fork) | `artifacts/coupling_comparison_viewer/index.html` | `coupled-institution-coupling-comparison-v1` |
 
 Serve the **repo root** over HTTP so relative paths and presets work (`python -m http.server 8765`).
 
@@ -355,6 +380,8 @@ All plot scripts require matplotlib (`pip install -e ".[dev]"` or `".[viz]"`).
 | `plot_epsilon_sweep.py` | Line chart of instability / collapse probability over a parameter sweep |
 | `plot_fragility_surface_csv.py` | Heatmap from a `fragility_surface.py` CSV |
 | `plot_institutional_composite_bars.py` | Multi-domain scorecard bars from a composite file |
+| `plot_coupling_sweep.py` | Coupled fork coupling_strength vs integral instability |
+| `plot_coupled_pareto.py` | Coupled fork Pareto archive (severity vs attack cost) |
 
 All accept `--style <path>` for a custom JSON style override and `--out <path>` to write PNG / SVG.
 

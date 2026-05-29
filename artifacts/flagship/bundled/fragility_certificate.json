@@ -3,7 +3,7 @@
   "fragility_engine_version": "0.5.0",
   "python_version": "3.12.10",
   "numpy_version": "2.4.6",
-  "git_commit": "d5ab0a453f72158138820c1b4c58ab761021e4f2",
+  "git_commit": "0004b7d02dc5752246dc136ffbf786f13065a255",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -152,7 +152,7 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "d5ab0a453f72158138820c1b4c58ab761021e4f2",
+      "git_commit": "0004b7d02dc5752246dc136ffbf786f13065a255",
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.5.0",
@@ -166,7 +166,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.5.0",
-      "git_commit": "d5ab0a453f72158138820c1b4c58ab761021e4f2"
+      "git_commit": "0004b7d02dc5752246dc136ffbf786f13065a255"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -277,7 +277,8 @@
       "artifacts/coupled_fork_demo/sample_coupling_comparison.json",
       "artifacts/coupled_fork_demo/sample_coupled_replay.json",
       "artifacts/coupled_fork_demo/sample_coupled_mutation_chain.json",
-      "artifacts/coupled_fork_demo/sample_coupled_pareto_front.json"
+      "artifacts/coupled_fork_demo/sample_coupled_pareto_front.json",
+      "artifacts/coupled_fork_demo/sample_coupled_pareto_front.png"
     ],
     "viewer_preset_checks": "scripts/validate_viewer_presets.py",
     "bundled_artifact_checks": "scripts/check_bundled_artifacts.py",
@@ -384,5 +385,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "b8127f4e838c5e4d3ffd9de28a113926f8e30f461c31ce7526a407216d6d58f8"
+  "certificate_content_sha256": "b9c3684303b2f96379b380c13fdd74ba4f6186fcad4cc6e66ef16c8c764ec71b"
 }

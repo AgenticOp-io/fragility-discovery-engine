@@ -91,6 +91,21 @@ def main() -> None:
         )
         print(f"OK: {sweep_png.relative_to(ROOT)}")
 
+    if PARETO_VIEWER.is_file():
+        pareto_png = DEMO_DIR / "sample_coupled_pareto_front.png"
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "plot_coupled_pareto.py"),
+                str(PARETO_VIEWER),
+                "--out",
+                str(pareto_png),
+            ],
+            cwd=str(ROOT),
+            check=True,
+        )
+        print(f"OK: {pareto_png.relative_to(ROOT)}")
+
     subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "refresh_flagship_bundled_certificate.py")],
         cwd=str(ROOT),

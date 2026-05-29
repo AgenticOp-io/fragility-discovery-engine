@@ -38,6 +38,7 @@ PROMPT_PACK_IDS: tuple[str, ...] = (
     "coupled_institution_coupling_sweep_v1",
     "coupled_institution_comparison_v1",
     "coupled_institution_mutation_chain_v1",
+    "coupled_institution_pareto_v1",
 )
 
 

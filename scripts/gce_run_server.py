@@ -62,6 +62,7 @@ MODE_INITIAL: dict[str, tuple[str, float]] = {
     "coevolution_service_backlog": ("--initial-backlog", 0.05),
     "coevolution_liquidity_ladder": ("--initial-margin", 0.06),
     "coevolution_inventory_buffer": ("--initial-stock", 0.88),
+    "coupled_institution": ("--coupling", 0.3),
 }
 RUNS_INDEX = RUNS_DIR / "index.json"
 RATE_LIMIT_FILE = RUNS_DIR / "rate_limit.json"
@@ -77,6 +78,8 @@ MODES = {
     "service_backlog",
     "liquidity_ladder",
     "inventory_buffer",
+    # Research fork: coupled peg–overload (not charter domain).
+    "coupled_institution",
     # Co-evolution variants: same domain physics, attacker/defender alternating search.
     # Output is pareto_front.json (+ best_replay.json). horizon = attacker_horizon.
     "coevolution_aggregate",
@@ -93,6 +96,7 @@ HORIZON_AWARE_MODES = {
     "network",
     "coevolution_aggregate",
     "coevolution_network",
+    "coupled_institution",
 }
 # Modes that output a Pareto front as primary artifact (linked to pareto viewer).
 PARETO_MODES = {
@@ -316,6 +320,26 @@ def _build_cmd(req: dict, run_dir: Path) -> list[str]:
             PYTHON_BIN, str(scripts_dir / "run_inventory_buffer_ga_demo.py"),
             "--seed", seed, "--generations", gens, "--population-size", pop,
             "--export-replay", str(replay), "--export-minimized-replay", str(minimized),
+        ]
+        _append_initial_flag(cmd, req)
+        return cmd
+    if mode == "coupled_institution":
+        pareto = run_dir / "pareto_front.json"
+        cmd = [
+            PYTHON_BIN,
+            str(scripts_dir / "run_coupled_fork_demo.py"),
+            "--seed",
+            seed,
+            "--generations",
+            gens,
+            "--population-size",
+            pop,
+            "--horizon",
+            horizon,
+            "--export-replay",
+            str(replay),
+            "--export-pareto",
+            str(pareto),
         ]
         _append_initial_flag(cmd, req)
         return cmd

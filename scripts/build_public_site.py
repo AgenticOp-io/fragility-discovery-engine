@@ -128,6 +128,7 @@ def _run_page_main() -> str:
             <option value="service_backlog">Service backlog — work queue vs processing rate</option>
             <option value="liquidity_ladder">Liquidity ladder — margin eroding toward a forced sell-off</option>
             <option value="inventory_buffer">Inventory buffer — stock level under demand spikes</option>
+            <option value="coupled_institution">Coupled institution (research fork) — peg + overload coupling</option>
           </optgroup>
           <optgroup label="Attacker vs. defender simulation — saves a trade-off chart">
             <option value="coevolution_aggregate">Attacker vs. defender · Aggregate peg</option>
@@ -186,6 +187,11 @@ def _run_page_main() -> str:
             <td>Find worst-case scenarios</td>
             <td>Replay file → opens in the <a href="/artifacts/replay_viewer/index.html">Replay viewer</a></td>
             <td>Stripped-down replay (if the system collapsed), run logs</td>
+          </tr>
+          <tr>
+            <td>Coupled institution (research fork)</td>
+            <td>Replay + <a href="/artifacts/pareto_viewer/index.html">Pareto chart</a> for the same GA budget</td>
+            <td>Run logs</td>
           </tr>
           <tr>
             <td>Attacker vs. defender</td>
@@ -277,6 +283,7 @@ def _run_page_main() -> str:
           service_backlog: { default: 0.06, label: 'Starting backlog level' },
           liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
           inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coupled_institution: { default: 0.3, label: 'In-step coupling strength (0 = decoupled, 1 = tight)' },
           coevolution_aggregate: { default: 0.05, label: 'Starting panic level' },
           coevolution_network: { default: 0.05, label: 'Starting panic on all nodes' },
           coevolution_resource_cascade: { default: 0.05, label: 'Starting overload' },
@@ -292,6 +299,7 @@ def _run_page_main() -> str:
           service_backlog:         'A work queue that fills up faster than it gets processed. Fails when the backlog stays too high for too long. Fixed at 18 steps.',
           liquidity_ladder:        'Financial margin that erodes under reserve losses and rumors until a forced sell-off spiral begins. Fixed at 18 steps.',
           inventory_buffer:        'A stock level that drops under demand surges and fulfillment problems until a stockout occurs. Fixed at 18 steps.',
+          coupled_institution:     'Research fork: peg panic and overload exchange signals each simulation step. Saves a replay and a small Pareto trade-off chart.',
           coevolution_aggregate:   'An attacker and a defender each evolve on the aggregate peg domain. Outputs a chart showing the full range of trade-offs between attack damage and cost.',
           coevolution_network:     'Attacker and defender both evolve on the network contagion domain. Outputs a trade-off chart.',
           coevolution_resource_cascade: 'Attacker and defender both evolve on the resource cascade domain. Outputs a trade-off chart. Fixed at 18 steps.',
@@ -659,6 +667,7 @@ def build(out: Path) -> dict[str, str]:
             "sample_coupling_comparison.json",
             "sample_coupled_mutation_chain.json",
             "sample_coupled_pareto_front.json",
+            "sample_coupled_pareto_front.png",
         ):
             src = fork_art / name
             if src.is_file():
@@ -825,7 +834,7 @@ def build(out: Path) -> dict[str, str]:
       <a class="fde-card" href="/artifacts/llm_prompts/coupled_fork_exports/">
         <span class="fde-card-tag">LLM · research fork</span>
         <h3>Coupled fork prompt bundles</h3>
-        <p>Checked-in llm-prompt-bundle-v1 exports and narration summaries for all four fork artifacts.</p>
+        <p>Checked-in llm-prompt-bundle-v1 exports and narration summaries for all five fork artifacts.</p>
       </a>
       <a class="fde-card" href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">
         <span class="fde-card-tag">composite</span>

@@ -1,6 +1,6 @@
 {
   "schema": "coupled-fork-llm-exports-v1",
-  "bundle_count": 4,
+  "bundle_count": 5,
   "exports": [
     {
       "artifact": "sample_coupled_replay.json",
@@ -25,6 +25,12 @@
       "prompt_pack": "coupled_institution_mutation_chain_v1",
       "bundle_path": "artifacts/llm_prompts/coupled_fork_exports/sample_coupled_mutation_chain.llm_bundle.json",
       "input_sha256": "173b68c116b5875fa70ec6d942ede3527811ddebb17a3eb70ac606ee32d0ad5d"
+    },
+    {
+      "artifact": "sample_coupled_pareto_front.json",
+      "prompt_pack": "coupled_institution_pareto_v1",
+      "bundle_path": "artifacts/llm_prompts/coupled_fork_exports/sample_coupled_pareto_front.llm_bundle.json",
+      "input_sha256": "2dd83a86b1ac200235ce3b3550f594dc050cf70f1a19a04fb4f2ee703938594b"
     }
   ]
 }

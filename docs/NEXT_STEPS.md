@@ -24,6 +24,7 @@
 - [x] Public viewers: coupling sweep chart, coupling comparison, mutation chain; `coupled_fork_demo` JSON bundle; workbench `status.json` includes `research_fork_validate`
 - [x] Batch LLM exports (`export_coupled_fork_llm_prompts.py`), replay viewer peg+overload series, viewer contract tests
 - [x] Coupled fork GA Pareto sample (`export_coupled_fork_pareto.py`), sweep PNG in `coupled_fork_demo`, workbench card + tour step 8
+- [x] Fifth LLM pack (`coupled_institution_pareto_v1`), Pareto PNG, live **Run a scenario** mode `coupled_institution` on GCE
 
 ## 4. Not planned on `main`
 

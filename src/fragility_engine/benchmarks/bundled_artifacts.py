@@ -61,6 +61,7 @@ COUPLED_FORK_DEMO: tuple[str, ...] = (
     "artifacts/coupled_fork_demo/sample_coupled_replay.json",
     "artifacts/coupled_fork_demo/sample_coupled_mutation_chain.json",
     "artifacts/coupled_fork_demo/sample_coupled_pareto_front.json",
+    "artifacts/coupled_fork_demo/sample_coupled_pareto_front.png",
 )
 
 CHAIN_FIXTURES: tuple[str, ...] = (

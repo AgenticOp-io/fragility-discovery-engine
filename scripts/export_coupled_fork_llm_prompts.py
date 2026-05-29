@@ -34,6 +34,11 @@ _EXPORTS: tuple[tuple[str, str, str], ...] = (
         "coupled_institution_mutation_chain_v1",
         "sample_coupled_mutation_chain",
     ),
+    (
+        "sample_coupled_pareto_front.json",
+        "coupled_institution_pareto_v1",
+        "sample_coupled_pareto_front",
+    ),
 )
 
 
