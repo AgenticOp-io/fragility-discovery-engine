@@ -9,12 +9,22 @@
     .then(function (s) {
       var benchOk = s.benchmark_validate === "ok";
       var forkOk = s.research_fork_validate == null || s.research_fork_validate === "ok";
-      var ok = benchOk && forkOk;
+      var paretoOk = s.coupled_fork_pareto_v1 == null || s.coupled_fork_pareto_v1 === "ok";
+      var hvOk = s.bundled_pareto_hypervolume == null || s.bundled_pareto_hypervolume === "ok";
+      var ok = benchOk && forkOk && paretoOk && hvOk;
       var cls = ok ? "fde-status-ok" : "fde-status-warn";
       var forkBit =
         s.research_fork_validate != null
           ? " · coupled fork " + s.research_fork_validate
           : "";
+      var ops = [];
+      if (s.dns_ready === true) ops.push("DNS");
+      else if (s.dns_ready === false) ops.push("DNS pending");
+      if (s.pypi_ready === "ok") ops.push("PyPI ready");
+      else if (s.pypi_ready === "failed") ops.push("PyPI check failed");
+      if (s.coupled_fork_pareto_v1) ops.push("pareto pins " + s.coupled_fork_pareto_v1);
+      if (s.bundled_pareto_hypervolume) ops.push("HV " + s.bundled_pareto_hypervolume);
+      var opsBit = ops.length ? " · " + ops.join(" · ") : "";
       el.innerHTML =
         '<span class="' +
         cls +
@@ -25,6 +35,7 @@
         " · benchmarks " +
         (s.benchmark_validate || "?") +
         forkBit +
+        opsBit +
         "</span> · updated " +
         (s.checked_utc || "?");
     })
@@ -174,6 +185,13 @@
       title: "7) Coupling comparison",
       body: "Baseline vs higher coupling on the same schedule — side-by-side collapse metrics and deltas.",
       say: "Step seven: compare two coupling strengths on the same schedule and see how much worse the variant run is.",
+    },
+    {
+      url: "/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json",
+      selector: "#cv",
+      title: "8) Coupled fork trade-offs",
+      body: "Research fork Pareto chart: each dot is a non-dominated attack on coupled peg–overload physics — severity vs attack cost.",
+      say: "Step eight: the coupled Pareto chart. Each dot is an attack that trades cost against severity on the research fork world.",
     },
     {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",

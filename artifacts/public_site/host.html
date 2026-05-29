@@ -33,7 +33,6 @@
 <a href="/artifacts/composite_viewer/index.html">Composite</a>
 <a href="/docs/">Docs</a>
 <a class="fde-active" href="/host.html">This host</a>
-      <span class="fde-pill">live demos</span>
     </nav>
   </header>
   <script>
@@ -55,6 +54,9 @@
         <li><strong>Status:</strong> <a href="/status.json">/status.json</a> (benchmark validate snapshot)</li>
       </ul>
 
+      <h3>Workbench validation</h3>
+      <div id="hostStatus" class="fde-run-log" style="min-height:3rem;margin-bottom:1rem"><p class="fde-run-help">Loading status.json&hellip;</p></div>
+
       <h3>Live engine status</h3>
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
 
@@ -69,6 +71,26 @@ bash scripts/gce_publish_workbench.sh</pre>
       <p>Product by <a href="https://agenticop.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
     </article>
     <script>
+      (function () {
+        var st = document.getElementById('hostStatus');
+        fetch('/status.json', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (s) {
+            var lines = [];
+            lines.push('<strong>Schema:</strong> ' + (s.schema || '?'));
+            lines.push('<strong>Git:</strong> ' + (s.git_head || '?') + ' · checked ' + (s.checked_utc || '?'));
+            lines.push('<strong>Benchmarks:</strong> ' + (s.benchmark_validate || '?'));
+            if (s.research_fork_validate) lines.push('<strong>Coupled fork bundle:</strong> ' + s.research_fork_validate);
+            if (s.coupled_fork_pareto_v1) lines.push('<strong>Pareto pins:</strong> ' + s.coupled_fork_pareto_v1);
+            if (s.bundled_pareto_hypervolume) lines.push('<strong>Hypervolume pins:</strong> ' + s.bundled_pareto_hypervolume);
+            if (s.dns_ready != null) lines.push('<strong>DNS (' + (s.dns_host || 'hostname') + '):</strong> ' + (s.dns_ready ? 'ready' : 'pending'));
+            if (s.pypi_ready) lines.push('<strong>PyPI packaging check:</strong> ' + s.pypi_ready);
+            st.innerHTML = '<ul style="margin:0.5rem 0 0 0">' + lines.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>';
+          })
+          .catch(function () {
+            st.innerHTML = '<p class="fde-run-help">status.json not available (run gce_publish_workbench.sh on the VM).</p>';
+          });
+      })();
       (function () {
         var el = document.getElementById('hostHealth');
         fetch('/api/health', { cache: 'no-store' })

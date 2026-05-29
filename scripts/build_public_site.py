@@ -51,69 +51,217 @@ ARTIFACT_DIRS = [
     "coupled_fork_demo",
 ]
 
-DEMOS = [
-    (
-        "Flagship GA replay",
-        "replay",
-        "/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json",
-        "The best attack schedule from the benchmark — full step-by-step collapse timeline.",
-    ),
-    (
-        "Aggregate peg",
-        "replay",
-        "/artifacts/replay_viewer/index.html#src=sample_replay.json",
-        "A stablecoin reserve breaking under accumulated panic pressure.",
-    ),
-    (
-        "Network contagion",
-        "replay",
-        "/artifacts/replay_viewer/index.html#src=sample_network_replay.json",
-        "Panic spreading node to node across a connected network.",
-    ),
-    (
-        "Resource cascade",
-        "replay",
-        "/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json",
-        "Two capacity layers that fail together when overload overwhelms the safety margin.",
-    ),
-    (
-        "Service backlog",
-        "replay",
-        "/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json",
-        "A work queue that fills up faster than it can be cleared.",
-    ),
-    (
-        "Liquidity ladder",
-        "replay",
-        "/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json",
-        "Financial margin eroding step by step until a forced sell-off begins.",
-    ),
-    (
-        "Multi-domain comparison",
-        "composite",
-        "/artifacts/composite_viewer/index.html",
-        "The same attack applied to five domains at once — use the Presets menu.",
-    ),
-    (
-        "Attack trade-off curve",
-        "pareto",
-        "/artifacts/pareto_viewer/index.html",
-        "The full range of trade-offs between attack severity and attack cost.",
-    ),
-    (
-        "What caused the collapse?",
-        "attribution",
-        "/artifacts/attribution_viewer/index.html",
-        "Step-by-step breakdown of which shocks led to failure.",
-    ),
-]
+def _workbench_index_main() -> str:
+    """Workbench landing: server-hosted samples only (no local upload)."""
+
+    return r"""    <div id="fde-status" class="fde-status-bar"></div>
+
+    <article class="fde-prose fde-demo-intro">
+      <h2>How this demo works</h2>
+      <p>Every sample below is <strong>JSON on this server</strong>. Click a row to open the right viewer with that file already loaded. To run a new search (also saved on the server), use <a href="/run.html">Run a scenario</a> — nothing is uploaded from your computer.</p>
+      <p>Full map of pages and viewers: <a href="/docs/demo-guide.html">Demo guide</a> · CLI tutorials: <a href="/docs/how-to-use.html">How to Use</a></p>
+    </article>
+
+    <div class="fde-hero fde-hero-compact">
+      <h1>Fragility Discovery Engine</h1>
+      <p>Search for fragile conditions in toy institutional simulations, then inspect replays, trade-off charts, and attribution paths.</p>
+      <div class="fde-hero-actions">
+        <a class="fde-btn-primary" href="/run.html">Run a scenario</a>
+        <a class="fde-btn-secondary" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Flagship replay</a>
+        <a class="fde-btn-secondary" href="/?tour=1">Guided tour</a>
+        <a class="fde-btn-secondary" href="/docs/demo-guide.html">Demo guide</a>
+      </div>
+    </div>
+
+    <nav class="fde-quick-nav" aria-label="Viewer tools">
+      <a href="/artifacts/replay_viewer/index.html">Replay viewer</a>
+      <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a>
+      <a href="/artifacts/attribution_viewer/index.html">Attribution viewer</a>
+      <a href="/artifacts/composite_viewer/index.html">Composite viewer</a>
+      <a href="/runs.html">Past server runs</a>
+    </nav>
+
+    <section class="fde-demo-section">
+      <h2>Step-by-step replays</h2>
+      <p class="fde-demo-lead">Scrub timelines of collapse. Opens in the <a href="/artifacts/replay_viewer/index.html">replay viewer</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domain</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Flagship benchmark</td>
+            <td>Aggregate peg</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Aggregate peg</td>
+            <td>Stablecoin reserves</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Network contagion</td>
+            <td>32-node graph</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_network_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Resource cascade</td>
+            <td>Dual capacity layers</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Service backlog</td>
+            <td>Queue vs processing</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Liquidity ladder</td>
+            <td>Margin stress</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Inventory buffer</td>
+            <td>Stock level</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_inventory_buffer_replay.json">Replay</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Attack trade-off charts (Pareto)</h2>
+      <p class="fde-demo-lead">Severity vs attack cost. Opens in the <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a>. Co-evolution runs on <a href="/run.html">Run a scenario</a> produce fresh charts under <code>/runs/&lt;id&gt;/</code>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domain</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Aggregate peg frontier</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Network contagion</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_network.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Resource cascade</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_resource_cascade.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Service backlog</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_service_backlog.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Liquidity ladder</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_liquidity_ladder.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Inventory buffer</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_inventory_buffer.json">Chart</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Attribution and mutation chains</h2>
+      <p class="fde-demo-lead">Counterfactuals and stepwise interventions. Opens in the <a href="/artifacts/attribution_viewer/index.html">attribution viewer</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domain</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Rumor → depeg chain</td>
+            <td>Aggregate peg</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Resource cascade merge</td>
+            <td>Two branches</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_resource_cascade.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Inventory buffer merge</td>
+            <td>Lower starting stock</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_inventory_buffer.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Inventory demand chain</td>
+            <td>Mutation chain</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_inventory_buffer_chain_demand_fulfillment.json">Attribution</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Multi-domain composite</h2>
+      <p class="fde-demo-lead">One attack genome evaluated on several domains. Opens in the <a href="/artifacts/composite_viewer/index.html">composite viewer</a> (use Presets for twin through hexa).</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domains</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Hexa composite</td>
+            <td>All six charter domains</td>
+            <td><a href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">Composite</a></td>
+          </tr>
+          <tr>
+            <td>Preset gallery</td>
+            <td>Twin · triple · quad · penta · hexa</td>
+            <td><a href="/artifacts/composite_viewer/index.html">Composite viewer</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section fde-demo-section-fork">
+      <h2>Research fork — coupled institution</h2>
+      <p class="fde-demo-lead">Peg panic and overload exchange signals inside one simulation step (not the six-domain charter). Policy: <a href="/docs/fork-coupling.html">Coupled fork notes</a> · raw JSON bundle: <a href="/artifacts/coupled_fork_demo/">coupled_fork_demo</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Viewer</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Coupled replay</td>
+            <td>Replay</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Mutation chain</td>
+            <td>Attribution</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Coupling sweep</td>
+            <td>Chart</td>
+            <td><a href="/artifacts/coupling_sweep_viewer/index.html">Sweep viewer</a></td>
+          </tr>
+          <tr>
+            <td>Coupling comparison</td>
+            <td>Compare</td>
+            <td><a href="/artifacts/coupling_comparison_viewer/index.html">Comparison viewer</a></td>
+          </tr>
+          <tr>
+            <td>GA Pareto frontier</td>
+            <td>Pareto</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>LLM export bundles</td>
+            <td>Manifest</td>
+            <td><a href="/artifacts/llm_prompts/coupled_fork_exports/">Prompt bundles</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>"""
 
 
 def _run_page_main() -> str:
     return r"""    <article class="fde-prose">
       <h2>Run a scenario</h2>
-      <p>Choose a domain and search type. This server runs the simulation and takes you straight to the results when it finishes.</p>
-      <p><a href="/docs/how-to-use.html">How to Use</a> has step-by-step tutorials for every domain. <a href="/docs/algorithms.html">Algorithms</a> explains how the search works.</p>
+      <p>Pick a domain and search type. The engine runs on <strong>this server</strong> and saves results under <code>/runs/&lt;id&gt;/</code> — you do not upload files. When the job finishes, links open the replay or Pareto viewer against those server paths.</p>
+      <p><a href="/docs/demo-guide.html">Demo guide</a> · <a href="/docs/how-to-use.html">How to Use</a> (CLI) · <a href="/docs/algorithms.html">Algorithms</a></p>
     </article>
 
     <form id="runForm" class="fde-run-form" autocomplete="off">
@@ -551,7 +699,7 @@ def _inject_viewer_chrome(html_path: Path, page_id: str) -> None:
     body_match = _BODY_OPEN_RE.search(text)
     if not body_match:
         return
-    text = _BODY_OPEN_RE.sub('<body class="fde-app">', text, count=1)
+    text = _BODY_OPEN_RE.sub('<body class="fde-app fde-public-demo">', text, count=1)
 
     body_match = _BODY_OPEN_RE.search(text)
     if not body_match:
@@ -676,180 +824,7 @@ def build(out: Path) -> dict[str, str]:
             if src.is_file():
                 shutil.copy2(src, demo_out / name)
 
-    index_main = """    <div id="fde-status" class="fde-status-bar" style="display:none"></div>
-
-    <div class="fde-hero">
-      <h1>Fragility Discovery Engine</h1>
-      <p>Find the conditions that break a simulated system, then understand exactly why it broke.
-         Pick a domain, set a few parameters, and this server does the rest.</p>
-      <div class="fde-hero-actions">
-        <a class="fde-btn-primary" href="/run.html">Run a scenario</a>
-        <a class="fde-btn-secondary" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Watch a collapse</a>
-        <a class="fde-btn-secondary" href="/tour.html">Take the 2-minute tour</a>
-        <a class="fde-btn-secondary" href="/docs/">Read the docs</a>
-      </div>
-      <p class="fde-run-help" style="margin-top:1rem">Demo workbench — no account required. Runs are intentionally capped so everyone can try it; bundled samples always work in the viewers.</p>
-    </div>
-
-    <p class="fde-section-title">Tools</p>
-    <div class="fde-tool-grid">
-      <a class="fde-tool-card" href="/run.html">
-        <span class="fde-tool-icon">⚡</span>
-        <div>
-          <h3>Run a scenario</h3>
-          <p>Pick a simulation domain, set a few parameters, and the engine searches for the conditions most likely to break the system. Results open directly in the viewer.</p>
-        </div>
-      </a>
-      <a class="fde-tool-card" href="/artifacts/replay_viewer/index.html">
-        <span class="fde-tool-icon">▶</span>
-        <div>
-          <h3>Replay viewer</h3>
-          <p>Step through a scenario one frame at a time. See exactly how the system state changes at each step, when it crosses its breaking threshold, and what the final outcome was.</p>
-        </div>
-      </a>
-      <a class="fde-tool-card" href="/artifacts/pareto_viewer/index.html">
-        <span class="fde-tool-icon">◎</span>
-        <div>
-          <h3>Pareto viewer</h3>
-          <p>See the full range of trade-offs between how damaging an attack is and how much it costs. Generated by attacker-vs-defender runs where both sides evolve simultaneously.</p>
-        </div>
-      </a>
-      <a class="fde-tool-card" href="/artifacts/attribution_viewer/index.html">
-        <span class="fde-tool-icon">⛓</span>
-        <div>
-          <h3>Attribution viewer</h3>
-          <p>See which individual shocks actually caused the collapse. Remove shocks one at a time and compare what changes — so you can trace the exact path to failure.</p>
-        </div>
-      </a>
-      <a class="fde-tool-card" href="/artifacts/composite_viewer/index.html">
-        <span class="fde-tool-icon">⊞</span>
-        <div>
-          <h3>Composite viewer</h3>
-          <p>Run the same attack through multiple domains at once and compare results side by side. Useful for stress-testing across different system types in a single view.</p>
-        </div>
-      </a>
-      <a class="fde-tool-card" href="/docs/">
-        <span class="fde-tool-icon">📖</span>
-        <div>
-          <h3>Documentation</h3>
-          <p>Installation, tutorials for each domain, how the algorithms work, full CLI reference, and a guide to the output file formats.</p>
-        </div>
-      </a>
-    </div>
-
-    <p class="fde-section-title">Sample scenarios</p>
-    <div class="fde-grid">
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">
-        <span class="fde-card-tag">replay · flagship</span>
-        <h3>Best run — benchmark</h3>
-        <p>The best attack schedule from the bundled benchmark — full step-by-step collapse timeline.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_replay.json">
-        <span class="fde-card-tag">replay</span>
-        <h3>Aggregate peg</h3>
-        <p>A stablecoin reserve breaking under accumulated panic pressure.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_network_replay.json">
-        <span class="fde-card-tag">replay</span>
-        <h3>Network contagion</h3>
-        <p>Panic spreading node to node across a 32-node network until the system collapses.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json">
-        <span class="fde-card-tag">replay</span>
-        <h3>Resource cascade</h3>
-        <p>Two capacity layers that fail together when overload overwhelms the safety margin.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json">
-        <span class="fde-card-tag">replay</span>
-        <h3>Service backlog</h3>
-        <p>A work queue that fills up faster than it can be cleared, eventually crossing the failure threshold.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json">
-        <span class="fde-card-tag">replay</span>
-        <h3>Liquidity ladder</h3>
-        <p>Financial margin eroding step by step until a forced deleveraging spiral takes hold.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_inventory_buffer_replay.json">
-        <span class="fde-card-tag">replay</span>
-        <h3>Inventory buffer</h3>
-        <p>Stock level dropping under demand surges and fulfillment problems until a stockout occurs.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json">
-        <span class="fde-card-tag">replay · research fork</span>
-        <h3>Coupled institution</h3>
-        <p>Peg panic and cascade overload exchange signals each step — physics coupling, not the six-domain composite.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">
-        <span class="fde-card-tag">trade-off chart</span>
-        <h3>Attack trade-off curve</h3>
-        <p>Every point on this chart is an attack that is not dominated by any other — showing the full range between cheap-but-mild and expensive-but-devastating.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_inventory_buffer.json">
-        <span class="fde-card-tag">trade-off chart</span>
-        <h3>Inventory buffer trade-offs</h3>
-        <p>The severity-vs-cost frontier for the inventory buffer domain.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_resource_cascade.json">
-        <span class="fde-card-tag">trade-off chart</span>
-        <h3>Resource cascade trade-offs</h3>
-        <p>The severity-vs-cost frontier for the resource cascade domain.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json">
-        <span class="fde-card-tag">attribution</span>
-        <h3>What caused the collapse?</h3>
-        <p>A step-by-step breakdown of which rumor shocks led to the peg breaking — remove each one and see what changes.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_resource_cascade.json">
-        <span class="fde-card-tag">attribution</span>
-        <h3>Resource cascade attribution</h3>
-        <p>Two counterfactual branches compared against the same baseline — which intervention mattered more?</p>
-      </a>
-      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_inventory_buffer.json">
-        <span class="fde-card-tag">attribution</span>
-        <h3>Inventory buffer — lower starting stock</h3>
-        <p>Compare a baseline run against a variant with less starting stock to see how much the outcome changes.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_inventory_buffer_chain_demand_fulfillment.json">
-        <span class="fde-card-tag">attribution · chain</span>
-        <h3>Inventory buffer mutation chain</h3>
-        <p>Demand spike plus fulfillment erosion applied step by step — see which mutation moves the needle.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json">
-        <span class="fde-card-tag">attribution · research fork</span>
-        <h3>Coupled institution mutation chain</h3>
-        <p>Coupling strength stepped up on a pinned schedule — peg panic and overload exchange signals each step.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/coupling_sweep_viewer/index.html">
-        <span class="fde-card-tag">chart · research fork</span>
-        <h3>Coupling strength sweep</h3>
-        <p>How integral instability grows as in-step peg–overload coupling tightens on a fixed attack schedule.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/coupling_comparison_viewer/index.html">
-        <span class="fde-card-tag">compare · research fork</span>
-        <h3>Coupling baseline vs variant</h3>
-        <p>Same schedule, two coupling strengths — side-by-side collapse metrics and deltas.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json">
-        <span class="fde-card-tag">trade-off chart · research fork</span>
-        <h3>Coupled institution trade-offs</h3>
-        <p>GA Pareto frontier for peg–overload coupled physics — cheap vs severe attacks on the fork world.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/llm_prompts/coupled_fork_exports/">
-        <span class="fde-card-tag">LLM · research fork</span>
-        <h3>Coupled fork prompt bundles</h3>
-        <p>Checked-in llm-prompt-bundle-v1 exports and narration summaries for all five fork artifacts.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">
-        <span class="fde-card-tag">composite</span>
-        <h3>All six domains</h3>
-        <p>Hexa institutional composite: the same attack genome evaluated on every reference domain at once.</p>
-      </a>
-      <a class="fde-card" href="/artifacts/composite_viewer/index.html">
-        <span class="fde-card-tag">composite</span>
-        <h3>Multi-domain comparison</h3>
-        <p>The same attack applied to multiple domains at once. Use the Presets menu for twin through hexa (all six domains).</p>
-      </a>
-    </div>"""
+    index_main = _workbench_index_main()
 
     _write(
         out / "index.html",
@@ -876,6 +851,13 @@ def build(out: Path) -> dict[str, str]:
         )
 
     # Docs index is generated below; the individual section pages come first.
+    _doc(
+        filename="demo-guide.html",
+        doc_id="docs-demo",
+        title="Demo guide — Fragility Discovery Engine",
+        description="How the public workbench, viewers, and server runs fit together (no local file upload).",
+        md_filename="DEMO_GUIDE.md",
+    )
     _doc(
         filename="overview.html",
         doc_id="docs-index",
@@ -962,6 +944,11 @@ def build(out: Path) -> dict[str, str]:
           <span class="fde-card-tag">introduction</span>
           <h3>Overview</h3>
           <p>What the engine is, what problem it solves, the six domains, and who it fits.</p>
+        </a>
+        <a class="fde-card" href="/docs/demo-guide.html">
+          <span class="fde-card-tag">workbench</span>
+          <h3>Demo guide</h3>
+          <p>Public site layout: server-hosted samples, viewers, runs, and what is not uploaded from your machine.</p>
         </a>
         <a class="fde-card" href="/docs/installation.html">
           <span class="fde-card-tag">setup</span>
@@ -1058,7 +1045,7 @@ def build(out: Path) -> dict[str, str]:
         <a class="fde-btn-primary" href="/?tour=1&voice=1">Start guided tour</a>
         <a class="fde-btn-secondary" href="/?tour=1&autoplay=1&voice=1&ms=5200">Autoplay with voice</a>
       </div>
-      <p class="fde-run-help">Click <strong>Play voice</strong> once so your browser allows narration. Exit anytime via the red <strong>Exit tour</strong> button (top-right), <strong>Esc</strong>, or the dark backdrop. If runs require a key, set it once on <a href="/run.html">Run a scenario</a> via <code>?run_key=…</code>.</p>
+      <p class="fde-run-help">Click <strong>Play voice</strong> once so your browser allows narration. Exit anytime via the red <strong>Exit tour</strong> button (top-right), <strong>Esc</strong>, or the dark backdrop. Samples load from the server only — see the <a href="/docs/demo-guide.html">demo guide</a>.</p>
     </article>""",
         ),
     )

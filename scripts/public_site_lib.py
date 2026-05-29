@@ -39,6 +39,7 @@ NAV = [
 
 DOCS_SECTIONS = [
     ("docs-index",    "/docs/",                     "Overview"),
+    ("docs-demo",     "/docs/demo-guide.html",      "Demo guide"),
     ("docs-install",  "/docs/installation.html",    "Installation"),
     ("docs-use",      "/docs/how-to-use.html",       "How to Use"),
     ("docs-arch",     "/docs/architecture.html",    "Architecture"),
@@ -226,7 +227,9 @@ def viewer_strip_html(active: str) -> str:
     return (
         '<nav class="fde-viewer-strip" aria-label="Artifact viewers">\n'
         + "\n".join(parts)
-        + "\n</nav>"
+        + '\n<p class="fde-viewer-banner">Server-hosted JSON only — choose a <strong>Preset</strong> or open a sample from the '
+        '<a href="/">workbench</a>. Local upload is off on this demo. <a href="/docs/demo-guide.html">Demo guide</a></p>\n'
+        "</nav>"
     )
 
 
@@ -273,7 +276,6 @@ def site_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
     </a>
     <nav class="fde-nav" aria-label="Product">
       {nav}
-      <span class="fde-pill">live demos</span>
     </nav>
   </header>
   <script>

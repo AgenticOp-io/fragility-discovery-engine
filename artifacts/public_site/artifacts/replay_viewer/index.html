@@ -12,7 +12,7 @@
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
   <meta name="fde-public-demo" content="1"/>
 </head>
-<body class="fde-app">
+<body class="fde-app fde-public-demo">
 <!-- fdeSiteChrome -->
   <header class="fde-top" id="fdeSiteTop">
     <a class="fde-brand" href="/">
@@ -32,7 +32,6 @@
 <a href="/artifacts/composite_viewer/index.html">Composite</a>
 <a href="/docs/">Docs</a>
 <a href="/host.html">This host</a>
-      <span class="fde-pill">live demos</span>
     </nav>
   </header>
   <script>
@@ -51,6 +50,7 @@
 <a href="/artifacts/composite_viewer/index.html">Composite</a>
 <a href="/artifacts/coupling_sweep_viewer/index.html">Coupling sweep</a>
 <a href="/artifacts/coupling_comparison_viewer/index.html">Coupling compare</a>
+<p class="fde-viewer-banner">Server-hosted JSON only — choose a <strong>Preset</strong> or open a sample from the <a href="/">workbench</a>. Local upload is off on this demo. <a href="/docs/demo-guide.html">Demo guide</a></p>
 </nav>
 
   <header>
@@ -74,11 +74,11 @@
     <details>
       <summary><strong>How to use it</strong></summary>
       <ul>
-        <li><strong>Load a replay</strong> — pick one from <em>Presets</em>, click <em>Choose replay file…</em>, or drag a <code>.json</code> file onto the dashed box.</li>
+        <li><strong>Load a replay</strong> — on this public demo, use <em>Presets</em> or open a sample from the <a href="/">workbench</a>. Local file pickers are disabled here.</li>
         <li><strong>Scrub the timeline</strong> — move the mouse over the chart, or click and drag. The text panel under the chart updates with values at that step.</li>
         <li><strong>Keyboard</strong> — click the chart once, then <kbd>←</kbd> <kbd>→</kbd> to step, <kbd>Home</kbd> / <kbd>End</kbd> to jump to the start or the end.</li>
-        <li><strong>Compare two replays</strong> — click <em>Compare second replay…</em>. The panel then shows the difference (Δ peg ratio or Δ headroom, Δ instability) between the two at the playhead. Useful for baseline vs. counterfactual.</li>
-        <li><strong>Choose folder</strong> (Chrome / Edge only) — remember a folder so the next file pick opens there.</li>
+        <li class="fde-local-only"><strong>Compare two replays</strong> — local installs only: load a second JSON file to see deltas at the playhead.</li>
+        <li class="fde-local-only"><strong>Choose folder</strong> (Chrome / Edge only) — local installs only.</li>
       </ul>
     </details>
 
@@ -166,6 +166,8 @@
       drop.hidden = true;
       btnFolder.hidden = true;
       btnFile.hidden = true;
+      btnCompare.hidden = true;
+      btnClearCompare.hidden = true;
       folderList.hidden = true;
     }
 

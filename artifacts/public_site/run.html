@@ -33,7 +33,6 @@
 <a href="/artifacts/composite_viewer/index.html">Composite</a>
 <a href="/docs/">Docs</a>
 <a href="/host.html">This host</a>
-      <span class="fde-pill">live demos</span>
     </nav>
   </header>
   <script>
@@ -48,8 +47,8 @@
   <main class="fde-main">
     <article class="fde-prose">
       <h2>Run a scenario</h2>
-      <p>Choose a domain and search type. This server runs the simulation and takes you straight to the results when it finishes.</p>
-      <p><a href="/docs/how-to-use.html">How to Use</a> has step-by-step tutorials for every domain. <a href="/docs/algorithms.html">Algorithms</a> explains how the search works.</p>
+      <p>Pick a domain and search type. The engine runs on <strong>this server</strong> and saves results under <code>/runs/&lt;id&gt;/</code> — you do not upload files. When the job finishes, links open the replay or Pareto viewer against those server paths.</p>
+      <p><a href="/docs/demo-guide.html">Demo guide</a> · <a href="/docs/how-to-use.html">How to Use</a> (CLI) · <a href="/docs/algorithms.html">Algorithms</a></p>
     </article>
 
     <form id="runForm" class="fde-run-form" autocomplete="off">
@@ -64,6 +63,7 @@
             <option value="service_backlog">Service backlog — work queue vs processing rate</option>
             <option value="liquidity_ladder">Liquidity ladder — margin eroding toward a forced sell-off</option>
             <option value="inventory_buffer">Inventory buffer — stock level under demand spikes</option>
+            <option value="coupled_institution">Coupled institution (research fork) — peg + overload coupling</option>
           </optgroup>
           <optgroup label="Attacker vs. defender simulation — saves a trade-off chart">
             <option value="coevolution_aggregate">Attacker vs. defender · Aggregate peg</option>
@@ -72,6 +72,7 @@
             <option value="coevolution_service_backlog">Attacker vs. defender · Service backlog</option>
             <option value="coevolution_liquidity_ladder">Attacker vs. defender · Liquidity ladder</option>
             <option value="coevolution_inventory_buffer">Attacker vs. defender · Inventory buffer</option>
+            <option value="coevolution_coupled_institution">Attacker vs. defender · Coupled institution (research fork)</option>
           </optgroup>
         </select>
         <p class="fde-run-help" id="modeHelp"></p>
@@ -122,6 +123,11 @@
             <td>Find worst-case scenarios</td>
             <td>Replay file → opens in the <a href="/artifacts/replay_viewer/index.html">Replay viewer</a></td>
             <td>Stripped-down replay (if the system collapsed), run logs</td>
+          </tr>
+          <tr>
+            <td>Coupled institution (research fork)</td>
+            <td>Replay + <a href="/artifacts/pareto_viewer/index.html">Pareto chart</a> for the same GA budget</td>
+            <td>Run logs</td>
           </tr>
           <tr>
             <td>Attacker vs. defender</td>
@@ -213,12 +219,14 @@
           service_backlog: { default: 0.06, label: 'Starting backlog level' },
           liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
           inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coupled_institution: { default: 0.3, label: 'In-step coupling strength (0 = decoupled, 1 = tight)' },
           coevolution_aggregate: { default: 0.05, label: 'Starting panic level' },
           coevolution_network: { default: 0.05, label: 'Starting panic on all nodes' },
           coevolution_resource_cascade: { default: 0.05, label: 'Starting overload' },
           coevolution_service_backlog: { default: 0.05, label: 'Starting backlog level' },
           coevolution_liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
           coevolution_inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coevolution_coupled_institution: { default: 0.3, label: 'In-step coupling strength (research fork)' },
         };
 
         const MODE_TEXT = {
@@ -228,6 +236,7 @@
           service_backlog:         'A work queue that fills up faster than it gets processed. Fails when the backlog stays too high for too long. Fixed at 18 steps.',
           liquidity_ladder:        'Financial margin that erodes under reserve losses and rumors until a forced sell-off spiral begins. Fixed at 18 steps.',
           inventory_buffer:        'A stock level that drops under demand surges and fulfillment problems until a stockout occurs. Fixed at 18 steps.',
+          coupled_institution:     'Research fork: peg panic and overload exchange signals each simulation step. Saves a replay and a small Pareto trade-off chart.',
           coevolution_aggregate:   'An attacker and a defender each evolve on the aggregate peg domain. Outputs a chart showing the full range of trade-offs between attack damage and cost.',
           coevolution_network:     'Attacker and defender both evolve on the network contagion domain. Outputs a trade-off chart.',
           coevolution_resource_cascade: 'Attacker and defender both evolve on the resource cascade domain. Outputs a trade-off chart. Fixed at 18 steps.',
@@ -243,7 +252,8 @@
         };
         const PARETO_MODES = new Set([
           'coevolution_aggregate','coevolution_network','coevolution_resource_cascade',
-          'coevolution_service_backlog','coevolution_liquidity_ladder','coevolution_inventory_buffer'
+          'coevolution_service_backlog','coevolution_liquidity_ladder','coevolution_inventory_buffer',
+          'coevolution_coupled_institution','coupled_institution'
         ]);
 
         function updateMode() {

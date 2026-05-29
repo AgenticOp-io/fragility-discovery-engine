@@ -25,6 +25,10 @@
     {
       "label": "Bundled: inventory buffer Pareto",
       "path": "sample_pareto_inventory_buffer.json"
+    },
+    {
+      "label": "Research fork: coupled institution Pareto",
+      "path": "sample_pareto_coupled_institution.json"
     }
   ]
 }
