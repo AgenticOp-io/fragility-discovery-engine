@@ -176,6 +176,13 @@
       say: "Step seven: compare two coupling strengths on the same schedule and see how much worse the variant run is.",
     },
     {
+      url: "/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json",
+      selector: "#cv",
+      title: "8) Coupled fork trade-offs",
+      body: "Research fork Pareto chart: each dot is a non-dominated attack on coupled peg–overload physics — severity vs attack cost.",
+      say: "Step eight: the coupled Pareto chart. Each dot is an attack that trades cost against severity on the research fork world.",
+    },
+    {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",
       selector: "select, .btn, button",
       title: "Bonus: compare all six domains",

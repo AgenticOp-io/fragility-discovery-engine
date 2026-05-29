@@ -655,8 +655,10 @@ def build(out: Path) -> dict[str, str]:
         for name in (
             "sample_coupled_replay.json",
             "coupling_strength_sweep.json",
+            "coupling_strength_sweep.png",
             "sample_coupling_comparison.json",
             "sample_coupled_mutation_chain.json",
+            "sample_coupled_pareto_front.json",
         ):
             src = fork_art / name
             if src.is_file():
@@ -814,6 +816,11 @@ def build(out: Path) -> dict[str, str]:
         <span class="fde-card-tag">compare · research fork</span>
         <h3>Coupling baseline vs variant</h3>
         <p>Same schedule, two coupling strengths — side-by-side collapse metrics and deltas.</p>
+      </a>
+      <a class="fde-card" href="/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json">
+        <span class="fde-card-tag">trade-off chart · research fork</span>
+        <h3>Coupled institution trade-offs</h3>
+        <p>GA Pareto frontier for peg–overload coupled physics — cheap vs severe attacks on the fork world.</p>
       </a>
       <a class="fde-card" href="/artifacts/llm_prompts/coupled_fork_exports/">
         <span class="fde-card-tag">LLM · research fork</span>

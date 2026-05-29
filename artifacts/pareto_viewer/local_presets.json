@@ -8,6 +8,7 @@
     { "label": "Bundled: network Pareto (ER-12)", "path": "sample_pareto_network.json" },
     { "label": "Bundled: liquidity_ladder Pareto", "path": "sample_pareto_liquidity_ladder.json" },
     { "label": "Bundled: inventory buffer Pareto", "path": "sample_pareto_inventory_buffer.json" },
+    { "label": "Research fork: coupled institution Pareto", "path": "sample_pareto_coupled_institution.json" },
     { "label": "Flagship bundled: GA Pareto front", "path": "../flagship/bundled/pareto_front.json" },
     { "label": "Export: test_exports Pareto front", "path": "../test_exports/pareto_front.json" },
     { "label": "Export: test_exports Pareto (resource_cascade)", "path": "../test_exports/pareto_front_resource_cascade.json" }

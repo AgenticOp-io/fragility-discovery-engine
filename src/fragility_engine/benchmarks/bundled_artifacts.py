@@ -54,10 +54,13 @@ COMPOSITE_DEMO_SAMPLES: tuple[str, ...] = (
 COUPLED_FORK_DEMO: tuple[str, ...] = (
     "artifacts/replay_viewer/sample_coupled_institution_replay.json",
     "artifacts/attribution_viewer/sample_coupled_mutation_chain.json",
+    "artifacts/pareto_viewer/sample_pareto_coupled_institution.json",
     "artifacts/coupled_fork_demo/coupling_strength_sweep.json",
+    "artifacts/coupled_fork_demo/coupling_strength_sweep.png",
     "artifacts/coupled_fork_demo/sample_coupling_comparison.json",
     "artifacts/coupled_fork_demo/sample_coupled_replay.json",
     "artifacts/coupled_fork_demo/sample_coupled_mutation_chain.json",
+    "artifacts/coupled_fork_demo/sample_coupled_pareto_front.json",
 )
 
 CHAIN_FIXTURES: tuple[str, ...] = (

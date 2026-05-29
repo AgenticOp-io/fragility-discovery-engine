@@ -47,7 +47,7 @@
   </details>
 
   <p style="font-size:12px;opacity:0.7;margin:0">
-    Bundled samples cover the aggregate, network, resource-cascade, service-backlog, and liquidity-ladder domains, plus the flagship preset.
+    Bundled samples cover the aggregate, network, resource-cascade, service-backlog, and liquidity-ladder domains, the coupled research fork, and the flagship preset.
     Related views: <a href="../replay_viewer/index.html">Replay viewer</a> (play back one attack) ·
     <a href="../attribution_viewer/index.html">Attribution viewer</a> (why an attack worked) ·
     <a href="../composite_viewer/index.html">Composite viewer</a>.
@@ -168,6 +168,10 @@
       const maxS = Math.max(...sevs);
       let ctxLine = '';
       if (data.domain) ctxLine += `\ndomain: ${data.domain}`;
+      if (data.coupling_strength !== undefined && data.coupling_strength !== null) {
+        ctxLine += `\ncoupling_strength: ${data.coupling_strength}`;
+      }
+      if (data.simulation_mode) ctxLine += `\nsimulation_mode: ${data.simulation_mode}`;
       if (data.initial_overload !== undefined && data.initial_overload !== null) {
         ctxLine += `\ninitial_overload: ${data.initial_overload}`;
       }

@@ -8,6 +8,8 @@ Frozen JSON from `forks/coupled_institution/artifacts/` for download and citatio
 | `coupling_strength_sweep.json` | Pinned-schedule sweep over coupling strength |
 | `sample_coupling_comparison.json` | Baseline vs variant coupling comparison |
 | `sample_coupled_mutation_chain.json` | Mutation-chain path (attribution viewer) |
+| `sample_coupled_pareto_front.json` | Small GA Pareto archive (pareto viewer) |
+| `coupling_strength_sweep.png` | Static plot of the sweep JSON |
 
 Regenerate: `python scripts/regenerate_coupled_fork_artifacts.py`
 

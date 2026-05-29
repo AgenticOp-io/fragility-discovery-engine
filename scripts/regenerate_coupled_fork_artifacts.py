@@ -20,7 +20,9 @@ DEMO_NAMES = (
     "coupling_strength_sweep.json",
     "sample_coupling_comparison.json",
     "sample_coupled_mutation_chain.json",
+    "sample_coupled_pareto_front.json",
 )
+PARETO_VIEWER = ROOT / "artifacts" / "pareto_viewer" / "sample_pareto_coupled_institution.json"
 
 
 def main() -> None:
@@ -54,12 +56,40 @@ def main() -> None:
     if ATTR_COPY.is_file():
         print(f"OK: {ATTR_COPY.relative_to(ROOT)}")
 
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "export_coupled_fork_pareto.py"),
+            "--also-fork-artifacts",
+        ],
+        cwd=str(ROOT),
+        check=True,
+    )
+    if PARETO_VIEWER.is_file():
+        print(f"OK: {PARETO_VIEWER.relative_to(ROOT)}")
+
     DEMO_DIR.mkdir(parents=True, exist_ok=True)
     for name in DEMO_NAMES:
         src = FORK_ART / name
         if src.is_file():
             shutil.copy2(src, DEMO_DIR / name)
             print(f"OK: {(DEMO_DIR / name).relative_to(ROOT)}")
+
+    sweep_json = FORK_ART / "coupling_strength_sweep.json"
+    sweep_png = DEMO_DIR / "coupling_strength_sweep.png"
+    if sweep_json.is_file():
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "plot_coupling_sweep.py"),
+                str(sweep_json),
+                "--out",
+                str(sweep_png),
+            ],
+            cwd=str(ROOT),
+            check=True,
+        )
+        print(f"OK: {sweep_png.relative_to(ROOT)}")
 
     subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "refresh_flagship_bundled_certificate.py")],
