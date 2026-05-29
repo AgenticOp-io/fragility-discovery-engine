@@ -1,0 +1,10 @@
+Coupled fork mutation chain path (explanation-mutation-chain-path-coupled-institution-v1).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: Summarize the path from baseline coupling through each mutation step to final instability and cost.
+Plain prose only.

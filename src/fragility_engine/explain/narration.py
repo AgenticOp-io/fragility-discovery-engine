@@ -60,6 +60,37 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
                 )
         return "\n".join(lines)
 
+    pt = data.get("path_trace")
+    if isinstance(pt, dict) and pt.get("schema") == "explanation-mutation-chain-path-coupled-institution-v1":
+        lines.append("kind: coupled fork mutation chain path")
+        lines.append(f"rollout_seed: {pt.get('rollout_seed')}")
+        lines.append(
+            f"baseline_coupling: {pt.get('baseline_coupling')} variant_coupling: {pt.get('variant_coupling')}"
+        )
+        lines.append(f"path_nodes: {len(pt.get('nodes') or [])}  path_edges: {len(pt.get('edges') or [])}")
+        for e in (pt.get("edges") or [])[:8]:
+            if isinstance(e, dict):
+                lines.append(
+                    f"  {e.get('from')}->{e.get('to')} dII={e.get('delta_integral_instability')} "
+                    f"step={e.get('step')}"
+                )
+        return "\n".join(lines)
+
+    if schema == "explanation-mutation-chain-path-coupled-institution-v1":
+        lines.append("kind: coupled fork mutation chain path")
+        lines.append(f"rollout_seed: {data.get('rollout_seed')}")
+        lines.append(
+            f"baseline_coupling: {data.get('baseline_coupling')} variant_coupling: {data.get('variant_coupling')}"
+        )
+        lines.append(f"path_nodes: {len(data.get('nodes') or [])}")
+        return "\n".join(lines)
+
+    if data.get("intervention") == "coupled_institution_mutation_chain" and isinstance(pt, dict):
+        lines.append("kind: coupled fork mutation chain bundle")
+        lines.append(f"mutation_steps: {len(data.get('mutation_steps') or [])}")
+        lines.append(f"delta_integral_instability: {data.get('delta_integral_instability')}")
+        return "\n".join(lines)
+
     if schema == "coupled-institution-coupling-comparison-v1":
         lines.append("kind: coupled fork coupling comparison (same schedule)")
         lines.append(f"intervention: {data.get('intervention')}")

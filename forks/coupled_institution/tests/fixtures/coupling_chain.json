@@ -1,0 +1,8 @@
+{
+  "schema": "coupled-institution-mutation-chain-spec-v1",
+  "steps": [
+    { "kind": "coupling_strength", "value": 0.2 },
+    { "kind": "coupling_strength", "value": 0.35 },
+    { "kind": "coupling_strength", "value": 0.5 }
+  ]
+}

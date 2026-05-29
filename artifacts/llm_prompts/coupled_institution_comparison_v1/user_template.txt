@@ -1,0 +1,10 @@
+Coupled fork coupling comparison (schema coupled-institution-coupling-comparison-v1).
+
+{citation_block}
+
+--- Deterministic narration ---
+{deterministic_narration}
+---
+
+Task: 3–5 sentences on how raising coupling_strength changes instability and collapse on the pinned schedule.
+Plain prose only.

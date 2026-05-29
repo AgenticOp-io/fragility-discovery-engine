@@ -27,10 +27,43 @@ def main() -> None:
         action="store_true",
         help="Run Phase H validate_benchmark_suite and embed pass/fail under benchmark_validation.",
     )
+    ap.add_argument(
+        "--research-fork",
+        action="store_true",
+        help="Digest bundled coupled fork JSON and run validate_coupled_fork_bundle.py.",
+    )
     ap.add_argument("--git-commit", type=str, default=None, help="Override git SHA (else env or git rev-parse).")
     ap.add_argument("--no-manifest", action="store_true", help="Omit benchmark_manifest block.")
     ap.add_argument("--notes", type=str, default="", help="Free-text disclaimer or run notes.")
     args = ap.parse_args()
+
+    repo_root = Path(__file__).resolve().parents[1]
+    fork_paths: list[Path] = []
+    fork_val: dict | None = None
+    if args.research_fork:
+        fork_root = repo_root / "forks" / "coupled_institution" / "artifacts"
+        for name in (
+            "sample_coupled_replay.json",
+            "coupling_strength_sweep.json",
+            "sample_coupling_comparison.json",
+            "sample_coupled_mutation_chain.json",
+        ):
+            p = fork_root / name
+            if p.is_file():
+                fork_paths.append(p)
+        import subprocess
+
+        proc = subprocess.run(
+            [sys.executable, str(repo_root / "scripts" / "validate_coupled_fork_bundle.py")],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+        )
+        if proc.returncode != 0:
+            print(proc.stderr or proc.stdout, file=sys.stderr)
+            fork_val = {"status": "failed", "bundle_id": "coupled_institution_rollout_v1"}
+            raise SystemExit(proc.returncode)
+        fork_val = {"status": "passed", "bundle_id": "coupled_institution_rollout_v1"}
 
     bench: dict | None = None
     if args.validate_bundles:
@@ -48,7 +81,10 @@ def main() -> None:
         artifact_paths=list(args.digest_json) if args.digest_json else None,
         include_benchmark_manifest=not args.no_manifest,
         benchmark_validation=bench,
+        research_fork_validation=fork_val,
+        research_fork_artifact_paths=fork_paths or None,
         git_commit=args.git_commit,
+        repo_root=repo_root,
         notes=args.notes,
     )
     args.out.write_text(json.dumps(cert, indent=2), encoding="utf-8")

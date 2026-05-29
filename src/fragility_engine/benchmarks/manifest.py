@@ -235,7 +235,13 @@ def build_benchmark_manifest() -> dict[str, Any]:
                 "llm_prompt_packs": [
                     "coupled_institution_replay_v1",
                     "coupled_institution_coupling_sweep_v1",
+                    "coupled_institution_comparison_v1",
+                    "coupled_institution_mutation_chain_v1",
                 ],
+                "mutation_chain_artifact": (
+                    "forks/coupled_institution/artifacts/sample_coupled_mutation_chain.json"
+                ),
+                "certificate_cli": "scripts/export_coupled_fork_certificate.py",
             }
         ],
         "pareto_hypervolume_fixtures": [

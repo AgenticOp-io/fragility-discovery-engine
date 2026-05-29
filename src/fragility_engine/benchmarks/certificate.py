@@ -62,6 +62,8 @@ def build_fragility_certificate(
     artifact_paths: list[Path] | None = None,
     include_benchmark_manifest: bool = True,
     benchmark_validation: dict[str, Any] | None = None,
+    research_fork_validation: dict[str, Any] | None = None,
+    research_fork_artifact_paths: list[Path] | None = None,
     flagship_run: dict[str, Any] | None = None,
     git_commit: str | None = None,
     repo_root: Path | None = None,
@@ -93,6 +95,10 @@ def build_fragility_certificate(
         payload["benchmark_bundle_ids"] = list(bm.get("bundle_ids") or [])
     if benchmark_validation is not None:
         payload["benchmark_validation"] = benchmark_validation
+    if research_fork_validation is not None:
+        payload["research_fork_validation"] = research_fork_validation
+    if research_fork_artifact_paths:
+        payload["research_fork_artifact_sha256"] = digest_json_files(research_fork_artifact_paths)
     if flagship_run is not None:
         payload["flagship_run"] = flagship_run
     if notes.strip():

@@ -26,6 +26,11 @@ python ../../scripts/export_llm_narration_prompt.py artifacts/coupling_strength_
 
 From repo root after regenerate: `python scripts/validate_coupled_fork_bundle.py` (also runs in CI benchmark validate).
 
+**Mutation chain** (attribution viewer): `python scripts/export_coupled_mutation_chain.py` → `artifacts/sample_coupled_mutation_chain.json` (copied to `artifacts/attribution_viewer/` on regenerate).
+
+**Citation certificate:** `python scripts/export_coupled_fork_certificate.py --out /tmp/coupled_cert.json`  
+Or embed fork digests in any certificate: `python scripts/export_fragility_certificate.py --out cite.json --research-fork`.
+
 From **repo root** (after `pip install -e ".[dev]"`):
 
 ```bash

@@ -4890,6 +4890,49 @@ def test_export_llm_narration_prompt_coupled_replay_pack_cli(py_exe: str, tmp_pa
     assert "coupled_institution" in data["user_prompt"]
 
 
+def test_export_llm_narration_prompt_coupled_mutation_chain_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    chain = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_mutation_chain.json"
+    if not chain.is_file():
+        pytest.skip("run scripts/regenerate_coupled_fork_artifacts.py first")
+    out = tmp_path / "chain_llm.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(chain),
+            "--prompt-pack",
+            "coupled_institution_mutation_chain_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "coupled_institution_mutation_chain_v1"
+    assert "mutation chain" in data["user_prompt"].lower()
+
+
+def test_export_llm_narration_prompt_coupled_comparison_pack_cli(py_exe: str, tmp_path: Path) -> None:
+    comp = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupling_comparison.json"
+    out = tmp_path / "cmp_llm.json"
+    subprocess.run(
+        [
+            py_exe,
+            str(ROOT / "scripts" / "export_llm_narration_prompt.py"),
+            str(comp),
+            "--prompt-pack",
+            "coupled_institution_comparison_v1",
+            "--out",
+            str(out),
+        ],
+        check=True,
+        cwd=str(ROOT),
+    )
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["prompt_pack"] == "coupled_institution_comparison_v1"
+
+
 def test_export_llm_narration_prompt_coupled_sweep_pack_cli(py_exe: str, tmp_path: Path) -> None:
     sweep = ROOT / "forks" / "coupled_institution" / "artifacts" / "coupling_strength_sweep.json"
     out = tmp_path / "sweep_llm.json"

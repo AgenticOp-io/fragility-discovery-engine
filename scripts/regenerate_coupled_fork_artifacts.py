@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FORK = ROOT / "forks" / "coupled_institution"
 SAMPLE = FORK / "artifacts" / "sample_coupled_replay.json"
 VIEWER_COPY = ROOT / "artifacts" / "replay_viewer" / "sample_coupled_institution_replay.json"
+ATTR_COPY = ROOT / "artifacts" / "attribution_viewer" / "sample_coupled_mutation_chain.json"
 
 
 def main() -> None:
@@ -27,12 +28,23 @@ def main() -> None:
         cwd=FORK,
         check=True,
     )
+    subprocess.run(
+        [sys.executable, str(FORK / "scripts" / "export_coupled_mutation_chain.py")],
+        cwd=FORK,
+        check=True,
+    )
     if not SAMPLE.is_file():
         raise SystemExit(f"Expected {SAMPLE} after regenerate")
     VIEWER_COPY.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SAMPLE, VIEWER_COPY)
+    chain = FORK / "artifacts" / "sample_coupled_mutation_chain.json"
+    if chain.is_file():
+        ATTR_COPY.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(chain, ATTR_COPY)
     print(f"OK: {SAMPLE.relative_to(ROOT)}")
     print(f"OK: {VIEWER_COPY.relative_to(ROOT)}")
+    if ATTR_COPY.is_file():
+        print(f"OK: {ATTR_COPY.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

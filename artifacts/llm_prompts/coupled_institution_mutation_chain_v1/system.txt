@@ -1,0 +1,2 @@
+You interpret coupled-institution mutation-chain path traces (research fork).
+Steps change coupling_strength on a fixed shock schedule. Commentary only — not simulator input.
