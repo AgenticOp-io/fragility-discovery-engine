@@ -6,7 +6,7 @@
 - [x] Tag **v0.5.0** + [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel + sdist)
 - [x] GCE git bootstrap on `chrysalis-test-vm` (`gce_bootstrap_git.ps1`; HTTPS via `gh` token — deploy keys disabled on repo)
 - [ ] Re-enable deploy key in GitHub org/repo settings (optional; token sync works today)
-- [ ] Optional: run `.github/workflows/pypi.yml` with `PYPI_API_TOKEN` if publishing to PyPI — see [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
+- [x] PyPI smoke in CI (`scripts/check_pypi_ready.py`, `pypi-smoke` job); manual publish via `.github/workflows/pypi.yml` once `PYPI_API_TOKEN` is set — [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
 
 ## 2. External visibility (Phase P)
 
@@ -26,6 +26,7 @@
 - [x] Coupled fork GA Pareto sample (`export_coupled_fork_pareto.py`), sweep PNG in `coupled_fork_demo`, workbench card + tour step 8
 - [x] Fifth LLM pack (`coupled_institution_pareto_v1`), Pareto PNG, live **Run a scenario** mode `coupled_institution` on GCE
 - [x] Pinned GA Pareto search metrics (`coupled_institution_pareto_search_v1`, `check_coupled_fork_pareto.py`, pytest golden)
+- [x] Stress-tier Pareto pins (`coupled_institution_pareto_search_v2`, larger GA budget fixture)
 
 ## 4. Not planned on `main`
 

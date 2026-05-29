@@ -10,20 +10,20 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-PINS = ROOT / "tests" / "fixtures" / "benchmarks" / "coupled_fork_pareto_search_pins.json"
+PIN_FILES = {
+    "v1": ROOT / "tests" / "fixtures" / "benchmarks" / "coupled_fork_pareto_search_pins.json",
+    "v2": ROOT / "tests" / "fixtures" / "benchmarks" / "coupled_fork_pareto_search_v2_pins.json",
+}
 EXPORT = ROOT / "scripts" / "export_coupled_fork_pareto.py"
-
-
-def _pins() -> dict:
-    return json.loads(PINS.read_text(encoding="utf-8"))
 
 
 @pytest.mark.skipif(
     not (ROOT / "forks" / "coupled_institution").is_dir(),
     reason="coupled_institution fork not present",
 )
-def test_coupled_pareto_search_matches_pins(tmp_path: Path) -> None:
-    pins = _pins()
+@pytest.mark.parametrize("tier", ["v1", "v2"])
+def test_coupled_pareto_search_matches_pins(tmp_path: Path, tier: str) -> None:
+    pins = json.loads(PIN_FILES[tier].read_text(encoding="utf-8"))
     search = pins["search"]
     out = tmp_path / "pareto.json"
     cmd = [

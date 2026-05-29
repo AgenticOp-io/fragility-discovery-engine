@@ -59,9 +59,11 @@ GitHub Actions workflow **Publish to PyPI** (`.github/workflows/pypi.yml`) runs 
 Local smoke before publishing:
 
 ```bash
-pip install build twine
-python -m build
-twine check dist/*
+python scripts/check_pypi_ready.py
+# optional: verify tag matches pyproject version
+python scripts/check_pypi_ready.py --tag v0.5.0
 ```
+
+CI job **`pypi-smoke`** on every push/PR builds the wheel/sdist and runs `twine check` (no upload).
 
 See [RELEASING.md](../RELEASING.md) for tagging and GitHub Release wheels.

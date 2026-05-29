@@ -24,10 +24,11 @@ Then on GitHub: **Releases → Draft a new release** → choose the tag → past
 Attach build artifacts (normal when PyPI is not used):
 
 ```bash
-python -m pip install build
-python -m build
+python scripts/check_pypi_ready.py --tag v0.5.0
 gh release upload v0.5.0 dist/fragility_engine-0.5.0-py3-none-any.whl dist/fragility_engine-0.5.0.tar.gz --clobber
 ```
+
+Optional **PyPI** (after `PYPI_API_TOKEN` is set): GitHub Actions → **Publish to PyPI** → confirm `publish`. The workflow runs `check_pypi_ready.py` before upload.
 
 ## Install a release (no PyPI)
 

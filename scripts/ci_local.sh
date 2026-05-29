@@ -28,6 +28,7 @@ python scripts/check_bundled_pareto_hypervolume.py
 python scripts/validate_coupled_fork_bundle.py
 python scripts/check_coupled_fork_llm_bundles.py
 python scripts/check_coupled_fork_pareto.py
+python scripts/check_pypi_ready.py
 if [[ -n "${FRAGILITY_CI_COUPLED_FORK:-}" ]]; then
   python -m pip install -e forks/coupled_institution -q
   (cd forks/coupled_institution && python -m pytest -q)
