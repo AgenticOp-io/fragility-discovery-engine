@@ -155,11 +155,25 @@
       say: "Step four: the coupled research fork. Coupling strength steps up on a pinned schedule while panic and overload trade signals inside one simulation step.",
     },
     {
+      url: "/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json",
+      selector: "#cv",
+      title: "5) Coupled replay (peg + overload)",
+      body: "Research fork replay: blue peg price, orange instability, teal dashed overload — both signals coupled inside each simulation step.",
+      say: "Step five: the coupled replay. Watch peg price in blue and overload in teal rise together on the same pinned attack schedule.",
+    },
+    {
       url: "/artifacts/coupling_sweep_viewer/index.html",
       selector: "#cv",
-      title: "5) Coupling sweep",
+      title: "6) Coupling sweep",
       body: "Same attack schedule with only coupling strength changing. Red points collapsed within the horizon — see how instability climbs as coupling tightens.",
-      say: "Step five: the coupling sweep chart. Watch integral instability rise as peg panic and overload exchange more signal each step.",
+      say: "Step six: the coupling sweep chart. Watch integral instability rise as peg panic and overload exchange more signal each step.",
+    },
+    {
+      url: "/artifacts/coupling_comparison_viewer/index.html",
+      selector: "#panel .grid",
+      title: "7) Coupling comparison",
+      body: "Baseline vs higher coupling on the same schedule — side-by-side collapse metrics and deltas.",
+      say: "Step seven: compare two coupling strengths on the same schedule and see how much worse the variant run is.",
     },
     {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",

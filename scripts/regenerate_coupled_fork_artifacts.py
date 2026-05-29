@@ -75,6 +75,18 @@ def main() -> None:
         cwd=str(ROOT),
         check=True,
     )
+    narr_out = ROOT / "artifacts" / "llm_prompts" / "coupled_fork_exports" / "narration_summaries"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "narrate_coupled_fork_bundle.py"),
+            "--json-out-dir",
+            str(narr_out),
+            "--cite-digest",
+        ],
+        cwd=str(ROOT),
+        check=True,
+    )
 
 
 if __name__ == "__main__":

@@ -815,6 +815,11 @@ def build(out: Path) -> dict[str, str]:
         <h3>Coupling baseline vs variant</h3>
         <p>Same schedule, two coupling strengths — side-by-side collapse metrics and deltas.</p>
       </a>
+      <a class="fde-card" href="/artifacts/llm_prompts/coupled_fork_exports/">
+        <span class="fde-card-tag">LLM · research fork</span>
+        <h3>Coupled fork prompt bundles</h3>
+        <p>Checked-in llm-prompt-bundle-v1 exports and narration summaries for all four fork artifacts.</p>
+      </a>
       <a class="fde-card" href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">
         <span class="fde-card-tag">composite</span>
         <h3>All six domains</h3>

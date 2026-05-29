@@ -1,0 +1,6 @@
+{
+  "schema": "narration-summary-v1",
+  "input": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json",
+  "text": "citation_sha256: 173b68c116b5875fa70ec6d942ede3527811ddebb17a3eb70ac606ee32d0ad5d\ncitation_path: C:/Users/david/projects/fragility-discovery-engine/forks/coupled_institution/artifacts/sample_coupled_mutation_chain.json\n---\nsource: C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json\n---\nkind: coupled fork mutation chain path\nrollout_seed: 8801\nbaseline_coupling: 0.3 variant_coupling: 0.3\npath_nodes: 4  path_edges: 3\n  chain_0->chain_1 dII=-2.2881373657113375 step={'kind': 'coupling_strength', 'value': 0.2}\n  chain_1->chain_2 dII=3.2660056146233494 step={'kind': 'coupling_strength', 'value': 0.35}\n  chain_2->chain_3 dII=2.0352051986856114 step={'kind': 'coupling_strength', 'value': 0.5}",
+  "input_sha256": "173b68c116b5875fa70ec6d942ede3527811ddebb17a3eb70ac606ee32d0ad5d"
+}
