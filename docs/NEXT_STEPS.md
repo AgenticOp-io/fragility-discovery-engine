@@ -6,7 +6,7 @@
 - [x] Tag **v0.5.0** + [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel + sdist)
 - [x] GCE git bootstrap on `chrysalis-test-vm` (`gce_bootstrap_git.ps1`; HTTPS via `gh` token — deploy keys disabled on repo)
 - [ ] Re-enable deploy key (org policy may block): `scripts/register_gce_deploy_key.ps1 -GenerateIfMissing` — [GCE_DEPLOY_KEY.md](GCE_DEPLOY_KEY.md); **token sync works today**
-- [x] PyPI smoke in CI (`scripts/check_pypi_ready.py`, `pypi-smoke` job); manual publish via `.github/workflows/pypi.yml` once `PYPI_API_TOKEN` is set — [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
+- [x] PyPI smoke locally (`scripts/check_pypi_ready.py` in `ci_local.ps1`); optional publish via `.github/workflows/pypi.yml` (manual only) — [GCE_HTTPS_AND_AUTH.md](GCE_HTTPS_AND_AUTH.md)
 
 ## 2. External visibility (Phase P)
 
@@ -38,6 +38,7 @@
 
 | Cadence | Action |
 |---------|--------|
-| Each PR | `pwsh -File scripts/ci_local.ps1` locally |
-| Before release | `pwsh -File scripts/gce_sync_vm.ps1` |
-| Weekly | GitHub **Scheduled regression** workflow (already on `main`) |
+| Before push / release | **Windows:** `pwsh -File scripts/ci_local.ps1` |
+| After deploy | **GCE:** `bash scripts/gce_pull_and_test.sh` on the VM (or rely on validate in `gce_deploy_public_site.ps1`) |
+| Public demo | **GCE:** `powershell -File scripts/gce_deploy_public_site.ps1` → http://34.61.255.147/ |
+| GitHub Actions | Manual only (`workflow_dispatch`); not used for routine testing |

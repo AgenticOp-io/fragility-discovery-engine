@@ -1,4 +1,4 @@
-# Local parity with .github/workflows/ci.yml "test" job (Windows PowerShell).
+# Canonical validation on Windows (not GitHub Actions on push).
 # Activate your venv first, then:
 #   pwsh -File scripts/ci_local.ps1
 # or (Windows PowerShell 5):

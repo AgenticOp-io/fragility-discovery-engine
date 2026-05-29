@@ -1,6 +1,6 @@
 # Public demo guide
 
-This page describes the **browser workbench** served from the public site (GCE or GitHub Pages). Everything you open in the viewers is **JSON already on the server** — you do not upload files in the demo.
+This page describes the **browser workbench** on the **GCE demo server** (primary). A static mirror may exist on GitHub Pages; use GCE for runs and live validation. Everything you open in the viewers is **JSON already on the server** — you do not upload files in the demo.
 
 ## How the demo is organized
 
@@ -57,4 +57,4 @@ Outputs are written only on the server (`/var/www/fragility/public/runs/` on GCE
 
 - Validation: `/status.json` and `/host.html`
 - Republish GCE: `powershell -File scripts/gce_deploy_public_site.ps1`
-- Republish GitHub Pages (manual, not Actions): `powershell -File scripts/deploy_github_pages.ps1`
+- Optional static mirror: `powershell -File scripts/deploy_github_pages.ps1` (not used for testing)

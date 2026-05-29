@@ -1,8 +1,5 @@
 # Fragility Discovery Engine
 
-[![CI](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/ci.yml)
-[![Scheduled regression](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/schedule.yml/badge.svg)](https://github.com/AgenticOp-io/fragility-discovery-engine/actions/workflows/schedule.yml)
-
 **Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel on GitHub Releases; no PyPI) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations: vary **shock schedules** (stress scenarios), maximize stated **fragility metrics**, then export **small failing schedules**, **replay JSON** (traces you can re-run), and **counterfactual** / **sensitivity** outputs where applicable.
@@ -11,7 +8,9 @@
 
 ## Supported platforms
 
-CI builds **sdist + wheel** (`pip install build` then `python -m build`; artifacts in `dist/`) and smoke-installs the wheel on **Ubuntu** and **Windows**. The full test matrix runs on both OSes; optional **Numba** parity tests also run on both. Core package code is pure Python; dependencies resolve via PyPI wheels (`numpy`, `networkx`, optional `numba`). Requires **CPython ≥ 3.11** ([`pyproject.toml`](pyproject.toml)).
+**Validation:** run tests on **Windows** (`powershell -File scripts/ci_local.ps1`) or **GCE** (`bash scripts/gce_pull_and_test.sh` on the VM). GitHub Actions CI is manual-only (`workflow_dispatch`); it does not run on push.
+
+Build **sdist + wheel** locally with `python -m build` (or set `FRAGILITY_CI_LOCAL_BUILD=1` in `ci_local`). Core package code is pure Python; dependencies resolve via PyPI wheels (`numpy`, `networkx`, optional `numba`). Requires **CPython ≥ 3.11** ([`pyproject.toml`](pyproject.toml)).
 
 ## Layout (core Python packages)
 
@@ -36,7 +35,7 @@ The **numerical core** is **deterministic** (fixed NumPy RNG seeds). LLM policie
 
 **Phase N (fourth domain narrative):** [`docs/WHY_LIQUIDITY_LADDER.md`](docs/WHY_LIQUIDITY_LADDER.md) — `LiquidityLadderWorld` + `simulation_mode` **`liquidity_ladder`**; gate: [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md). Counterfactual cookbook: [`docs/liquidity_ladder_counterfactual_example.md`](docs/liquidity_ladder_counterfactual_example.md).
 
-**Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`. **Local CI parity (Linux/macOS/WSL or Windows):** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — `bash scripts/ci_local.sh` or `pwsh -File scripts/ci_local.ps1` after activating a venv.
+**Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`. **Validation (Windows or GCE):** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — `pwsh -File scripts/ci_local.ps1` or `bash scripts/gce_pull_and_test.sh` on the VM.
 
 **Paper-style walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
 
@@ -155,7 +154,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/plot_institutional_composite_bars.py` | Bar chart of per-branch `integral_instability` from institutional composite JSON |
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <bundle_id>`** (frozen suite IDs in [`benchmarks/README.md`](benchmarks/README.md)), **`--bundle-all`** (full suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade|service_backlog|liquidity_ladder` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Frozen benchmark suite (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md), charter Phase H in [`BOUNDARIES.md`](BOUNDARIES.md) |
-| `scripts/ci_local.sh` | **Linux / macOS / WSL:** same **pip -e .[dev]**, **ruff**, **pytest** + perf gate env as `.github/workflows/ci.yml` (run with venv activated) |
+| `scripts/ci_local.sh` | **Linux / macOS / WSL:** same checks as Windows `ci_local.ps1` (canonical validation path — not GitHub Actions on push) |
 | `scripts/ci_local.ps1` | **Windows PowerShell:** same local CI parity as `ci_local.sh` |
 | `scripts/run_flagship_demo.py` | **Flagship bundle:** short GA + `pareto_front.json` + **`fragility-certificate-v1`** under `artifacts/flagship/output` (see [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md)) |
 | `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
@@ -181,7 +180,7 @@ Static **composite** UI: `artifacts/composite_viewer/index.html` — institution
 
 - **Custom co-evolution:** implement a deterministic ``rollout_fn(schedule, seed, defender)`` and pass it to ``fragility_engine.coevolution.alternating_coevolution_rollout`` (see [`BOUNDARIES.md`](BOUNDARIES.md) Phase G).
 - **Custom topology:** ``ContagionGraph.from_neighbor_lists([[...], ...])`` builds from adjacency lists (symmetrized by default). For **directed out-neighbor lists** without a dense matrix, pass JSON via ``--neighbor-json`` (optional ``--neighbor-weights-json``); replay metadata uses ``neighbor_lists_topology_meta`` (`storage: neighbor_lists`). Synthetic graphs still attach ``undirected_edges`` + ``storage: dense_adjacency``.
-- **Perf gate:** CI sets ``FRAGILITY_PERF_GATE=1`` and ``FRAGILITY_PERF_GATE_MS`` (240s default in `.github/workflows/ci.yml`). Locally, default ``python -m pytest`` skips that test unless you set the env vars.
+- **Perf gate:** set ``FRAGILITY_PERF_GATE=1`` and ``FRAGILITY_PERF_GATE_MS`` (240s default) when running ``python -m pytest`` locally or on GCE. Without those vars, ``tests/test_benchmark_perf_gate.py`` is skipped.
 - **Numba parity:** CI runs a separate Ubuntu job that installs ``.[accelerate]`` and executes ``tests/test_resource_cascade_numba_parity.py`` (matrix jobs stay NumPy-only for speed and portability).
 
 ## Week roadmap (suggested)

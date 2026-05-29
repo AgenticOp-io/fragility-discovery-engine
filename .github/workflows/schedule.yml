@@ -1,11 +1,9 @@
-# Weekly regression on main (Ubuntu + Python 3.12) — complements push/PR CI matrix.
-# Uploads benchmark-manifest-v2 JSON (artifact retention: 90 days).
+# Weekly regression disabled — use Windows ci_local or GCE gce_pull_and_test.sh instead.
+# Manual dispatch only.
 
 name: Scheduled regression
 
 on:
-  schedule:
-    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 concurrency:

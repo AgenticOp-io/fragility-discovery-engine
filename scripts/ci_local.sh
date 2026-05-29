@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local parity with .github/workflows/ci.yml "test" job (Linux/macOS/WSL Git Bash).
+# Canonical validation on Linux/macOS/WSL (not GitHub Actions on push).
 # Activate your venv first, then from repo root:  bash scripts/ci_local.sh
 #
 # Optional: set FRAGILITY_CI_LOCAL_BUILD=1 to also run ``python -m build`` (matches CI ``build`` job).

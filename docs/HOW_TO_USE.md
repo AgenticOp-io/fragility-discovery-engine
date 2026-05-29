@@ -56,7 +56,7 @@ Optional acceleration (resource cascade): `pip install -e ".[accelerate]"` — s
 
 ### Linux / macOS
 
-**CI parity:** after activating a venv from this clone, run `bash scripts/ci_local.sh` (same checks as the automated CI pipeline). See [Installation](/docs/installation.html) for platform-specific notes.
+**Validation (Windows or GCE, not GitHub Actions on push):** after activating a venv, run `powershell -File scripts/ci_local.ps1` on Windows or `bash scripts/ci_local.sh` on WSL/Linux. On the GCE VM: `bash scripts/gce_pull_and_test.sh`. See [Installation](/docs/installation.html) for platform notes.
 
 **Debian / Ubuntu:**
 
@@ -399,7 +399,7 @@ python scripts/export_llm_narration_prompt.py --input best.json --bundle narrati
 ## 8. Performance, CI, and limits
 
 - **Scale:** [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) — sweep sizes, GA costs, neighbor bundles.
-- **CI:** run `python -m ruff check .` and `python -m pytest` locally.
+- **Validation:** Windows `ci_local.ps1` or GCE `gce_pull_and_test.sh` — not GitHub Actions on push.
 - **Performance gate:** optional env `FRAGILITY_PERF_GATE` — see the root `README.md`.
 
 ---

@@ -54,6 +54,10 @@ python scripts/check_manifest_summary.py
 python scripts/validate_viewer_presets.py
 python scripts/check_bundled_artifacts.py
 python scripts/check_bundled_pareto_hypervolume.py
+python scripts/validate_coupled_fork_bundle.py
+python scripts/check_coupled_fork_llm_bundles.py
+python scripts/check_coupled_fork_pareto.py
+python scripts/check_pypi_ready.py
 # Phase O stretch smokes (fast)
 python scripts/fragility_robustness_stretch.py --preset small --dry-run
 python scripts/export_static_dashboard.py --out artifacts/dashboard/index.html
