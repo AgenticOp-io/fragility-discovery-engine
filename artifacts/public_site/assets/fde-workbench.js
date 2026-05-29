@@ -26,13 +26,15 @@
     });
 })();
 
-/** Guided tour overlay (manual + autoplay). */
+/** Guided tour overlay (manual + autoplay + optional voice narration). */
 (function () {
   var TOUR_ACTIVE = "fde_tour_active_v1";
   var TOUR_INDEX = "fde_tour_index_v1";
   var TOUR_AUTOPLAY = "fde_tour_autoplay_v1";
   var TOUR_MS = "fde_tour_ms_v1";
   var TOUR_PLAYING = "fde_tour_playing_v1";
+  var TOUR_VOICE = "fde_tour_voice_v1";
+  var TOUR_VOICE_MUTED = "fde_tour_voice_muted_v1";
 
   function qs(sel) {
     try { return document.querySelector(sel); } catch (e) { return null; }
@@ -47,30 +49,35 @@
       selector: ".fde-hero-actions a[href=\"/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json\"]",
       title: "1) Watch a collapse",
       body: "Open the flagship replay. Then step the timeline to see exactly when the system crosses its breaking point.",
+      say: "Step one: watch a collapse. Open the flagship replay, then step through the timeline to see when the system breaks.",
     },
     {
       url: "/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json",
       selector: "canvas",
       title: "Replay timeline",
       body: "Drag or click on the chart to scrub through time. Look for the collapse marker and the instability curve.",
+      say: "Scrub the replay chart. Drag or click to move through time and watch instability rise toward collapse.",
     },
     {
       url: "/run.html",
       selector: "#runBtn",
       title: "2) Run a live search",
-      body: "Keep the defaults and press Run scenario. The server will search for a worst‑case schedule and open the results.",
+      body: "Keep the defaults and press Run scenario. The server will search for a worst-case schedule and open the results.",
+      say: "Step two: run a live search. Keep the defaults and press Run scenario. The server finds a stressful schedule and opens the results.",
     },
     {
       url: "/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json",
       selector: "#presetSelect",
-      title: "3) Ask “what caused it?”",
-      body: "This view shows a mutation chain: each step adds one change and shows its Δ instability and Δ cost.",
+      title: "3) Ask what caused it",
+      body: "This view shows a mutation chain: each step adds one change and shows its delta instability and delta cost.",
+      say: "Step three: ask what caused it. Each link in the chain adds one mutation and shows how much instability and cost it added.",
     },
     {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",
       selector: "select, .btn, button",
       title: "Bonus: compare all six domains",
-      body: "The composite view applies the same attack to every domain side‑by‑side. Try presets to switch bundles.",
+      body: "The composite view applies the same attack to every domain side by side. Try presets to switch bundles.",
+      say: "Bonus: compare all six domains. The same attack runs on every reference world side by side.",
     },
   ];
 
@@ -87,10 +94,38 @@
     if (raw == null) return true;
     return raw === "1";
   }
+  function voiceEnabled() { return sessionStorage.getItem(TOUR_VOICE) === "1"; }
+  function setVoiceEnabled(v) { sessionStorage.setItem(TOUR_VOICE, v ? "1" : "0"); }
+  function isVoiceMuted() { return sessionStorage.getItem(TOUR_VOICE_MUTED) === "1"; }
+  function setVoiceMuted(v) { sessionStorage.setItem(TOUR_VOICE_MUTED, v ? "1" : "0"); }
 
   function isTourActive() {
     var urlFlag = (new URLSearchParams(window.location.search)).get("tour");
     return urlFlag === "1" || sessionStorage.getItem(TOUR_ACTIVE) === "1";
+  }
+
+  function speechSupported() {
+    return !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  }
+
+  function stopSpeech() {
+    if (!window.speechSynthesis) return;
+    try { window.speechSynthesis.cancel(); } catch (e) {}
+  }
+
+  function speechLine(step) {
+    if (step.say) return step.say;
+    return step.title + ". " + step.body;
+  }
+
+  function speakStep(step) {
+    if (!voiceEnabled() || isVoiceMuted() || !speechSupported()) return;
+    stopSpeech();
+    var u = new SpeechSynthesisUtterance(speechLine(step));
+    u.lang = "en-US";
+    u.rate = 0.98;
+    u.pitch = 1.0;
+    try { window.speechSynthesis.speak(u); } catch (e) {}
   }
 
   function ensureTourStartedFromUrl() {
@@ -102,24 +137,34 @@
       sessionStorage.setItem(TOUR_AUTOPLAY, "1");
       setPlaying(true);
     }
+    var voice = params.get("voice");
+    if (voice === "1" || ap === "1") setVoiceEnabled(true);
+    if (voice === "0") setVoiceEnabled(false);
     var ms = parseInt(params.get("ms") || "", 10);
     if (isFinite(ms) && ms >= 1500) sessionStorage.setItem(TOUR_MS, String(ms));
-    params.delete("tour"); params.delete("autoplay"); params.delete("ms");
+    params.delete("tour");
+    params.delete("autoplay");
+    params.delete("voice");
+    params.delete("ms");
     var qs2 = params.toString();
     history.replaceState(null, "", window.location.pathname + (qs2 ? "?" + qs2 : "") + window.location.hash);
   }
 
   function teardown() {
+    stopSpeech();
     var root = document.getElementById("fdeTourRoot");
     if (root && root.parentNode) root.parentNode.removeChild(root);
   }
 
   function exitTour() {
+    stopSpeech();
     sessionStorage.removeItem(TOUR_ACTIVE);
     sessionStorage.removeItem(TOUR_INDEX);
     sessionStorage.removeItem(TOUR_AUTOPLAY);
     sessionStorage.removeItem(TOUR_PLAYING);
     sessionStorage.removeItem(TOUR_MS);
+    sessionStorage.removeItem(TOUR_VOICE);
+    sessionStorage.removeItem(TOUR_VOICE_MUTED);
     teardown();
   }
 
@@ -129,6 +174,7 @@
     var here = pagePath();
     var want = step.url;
     if (here === want) return true;
+    stopSpeech();
     window.location.href = want + (want.indexOf("?") >= 0 ? "&" : "?") + "tour=1";
     return false;
   }
@@ -170,6 +216,7 @@
       '    <button type="button" class="fde-tour-btn" id="fdeTourBack">Back</button>',
       '    <button type="button" class="fde-tour-btn fde-tour-primary" id="fdeTourNext">Next</button>',
       '    <button type="button" class="fde-tour-btn" id="fdeTourPlay">Pause</button>',
+      '    <button type="button" class="fde-tour-btn" id="fdeTourVoice">Mute voice</button>',
       '    <button type="button" class="fde-tour-btn fde-tour-ghost" id="fdeTourExit">Exit</button>',
       '  </div>',
       '  <div class="fde-tour-progress" id="fdeTourProgress"></div>',
@@ -179,12 +226,13 @@
 
     setText(document.getElementById("fdeTourTitle"), step.title);
     setText(document.getElementById("fdeTourBody"), step.body);
-    setText(document.getElementById("fdeTourCaption"), "Narration: " + step.body);
+    setText(document.getElementById("fdeTourCaption"), "Narration: " + speechLine(step));
     setText(document.getElementById("fdeTourProgress"), (i + 1) + " / " + steps.length);
 
     var back = document.getElementById("fdeTourBack");
     var next = document.getElementById("fdeTourNext");
     var play = document.getElementById("fdeTourPlay");
+    var voiceBtn = document.getElementById("fdeTourVoice");
     var exit = document.getElementById("fdeTourExit");
     if (back) back.disabled = i <= 0;
     if (next) next.textContent = (i >= steps.length - 1) ? "Finish" : "Next";
@@ -196,14 +244,44 @@
         play.style.display = "none";
       }
     }
+    if (voiceBtn) {
+      if (!speechSupported()) {
+        voiceBtn.style.display = "none";
+      } else if (!voiceEnabled()) {
+        voiceBtn.textContent = "Voice on";
+        voiceBtn.classList.remove("fde-tour-muted");
+      } else if (isVoiceMuted()) {
+        voiceBtn.textContent = "Unmute voice";
+        voiceBtn.classList.add("fde-tour-muted");
+      } else {
+        voiceBtn.textContent = "Mute voice";
+        voiceBtn.classList.remove("fde-tour-muted");
+      }
+    }
 
-    if (back) back.onclick = function () { setIndex(i - 1); render(); };
+    if (back) back.onclick = function () { stopSpeech(); setIndex(i - 1); render(); };
     if (next) next.onclick = function () {
+      stopSpeech();
       if (i >= steps.length - 1) { exitTour(); return; }
-      setIndex(i + 1); render();
+      setIndex(i + 1);
+      render();
     };
     if (play) play.onclick = function () {
+      if (isPlaying()) stopSpeech();
       setPlaying(!isPlaying());
+      render();
+    };
+    if (voiceBtn) voiceBtn.onclick = function () {
+      if (!voiceEnabled()) {
+        setVoiceEnabled(true);
+        setVoiceMuted(false);
+        render();
+        return;
+      }
+      var muted = !isVoiceMuted();
+      setVoiceMuted(muted);
+      if (muted) stopSpeech();
+      else speakStep(step);
       render();
     };
     if (exit) exit.onclick = function () { exitTour(); };
@@ -225,6 +303,10 @@
     window.addEventListener("resize", position, { passive: true });
     window.addEventListener("scroll", position, { passive: true });
 
+    if (voiceEnabled() && !isVoiceMuted()) {
+      window.setTimeout(function () { speakStep(step); }, 350);
+    }
+
     var autoplay = sessionStorage.getItem(TOUR_AUTOPLAY) === "1";
     if (autoplay) {
       var ms = parseInt(sessionStorage.getItem(TOUR_MS) || "5200", 10);
@@ -243,7 +325,6 @@
       }
       if (!isPlaying()) return;
       window.setTimeout(function () {
-        // Don't auto-advance if user already navigated away or closed.
         if (!document.getElementById("fdeTourRoot")) return;
         if (currentIndex() !== i) return;
         if (!isPlaying()) return;
@@ -256,7 +337,6 @@
 
   ensureTourStartedFromUrl();
   if (!isTourActive()) return;
-  // Default to step 0 when activated without index.
   if (!sessionStorage.getItem(TOUR_INDEX)) sessionStorage.setItem(TOUR_INDEX, "0");
   render();
 })();

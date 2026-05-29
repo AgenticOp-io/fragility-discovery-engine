@@ -941,10 +941,10 @@ def build(out: Path) -> dict[str, str]:
       <h2>Guided tour</h2>
       <p>This demo has a built-in guided walkthrough that behaves like a short interactive video: it highlights where to look and automatically takes you to the right page.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:1rem 0">
-        <a class="fde-btn-primary" href="/?tour=1">Start guided tour</a>
-        <a class="fde-btn-secondary" href="/?tour=1&autoplay=1&ms=5200">Autoplay tour (hands-free)</a>
+        <a class="fde-btn-primary" href="/?tour=1&voice=1">Start guided tour</a>
+        <a class="fde-btn-secondary" href="/?tour=1&autoplay=1&voice=1&ms=5200">Autoplay with voice</a>
       </div>
-      <p class="fde-run-help">You can exit at any time. If the server requires a run key, set it once on <a href="/run.html">Run a scenario</a> using <code>?run_key=…</code>.</p>
+      <p class="fde-run-help">Voice uses your browser&apos;s speech engine (mute anytime). Exit at any time. If runs require a key, set it once on <a href="/run.html">Run a scenario</a> via <code>?run_key=…</code>.</p>
     </article>""",
         ),
     )

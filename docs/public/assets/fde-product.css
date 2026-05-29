@@ -178,6 +178,7 @@ body.fde-app li { margin-bottom: 0.3rem; }
 }
 #fdeTourRoot .fde-tour-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 #fdeTourRoot .fde-tour-primary { border-color: rgba(110,181,247,0.65); background: rgba(110,181,247,0.14); }
+#fdeTourRoot .fde-tour-muted { opacity: 0.72; border-style: dashed; }
 #fdeTourRoot .fde-tour-ghost { background: transparent; }
 #fdeTourRoot .fde-tour-progress { margin-top: 8px; font-size: var(--fde-size-xs); color: var(--fde-muted); }
 
