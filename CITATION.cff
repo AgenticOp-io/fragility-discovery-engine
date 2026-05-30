@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: Fragility Discovery Engine
+message: >-
+  If you use this software or the FEL semantic contract, please cite the
+  repository release and (when available) the FEL preprint.
+type: software
+authors:
+  - family-names: Peterson
+    given-names: David
+    affiliation: Agentic Ops
+    website: https://agenticop.io
+repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
+url: https://agenticop-io.github.io/fragility-discovery-engine/
+license: Apache-2.0
+version: fel-v0.1
+date-released: 2026-05-30
+keywords:
+  - simulation
+  - stress testing
+  - reproducibility
+  - counterfactual attribution
+  - discrete-time systems
+preferred-citation:
+  type: article
+  title: >-
+    Fragility Evidence Language (FEL): A Semantic Contract for Reproducible
+    Stress-Search and Attribution in Discrete-Time Simulations
+  authors:
+    - family-names: Peterson
+      given-names: David
+  year: 2026
+  notes: Preprint fel-v0.1; CC BY 4.0. PDF in docs/preprint/FEL_preprint_v0.1.pdf

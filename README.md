@@ -1,6 +1,6 @@
 # Fragility Discovery Engine
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel on GitHub Releases; no PyPI) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel on GitHub Releases; no PyPI) · **FEL preprint snapshot:** [fel-v0.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Zenodo:** [`docs/ZENODO.md`](docs/ZENODO.md) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations: vary **shock schedules** (stress scenarios), maximize stated **fragility metrics**, then export **small failing schedules**, **replay JSON** (traces you can re-run), and **counterfactual** / **sensitivity** outputs where applicable.
 
