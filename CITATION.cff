@@ -12,8 +12,11 @@ authors:
 repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
 url: https://agenticop-io.github.io/fragility-discovery-engine/
 license: Apache-2.0
-version: fel-v0.1
+version: fel-v0.1.1
 date-released: 2026-05-30
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20455689
 keywords:
   - simulation
   - stress testing
@@ -29,4 +32,5 @@ preferred-citation:
     - family-names: Peterson
       given-names: David
   year: 2026
-  notes: Preprint fel-v0.1; CC BY 4.0. PDF in docs/preprint/FEL_preprint_v0.1.pdf
+  doi: 10.5281/zenodo.20455689
+  notes: Zenodo fel-v0.1.1; preprint PDF CC BY 4.0 in docs/preprint/FEL_preprint_v0.1.pdf
