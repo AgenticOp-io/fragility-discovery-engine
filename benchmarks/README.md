@@ -6,7 +6,7 @@ These IDs are the **regression suite** named under **Phase H** in [`BOUNDARIES.m
 
 This folder documents **frozen deterministic bundles** implemented in code:
 
-- `fragility_engine.benchmarks.suite` — five bundles (`aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, **`resource_cascade_rollout_v1`**, **`service_backlog_rollout_v1`** — Phase M third domain).
+- `fragility_engine.benchmarks.suite` — **seven** frozen bundles: `aggregate_rollout_v1`, `network_er_rollout_v1`, `network_neighbor_list_rollout_v1`, `resource_cascade_rollout_v1`, `service_backlog_rollout_v1` (Phase M), `liquidity_ladder_rollout_v1` (Phase N), `inventory_buffer_rollout_v1` (Phase O). All are **toy reference kernels** for reproducibility — not calibrated institution models.
 - Golden scalars live beside the runners (`GOLDEN_METRICS`); CI asserts relaxed numerical agreement.
 - Loose **integral_instability** sanity bands (`BUNDLE_INTEGRAL_BANDS` in `suite.py`) catch gross regressions; bands are listed in `benchmark-manifest-v2` as `bundle_integral_bands`.
 

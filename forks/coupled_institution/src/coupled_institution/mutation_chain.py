@@ -143,6 +143,7 @@ def build_chain_attribution_bundle(
     final = _snapshot(rollouts[-1])
     vc = baseline_coupling if variant_coupling is None else float(variant_coupling)
     merged = {
+        "schema": "counterfactual-bundle-v1",
         "baseline": base,
         "counterfactual": final,
         "intervention": "coupled_institution_mutation_chain",

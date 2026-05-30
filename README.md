@@ -35,6 +35,10 @@ The **numerical core** is **deterministic** (fixed NumPy RNG seeds). LLM policie
 
 **Phase N (fourth domain narrative):** [`docs/WHY_LIQUIDITY_LADDER.md`](docs/WHY_LIQUIDITY_LADDER.md) — `LiquidityLadderWorld` + `simulation_mode` **`liquidity_ladder`**; gate: [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md). Counterfactual cookbook: [`docs/liquidity_ladder_counterfactual_example.md`](docs/liquidity_ladder_counterfactual_example.md).
 
+**Phase O (sixth domain narrative):** [`docs/WHY_INVENTORY_BUFFER.md`](docs/WHY_INVENTORY_BUFFER.md) — `InventoryBufferWorld` + `simulation_mode` **`inventory_buffer`**; gate: [`docs/phase_o_stretch.md`](docs/phase_o_stretch.md). Counterfactual cookbook: [`docs/inventory_buffer_counterfactual_example.md`](docs/inventory_buffer_counterfactual_example.md).
+
+**Toy-model scope:** all six reference worlds are deliberately simplified stress kernels — not calibrated to any real institution. See [`BOUNDARIES.md`](BOUNDARIES.md) non-goals and [`docs/AUDIT_RESOLUTION.md`](docs/AUDIT_RESOLUTION.md).
+
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`. **Validation (Windows or GCE):** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — `pwsh -File scripts/ci_local.ps1` or `bash scripts/gce_pull_and_test.sh` on the VM.
 
 **Paper-style walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
@@ -114,7 +118,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/run_service_backlog_ga_demo.py` | Phase **M** third domain: GA + minimization on **`ServiceBacklogWorld`** (`--initial-backlog`, same export flags); see [`docs/phase_m_third_reference_domain.md`](docs/phase_m_third_reference_domain.md), [`docs/WHY_SERVICE_BACKLOG.md`](docs/WHY_SERVICE_BACKLOG.md) |
 | `scripts/run_liquidity_ladder_ga_demo.py` | Phase **N** fourth domain: GA + minimization on **`LiquidityLadderWorld`** (`--initial-margin`, same export flags); see [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md), [`docs/WHY_LIQUIDITY_LADDER.md`](docs/WHY_LIQUIDITY_LADDER.md) |
 | `scripts/run_network_demo.py` | GA on **graph contagion** (`--graph-kind`, `--neighbor-json` / `--neighbor-weights-json`, `--export-replay`, sizing flags) |
-| `scripts/export_replay.py` | `replay.json`: aggregate (`--initial-panic`, `--continue-after-collapse`), network (`--base-panic`, synthetic topology **or** `--neighbor-json`, `--continue-after-collapse`), **`resource_cascade`** (`--initial-overload`), **`service_backlog`** (`--initial-backlog`), or **`liquidity_ladder`** (`--initial-margin`) |
+| `scripts/export_replay.py` | `replay.json`: **`--mode aggregate|network|resource_cascade|service_backlog|liquidity_ladder|inventory_buffer`** (domain-specific reset flags — see `--help`) |
 | `scripts/fragility_surface.py` | CSV fragility grid; `--panic-*`, `--depeg-*`, `integral_instability` column |
 | `scripts/run_coevolution.py` | Alternating attacker/defender GA: `--mode aggregate|network|resource_cascade|service_backlog|liquidity_ladder`, **`--initial-overload`** (cascade) / **`--initial-backlog`** (backlog) / **`--initial-margin`** (liquidity), `--continue-after-collapse`, topology flags or `--neighbor-json`, `--collect-attacker-pareto`, **`--export-pareto-json`** (viewer-ready `pareto-front-v1`), `--json-summary`, `--export-replay` |
 | `scripts/export_coevolution_pareto.py` | Convert `--json-summary` output → `pareto_front.json` (`--from-summary`, `--out`) |
@@ -152,7 +156,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/check_manifest_digest.py` | CI guard: `golden_metrics_sha256` must match `tests/fixtures/benchmarks/golden_metrics_sha256.txt` |
 | `scripts/export_aggregate_counterfactual_chain.py` | Aggregate peg cumulative mutation chain + optional path trace |
 | `scripts/plot_institutional_composite_bars.py` | Bar chart of per-branch `integral_instability` from institutional composite JSON |
-| `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <bundle_id>`** (frozen suite IDs in [`benchmarks/README.md`](benchmarks/README.md)), **`--bundle-all`** (full suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade|service_backlog|liquidity_ladder` (`--json`, **`workflow`** field) |
+| `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <bundle_id>`** (frozen suite IDs in [`benchmarks/README.md`](benchmarks/README.md)), **`--bundle-all`** (full suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade|service_backlog|liquidity_ladder|inventory_buffer` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Frozen benchmark suite (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md), charter Phase H in [`BOUNDARIES.md`](BOUNDARIES.md) |
 | `scripts/ci_local.sh` | **Linux / macOS / WSL:** same checks as Windows `ci_local.ps1` (canonical validation path — not GitHub Actions on push) |
 | `scripts/ci_local.ps1` | **Windows PowerShell:** canonical validation (ruff, pytest, manifest pins) |

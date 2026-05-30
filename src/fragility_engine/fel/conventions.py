@@ -23,6 +23,7 @@ DELTA_PATH_FORWARD = "delta_plus"  # φ(R₁) − φ(R₀) along a path edge
 # Evidence artifact schemas registered by FEL (subset — see spec §8)
 SCHEMA_REGISTRY: dict[str, str] = {
     "rollout": "replay schema via rollout_to_replay_dict (schema_version field)",
+    "counterfactual_bundle": "counterfactual-bundle-v1",
     "pareto_front": "pareto-front-v1",
     "attribution_merge": "attribution-merge-v1",
     "explanation_dag": "explanation-dag-v1",

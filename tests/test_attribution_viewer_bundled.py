@@ -35,6 +35,7 @@ def test_bundled_resource_cascade_chain_path_trace() -> None:
 def test_bundled_aggregate_chain_path_trace() -> None:
     p = ATTR / "sample_aggregate_chain_rumor_depeg.json"
     obj = json.loads(p.read_text(encoding="utf-8"))
+    assert obj.get("schema") == "counterfactual-bundle-v1"
     assert obj.get("intervention") == "aggregate_mutation_chain"
     assert obj["path_trace"]["schema"] == "explanation-mutation-chain-path-aggregate-v1"
 

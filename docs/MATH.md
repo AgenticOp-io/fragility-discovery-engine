@@ -2,7 +2,7 @@
 
 Canonical reference for objectives, dominance, hypervolume, search algorithms, simulation updates, and explanation deltas in the Fragility Discovery Engine.
 
-For the formal type system and evidence constructors, see [Fragility Evidence Language (FEL)](FRAGILITY_EVIDENCE_LANGUAGE.md). For algorithm provenance (original vs standard vs borrowed), see [Algorithms](/docs/algorithms.html). For CLI usage, see [How to Use](/docs/how-to-use.html).
+For the formal type system and evidence constructors, see [Fragility Evidence Language (FEL)](FRAGILITY_EVIDENCE_LANGUAGE.md). For algorithm provenance (original vs standard vs borrowed), see [Algorithms](ALGORITHMS.md). For CLI usage, see [How to Use](HOW_TO_USE.md).
 
 ---
 

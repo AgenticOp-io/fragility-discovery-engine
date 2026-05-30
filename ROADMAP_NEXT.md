@@ -222,24 +222,24 @@ Concrete improvements that **reuse** existing phases—promote into `BOUNDARIES.
 
 ---
 
-### Phase N — Fourth reference domain (**shipped**)
+### Phase N — Fourth reference domain (**shipped**, historical)
 
 **Status:** **Adopted / shipped** — [`BOUNDARIES.md`](BOUNDARIES.md) (Phase N), [`docs/phase_n_liquidity_ladder.md`](docs/phase_n_liquidity_ladder.md), bundle **`liquidity_ladder_rollout_v1`**.
 
-**Purpose:** If the project needs **another** thin `World` (same shock-schedule encoding, new physics story, new frozen bundle), **Phase N** would be the umbrella—**not** a silent expansion of Phase M.
+**Purpose:** Added **`LiquidityLadderWorld`** under the Phase N umbrella — same shock-schedule encoding, new physics story, new frozen bundle. Phase O (`inventory_buffer`) followed the same pattern.
 
-**Hard rules (draft — must be copied into `BOUNDARIES.md` before work starts):**
+**Rules (now normative in `BOUNDARIES.md`):**
 
-- At most **one** new `world/` physics experiment under **Phase N** at a time; **max 3–5** archetypes (`BOUNDARIES.md` immutable principles).
-- Existing bundles (`aggregate_rollout_v1`, `network_*`, `resource_cascade_rollout_v1`, `service_backlog_rollout_v1`) remain **oracles** unless a charter revision explicitly replaces one.
-- **No** cross-`World` coupling inside `step()`; decoupled **composite** JSON remains the audit pattern for multi-kernel stress. Coupled dynamics stay **fork policy**: [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md).
+- At most **one** new `world/` physics experiment per charter phase at a time; **max 3–5** archetypes.
+- Existing bundles remain **oracles** unless a charter revision explicitly replaces one.
+- **No** cross-`World` coupling inside `step()`; decoupled **composite** JSON remains the audit pattern. Coupled dynamics stay **fork policy**: [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md).
 
-**Exit criteria (candidate — all unchecked until adoption):**
+**Exit criteria (all met):**
 
 - [x] Admission memo + Phase N section in `BOUNDARIES.md`.
 - [x] `LiquidityLadderWorld` + `rollout_liquidity_ladder` + replay contract tests.
 - [x] GA smoke `run_liquidity_ladder_ga_demo.py` + frozen bundle `liquidity_ladder_rollout_v1`.
-- [x] Pareto / MC / co-evolution / replay export / counterfactual (`initial_margin_shift`) wiring; mutation-chain export + path trace shipped as the same small-fixture pattern used by earlier domains.
+- [x] Pareto / MC / co-evolution / replay export / counterfactual wiring; mutation-chain + path trace shipped.
 
 ---
 

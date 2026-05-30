@@ -3,6 +3,7 @@
 Formal vocabulary for **schedules, rollouts, objectives, interventions, and evidence** in the Fragility Discovery Engine. FEL does not introduce new physics; it axiomatizes what the engine already computes so exports, benchmarks, and explain artifacts share one semantics.
 
 **Implementation:** `src/fragility_engine/fel/`  
+**Preprint:** [`preprint/FEL_preprint_v0.1.md`](preprint/FEL_preprint_v0.1.md) · **Publishing guide:** [`preprint/PUBLISHING.md`](preprint/PUBLISHING.md)  
 **Related:** [MATH.md](MATH.md) (formulas), [ALGORITHMS.md](ALGORITHMS.md) (procedures)
 
 ---
@@ -126,6 +127,7 @@ Python: `fel.delta_path_forward`, path trace `edges[].delta_*`.
 | Constructor | Schema ID | Role |
 |-------------|-----------|------|
 | Rollout replay | `schema_version` on replay dict | Canonical serialized **R**. |
+| Counterfactual bundle | `counterfactual-bundle-v1` | Baseline vs variant Δ⁻ attribution (all `compare_rollouts` exports) |
 | Pareto front | `pareto-front-v1` | Non-dominated **(S, c)** set. |
 | Attribution merge | `attribution-merge-v1` | Star merge of Δ⁻ bundles. |
 | Explanation DAG | `explanation-dag-v1` | Causal / dependency graph over nodes. |

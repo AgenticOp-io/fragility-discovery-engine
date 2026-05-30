@@ -27,9 +27,9 @@ Audit date: 2026-05-29. Source: Pareto/hypervolume semantic review and literatur
 
 **Problem:** Objective directions, delta sign conventions, and toy-model scope are scattered across `ALGORITHMS.md`, code comments, and the audit notes.
 
-**Fix:** Add `docs/MATH.md` as the canonical math reference: objectives, dominance, hypervolume transform, GA operators, world update equations, counterfactual deltas, co-evolution signs, and explicit non-goals (not calibrated economics).
+**Fix:** Add `docs/MATH.md` as the canonical math reference: objectives, dominance, hypervolume transform, GA operators, world update equations, counterfactual deltas, co-evolution signs, and explicit non-goals (not calibrated economics). Evidence semantics: `docs/FRAGILITY_EVIDENCE_LANGUAGE.md` (FEL).
 
-**Acceptance:** Public site renders `/docs/math.html`; `ALGORITHMS.md` and `HOW_TO_USE.md` link to it.
+**Acceptance:** `MATH.md` in repo; `ALGORITHMS.md` and `HOW_TO_USE.md` link to it. Public product site publishes **FEL** (`/docs/fel.html`), not `MATH.md` (repo-only formulas).
 
 ## Goal 4 — Clarify generic vs attack hypervolume in tests
 
@@ -42,7 +42,7 @@ Audit date: 2026-05-29. Source: Pareto/hypervolume semantic review and literatur
 ## Out of scope (document only, no code change)
 
 - Coupled fork Gaussian step noise (research fork; documented in `MATH.md`)
-- Counterfactual vs mutation-chain delta sign differences (documented, not unified)
+- Counterfactual vs mutation-chain delta sign differences — named in FEL (`FRAGILITY_EVIDENCE_LANGUAGE.md`); not unified in JSON field names (by design)
 - Replacing scalar GA with NSGA-II (charter: post-hoc Pareto archive only)
 
 ## Done when

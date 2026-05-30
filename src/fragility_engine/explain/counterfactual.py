@@ -26,6 +26,8 @@ from fragility_engine.world.resource_cascade import ResourceCascadeWorld
 from fragility_engine.world.service_backlog import ServiceBacklogWorld
 from fragility_engine.world.stablecoin_network import StablecoinNetworkWorld
 
+COUNTERFACTUAL_BUNDLE_SCHEMA = "counterfactual-bundle-v1"
+
 
 def genome_zero_timesteps(genome: np.ndarray, timesteps: list[int]) -> np.ndarray:
     g = genome.copy()
@@ -93,6 +95,7 @@ def compare_rollouts(
     label_variant: str = "variant",
 ) -> dict[str, Any]:
     return {
+        "schema": COUNTERFACTUAL_BUNDLE_SCHEMA,
         label_base: rollout_snapshot(base),
         label_variant: rollout_snapshot(variant),
         "interpretation_hint": _hint(base, variant),

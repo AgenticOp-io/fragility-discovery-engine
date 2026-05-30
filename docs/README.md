@@ -13,7 +13,7 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 | **New to the project** | [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | [`HOW_TO_USE.md`](HOW_TO_USE.md) |
 | **Installing and running** | [`HOW_TO_USE.md`](HOW_TO_USE.md) §1–3 | [`INSTALLATION.md`](INSTALLATION.md) for platform-specific setup |
 | **Looking up a CLI flag or schema** | [`REFERENCE.md`](REFERENCE.md) | Script `--help`, tests under `tests/` |
-| **Reviewer / paper appendix** | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | [`../benchmarks/README.md`](../benchmarks/README.md), [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) |
+| **Reviewer / paper appendix** | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | [`preprint/FEL_preprint_v0.1.md`](preprint/FEL_preprint_v0.1.md), [`../benchmarks/README.md`](../benchmarks/README.md), [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) |
 | **Understanding the architecture** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md), [`BOUNDARIES.md`](../BOUNDARIES.md) |
 
 ---
@@ -29,8 +29,11 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 | [`INSTALLATION.md`](INSTALLATION.md) | OS packages, Python version, Git credentials, CI parity scripts |
 | [`SCALE_AND_LIMITS.md`](SCALE_AND_LIMITS.md) | Complexity, parallelism, sweep cost, determinism caveats |
 | [`PAPER_APPENDIX_WORKFLOW.md`](PAPER_APPENDIX_WORKFLOW.md) | End-to-end path from run to citable artifact bundle |
+| [`preprint/FEL_preprint_v0.1.md`](preprint/FEL_preprint_v0.1.md) | Scholarly preprint on FEL semantics (fel-v0.1) |
+| [`FRAGILITY_EVIDENCE_LANGUAGE.md`](FRAGILITY_EVIDENCE_LANGUAGE.md) | Normative FEL spec (operators, schemas, laws) |
 | [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) | Checked-in JSON for viewers and CI pins |
 | [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Charter + Phase O completion snapshot |
+| [`AUDIT_RESOLUTION.md`](AUDIT_RESOLUTION.md) | Project + math audit findings and fix status |
 | [`phase_o_stretch.md`](phase_o_stretch.md) | Post-charter stretch (robustness, hexa composite, fork, PyPI) |
 | [`phase_p_visibility.md`](phase_p_visibility.md) | Branded public site (GCE + Pages), feedback template, coupled fork v0.1 |
 | [`GCE_VALIDATION.md`](GCE_VALIDATION.md) | Run full CI parity on a GCE VM (`gce_sync_vm.ps1`) |
