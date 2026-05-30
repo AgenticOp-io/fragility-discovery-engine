@@ -44,27 +44,36 @@
     });
 })();
 
-/** Guided tour overlay (manual + autoplay + optional voice narration). */
+/** Guided tour overlay (manual step-by-step + optional autoplay). */
 (function () {
   var TOUR_ACTIVE = "fde_tour_active_v1";
   var TOUR_INDEX = "fde_tour_index_v1";
   var TOUR_AUTOPLAY = "fde_tour_autoplay_v1";
   var TOUR_MS = "fde_tour_ms_v1";
   var TOUR_PLAYING = "fde_tour_playing_v1";
-  var TOUR_VOICE = "fde_tour_voice_v1";
-  var TOUR_VOICE_MUTED = "fde_tour_voice_muted_v1";
-  var TOUR_VOICE_UNLOCKED = "fde_tour_voice_unlocked_v1";
   var TOUR_REDIRECTS = "fde_tour_redirects_v1";
   var TOUR_NAV_TARGET = "fde_tour_nav_target_v1";
   var floatExitEl = null;
   var autoplayTimer = null;
-  var voicesReady = false;
 
   function qs(sel) {
     try { return document.querySelector(sel); } catch (e) { return null; }
   }
   function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
   function setText(el, txt) { if (el) el.textContent = String(txt || ""); }
+  function setBodyHtml(el, txt) {
+    if (!el) return;
+    var parts = String(txt || "").split(/\n\n+/).filter(function (p) { return p.trim(); });
+    if (!parts.length) {
+      el.textContent = "";
+      return;
+    }
+    el.innerHTML = parts
+      .map(function (p) {
+        return "<p>" + p.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</p>";
+      })
+      .join("");
+  }
 
   function normalizeHash(hash) {
     if (!hash) return "";
@@ -110,18 +119,16 @@
 
   function stripTourFromUrl() {
     var params = new URLSearchParams(window.location.search);
-    var changed = params.has("tour") || params.has("autoplay") || params.has("voice") || params.has("ms");
+    var changed = params.has("tour") || params.has("autoplay") || params.has("ms");
     if (!changed) return;
     params.delete("tour");
     params.delete("autoplay");
-    params.delete("voice");
     params.delete("ms");
     var qs = params.toString();
     history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + normalizeHash(window.location.hash || ""));
   }
 
   function navigateToStepUrl(want) {
-    stopSpeech();
     var parts = want.split("#");
     var base = parts[0] || "/";
     var hash = parts.length > 1 ? "#" + parts.slice(1).join("#") : "";
@@ -134,71 +141,101 @@
       url: "/",
       selector: ".fde-hero-actions a[href=\"/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json\"]",
       title: "1) Watch a collapse",
-      body: "Open the flagship replay. Then step the timeline to see exactly when the system crosses its breaking point.",
-      say: "Step one: watch a collapse. Open the flagship replay, then step through the timeline to see when the system breaks.",
+      body:
+        "This workbench hosts pre-built JSON samples on the server — nothing is uploaded from your computer.\n\n" +
+        "Start with the flagship benchmark replay: a genetic search already found one of the worst stress schedules for the aggregate peg domain (stablecoin reserves under panic). Click the highlighted link to open it in the replay viewer.\n\n" +
+        "In the viewer you will scrub a step-by-step timeline: reserve ratio, panic level, applied shocks, and a collapse marker when the system crosses its breaking point.",
+      hint: "Click Flagship replay to open the timeline viewer.",
     },
     {
       url: "/artifacts/replay_viewer/index.html#src=sample_replay.json",
       selector: "canvas",
-      title: "Replay timeline",
-      body: "Drag or click on the chart to scrub through time. Look for the collapse marker and the instability curve.",
-      say: "Scrub the replay chart. Drag or click to move through time and watch instability rise toward collapse.",
+      title: "2) Read the replay chart",
+      body:
+        "The replay viewer turns a JSON file into an interactive timeline. The sample loaded here is a shorter aggregate-peg run.\n\n" +
+        "Drag across the chart or click a step to move through time. Watch three things: the instability curve climbing toward failure, the event lane showing external shocks at each step, and the collapse marker (if the run ended in failure).\n\n" +
+        "Every sample on this demo uses the Presets menu or workbench links — local file upload is disabled on the public site.",
+      hint: "Scrub the chart (highlighted) to step through the simulation.",
     },
     {
       url: "/run.html",
       selector: "#runBtn",
-      title: "2) Run a live search",
-      body: "Keep the defaults and press Run scenario. The server will search for a worst-case schedule and open the results.",
-      say: "Step two: run a live search. Keep the defaults and press Run scenario. The server finds a stressful schedule and opens the results.",
+      title: "3) Run a live search on the server",
+      body:
+        "So far you have browsed frozen samples. This page runs a new search on the GCE server.\n\n" +
+        "Pick a domain and search type from the dropdown, set seed / horizon / generations / population, then press Run scenario. The engine runs a genetic algorithm, saves results under /runs/<id>/, and links you to the replay or Pareto viewer when finished.\n\n" +
+        "For this step, keep the defaults (aggregate peg) and click Run scenario. You do not need to change any fields.",
+      hint: "Press Run scenario when you are ready — results stay on the server.",
     },
     {
       url: "/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json",
       selector: "#presetSelect",
-      title: "3) Ask what caused it",
-      body: "This view shows a mutation chain: each step adds one change and shows its delta instability and delta cost.",
-      say: "Step three: ask what caused it. Each link in the chain adds one mutation and shows how much instability and cost it added.",
+      title: "4) Ask what caused the collapse",
+      body:
+        "A replay shows what happened. Attribution shows why — by re-running the simulation with controlled changes.\n\n" +
+        "This sample is a mutation chain on the aggregate peg domain: each row adds one change to the stress schedule and reports how much extra instability and attack cost it added. Follow the chain from baseline toward collapse.\n\n" +
+        "Use the preset dropdown to switch between bundled attribution samples if you want to compare domains later.",
+      hint: "Read the chain table — each step is one added mutation.",
     },
     {
       url: "/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json",
       selector: "#panel table, #panel .path-step",
-      title: "4) Coupled fork chain",
-      body: "Research fork: peg panic and overload exchange signals each step. Coupling strength mutations stack on a pinned schedule — not the six-domain composite.",
-      say: "Step four: the coupled research fork. Coupling strength steps up on a pinned schedule while panic and overload trade signals inside one simulation step.",
+      title: "5) Research fork — mutation chain",
+      body:
+        "The coupled institution fork is separate from the six charter domains. It models peg panic and infrastructure overload exchanging signals inside a single simulation step.\n\n" +
+        "This attribution chain pins one attack schedule and steps up coupling strength. Each row shows how much worse the run gets when panic and overload feed each other more tightly.\n\n" +
+        "This is research physics — not part of the stable six-domain workbench charter.",
+      hint: "Compare delta instability and cost across coupling mutations.",
     },
     {
       url: "/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json",
       selector: "#cv",
-      title: "5) Coupled replay (peg + overload)",
-      body: "Research fork replay: blue peg price, orange instability, teal dashed overload — both signals coupled inside each simulation step.",
-      say: "Step five: the coupled replay. Watch peg price in blue and overload in teal rise together on the same pinned attack schedule.",
+      title: "6) Research fork — coupled replay",
+      body:
+        "The coupled replay viewer shows two linked signals on one timeline: peg price (blue) and overload (teal dashed), both driven by the same pinned attack schedule.\n\n" +
+        "Watch how they move together when coupling is non-zero — a shock that raises panic can also push overload, and vice versa, within the same step.\n\n" +
+        "Charter-domain replays only show one world's physics; this fork deliberately couples two.",
+      hint: "Scrub the chart and watch peg and overload rise together.",
     },
     {
       url: "/artifacts/coupling_sweep_viewer/index.html",
       selector: "#cv",
-      title: "6) Coupling sweep",
-      body: "Same attack schedule with only coupling strength changing. Red points collapsed within the horizon — see how instability climbs as coupling tightens.",
-      say: "Step six: the coupling sweep chart. Watch integral instability rise as peg panic and overload exchange more signal each step.",
+      title: "7) Coupling strength sweep",
+      body:
+        "This chart holds the attack schedule fixed and varies only coupling strength — how tightly peg panic and overload exchange signal each step.\n\n" +
+        "Points show integral instability at each coupling level. Red markers mean the run collapsed within the horizon. Use it to see how much coupling alone can worsen outcomes.\n\n" +
+        "Open the Presets menu if you need to reload the bundled sweep JSON.",
+      hint: "Follow the curve — higher coupling often means higher instability.",
     },
     {
       url: "/artifacts/coupling_comparison_viewer/index.html",
       selector: "#panel .grid",
-      title: "7) Coupling comparison",
-      body: "Baseline vs higher coupling on the same schedule — side-by-side collapse metrics and deltas.",
-      say: "Step seven: compare two coupling strengths on the same schedule and see how much worse the variant run is.",
+      title: "8) Coupling comparison (A vs B)",
+      body:
+        "Here the same pinned schedule is run twice: a baseline coupling level and a higher-coupling variant.\n\n" +
+        "The grid shows side-by-side metrics — collapse step, integral instability, attack cost — plus deltas so you can quantify how much worse the tighter coupling made the run.\n\n" +
+        "This is the fork's answer to \"what if we only changed coupling, nothing else?\"",
+      hint: "Read baseline vs variant columns and the delta row.",
     },
     {
       url: "/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json",
       selector: "#cv",
-      title: "8) Coupled fork trade-offs",
-      body: "Research fork Pareto chart: each dot is a non-dominated attack on coupled peg–overload physics — severity vs attack cost.",
-      say: "Step eight: the coupled Pareto chart. Each dot is an attack that trades cost against severity on the research fork world.",
+      title: "9) Coupled fork trade-offs (Pareto)",
+      body:
+        "A Pareto chart plots many attacks at once: severity (how bad the outcome) vs attack cost (how expensive the stress schedule was).\n\n" +
+        "Each dot is a non-dominated solution from a genetic search on coupled peg–overload physics. Cheap-but-mild sits on one end; expensive-but-devastating on the other.\n\n" +
+        "Co-evolution runs on Run a scenario produce fresh Pareto files under /runs/<id>/.",
+      hint: "Each dot is one attack — trace the cost vs severity frontier.",
     },
     {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",
       selector: "select, .btn, button",
-      title: "Bonus: compare all six domains",
-      body: "The composite view applies the same attack to every domain side by side. Try presets to switch bundles.",
-      say: "Bonus: compare all six domains. The same attack runs on every reference world side by side.",
+      title: "Bonus: same attack, six domains",
+      body:
+        "The composite viewer applies one attack genome across multiple charter domains and shows the scorecard side by side.\n\n" +
+        "This hexa sample runs the same schedule on all six reference worlds (peg, network, cascade, backlog, ladder, inventory). Use Presets to switch twin through hexa bundles.\n\n" +
+        "Composite output is not a replay timeline — it is a multi-domain audit of one attack.",
+      hint: "Try Presets to compare twin, triple, quad, penta, and hexa bundles.",
     },
   ];
 
@@ -215,68 +252,9 @@
     if (raw == null) return true;
     return raw === "1";
   }
-  function voiceEnabled() { return sessionStorage.getItem(TOUR_VOICE) === "1"; }
-  function setVoiceEnabled(v) { sessionStorage.setItem(TOUR_VOICE, v ? "1" : "0"); }
-  function isVoiceMuted() { return sessionStorage.getItem(TOUR_VOICE_MUTED) === "1"; }
-  function setVoiceMuted(v) { sessionStorage.setItem(TOUR_VOICE_MUTED, v ? "1" : "0"); }
 
   function isTourActive() {
     return sessionStorage.getItem(TOUR_ACTIVE) === "1";
-  }
-
-  function speechSupported() {
-    return !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
-  }
-
-  function voiceUnlocked() {
-    return sessionStorage.getItem(TOUR_VOICE_UNLOCKED) === "1";
-  }
-
-  function unlockVoice() {
-    sessionStorage.setItem(TOUR_VOICE_UNLOCKED, "1");
-    if (!window.speechSynthesis) return;
-    try {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.resume();
-    } catch (e) {}
-  }
-
-  function prepareVoices() {
-    if (!speechSupported() || voicesReady) return;
-    function load() {
-      voicesReady = window.speechSynthesis.getVoices().length > 0;
-    }
-    load();
-    window.speechSynthesis.onvoiceschanged = load;
-  }
-
-  function stopSpeech() {
-    if (!window.speechSynthesis) return;
-    try { window.speechSynthesis.cancel(); } catch (e) {}
-  }
-
-  function speechLine(step) {
-    if (step.say) return step.say;
-    return step.title + ". " + step.body;
-  }
-
-  function pickVoice(utterance) {
-    if (!window.speechSynthesis) return;
-    var voices = window.speechSynthesis.getVoices();
-    var en = voices.filter(function (v) { return /^en(-|_)/i.test(v.lang); });
-    if (en.length) utterance.voice = en[0];
-  }
-
-  function speakStep(step) {
-    if (!voiceEnabled() || isVoiceMuted() || !speechSupported() || !voiceUnlocked()) return;
-    stopSpeech();
-    prepareVoices();
-    var u = new SpeechSynthesisUtterance(speechLine(step));
-    u.lang = "en-US";
-    u.rate = 0.98;
-    u.pitch = 1.0;
-    pickVoice(u);
-    try { window.speechSynthesis.speak(u); } catch (e) {}
   }
 
   function ensureTourStartedFromUrl() {
@@ -288,14 +266,10 @@
       sessionStorage.setItem(TOUR_AUTOPLAY, "1");
       setPlaying(true);
     }
-    var voice = params.get("voice");
-    if (voice === "1" || ap === "1") setVoiceEnabled(true);
-    if (voice === "0") setVoiceEnabled(false);
     var ms = parseInt(params.get("ms") || "", 10);
     if (isFinite(ms) && ms >= 1500) sessionStorage.setItem(TOUR_MS, String(ms));
     params.delete("tour");
     params.delete("autoplay");
-    params.delete("voice");
     params.delete("ms");
     var qs2 = params.toString();
     history.replaceState(null, "", window.location.pathname + (qs2 ? "?" + qs2 : "") + window.location.hash);
@@ -310,7 +284,6 @@
 
   function teardown() {
     clearAutoplayTimer();
-    stopSpeech();
     var root = document.getElementById("fdeTourRoot");
     if (root && root.parentNode) root.parentNode.removeChild(root);
     if (floatExitEl && floatExitEl.parentNode) floatExitEl.parentNode.removeChild(floatExitEl);
@@ -319,15 +292,11 @@
 
   function exitTour() {
     clearAutoplayTimer();
-    stopSpeech();
     sessionStorage.removeItem(TOUR_ACTIVE);
     sessionStorage.removeItem(TOUR_INDEX);
     sessionStorage.removeItem(TOUR_AUTOPLAY);
     sessionStorage.removeItem(TOUR_PLAYING);
     sessionStorage.removeItem(TOUR_MS);
-    sessionStorage.removeItem(TOUR_VOICE);
-    sessionStorage.removeItem(TOUR_VOICE_MUTED);
-    sessionStorage.removeItem(TOUR_VOICE_UNLOCKED);
     sessionStorage.removeItem(TOUR_REDIRECTS);
     sessionStorage.removeItem(TOUR_NAV_TARGET);
     stripTourFromUrl();
@@ -389,10 +358,7 @@
   }
 
   function tourControlClick(fn) {
-    return function (e) {
-      unlockVoice();
-      fn(e);
-    };
+    return function (e) { fn(e); };
   }
 
   function render() {
@@ -414,7 +380,7 @@
       '<div class="fde-tour-dim" id="fdeTourDim" title="Click to exit tour"></div>',
       '<div class="fde-tour-spot" aria-hidden="true"></div>',
       '<div class="fde-tour-card" role="dialog" aria-label="Guided tour">',
-      '  <div class="fde-tour-kicker">Tour · Esc to exit</div>',
+      '  <div class="fde-tour-kicker">Step-by-step tour · Esc to exit</div>',
       '  <div class="fde-tour-title" id="fdeTourTitle"></div>',
       '  <div class="fde-tour-body" id="fdeTourBody"></div>',
       '  <div class="fde-tour-caption" id="fdeTourCaption"></div>',
@@ -423,8 +389,6 @@
       '    <button type="button" class="fde-tour-btn" id="fdeTourBack">Back</button>',
       '    <button type="button" class="fde-tour-btn fde-tour-primary" id="fdeTourNext">Next</button>',
       '    <button type="button" class="fde-tour-btn" id="fdeTourPlay">Pause</button>',
-      '    <button type="button" class="fde-tour-btn fde-tour-voice-play" id="fdeTourSpeak">Play voice</button>',
-      '    <button type="button" class="fde-tour-btn" id="fdeTourVoice">Mute voice</button>',
       '    <button type="button" class="fde-tour-btn fde-tour-ghost" id="fdeTourExit">Exit tour</button>',
       '  </div>',
       '  <div class="fde-tour-progress" id="fdeTourProgress"></div>',
@@ -441,27 +405,27 @@
     }
 
     setText(document.getElementById("fdeTourTitle"), step.title);
-    setText(document.getElementById("fdeTourBody"), bodyText);
-    var cap = speechLine(step);
-    if (voiceEnabled() && !voiceUnlocked()) {
-      cap = "Tap Play voice once (browser requires a click to speak). " + cap;
+    setBodyHtml(document.getElementById("fdeTourBody"), bodyText);
+    var capEl = document.getElementById("fdeTourCaption");
+    if (step.hint && sync === "ok") {
+      setText(capEl, "Look for: " + step.hint);
+      if (capEl) capEl.style.display = "";
+    } else if (capEl) {
+      capEl.textContent = "";
+      capEl.style.display = "none";
     }
-    setText(document.getElementById("fdeTourCaption"), cap);
     setText(document.getElementById("fdeTourProgress"), (i + 1) + " / " + steps.length);
 
     var dim = document.getElementById("fdeTourDim");
     var back = document.getElementById("fdeTourBack");
     var next = document.getElementById("fdeTourNext");
     var play = document.getElementById("fdeTourPlay");
-    var speak = document.getElementById("fdeTourSpeak");
-    var voiceBtn = document.getElementById("fdeTourVoice");
     var exit = document.getElementById("fdeTourExit");
 
     if (dim) dim.onclick = tourControlClick(function () { exitTour(); });
     if (back) {
       back.disabled = i <= 0;
       back.onclick = tourControlClick(function () {
-        stopSpeech();
         setIndex(i - 1);
         render();
       });
@@ -469,7 +433,6 @@
     if (next) {
       next.textContent = (i >= steps.length - 1) ? "Finish" : "Next";
       next.onclick = tourControlClick(function () {
-        stopSpeech();
         if (i >= steps.length - 1) {
           exitTour();
           return;
@@ -483,56 +446,11 @@
         play.style.display = "";
         play.textContent = isPlaying() ? "Pause" : "Play";
         play.onclick = tourControlClick(function () {
-          if (isPlaying()) stopSpeech();
           setPlaying(!isPlaying());
           render();
         });
       } else {
         play.style.display = "none";
-      }
-    }
-    if (speak) {
-      if (!speechSupported()) {
-        speak.style.display = "none";
-      } else {
-        speak.style.display = "";
-        speak.textContent = voiceUnlocked() ? "Replay voice" : "Play voice";
-        speak.onclick = tourControlClick(function () {
-          setVoiceEnabled(true);
-          setVoiceMuted(false);
-          unlockVoice();
-          speakStep(step);
-        });
-      }
-    }
-    if (voiceBtn) {
-      if (!speechSupported()) {
-        voiceBtn.style.display = "none";
-      } else if (!voiceEnabled()) {
-        voiceBtn.textContent = "Voice off";
-        voiceBtn.classList.remove("fde-tour-muted");
-        voiceBtn.onclick = tourControlClick(function () {
-          setVoiceEnabled(true);
-          setVoiceMuted(false);
-          render();
-        });
-      } else if (isVoiceMuted()) {
-        voiceBtn.textContent = "Unmute voice";
-        voiceBtn.classList.add("fde-tour-muted");
-        voiceBtn.onclick = tourControlClick(function () {
-          setVoiceMuted(false);
-          unlockVoice();
-          speakStep(step);
-          render();
-        });
-      } else {
-        voiceBtn.textContent = "Mute voice";
-        voiceBtn.classList.remove("fde-tour-muted");
-        voiceBtn.onclick = tourControlClick(function () {
-          setVoiceMuted(true);
-          stopSpeech();
-          render();
-        });
       }
     }
     if (exit) exit.onclick = tourControlClick(function () { exitTour(); });
@@ -557,16 +475,10 @@
 
     if (sync === "navigating") return;
 
-    if (voiceEnabled() && !isVoiceMuted() && voiceUnlocked()) {
-      window.setTimeout(function () {
-        if (isTourActive()) speakStep(step);
-      }, 200);
-    }
-
     var autoplay = sessionStorage.getItem(TOUR_AUTOPLAY) === "1";
     if (autoplay && sync === "ok") {
-      var ms = parseInt(sessionStorage.getItem(TOUR_MS) || "5200", 10);
-      if (!isFinite(ms)) ms = 5200;
+      var ms = parseInt(sessionStorage.getItem(TOUR_MS) || "8000", 10);
+      if (!isFinite(ms)) ms = 8000;
       ms = clamp(ms, 2000, 12000);
       var bar = document.getElementById("fdeTourBar");
       if (bar) {
@@ -598,7 +510,6 @@
     if (e.key === "Escape") exitTour();
   }
 
-  prepareVoices();
   ensureTourStartedFromUrl();
   if (!isTourActive()) return;
   if (!isTourPage()) {

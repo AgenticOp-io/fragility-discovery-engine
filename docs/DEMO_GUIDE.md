@@ -11,7 +11,7 @@ The demo is at **http://34.61.255.147/**. Everything is server-hosted — you op
 | **Workbench** | `/` | Browse server-hosted samples and open them in viewers |
 | **Run a scenario** | `/run.html` | Start a new fragility search on the server |
 | **Past runs** | `/runs.html` | See completed server runs and open their results |
-| **Guided tour** | `/?tour=1` | Short interactive walkthrough |
+| **Guided tour** | `/?tour=1` | Step-by-step walkthrough with written explanations |
 | **Documentation** | `/docs/` | Full manual |
 | **This host** | `/host.html` | Validation snapshot and engine health |
 
@@ -60,7 +60,7 @@ Results are saved on the server under `/runs/<id>/`. Nothing on your computer is
 1. Workbench → click **Flagship benchmark** replay to see a collapse timeline.
 2. [Run a scenario](/run.html) → leave defaults → wait for it to finish → open in Replay viewer.
 3. Come back to the workbench and open any **Attribution** sample to see a counterfactual chain.
-4. Optional: work through the [Guided tour](/?tour=1) for a narrated walk across all features.
+4. Optional: work through the [Guided tour](/?tour=1) — read each step, then press Next.
 
 ---
 
