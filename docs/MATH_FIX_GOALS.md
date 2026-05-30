@@ -51,4 +51,4 @@ Audit date: 2026-05-29. Source: Pareto/hypervolume semantic review and literatur
 - [x] `python -m pytest tests/test_hypervolume.py tests/test_bundled_pareto_hypervolume.py tests/test_flagship_bundled.py tests/test_attack_pareto_hypervolume.py -q` passes
 - [x] `python scripts/check_bundled_pareto_hypervolume.py` passes
 - [x] `python scripts/check_coupled_fork_pareto.py` passes
-- [ ] Changes pushed to `main`
+- [x] Changes pushed to `main`
