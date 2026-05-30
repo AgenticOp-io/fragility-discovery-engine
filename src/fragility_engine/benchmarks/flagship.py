@@ -107,8 +107,9 @@ def run_flagship_demo(
         "meta": {
             "hypervolume_reference": hv_ref,
             "hypervolume_policy": (
-                "Both objectives minimized (severity, attack_cost). Reference strictly worse than "
-                "archive maxima; pinned in tests/test_flagship_bundled.py."
+                "Attack Pareto: maximize severity, minimize attack_cost. Hypervolume uses "
+                "minimization coordinates (-severity, attack_cost) with reference (15, 15); "
+                "pinned in tests/test_flagship_bundled.py."
             ),
         },
     }

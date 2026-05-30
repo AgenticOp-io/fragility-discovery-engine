@@ -11,8 +11,11 @@
   "expected": {
     "best_fitness": 4.5,
     "archive_points": 5,
-    "hypervolume_reference": [3.7474999999999996, 2.2098395632466343],
-    "expected_hypervolume": 0.14772545861502587
+    "hypervolume_reference": [
+      -2.7625,
+      3.5604197299167493
+    ],
+    "expected_hypervolume": 1.5441378445026996
   },
   "note": "Stress-tier GA (larger budget than v1). Re-pin with check_coupled_fork_pareto.py --tier v2 --write-pins."
 }

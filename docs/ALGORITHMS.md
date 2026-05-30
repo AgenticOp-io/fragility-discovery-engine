@@ -91,7 +91,7 @@ Maintains the non-dominated set across `(severity, attack_cost)`; `severity` max
 Closed-form rectangular sweep for two minimized objectives relative to a reference point.
 
 - **Originators:** Zitzler & Thiele (1998), *[Multiobjective optimization using evolutionary algorithms — a comparative case study](https://link.springer.com/chapter/10.1007/BFb0056872)* (introduced the "size of the dominated space" indicator). The 2-D O(N log N) sweep is folklore.
-- **Our code:** `benchmarks/hypervolume.py::hypervolume_2d_min` and `nondominated_points_min`.
+- **Our code:** `benchmarks/hypervolume.py::hypervolume_2d_min` (generic minimization) and `hypervolume_2d_attack_pareto` (attack archives via `(-severity, attack_cost)` transform). See [Math reference](/docs/math.html) §4.
 - **Use:** CI regression gate on Pareto-archive quality; never used as a fitness signal.
 
 ### 2.5 Alternating attacker / defender co-evolution — Standard

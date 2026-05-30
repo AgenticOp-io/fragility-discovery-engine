@@ -893,6 +893,13 @@ def build(out: Path) -> dict[str, str]:
         description="CLI flags, environment variables, JSON schemas, and script index.",
         md_filename="REFERENCE.md",
     )
+    _doc(
+        filename="math.html",
+        doc_id="docs-math",
+        title="Math — Fragility Discovery Engine",
+        description="Objectives, dominance, hypervolume, GA, world equations, and delta conventions.",
+        md_filename="MATH.md",
+    )
 
     _doc(
         filename="scale-and-limits.html",
@@ -974,6 +981,11 @@ def build(out: Path) -> dict[str, str]:
           <span class="fde-card-tag">provenance</span>
           <h3>Algorithms</h3>
           <p>Which algorithms are original to this project, which are standard, and where each one is cited.</p>
+        </a>
+        <a class="fde-card" href="/docs/math.html">
+          <span class="fde-card-tag">math</span>
+          <h3>Math</h3>
+          <p>Objectives, Pareto dominance, hypervolume transform, GA operators, and world update equations.</p>
         </a>
         <a class="fde-card" href="/docs/scale-and-limits.html">
           <span class="fde-card-tag">limits</span>

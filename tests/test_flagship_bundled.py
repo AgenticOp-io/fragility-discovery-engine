@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
+from fragility_engine.benchmarks.hypervolume import hypervolume_2d_attack_pareto
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLED = ROOT / "artifacts" / "flagship" / "bundled"
 
-# Pinned after `regenerate_bundled_viewer_samples.py` flagship GA (generations=2, pop=8, horizon=10).
-_FLAGSHIP_PARETO_HV = 162.26946916537284
+# Pinned after attack-Pareto hypervolume fix (ref 15,15 on (-severity, attack_cost)).
+_FLAGSHIP_PARETO_HV = 367.7198452205493
 _FLAGSHIP_PARETO_REF = (15.0, 15.0)
 
 
@@ -34,8 +34,8 @@ def test_flagship_bundled_pareto_hypervolume() -> None:
     meta = raw.get("meta") or {}
     ref = meta.get("hypervolume_reference")
     assert ref is not None
-    pts = [(float(e["severity"]), float(e["attack_cost"])) for e in raw["archive"]]
-    hv = hypervolume_2d_min(pts, (float(ref[0]), float(ref[1])))
+    hv, ref_used, _nd = hypervolume_2d_attack_pareto(raw["archive"], ref=_FLAGSHIP_PARETO_REF)
+    assert ref_used == _FLAGSHIP_PARETO_REF
     assert (float(ref[0]), float(ref[1])) == _FLAGSHIP_PARETO_REF
     assert hv == pytest.approx(_FLAGSHIP_PARETO_HV)
 

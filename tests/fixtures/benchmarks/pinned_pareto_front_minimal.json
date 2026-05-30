@@ -3,7 +3,7 @@
   "best_fitness": 3.0,
   "domain": "fixture",
   "meta": {
-    "description": "Pinned 3-point minimization front for hypervolume_2d_min regression (severity vs attack_cost, both minimized). Reference (5,5) yields HV 11.0 — see tests/test_pareto_front_hypervolume_fixture.py.",
+    "description": "Pinned 3-point generic minimization front for hypervolume_2d_min sweep regression (axis_a, axis_b — both minimized). Not attack-Pareto storage; see tests/test_attack_pareto_hypervolume.py.",
     "hypervolume_reference": [5.0, 5.0],
     "hypervolume_policy": "Both objectives minimized; ref must strictly dominate the ideal (larger severity and larger attack_cost than any Pareto point)."
   },

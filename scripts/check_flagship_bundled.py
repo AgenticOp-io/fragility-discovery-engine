@@ -6,14 +6,14 @@ import json
 import sys
 from pathlib import Path
 
-from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min
+from fragility_engine.benchmarks.hypervolume import hypervolume_2d_attack_pareto
 from fragility_engine.benchmarks.manifest import build_benchmark_manifest
 from fragility_engine.benchmarks.manifest_inventory import manifest_inventory_sha256
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLED = ROOT / "artifacts" / "flagship" / "bundled"
 _FLAGSHIP_PARETO_REF = (15.0, 15.0)
-_FLAGSHIP_PARETO_HV = 162.26946916537284
+_FLAGSHIP_PARETO_HV = 367.7198452205493
 
 
 def main() -> None:
@@ -44,8 +44,10 @@ def main() -> None:
     if ref != [15.0, 15.0]:
         print(f"unexpected pareto hypervolume_reference: {ref}", file=sys.stderr)
         raise SystemExit(1)
-    pts = [(float(e["severity"]), float(e["attack_cost"])) for e in pareto["archive"]]
-    hv = hypervolume_2d_min(pts, _FLAGSHIP_PARETO_REF)
+    hv, ref_used, _nd = hypervolume_2d_attack_pareto(pareto["archive"], ref=_FLAGSHIP_PARETO_REF)
+    if ref_used != _FLAGSHIP_PARETO_REF:
+        print(f"unexpected ref used: {ref_used}", file=sys.stderr)
+        raise SystemExit(1)
     if abs(hv - _FLAGSHIP_PARETO_HV) > 1e-6:
         print(f"flagship pareto hypervolume drift: {hv} != {_FLAGSHIP_PARETO_HV}", file=sys.stderr)
         raise SystemExit(1)

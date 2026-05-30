@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min, nondominated_points_min
+from fragility_engine.benchmarks.hypervolume import hypervolume_2d_attack_pareto
 
 ROOT = Path(__file__).resolve().parents[1]
 PIN_FILES = {
@@ -22,19 +22,13 @@ def _measure(path: Path) -> dict:
     if obj.get("schema") != "pareto-front-v1":
         raise SystemExit(f"{path}: expected pareto-front-v1")
     arch = obj.get("archive") or []
-    pts = [(float(e["severity"]), float(e["attack_cost"])) for e in arch if isinstance(e, dict)]
-    nd = nondominated_points_min(pts)
-    if not nd:
-        raise SystemExit(f"{path}: empty nondominated set")
-    ref = [
-        max(s for s, _ in nd) * 1.15 + 0.01,
-        max(a for _, a in nd) * 1.15 + 0.01,
-    ]
-    hv = hypervolume_2d_min(nd, (float(ref[0]), float(ref[1])))
+    if not arch:
+        raise SystemExit(f"{path}: empty archive")
+    hv, ref_t, _nd = hypervolume_2d_attack_pareto(arch)
     return {
         "best_fitness": float(obj.get("best_fitness", 0)),
         "archive_points": len(arch),
-        "hypervolume_reference": ref,
+        "hypervolume_reference": [ref_t[0], ref_t[1]],
         "expected_hypervolume": float(hv),
     }
 

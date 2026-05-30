@@ -1,44 +1,44 @@
 {
   "sample_pareto_front.json": {
     "hypervolume_reference": [
-      4.983290325433314,
-      1.7013294034029787
+      -3.6759102405376676,
+      2.9027461715196736
     ],
-    "expected_hypervolume": 0.15189931388370764
+    "expected_hypervolume": 4.184269085491714
   },
   "sample_pareto_resource_cascade.json": {
     "hypervolume_reference": [
-      3.3659602609288464,
-      1.4388990692627313
+      -2.4804923667734955,
+      6.183950055126668
     ],
-    "expected_hypervolume": 0.08792515950424878
+    "expected_hypervolume": 4.152262181618847
   },
   "sample_pareto_service_backlog.json": {
     "hypervolume_reference": [
-      0.041767545498956095,
-      4.673204207532063
+      -0.01762395260778791,
+      8.875429872741705
     ],
-    "expected_hypervolume": 0.008744191826265941
+    "expected_hypervolume": 0.2573336321081307
   },
   "sample_pareto_network.json": {
     "hypervolume_reference": [
-      7.191174633850018,
-      3.1784702051782374
+      -5.307824729367406,
+      5.053312131120338
     ],
-    "expected_hypervolume": 0.40070736432655746
+    "expected_hypervolume": 12.004852908357277
   },
   "sample_pareto_liquidity_ladder.json": {
     "hypervolume_reference": [
-      0.04229914758131605,
-      1.6445982765365719
+      -0.018086215288100914,
+      9.01304122731818
     ],
-    "expected_hypervolume": 0.003172446883500036
+    "expected_hypervolume": 3.995161962792467
   },
   "sample_pareto_coupled_institution.json": {
     "hypervolume_reference": [
-      4.226666666666667,
-      2.920855421032651
+      -3.116666666666667,
+      4.67367962368972
     ],
-    "expected_hypervolume": 0.21821900466673233
+    "expected_hypervolume": 3.221790377664637
   }
 }

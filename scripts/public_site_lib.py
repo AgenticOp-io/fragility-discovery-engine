@@ -46,6 +46,7 @@ DOCS_SECTIONS = [
     ("docs-arch",     "/docs/architecture.html",        "Architecture"),
     ("docs-ref",      "/docs/reference.html",           "Reference"),
     ("docs-algo",     "/docs/algorithms.html",          "Algorithms"),
+    ("docs-math",     "/docs/math.html",                "Math"),
     ("docs-scale",    "/docs/scale-and-limits.html",    "Scale & limits"),
     ("docs-fork",     "/docs/fork-coupling.html",       "Research fork"),
 ]
@@ -177,6 +178,7 @@ _MD_TO_HTML_LINKS: dict[str, str] = {
     "WHITEPAPER_INTRODUCTION.md": "/docs/overview.html",
     "INSTALLATION.md": "/docs/installation.html",
     "SCALE_AND_LIMITS.md": "/docs/scale-and-limits.html",
+    "MATH.md": "/docs/math.html",
     "FORK_COUPLING_RESEARCH.md": "/docs/fork-coupling.html",
     "README.md": "https://github.com/AgenticOp-io/fragility-discovery-engine#readme",
     "BOUNDARIES.md": "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md",

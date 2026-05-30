@@ -11,8 +11,11 @@
   "expected": {
     "best_fitness": 5.333333333333334,
     "archive_points": 4,
-    "hypervolume_reference": [4.226666666666667, 2.920855421032651],
-    "expected_hypervolume": 0.21821900466673233
+    "hypervolume_reference": [
+      -3.116666666666667,
+      4.67367962368972
+    ],
+    "expected_hypervolume": 3.221790377664637
   },
   "note": "Small GA with collect_pareto on CoupledInstitutionWorld. Re-pin via scripts/check_coupled_fork_pareto.py --write-pins after intentional search changes."
 }

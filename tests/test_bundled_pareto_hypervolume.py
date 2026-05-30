@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from fragility_engine.benchmarks.hypervolume import hypervolume_2d_min, nondominated_points_min
+from fragility_engine.benchmarks.hypervolume import hypervolume_2d_attack_pareto
 
 ROOT = Path(__file__).resolve().parents[1]
 PARETO_VIEWER = ROOT / "artifacts" / "pareto_viewer"
@@ -31,10 +31,9 @@ def test_bundled_pareto_hypervolume_pin(filename: str) -> None:
     pins = json.loads(FIXTURE.read_text(encoding="utf-8"))
     pin = pins[filename]
     obj = json.loads((PARETO_VIEWER / filename).read_text(encoding="utf-8"))
-    pts = [(float(e["severity"]), float(e["attack_cost"])) for e in obj["archive"]]
-    nd = nondominated_points_min(pts)
     ref = tuple(pin["hypervolume_reference"])
-    hv = hypervolume_2d_min(nd, ref)
+    hv, ref_used, _nd = hypervolume_2d_attack_pareto(obj["archive"], ref=ref)
+    assert ref_used == ref
     assert hv == pytest.approx(float(pin["expected_hypervolume"]))
 
 
