@@ -46,13 +46,17 @@
 
   <main class="fde-main">
 <nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
-<a href="/docs/">Overview</a>
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
 <a href="/docs/demo-guide.html">Demo guide</a>
-<a href="/docs/installation.html">Installation</a>
 <a class="fde-active" href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
 <a href="/docs/architecture.html">Architecture</a>
 <a href="/docs/reference.html">Reference</a>
 <a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
 </nav>
 <article class="fde-prose"><h2>How to use the Fragility Discovery Engine</h2>
 <p>This guide is the <strong>hands-on entry point</strong>: install, run your first scenarios, understand the output files, and use the browser-based viewers.</p>
@@ -61,7 +65,7 @@
 </thead><tbody>
 <tr><td>Package layout and data flow</td><td><a href="/docs/architecture.html">Architecture</a></td></tr>
 <tr><td>CLI flags and output formats</td><td><a href="/docs/reference.html">Reference</a></td></tr>
-<tr><td>Cost and parallelism limits</td><td><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/SCALE_AND_LIMITS.md"><code>SCALE_AND_LIMITS.md</code></a></td></tr>
+<tr><td>Cost and parallelism limits</td><td><a href="/docs/scale-and-limits.html"><code>SCALE_AND_LIMITS.md</code></a></td></tr>
 </tbody></table>
 <hr>
 <h3>1. What this software does</h3>
@@ -97,7 +101,6 @@
 <p>```</p>
 <p>Optional acceleration (resource cascade): <code>pip install -e &quot;.[accelerate]&quot;</code> — see <code>scripts/install_accelerate_windows.ps1</code>.</p>
 <h4>Linux / macOS</h4>
-<p><strong>CI parity:</strong> after activating a venv from this clone, run <code>bash scripts/ci_local.sh</code> (same checks as the automated CI pipeline). See <a href="/docs/installation.html">Installation</a> for platform-specific notes.</p>
 <p><strong>Debian / Ubuntu:</strong></p>
 <p>```bash</p>
 <p>sudo apt update</p>
@@ -254,7 +257,7 @@
 <p>python scripts/compare_replays.py baseline.json counterfactual.json --json-out diff.json</p>
 <p>```</p>
 <h4>4.17 Hypervolume and explanation DAG</h4>
-<p><strong>Hypervolume</strong> (measures quality of a trade-off curve, two objectives): <code>fragility_engine.benchmarks.hypervolume.hypervolume_2d_min(points, ref)</code>. The reference point must be strictly worse than every point on your curve.</p>
+<p><strong>Hypervolume</strong> (quality of a trade-off curve): <code>fragility_engine.benchmarks.hypervolume.hypervolume_2d_attack_pareto</code> for <code>pareto-front-v1</code> archives (internally uses <code>(-severity, attack_cost)</code>). Generic minimization sweep: <code>hypervolume_2d_min</code>. See <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/MATH.md">Math reference</a> §4.</p>
 <p><strong>Explanation DAG</strong> — a compact machine-readable record of &quot;why did the system still collapse?&quot;:</p>
 <p>```bash</p>
 <h2>From a counterfactual export</h2>
@@ -265,7 +268,7 @@
 <p>python scripts/narrate_frozen_json.py dag.json</p>
 <p>```</p>
 <h4>4.18 Coupled institution research fork</h4>
-<p>Coupled peg–overload physics lives in <strong><code>forks/coupled_institution/</code></strong> (not a charter domain on <code>main</code>). Policy: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/FORK_COUPLING_RESEARCH.md"><code>FORK_COUPLING_RESEARCH.md</code></a>.</p>
+<p>Coupled peg–overload physics lives in <strong><code>forks/coupled_institution/</code></strong> (not a charter domain on <code>main</code>). Policy: <a href="/docs/fork-coupling.html"><code>FORK_COUPLING_RESEARCH.md</code></a>.</p>
 <p>```bash</p>
 <p>pip install -e &quot;.[dev]&quot;</p>
 <p>pip install -e forks/coupled_institution</p>
@@ -284,7 +287,7 @@
 <tr><td><code>sample_coupling_comparison.json</code></td><td>Coupling comparison viewer</td></tr>
 <tr><td><code>sample_coupled_mutation_chain.json</code></td><td>Attribution viewer</td></tr>
 </tbody></table>
-<p>Static bundle: <a href="../artifacts/coupled_fork_demo/"><code>artifacts/coupled_fork_demo/</code></a>. On the public workbench, choose <strong>Coupled institution (research fork)</strong> on <a href="https://agenticop-io.github.io/fragility-discovery-engine/run.html">Run a scenario</a> when the server exposes that mode.</p>
+<p>Static bundle: <a href="../artifacts/coupled_fork_demo/"><code>artifacts/coupled_fork_demo/</code></a>. On the public workbench, choose <strong>Coupled institution (research fork)</strong> on <a href="http://34.61.255.147/run.html">Run a scenario</a> when the server is running.</p>
 <hr>
 <h3>5. Static viewers (replay, Pareto, attribution)</h3>
 <table><thead>
@@ -345,8 +348,8 @@
 <hr>
 <h3>8. Performance, CI, and limits</h3>
 <ul>
-<li><strong>Scale:</strong> <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/SCALE_AND_LIMITS.md"><code>SCALE_AND_LIMITS.md</code></a> — sweep sizes, GA costs, neighbor bundles.</li>
-<li><strong>CI:</strong> run <code>python -m ruff check .</code> and <code>python -m pytest</code> locally.</li>
+<li><strong>Scale:</strong> <a href="/docs/scale-and-limits.html"><code>SCALE_AND_LIMITS.md</code></a> — sweep sizes, GA costs, neighbor bundles.</li>
+<li><strong>Validation:</strong> Windows <code>ci_local.ps1</code> or GCE <code>gce_pull_and_test.sh</code> — not GitHub Actions on push.</li>
 <li><strong>Performance gate:</strong> optional env <code>FRAGILITY_PERF_GATE</code> — see the root <code>README.md</code>.</li>
 </ul>
 <hr>
@@ -357,7 +360,7 @@
 <tr><td><code>python</code> not found or wrong interpreter (Windows)</td><td>Use <code>py -3.12</code>, or the full path under <code>%LocalAppData%\Programs\Python\</code>. Avoid the Windows Store alias.</td></tr>
 <tr><td><code>matplotlib</code> / plot scripts fail</td><td><code>pip install -e &quot;.[dev]&quot;</code> or <code>&quot;.[viz]&quot;</code>.</td></tr>
 <tr><td>Viewer blank or shows errors on JSON</td><td>Check the artifact type: the replay viewer only accepts <strong>replay</strong> files, not composite or sweep outputs.</td></tr>
-<tr><td>Heavy sweeps / GA runs out of memory or is slow</td><td>Shrink <code>--nodes</code>, horizon, sweep lists, GA population. See <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/SCALE_AND_LIMITS.md"><code>SCALE_AND_LIMITS.md</code></a>.</td></tr>
+<tr><td>Heavy sweeps / GA runs out of memory or is slow</td><td>Shrink <code>--nodes</code>, horizon, sweep lists, GA population. See <a href="/docs/scale-and-limits.html"><code>SCALE_AND_LIMITS.md</code></a>.</td></tr>
 <tr><td><code>git: &#x27;credential-manager-core&#x27; is not a git command</code> (Windows)</td><td>Unset the global helper: see <a href="/docs/installation.html">Installation — Git credential helper</a>.</td></tr>
 <tr><td>Linux: <code>python3.12: command not found</code></td><td>Install <code>python3.12</code> + <code>python3.12-venv</code>, or use <strong>3.11</strong> everywhere. See <a href="/docs/installation.html">Installation</a>.</td></tr>
 </tbody></table>

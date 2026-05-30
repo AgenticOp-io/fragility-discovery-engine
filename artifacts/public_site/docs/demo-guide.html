@@ -46,61 +46,70 @@
 
   <main class="fde-main">
 <nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
-<a href="/docs/">Overview</a>
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
 <a class="fde-active" href="/docs/demo-guide.html">Demo guide</a>
-<a href="/docs/installation.html">Installation</a>
 <a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
 <a href="/docs/architecture.html">Architecture</a>
 <a href="/docs/reference.html">Reference</a>
 <a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
 </nav>
 <article class="fde-prose"><h2>Public demo guide</h2>
-<p>This page describes the <strong>browser workbench</strong> served from the public site (GCE or GitHub Pages). Everything you open in the viewers is <strong>JSON already on the server</strong> — you do not upload files in the demo.</p>
-<h3>How the demo is organized</h3>
+<p>The demo is at <strong>http://34.61.255.147/</strong>. Everything is server-hosted — you open samples in the browser; nothing is uploaded from your computer.</p>
+<hr>
+<h3>Pages at a glance</h3>
 <table><thead>
-<tr><th>Area</th><th>URL</th><th>What it does</th></tr>
+<tr><th>Page</th><th>URL</th><th>What to do here</th></tr>
 </thead><tbody>
-<tr><td><strong>Workbench</strong></td><td><code>/</code></td><td>Index of server-hosted samples and links into viewers</td></tr>
-<tr><td><strong>Run a scenario</strong></td><td><code>/run.html</code></td><td>Starts a capped GA or co-evolution job; results land under <code>/runs/&lt;id&gt;/</code></td></tr>
-<tr><td><strong>Past runs</strong></td><td><code>/runs.html</code></td><td>Lists completed server runs</td></tr>
-<tr><td><strong>Guided tour</strong></td><td><code>/?tour=1</code> or <code>/tour.html</code></td><td>Walkthrough across replay, attribution, fork, and Pareto</td></tr>
-<tr><td><strong>Documentation</strong></td><td><code>/docs/</code></td><td>Install, tutorials, architecture, reference</td></tr>
-<tr><td><strong>This host</strong></td><td><code>/host.html</code></td><td>Validation snapshot (<code>/status.json</code>) and engine health</td></tr>
+<tr><td><strong>Workbench</strong></td><td><code>/</code></td><td>Browse server-hosted samples and open them in viewers</td></tr>
+<tr><td><strong>Run a scenario</strong></td><td><code>/run.html</code></td><td>Start a new fragility search on the server</td></tr>
+<tr><td><strong>Past runs</strong></td><td><code>/runs.html</code></td><td>See completed server runs and open their results</td></tr>
+<tr><td><strong>Guided tour</strong></td><td><code>/?tour=1</code></td><td>Step-by-step walkthrough with written explanations</td></tr>
+<tr><td><strong>Documentation</strong></td><td><code>/docs/</code></td><td>Full manual</td></tr>
+<tr><td><strong>This host</strong></td><td><code>/host.html</code></td><td>Validation snapshot and engine health</td></tr>
 </tbody></table>
-<h3>Viewers (server data only)</h3>
-<p>Each viewer loads artifacts with <strong>Presets</strong> (dropdown) or a <strong>hash link</strong> from the workbench, for example:</p>
-<p><code>/artifacts/replay_viewer/index.html#src=sample_replay.json</code></p>
+<hr>
+<h3>Viewers</h3>
+<p>Click any sample row on the workbench to open the right viewer. You can also use the <strong>Presets</strong> dropdown inside each viewer.</p>
 <table><thead>
-<tr><th>Viewer</th><th>Typical JSON</th><th>Use when you want to…</th></tr>
+<tr><th>Viewer</th><th>Opens</th><th>What you see</th></tr>
 </thead><tbody>
-<tr><td><a href="/artifacts/replay_viewer/index.html">Replay</a></td><td><code>best_replay.json</code>, <code>sample_*_replay.json</code></td><td>Scrub a step-by-step collapse timeline</td></tr>
-<tr><td><a href="/artifacts/pareto_viewer/index.html">Pareto</a></td><td><code>pareto_front.json</code>, <code>sample_pareto_*.json</code></td><td>See cost vs severity trade-offs</td></tr>
-<tr><td><a href="/artifacts/attribution_viewer/index.html">Attribution</a></td><td>counterfactual / merge / chain JSON</td><td>Compare baseline vs intervention paths</td></tr>
-<tr><td><a href="/artifacts/composite_viewer/index.html">Composite</a></td><td><code>sample_*_composite.json</code></td><td>Same attack genome across multiple domains</td></tr>
-<tr><td><a href="/artifacts/coupling_sweep_viewer/index.html">Coupling sweep</a></td><td><code>coupling_strength_sweep.json</code></td><td>Research fork: coupling vs instability</td></tr>
-<tr><td><a href="/artifacts/coupling_comparison_viewer/index.html">Coupling compare</a></td><td><code>sample_coupling_comparison.json</code></td><td>Research fork: two coupling levels, same schedule</td></tr>
+<tr><td><a href="/artifacts/replay_viewer/index.html">Replay</a></td><td>Replay JSON</td><td>Step-by-step collapse timeline</td></tr>
+<tr><td><a href="/artifacts/pareto_viewer/index.html">Pareto</a></td><td>Pareto JSON</td><td>Cost vs severity trade-off chart</td></tr>
+<tr><td><a href="/artifacts/attribution_viewer/index.html">Attribution</a></td><td>Counterfactual / chain JSON</td><td>Which steps caused the outcome</td></tr>
+<tr><td><a href="/artifacts/composite_viewer/index.html">Composite</a></td><td>Composite JSON</td><td>Same attack across multiple domains</td></tr>
+<tr><td><a href="/artifacts/coupling_sweep_viewer/index.html">Coupling sweep</a></td><td>Sweep JSON</td><td>Research fork: coupling strength vs instability</td></tr>
+<tr><td><a href="/artifacts/coupling_comparison_viewer/index.html">Coupling compare</a></td><td>Comparison JSON</td><td>Research fork: two coupling levels compared</td></tr>
 </tbody></table>
-<p>On the <strong>public demo</strong>, local file pickers and drag-and-drop are <strong>disabled</strong>. Use presets or workbench links. For local file workflows, clone the repo and open the same viewer HTML from <code>artifacts/</code> on your machine.</p>
-<h3>Running a new scenario on the server</h3>
-<p>1. Open <a href="/run.html">Run a scenario</a>.</p>
-<p>2. Pick <strong>domain and search type</strong> (single-domain replay search vs attacker/defender co-evolution).</p>
-<p>3. Set seed, horizon (if shown), generations, and population within server caps.</p>
-<p>4. Submit — when finished, links open the replay or Pareto viewer against <code>/runs/&lt;id&gt;/…</code>.</p>
-<p>Outputs are written only on the server (<code>/var/www/fragility/public/runs/</code> on GCE). Nothing is read from your computer.</p>
-<h3>Six charter domains vs research fork</h3>
-<p><strong>Charter domains</strong> (aggregate peg, network, resource cascade, service backlog, liquidity ladder, inventory buffer) are the reference workbench. Samples live under <code>/artifacts/pareto_viewer/</code>, <code>/artifacts/replay_viewer/</code>, etc.</p>
-<p><strong>Coupled institution</strong> is a <strong>research fork</strong> (<code>forks/coupled_institution/</code>): peg panic and overload exchange signals inside one simulation step. Fork samples are tagged on the workbench and documented in <a href="/docs/fork-coupling.html">Coupled fork (research)</a>.</p>
+<p>Local file pickers and drag-and-drop are <strong>disabled on this demo</strong>. Use the Presets menu or the workbench links. To load your own files, clone the repo and open the viewers from <code>artifacts/</code> on a local server.</p>
+<hr>
+<h3>Running a new scenario</h3>
+<p>1. Go to <a href="/run.html">Run a scenario</a>.</p>
+<p>2. Choose a <strong>domain and search type</strong> from the dropdown.</p>
+<p>3. Set the seed, horizon, generations, and population (within server limits).</p>
+<p>4. Click <strong>Run scenario</strong>. When the job finishes, links appear to the replay or Pareto viewer.</p>
+<p>Results are saved on the server under <code>/runs/&lt;id&gt;/</code>. Nothing on your computer is read or modified.</p>
+<p><strong>Server limits:</strong> maximum 150 second run · 1 concurrent run · 8 runs per hour per IP address.</p>
+<hr>
+<h3>Six charter domains vs the research fork</h3>
+<p><strong>Charter domains</strong> (aggregate peg, network contagion, resource cascade, service backlog, liquidity ladder, inventory buffer) are the stable reference workbench.</p>
+<p><strong>Coupled institution</strong> is a research fork: peg panic and overload exchange signals inside one simulation step. It has its own sample section on the workbench and is documented in <a href="/docs/fork-coupling.html">Coupled fork (research)</a>.</p>
+<hr>
 <h3>Suggested first visit</h3>
-<p>1. Workbench → <strong>Flagship benchmark replay</strong> (collapse timeline).</p>
-<p>2. <strong>Run a scenario</strong> → aggregate peg, default caps → open your run in the replay viewer.</p>
-<p>3. <strong>Guided tour</strong> from the workbench hero (voice optional).</p>
-<p>4. <strong>Attribution</strong> sample “What caused the collapse?” for counterfactual chains.</p>
-<p>5. Optional: coupled fork replay + Pareto from the <strong>Research fork</strong> section on the workbench.</p>
-<h3>Operators</h3>
+<p>1. Workbench → click <strong>Flagship benchmark</strong> replay to see a collapse timeline.</p>
+<p>2. <a href="/run.html">Run a scenario</a> → leave defaults → wait for it to finish → open in Replay viewer.</p>
+<p>3. Come back to the workbench and open any <strong>Attribution</strong> sample to see a counterfactual chain.</p>
+<p>4. Optional: work through the <a href="/?tour=1">Guided tour</a> — read each step, then press Next.</p>
+<hr>
+<h3>For operators</h3>
 <ul>
-<li>Validation: <code>/status.json</code> and <code>/host.html</code></li>
-<li>Republish GCE: <code>powershell -File scripts/gce_deploy_public_site.ps1</code></li>
-<li>Republish GitHub Pages (manual, not Actions): <code>powershell -File scripts/deploy_github_pages.ps1</code></li>
+<li>Check validation: <code>/status.json</code> and <code>/host.html</code></li>
+<li>Deploy updated site from local machine: <code>powershell -File scripts/gce_deploy_public_site.ps1</code></li>
+<li>Optional static mirror: <code>powershell -File scripts/deploy_github_pages.ps1</code></li>
 </ul></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">

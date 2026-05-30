@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fragility Evidence Language — Fragility Discovery Engine</title>
+  <meta name="description" content="Formal types, Δ⁻/Δ⁺ attribution, evidence constructors, and schema registry (FEL v0.1)." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a class="fde-active" href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Fragility Evidence Language (FEL) v0.1</h2>
+<p>Formal vocabulary for <strong>schedules, rollouts, objectives, interventions, and evidence</strong> in the Fragility Discovery Engine. FEL does not introduce new physics; it axiomatizes what the engine already computes so exports, benchmarks, and explain artifacts share one semantics.</p>
+<p><strong>Implementation:</strong> <code>src/fragility_engine/fel/</code></p>
+<p><strong>Related:</strong> <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/MATH.md">MATH.md</a> (formulas), <a href="/docs/algorithms.html">ALGORITHMS.md</a> (procedures)</p>
+<hr>
+<h3>0. Design goals</h3>
+<p>1. <strong>One meaning per operator</strong> — dominance, hypervolume, and attribution deltas are named once.</p>
+<p>2. <strong>Two attribution roles</strong> — counterfactual bundles vs path/sweep edges use different delta signs on purpose.</p>
+<p>3. <strong>Schema registry</strong> — JSON <code>schema</code> fields map to FEL constructors.</p>
+<p>4. <strong>Deterministic replay</strong> — same world, schedule, and seed ⇒ same rollout (charter worlds).</p>
+<p>Surface syntax (<code>.fel</code> files) is optional; v0.1 is the semantic core plus Python helpers.</p>
+<hr>
+<h3>1. Core types</h3>
+<table><thead>
+<tr><th>Symbol</th><th>Name</th><th>Definition</th></tr>
+</thead><tbody>
+<tr><td><strong>W</strong></td><td>World</td><td>Pinned dynamics template + parameters (network, resource cascade, inventory buffer, …).</td></tr>
+<tr><td><strong>G</strong></td><td>Schedule</td><td>Matrix in \([0,1]^{H \times 2}\): column 0 = shock intensity, column 1 = timing gate per horizon step.</td></tr>
+<tr><td><strong>σ</strong></td><td>Seed</td><td>Integer rollout seed (and optional defender genome).</td></tr>
+<tr><td><strong>R</strong></td><td>Rollout</td><td>Result of <code>eval(W, G, σ)</code> — trajectory, collapse flag, costs, integrals.</td></tr>
+<tr><td><strong>φ(R)</strong></td><td>Metrics</td><td><code>{ integral_instability, attack_cost, final_instability, collapsed, collapse_timestep, severity }</code>.</td></tr>
+<tr><td><strong>S(R)</strong></td><td>Severity</td><td>Search functional; same as <code>severity_score(R)</code> in code.</td></tr>
+<tr><td><strong>I</strong></td><td>Intervention</td><td>Typed edit to W or rollout initial conditions (remove shock, shift buffer, …).</td></tr>
+<tr><td><strong>E</strong></td><td>Evidence</td><td>Structured artifact: trace, merge, DAG, certificate, Pareto front, composite.</td></tr>
+</tbody></table>
+<p><strong>Evaluation:</strong></p>
+<p>\[</p>
+<p>R = \mathrm{eval}(W, G, \sigma)</p>
+<p>\]</p>
+<p>Laws (see §9): determinism on charter worlds; schedule decode is fixed; interventions produce paired rollouts <code>(R₀, R₁)</code>.</p>
+<hr>
+<h3>2. Objectives and dominance</h3>
+<p>Attack-layer Pareto uses <strong>maximize severity</strong>, <strong>minimize attack cost</strong>:</p>
+<p>\[</p>
+<p>A \prec B \iff S(A) \ge S(B) \land c(A) \le c(B) \text{ with strict inequality on at least one axis}</p>
+<p>\]</p>
+<p>Python: <code>fel.attack_pareto_dominates</code>, <code>adversary.pareto.pareto_indices</code>.</p>
+<p>Non-dominated set = attack Pareto front.</p>
+<hr>
+<h3>3. Hypervolume coordinates</h3>
+<p>Hypervolume is computed in <strong>minimization</strong> 2-D space:</p>
+<p>\[</p>
+<p>(\tilde{s}, \tilde{c}) = (-S, c)</p>
+<p>\]</p>
+<p>Reference point must lie <strong>above</strong> all points in both minimized coordinates (worse than the front). See <a href="MATH.md#hypervolume-on-the-attack-pareto-front">MATH.md § Hypervolume</a>.</p>
+<p>Python: <code>fel.to_min_objectives</code>, <code>benchmarks.hypervolume.hypervolume_2d_attack_pareto</code>.</p>
+<hr>
+<h3>4. Interventions</h3>
+<p>An intervention <strong>I</strong> maps a baseline configuration to a variant and runs paired rollouts:</p>
+<p>\[</p>
+<p>R_0 = \mathrm{eval}(W, G, \sigma), \quad R_1 = \mathrm{eval}(W&#x27;, G, \sigma) \text{ or } \mathrm{eval}(W, G&#x27;, \sigma)</p>
+<p>\]</p>
+<p>Examples (explain layer): remove shock, epsilon sweep on a gate, inventory buffer shift, mutation chain prefix.</p>
+<p>Intervention metadata is stored on bundles (<code>intervention</code>, pinned parameters).</p>
+<hr>
+<h3>5. Attribution operators</h3>
+<p>FEL defines <strong>two</strong> delta conventions; do not mix them on the same edge kind.</p>
+<h4>5.1 Δ⁻ Counterfactual (bundle attribution)</h4>
+<p>Used in counterfactual JSON bundles and attribution merges comparing baseline vs variant:</p>
+<p>\[</p>
+<p>\Delta^{-}(\phi_0, \phi_1) = \phi(R_0) - \phi(R_1)</p>
+<p>\]</p>
+<p><strong>Reading:</strong> positive Δ⁻ on <code>integral_instability</code> ⇒ variant <strong>reduced</strong> instability vs baseline (variant is better on that metric).</p>
+<p>Python: <code>fel.delta_counterfactual</code>, fields <code>delta_integral_instability</code>, <code>delta_attack_cost</code> on counterfactual exports.</p>
+<h4>5.2 Δ⁺ Path forward (sweep / mutation chain)</h4>
+<p>Used on consecutive nodes along a cumulative path (epsilon sweep, mutation chain):</p>
+<p>\[</p>
+<p>\Delta^{+}(\phi_i, \phi_{i+1}) = \phi(R_{i+1}) - \phi(R_i)</p>
+<p>\]</p>
+<p><strong>Reading:</strong> positive Δ⁺ ⇒ metric <strong>increased</strong> when moving forward along the path (e.g. added mutation increased cost).</p>
+<p>Python: <code>fel.delta_path_forward</code>, path trace <code>edges[].delta_*</code>.</p>
+<h4>5.3 When to use which</h4>
+<table><thead>
+<tr><th>Artifact</th><th>Operator</th><th>Typical question</th></tr>
+</thead><tbody>
+<tr><td>Counterfactual bundle</td><td>Δ⁻</td><td>“What changed if we apply intervention I?”</td></tr>
+<tr><td>Path trace edge</td><td>Δ⁺</td><td>“What did step *i* add along the chain?”</td></tr>
+<tr><td>Epsilon sweep edge</td><td>Δ⁺</td><td>“What changed when ε increased to the next run?”</td></tr>
+</tbody></table>
+<hr>
+<h3>6. Evidence constructors</h3>
+<table><thead>
+<tr><th>Constructor</th><th>Schema ID</th><th>Role</th></tr>
+</thead><tbody>
+<tr><td>Rollout replay</td><td><code>schema_version</code> on replay dict</td><td>Canonical serialized <strong>R</strong>.</td></tr>
+<tr><td>Pareto front</td><td><code>pareto-front-v1</code></td><td>Non-dominated <strong>(S, c)</strong> set.</td></tr>
+<tr><td>Attribution merge</td><td><code>attribution-merge-v1</code></td><td>Star merge of Δ⁻ bundles.</td></tr>
+<tr><td>Explanation DAG</td><td><code>explanation-dag-v1</code></td><td>Causal / dependency graph over nodes.</td></tr>
+<tr><td>Explanation trace</td><td><code>explanation-trace-v1</code></td><td>Linear trace with typed edges.</td></tr>
+<tr><td>Mutation chain path</td><td><code>explanation-mutation-chain-path-v1</code></td><td>Prefix rollouts + Δ⁺ edges.</td></tr>
+<tr><td>Fragility certificate</td><td><code>fragility-certificate-v1</code></td><td>Bounded claim + witness schedule.</td></tr>
+<tr><td>Institutional composite</td><td><code>fragility-institutional-composite-v4</code></td><td>Same <strong>G</strong> on multiple <strong>Wᵢ</strong> (not coupled physics).</td></tr>
+<tr><td>Benchmark manifest</td><td><code>benchmark-manifest-v2</code></td><td>Pinned benchmark package metadata.</td></tr>
+</tbody></table>
+<p>Registry in code: <code>fel.SCHEMA_REGISTRY</code>.</p>
+<p><strong>Merge (star):</strong> several counterfactual bundles with a shared baseline node; edges carry Δ⁻ from baseline to each variant.</p>
+<p><strong>Certificate:</strong> existential witness <code>(W, G, σ)</code> with metrics exceeding thresholds documented in the certificate payload.</p>
+<hr>
+<h3>7. Composite evaluation</h3>
+<p>Institutional composite:</p>
+<p>\[</p>
+<p>\{ R_i = \mathrm{eval}(W_i, G, \sigma) \}_{i=1}^{k}</p>
+<p>\]</p>
+<p>Same schedule <strong>G</strong> across worlds; aggregation (e.g. max severity, percentile costs) is documented per manifest. <strong>Not</strong> a single coupled multi-world simulation unless explicitly modeled in one <strong>W</strong>.</p>
+<hr>
+<h3>8. Surface syntax (informative)</h3>
+<p>Optional <code>.fel</code> notation for human-authored specs (not required for v0.1 tooling):</p>
+<p>```fel</p>
+<p>world network_charter_v1</p>
+<p>seed 42</p>
+<p>schedule G {</p>
+<p>  horizon 64</p>
+<p>  # shocks decoded from [0,1] columns</p>
+<p>}</p>
+<p>rollout R0 = eval(W, G, seed)</p>
+<p>intervention remove_shock { index 3 }</p>
+<p>rollout R1 = eval(W, G&#x27;, seed)</p>
+<p>delta_minus instability = R0.integral_instability - R1.integral_instability</p>
+<p>delta_minus cost        = R0.attack_cost - R1.attack_cost</p>
+<p>evidence merge {</p>
+<p>  baseline R0</p>
+<p>  variant  R1</p>
+<p>  intervention remove_shock</p>
+<p>}</p>
+<p>```</p>
+<p>Parsers are future work; Python APIs and JSON schemas are normative for v0.1.</p>
+<hr>
+<h3>9. Laws (axioms)</h3>
+<p>1. <strong>Determinism:</strong> On pinned charter worlds, <code>eval(W, G, σ)</code> is reproducible.</p>
+<p>2. <strong>Schedule domain:</strong> <strong>G</strong> entries ∈ [0,1]; decode to events is fixed by world template.</p>
+<p>3. <strong>Attack Pareto order:</strong> §2; hypervolume uses §3 transform.</p>
+<p>4. <strong>Δ⁻ on bundles:</strong> §5.1 for counterfactual and merge exports.</p>
+<p>5. <strong>Δ⁺ on path edges:</strong> §5.2 for sweeps and mutation chains.</p>
+<p>6. <strong>Composite independence:</strong> Multi-world composites are parallel evals, not hidden coupling.</p>
+<p>7. <strong>Schema versioning:</strong> New fields bump <code>schema</code> IDs; FEL version <code>fel-v0.1</code> tags convention docs.</p>
+<p>Machine-readable: <code>fel.fel_laws_summary()</code>.</p>
+<hr>
+<h3>10. Implementation map</h3>
+<table><thead>
+<tr><th>FEL concept</th><th>Python location</th></tr>
+</thead><tbody>
+<tr><td>eval</td><td><code>rollout_*</code> in world modules, <code>adversary</code> search</td></tr>
+<tr><td>φ(R), S(R)</td><td><code>fel.metrics_from_rollout</code>, <code>fel.severity_functional</code></td></tr>
+<tr><td>Dominance / front</td><td><code>adversary.pareto</code>, <code>fel.attack_pareto_dominates</code></td></tr>
+<tr><td>Hypervolume</td><td><code>benchmarks.hypervolume</code></td></tr>
+<tr><td>Δ⁻ bundles</td><td><code>explain.counterfactual</code>, <code>fel.delta_counterfactual</code></td></tr>
+<tr><td>Δ⁺ paths</td><td><code>explain.trace</code>, <code>fel.delta_path_forward</code></td></tr>
+<tr><td>Merge / DAG</td><td><code>explain.merge</code>, <code>explain.dag</code></td></tr>
+<tr><td>Certificate</td><td><code>explain.certificate</code></td></tr>
+<tr><td>Composite</td><td><code>benchmarks.institutional_composite</code></td></tr>
+</tbody></table>
+<hr>
+<h3>Changelog</h3>
+<ul>
+<li><strong>fel-v0.1</strong> — Initial semantic spec; dual delta operators; schema registry; Python <code>fragility_engine.fel</code>.</li>
+</ul></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

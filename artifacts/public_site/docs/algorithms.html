@@ -46,16 +46,21 @@
 
   <main class="fde-main">
 <nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
-<a href="/docs/">Overview</a>
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
 <a href="/docs/demo-guide.html">Demo guide</a>
-<a href="/docs/installation.html">Installation</a>
 <a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
 <a href="/docs/architecture.html">Architecture</a>
 <a href="/docs/reference.html">Reference</a>
 <a class="fde-active" href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
 </nav>
 <article class="fde-prose"><h2>Algorithms and provenance</h2>
 <p>This document lists every algorithm the Fragility Discovery Engine uses, who invented it, and where you can find the implementation in this repository. The engine has <strong>two runtime dependencies</strong> — <code>numpy</code> and <code>networkx</code> — so everything below is hand-rolled on top of NumPy unless noted.</p>
+<p>For the formal evidence vocabulary (schedules, rollouts, Δ⁻/Δ⁺ attribution, schema IDs), see <a href="/docs/fel.html">Fragility Evidence Language (FEL)</a>.</p>
 <table><thead>
 <tr><th>Notation</th><th>Meaning</th></tr>
 </thead><tbody>
@@ -74,6 +79,7 @@
 <tr><td>Greedy shock-set minimization for collapse</td><td>Position-greedy reduction of an attacker schedule to the smallest subset of shocks that still drives the world to collapse, with pinned rollout seeds throughout. Applies the delta-debugging idea (Zeller &amp; Hildebrandt 2002) to adversarial simulation schedules; the specific algorithm is greedy-by-timestep.</td><td>§3.2</td><td><code>src/fragility_engine/explain/minimal_collapse.py</code></td></tr>
 <tr><td>Mutation-chain path trace</td><td>Apply discrete world-physics mutations one at a time in a chosen order; record <code>Δ integral_instability</code> and <code>Δ attack_cost</code> at every step. Analogous in spirit to integrated gradients / SHAP but defined directly over a discrete simulator.</td><td>§3.3</td><td><code>src/fragility_engine/explain/counterfactual_chain*.py</code></td></tr>
 <tr><td>Star-merge attribution graph</td><td>Merge several single-branch counterfactual bundles that share one baseline into one graph (root = baseline, leaves = branches, edges carry Δ-metrics and intervention labels), with strict baseline-equality checking. Schema <code>attribution-merge-v1</code>.</td><td>§3.4</td><td><code>src/fragility_engine/explain/merge_attribution.py</code></td></tr>
+<tr><td>Fragility Evidence Language (FEL)</td><td>Formal vocabulary for worlds, schedules, rollouts, attack Pareto order, Δ⁻ counterfactual vs Δ⁺ path attribution, and evidence schema IDs — not new physics.</td><td><a href="/docs/fel.html">FEL</a></td><td><code>src/fragility_engine/fel/</code></td></tr>
 <tr><td>Schedule-minimization explanation DAG</td><td>Compact DAG (<code>explanation-dag-v1</code>) over a minimization report: <code>baseline → minimized</code> with the kept events on the edge. Machine-readable &quot;why did it still collapse?&quot; record.</td><td>§3.5</td><td><code>src/fragility_engine/explain/explanation_dag.py</code></td></tr>
 <tr><td>Institutional composite</td><td>Run the same attacker schedule through several decoupled physics kernels and emit a side-by-side scorecard JSON (<code>fragility-institutional-composite-v1…v4</code>). Kernels never exchange state inside a step.</td><td>§4.7</td><td><code>src/fragility_engine/benchmarks/institutional_composite.py</code></td></tr>
 </tbody></table>
@@ -129,7 +135,7 @@
 <p>Closed-form rectangular sweep for two minimized objectives relative to a reference point.</p>
 <ul>
 <li><strong>Originators:</strong> Zitzler &amp; Thiele (1998), *<a href="https://link.springer.com/chapter/10.1007/BFb0056872">Multiobjective optimization using evolutionary algorithms — a comparative case study</a>* (introduced the &quot;size of the dominated space&quot; indicator). The 2-D O(N log N) sweep is folklore.</li>
-<li><strong>Our code:</strong> <code>benchmarks/hypervolume.py::hypervolume_2d_min</code> and <code>nondominated_points_min</code>.</li>
+<li><strong>Our code:</strong> <code>benchmarks/hypervolume.py::hypervolume_2d_min</code> (generic minimization) and <code>hypervolume_2d_attack_pareto</code> (attack archives via <code>(-severity, attack_cost)</code> transform). See <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/MATH.md">Math reference</a> §4.</li>
 <li><strong>Use:</strong> CI regression gate on Pareto-archive quality; never used as a fitness signal.</li>
 </ul>
 <h4>2.5 Alternating attacker / defender co-evolution — Standard</h4>

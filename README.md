@@ -155,7 +155,7 @@ To have **Cursor** run **on the VM**, use **Remote - SSH** and open the deploy d
 | `scripts/benchmark_rollout.py` | Wall-clock: **`--bundle <bundle_id>`** (frozen suite IDs in [`benchmarks/README.md`](benchmarks/README.md)), **`--bundle-all`** (full suite JSON), or **ad-hoc** `--mode aggregate|network|resource_cascade|service_backlog|liquidity_ladder` (`--json`, **`workflow`** field) |
 | `scripts/run_benchmark_suite.py` | Frozen benchmark suite (`--validate`, `--json`, **`--manifest-out`**, **`--bench-search`**) — see [`benchmarks/README.md`](benchmarks/README.md), charter Phase H in [`BOUNDARIES.md`](BOUNDARIES.md) |
 | `scripts/ci_local.sh` | **Linux / macOS / WSL:** same checks as Windows `ci_local.ps1` (canonical validation path — not GitHub Actions on push) |
-| `scripts/ci_local.ps1` | **Windows PowerShell:** same local CI parity as `ci_local.sh` |
+| `scripts/ci_local.ps1` | **Windows PowerShell:** canonical validation (ruff, pytest, manifest pins) |
 | `scripts/run_flagship_demo.py` | **Flagship bundle:** short GA + `pareto_front.json` + **`fragility-certificate-v1`** under `artifacts/flagship/output` (see [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md)) |
 | `scripts/export_fragility_certificate.py` | Emit **`fragility-certificate-v1`** for digested JSON + env fingerprints (`--digest-json`, optional `--validate-bundles`) |
 | `scripts/fragility_robustness_sweep.py` | Ensemble over **`graph_seed`** or **`--neighbor-json-list`**; physics **`--sweep-*`**; GA **`--ga-budget-sweep`**, **`--ga-population-sweep`** + **`--ga-fixed-generations`**, **`--ga-budget-2d`** — see [`benchmarks/README.md`](benchmarks/README.md) |

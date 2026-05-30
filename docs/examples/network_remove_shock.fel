@@ -1,0 +1,23 @@
+# Example FEL surface syntax (informative — not parsed in v0.1)
+
+world network_charter_v1
+seed 42
+
+schedule G {
+  horizon 64
+}
+
+rollout R0 = eval(W, G, seed)
+
+intervention remove_shock { index 3 }
+rollout R1 = eval(W, G', seed)
+
+# Δ⁻ counterfactual (baseline − variant)
+delta_minus instability = R0.integral_instability - R1.integral_instability
+delta_minus cost        = R0.attack_cost - R1.attack_cost
+
+evidence merge {
+  baseline R0
+  variant  R1
+  intervention remove_shock
+}

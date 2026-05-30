@@ -2,7 +2,7 @@
 
 Canonical reference for objectives, dominance, hypervolume, search algorithms, simulation updates, and explanation deltas in the Fragility Discovery Engine.
 
-For algorithm provenance (original vs standard vs borrowed), see [Algorithms](/docs/algorithms.html). For CLI usage, see [How to Use](/docs/how-to-use.html).
+For the formal type system and evidence constructors, see [Fragility Evidence Language (FEL)](FRAGILITY_EVIDENCE_LANGUAGE.md). For algorithm provenance (original vs standard vs borrowed), see [Algorithms](/docs/algorithms.html). For CLI usage, see [How to Use](/docs/how-to-use.html).
 
 ---
 
@@ -213,7 +213,9 @@ O \leftarrow O + 0.35 \cdot \text{rumor} + \lambda \cdot P + \text{noise}
 
 ## 10. Explanation deltas
 
-### 10.1 Counterfactual exports
+Normative naming: FEL operators **Δ⁻** (counterfactual) and **Δ⁺** (path forward) in [FRAGILITY_EVIDENCE_LANGUAGE.md §5](FRAGILITY_EVIDENCE_LANGUAGE.md#5-attribution-operators). Implementation: `fragility_engine.fel`.
+
+### 10.1 Counterfactual exports (Δ⁻)
 
 \[
 \Delta_{\text{cost}} = \text{cost}_{\text{baseline}} - \text{cost}_{\text{variant}}
@@ -224,9 +226,9 @@ O \leftarrow O + 0.35 \cdot \text{rumor} + \lambda \cdot P + \text{noise}
 
 Positive Δ means the variant improved that metric relative to baseline.
 
-### 10.2 Mutation-chain path traces
+### 10.2 Mutation-chain path traces (Δ⁺)
 
-Forward differences along a path use **variant minus predecessor** on the chain (opposite sign from §10.1). Read schema labels when comparing exports.
+Forward differences along a path use **successor minus predecessor** on the chain (opposite sign from §10.1). Read schema labels when comparing exports.
 
 ### 10.3 Interaction summaries
 

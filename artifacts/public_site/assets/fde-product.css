@@ -166,6 +166,8 @@ body.fde-app li { margin-bottom: 0.3rem; }
 #fdeTourRoot .fde-tour-kicker { font-size: var(--fde-size-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fde-muted); }
 #fdeTourRoot .fde-tour-title { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
 #fdeTourRoot .fde-tour-body  { color: var(--fde-text); opacity: 0.92; margin-top: 6px; }
+#fdeTourRoot .fde-tour-body p { margin: 0.5em 0 0; line-height: 1.55; }
+#fdeTourRoot .fde-tour-body p:first-child { margin-top: 0; }
 #fdeTourRoot .fde-tour-caption {
   margin-top: 8px;
   font-size: var(--fde-size-sm);
@@ -198,8 +200,6 @@ body.fde-app li { margin-bottom: 0.3rem; }
 }
 #fdeTourRoot .fde-tour-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 #fdeTourRoot .fde-tour-primary { border-color: rgba(110,181,247,0.65); background: rgba(110,181,247,0.14); }
-#fdeTourRoot .fde-tour-voice-play { border-color: rgba(134, 239, 172, 0.55); background: rgba(34, 80, 50, 0.35); }
-#fdeTourRoot .fde-tour-muted { opacity: 0.72; border-style: dashed; }
 #fdeTourRoot .fde-tour-ghost { background: transparent; }
 #fdeTourRoot .fde-tour-progress { margin-top: 8px; font-size: var(--fde-size-xs); color: var(--fde-muted); }
 

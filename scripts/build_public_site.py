@@ -894,11 +894,11 @@ def build(out: Path) -> dict[str, str]:
         md_filename="REFERENCE.md",
     )
     _doc(
-        filename="math.html",
-        doc_id="docs-math",
-        title="Math — Fragility Discovery Engine",
-        description="Objectives, dominance, hypervolume, GA, world equations, and delta conventions.",
-        md_filename="MATH.md",
+        filename="fel.html",
+        doc_id="docs-fel",
+        title="Fragility Evidence Language — Fragility Discovery Engine",
+        description="Formal types, Δ⁻/Δ⁺ attribution, evidence constructors, and schema registry (FEL v0.1).",
+        md_filename="FRAGILITY_EVIDENCE_LANGUAGE.md",
     )
 
     _doc(
@@ -982,10 +982,10 @@ def build(out: Path) -> dict[str, str]:
           <h3>Algorithms</h3>
           <p>Which algorithms are original to this project, which are standard, and where each one is cited.</p>
         </a>
-        <a class="fde-card" href="/docs/math.html">
-          <span class="fde-card-tag">math</span>
-          <h3>Math</h3>
-          <p>Objectives, Pareto dominance, hypervolume transform, GA operators, and world update equations.</p>
+        <a class="fde-card" href="/docs/fel.html">
+          <span class="fde-card-tag">formal</span>
+          <h3>FEL</h3>
+          <p>Fragility Evidence Language — schedules, rollouts, interventions, Δ⁻/Δ⁺ attribution, and evidence schemas.</p>
         </a>
         <a class="fde-card" href="/docs/scale-and-limits.html">
           <span class="fde-card-tag">limits</span>

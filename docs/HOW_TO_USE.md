@@ -283,7 +283,7 @@ python scripts/compare_replays.py baseline.json counterfactual.json --json-out d
 
 ### 4.17 Hypervolume and explanation DAG
 
-**Hypervolume** (quality of a trade-off curve): `fragility_engine.benchmarks.hypervolume.hypervolume_2d_attack_pareto` for `pareto-front-v1` archives (internally uses `(-severity, attack_cost)`). Generic minimization sweep: `hypervolume_2d_min`. See [Math reference](/docs/math.html) §4.
+**Hypervolume** (quality of a trade-off curve): `fragility_engine.benchmarks.hypervolume.hypervolume_2d_attack_pareto` for `pareto-front-v1` archives (internally uses `(-severity, attack_cost)`). Generic minimization sweep: `hypervolume_2d_min`. See [Math reference](MATH.md) §4.
 
 **Explanation DAG** — a compact machine-readable record of "why did the system still collapse?":
 
