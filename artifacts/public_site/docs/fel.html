@@ -61,6 +61,7 @@
 <article class="fde-prose"><h2>Fragility Evidence Language (FEL) v0.1</h2>
 <p>Formal vocabulary for <strong>schedules, rollouts, objectives, interventions, and evidence</strong> in the Fragility Discovery Engine. FEL does not introduce new physics; it axiomatizes what the engine already computes so exports, benchmarks, and explain artifacts share one semantics.</p>
 <p><strong>Implementation:</strong> <code>src/fragility_engine/fel/</code></p>
+<p><strong>Preprint:</strong> <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/preprint/FEL_preprint_v0.1.md"><code>preprint/FEL_preprint_v0.1.md</code></a> · <strong>Publishing guide:</strong> <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/preprint/PUBLISHING.md"><code>preprint/PUBLISHING.md</code></a></p>
 <p><strong>Related:</strong> <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/MATH.md">MATH.md</a> (formulas), <a href="/docs/algorithms.html">ALGORITHMS.md</a> (procedures)</p>
 <hr>
 <h3>0. Design goals</h3>
@@ -143,6 +144,7 @@
 <tr><th>Constructor</th><th>Schema ID</th><th>Role</th></tr>
 </thead><tbody>
 <tr><td>Rollout replay</td><td><code>schema_version</code> on replay dict</td><td>Canonical serialized <strong>R</strong>.</td></tr>
+<tr><td>Counterfactual bundle</td><td><code>counterfactual-bundle-v1</code></td><td>Baseline vs variant Δ⁻ attribution (all <code>compare_rollouts</code> exports)</td></tr>
 <tr><td>Pareto front</td><td><code>pareto-front-v1</code></td><td>Non-dominated <strong>(S, c)</strong> set.</td></tr>
 <tr><td>Attribution merge</td><td><code>attribution-merge-v1</code></td><td>Star merge of Δ⁻ bundles.</td></tr>
 <tr><td>Explanation DAG</td><td><code>explanation-dag-v1</code></td><td>Causal / dependency graph over nodes.</td></tr>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>FEL Preprint v0.1</title>
+  <style>
+@page { margin: 1in; }
+body {
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.45;
+  color: #111;
+  max-width: 7in;
+  margin: 0 auto;
+}
+h1 { font-size: 18pt; margin-top: 0; }
+h2 { font-size: 14pt; margin-top: 1.2em; border-bottom: 1px solid #ccc; }
+h3 { font-size: 12pt; }
+table { border-collapse: collapse; width: 100%; margin: 0.8em 0; font-size: 10pt; }
+th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+th { background: #f5f5f5; }
+code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f4f4f4; padding: 1px 4px; }
+pre { background: #f4f4f4; padding: 10px; overflow-x: auto; font-size: 9pt; }
+pre code { background: none; padding: 0; }
+blockquote { margin: 0.8em 0; padding-left: 1em; border-left: 3px solid #ccc; color: #333; }
+</style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<h1 id="fragility-evidence-language-fel-a-semantic-contract-for-reproducible-stress-search-and-attribution-in-discrete-time-simulations">Fragility Evidence Language (FEL): A Semantic Contract for Reproducible Stress-Search and Attribution in Discrete-Time Simulations</h1>
+<p><strong>David Peterson</strong><br />
+Founder, Agentic Ops · <a href="https://agenticop.io">https://agenticop.io</a><br />
+Preprint fel-v0.1 — May 2026<br />
+Software: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">https://github.com/AgenticOp-io/fragility-discovery-engine</a><br />
+Spec: <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code> · Reference module: <code>src/fragility_engine/fel/</code></p>
+<hr />
+<h2 id="abstract">Abstract</h2>
+<p>Simulation-based stress testing and adversarial search produce heterogeneous JSON artifacts—rollout replays, Pareto archives, counterfactual bundles, path traces, and audit certificates—whose metric deltas are easy to misread when sign conventions differ across export paths. We introduce the <strong>Fragility Evidence Language (FEL)</strong>, a lightweight semantic contract that axiomatizes the types, evaluation laws, objective transforms, and attribution operators already implemented in the open-source Fragility Discovery Engine. FEL contributes three ideas: (1) a typed core <strong>eval(W, G, σ) → R</strong> separating worlds, exogenous shock schedules, and deterministic seeds; (2) <strong>dual attribution operators</strong>—Δ⁻ for counterfactual bundles (baseline minus variant) and Δ⁺ for forward path edges (successor minus predecessor)—with explicit roles so reviewers cannot conflate “intervention effect” with “cumulative step increment”; and (3) a <strong>versioned evidence constructor registry</strong> mapping schema IDs to merge graphs, explanation DAGs, fragility certificates, and institutional composites. FEL v0.1 is normative at the semantics layer; it does not define new physics or claim calibrated institutional risk. We describe the formal core, relate it to causal counterfactual framing and simulation reproducibility practice, walk through a flagship evidence chain, and state limitations honestly. A reference Python module encodes the operators for tests and tooling. FEL is intended as an interchange layer for discrete-time fragility experiments, not a replacement for domain-specific modeling languages.</p>
+<p><strong>Keywords:</strong> simulation evidence, reproducibility, counterfactual attribution, Pareto search, stress testing, semantic contract, JSON schema</p>
+<hr />
+<h2 id="1-introduction">1. Introduction</h2>
+<p>Engineers and researchers increasingly run <strong>directed search</strong> over stress scenarios in discrete-time simulators: genetic algorithms and Monte Carlo samplers propose shock schedules, simulators return trajectories and collapse metrics, and explainability layers emit counterfactual diffs and minimization traces. The Fragility Discovery Engine (FDE) follows this pattern across six reference “worlds” (aggregate peg, network contagion, resource cascade, service backlog, liquidity ladder, inventory buffer), exporting plain JSON with stable schema names for replay viewers and frozen benchmark CI [1].</p>
+<p>A recurring failure mode is not incorrect physics but <strong>ambiguous evidence</strong>: the same numeric field <code>delta_integral_instability</code> may mean “variant improved on baseline” in one export and “the next mutation step added instability” in another, because counterfactual bundles and mutation-chain path traces use opposite subtraction orders by design. Without a named contract, reviewers, tooling authors, and future contributors miscompare artifacts—a problem familiar from reproducibility crises in computational science [2] and from the gap between causal <em>intent</em> and operational <em>metrics</em> in explainable simulation [3].</p>
+<p><strong>Fragility Evidence Language (FEL)</strong> addresses this by formalizing what the engine already computes:</p>
+<ul>
+<li><strong>Types</strong> for worlds <strong>W</strong>, schedules <strong>G</strong>, seeds <strong>σ</strong>, rollouts <strong>R</strong>, interventions <strong>I</strong>, and evidence <strong>E</strong>.</li>
+<li><strong>Laws</strong> for determinism, schedule domain, attack Pareto order, and composite independence.</li>
+<li><strong>Operators</strong> Δ⁻ and Δ⁺ with non-overlapping artifact roles.</li>
+<li><strong>Constructors</strong> with schema IDs (<code>pareto-front-v1</code>, <code>attribution-merge-v1</code>, <code>fragility-certificate-v1</code>, …).</li>
+</ul>
+<p>FEL is deliberately <strong>not</strong> a domain-specific modeling language (cf. Modelica) nor a proof system; it is an evidence semantics layer comparable in spirit to provenance models [4] or experiment description vocabularies, but specialized for adversarial schedule search and fragility metrics.</p>
+<p><strong>Contributions.</strong></p>
+<ol>
+<li>The FEL core calculus: evaluation, metrics φ(R), severity functional S(R), attack Pareto dominance, and hypervolume coordinate transform.</li>
+<li>Dual attribution operators with explicit epistemic readings (§5).</li>
+<li>A schema registry linking evidence constructors to JSON artifacts in a production open-source pipeline (§6).</li>
+<li>Reference implementation <code>fragility_engine.fel</code> with unit tests anchoring conventions (§8).</li>
+</ol>
+<p><strong>Non-claims.</strong> FEL does not establish causal identifiability, regulatory capital adequacy, or calibrated forecasts for real institutions. Toy worlds remain intentional [1].</p>
+<hr />
+<h2 id="2-background-and-related-work">2. Background and related work</h2>
+<h3 id="21-counterfactuals-and-interventions">2.1 Counterfactuals and interventions</h3>
+<p>Pearl’s structural causal framework defines counterfactual comparison under interventions do(X=x) [3]. FDE’s schedule-mask counterfactuals mechanically zero selected shock timesteps and re-run the simulator, then diff rollouts—a operational pipeline inspired by do-calculus but <strong>not</strong> equivalent to identifying causal effects in an observed system. FEL names this Δ⁻ convention so the engineering artifact aligns with the statistical reading “baseline minus variant.”</p>
+<h3 id="22-minimal-failing-configurations">2.2 Minimal failing configurations</h3>
+<p>Greedy shock-set minimization and delta debugging [5] both shrink configurations while preserving a failure predicate. FDE’s greedy minimal collapse operates on attack schedules with pinned seeds; FEL treats the resulting explanation DAG as constructor <code>explanation-dag-v1</code>.</p>
+<h3 id="23-multi-objective-search-quality">2.3 Multi-objective search quality</h3>
+<p>Attack search maximizes severity while minimizing attack cost. Pareto dominance and hypervolume indicators are standard in evolutionary multi-objective optimization [6]. FEL documents the engine’s transform to minimization coordinates <strong>(-S, c)</strong> before hypervolume, correcting a class of sign errors when mixing “maximize severity” fronts with “minimize both axes” volume code.</p>
+<h3 id="24-reproducible-computational-experiments">2.4 Reproducible computational experiments</h3>
+<p>Peng [2] argues for data and code availability as first-class scholarly objects. FDE’s frozen benchmark harness pins <code>(genome_seed, rollout_seed)</code> and asserts golden metrics in CI—<strong>evidence before chrome</strong> in project charter terms [1]. FEL extends this by standardizing <em>meaning</em> of exported deltas, not only <em>values</em>.</p>
+<h3 id="25-positioning">2.5 Positioning</h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>FEL relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PROV-DM [4]</td>
+<td>General provenance; FEL is domain-specific evidence semantics</td>
+</tr>
+<tr>
+<td>SBOL / BioPAX</td>
+<td>Exchange formats for models; FEL exchanges <em>experiment outcomes</em></td>
+</tr>
+<tr>
+<td>SHAP / integrated gradients</td>
+<td>Path attributions in ML; FEL’s Δ⁺ is defined on discrete simulator paths, not gradients</td>
+</tr>
+<tr>
+<td>Regulatory stress scenarios</td>
+<td>Real institutions and calibration; explicitly out of scope</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-problem-statement">3. Problem statement</h2>
+<p>Consider a typical FDE workflow:</p>
+<ol>
+<li>Search finds schedule <strong>G</strong> under world <strong>W</strong> with seed <strong>σ</strong>.</li>
+<li>Export replay <strong>R</strong> and Pareto front <strong>F</strong>.</li>
+<li>Explain layer emits counterfactual <strong>B</strong> (remove shock <em>k</em>) and mutation-chain path <strong>P</strong> (apply mutations sequentially).</li>
+</ol>
+<p>Artifacts <strong>B</strong> and <strong>P</strong> both expose fields named <code>delta_integral_instability</code>. In <strong>B</strong>, positive values mean the variant <strong>lowered</strong> instability relative to baseline. In <strong>P</strong>, positive values mean the <strong>next</strong> prefix <strong>increased</strong> instability relative to the previous prefix. Confusing the two leads to incorrect scientific conclusions even when every simulation is deterministic and correct.</p>
+<p><strong>Requirements</strong> for a semantic contract:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td>Named evaluation entry point eval(W, G, σ)</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Single definition of attack Pareto dominance and hypervolume transform</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Distinct operators for counterfactual vs path attribution</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Versioned mapping from JSON <code>schema</code> fields to constructors</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Explicit non-goals (no hidden coupling in composites; no stochastic fork unless pinned)</td>
+</tr>
+</tbody>
+</table>
+<p>FEL v0.1 satisfies R1–R5 without altering physics kernels.</p>
+<hr />
+<h2 id="4-fel-overview">4. FEL overview</h2>
+<p>FEL has three layers:</p>
+<ol>
+<li><strong>Semantic core</strong> — types, eval, metrics, objectives (§5).</li>
+<li><strong>Attribution algebra</strong> — Δ⁻ and Δ⁺ (§6).</li>
+<li><strong>Evidence constructors</strong> — structured bundles with schema IDs (§7).</li>
+</ol>
+<p>Optional surface syntax (<code>.fel</code> files) is informative only; normative v0.1 is JSON schemas plus Python reference functions.</p>
+<p><strong>Version tag:</strong> <code>fel-v0.1</code> (<code>fragility_engine.fel.FEL_VERSION</code>).</p>
+<hr />
+<h2 id="5-semantic-core">5. Semantic core</h2>
+<h3 id="51-types">5.1 Types</h3>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Sort</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W</td>
+<td>World</td>
+<td>Pinned dynamics template and parameters</td>
+</tr>
+<tr>
+<td>G</td>
+<td>Schedule</td>
+<td>Matrix in [0,1]^{H×2}: shock intensity and timing gate per step</td>
+</tr>
+<tr>
+<td>σ</td>
+<td>Seed</td>
+<td>Integer rollout seed (optional defender genome)</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Rollout</td>
+<td>Result of evaluation</td>
+</tr>
+<tr>
+<td>I</td>
+<td>Intervention</td>
+<td>Typed edit to W, G, or initial conditions</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Evidence</td>
+<td>Serialized artifact with schema ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-evaluation">5.2 Evaluation</h3>
+<p>R = \mathrm{eval}(W, G, \sigma)</p>
+<p><strong>Law (Determinism).</strong> On charter worlds with pinned seeds, eval is reproducible: identical (W, G, σ) yields identical R.</p>
+<p><strong>Law (Schedule domain).</strong> Entries of G lie in [0,1]; decoding to exogenous events is fixed by the world template (world/adversary separation: attacks enter only via schedules, not hidden hooks inside physics steps [1]).</p>
+<h3 id="53-metrics">5.3 Metrics</h3>
+<p>Extract metric tuple φ(R):</p>
+<p>\phi(R) = \langle \text{integralinstability}, \text{attackcost}, \text{finalinstability}, \text{collapsed}, \text{collapsetimestep}, S(R) \rangle</p>
+<p>where <strong>S(R)</strong> is the severity functional used in search (<code>severity_score</code> in code). FEL does not mandate a single severity formula across all future worlds; it requires that a documented functional exists per charter world.</p>
+<h3 id="54-attack-pareto-order">5.4 Attack Pareto order</h3>
+<p>For two rollouts with severities S_A, S_B and costs c_A, c_B:</p>
+<p>A \prec B \iff S_A \ge S_B \land c_A \le c_B \text{ with strict inequality on at least one axis}</p>
+<p>Non-dominated indices form the attack Pareto front.</p>
+<h3 id="55-hypervolume-transform">5.5 Hypervolume transform</h3>
+<p>Hypervolume indicators assume minimization in each coordinate. FEL maps:</p>
+<p>(\tilde{s}, \tilde{c}) = (-S(R), \text{attackcost})</p>
+<p>Reference points must dominate the set in minimization sense (both coordinates worse than all front points). Generic 2-D minimization hypervolume applies after this transform [6].</p>
+<hr />
+<h2 id="6-dual-attribution-operators">6. Dual attribution operators</h2>
+<p>FEL’s central design choice is to <strong>name two subtraction conventions</strong> instead of forcing one global sign.</p>
+<h3 id="61-counterfactual-bundle-attribution">6.1 Δ⁻ — Counterfactual (bundle) attribution</h3>
+<p>For baseline rollout R₀ and variant R₁ under intervention I:</p>
+<p>\Delta^{-}(\phi_0, \phi_1) = \phi(R_0) - \phi(R_1)</p>
+<p><strong>Reading:</strong> Positive Δ⁻ on integral instability ⇒ variant <strong>reduced</strong> instability vs baseline.</p>
+<p><strong>Used in:</strong> counterfactual JSON bundles, star-merge attribution graphs (<code>attribution-merge-v1</code>), heterogeneous merge tooling.</p>
+<p><strong>Reference:</strong> <code>fel.delta_counterfactual(baseline, variant)</code>.</p>
+<h3 id="62-path-forward-attribution">6.2 Δ⁺ — Path forward attribution</h3>
+<p>For consecutive rollouts R_i, R_{i+1} along a cumulative path (mutation chain prefix, epsilon sweep):</p>
+<p>\Delta^{+}(\phi_i, \phi_{i+1}) = \phi(R_{i+1}) - \phi(R_i)</p>
+<p><strong>Reading:</strong> Positive Δ⁺ ⇒ metric <strong>increased</strong> when advancing along the path.</p>
+<p><strong>Used in:</strong> <code>explanation-mutation-chain-path-v1</code>, sweep traces.</p>
+<p><strong>Reference:</strong> <code>fel.delta_path_forward(predecessor, successor)</code>.</p>
+<h3 id="63-composition-rules">6.3 Composition rules</h3>
+<table>
+<thead>
+<tr>
+<th>Artifact kind</th>
+<th>Operator</th>
+<th>Question answered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Counterfactual bundle</td>
+<td>Δ⁻</td>
+<td>What changed under intervention I?</td>
+</tr>
+<tr>
+<td>Path trace edge</td>
+<td>Δ⁺</td>
+<td>What did step i contribute along the chain?</td>
+</tr>
+<tr>
+<td>Epsilon sweep edge</td>
+<td>Δ⁺</td>
+<td>What changed when ε advanced?</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Law (Δ separation).</strong> Do not attach Δ⁻ to path-edge schema slots or Δ⁺ to counterfactual bundle slots.</p>
+<p>Interaction summaries sum branch Δ⁻ values arithmetically; they are <strong>not</strong> Shapley values or integrated gradients [7].</p>
+<hr />
+<h2 id="7-evidence-constructors">7. Evidence constructors</h2>
+<p>Each constructor carries a versioned <code>schema</code> string. FEL v0.1 registry (subset):</p>
+<table>
+<thead>
+<tr>
+<th>Constructor</th>
+<th>Schema ID</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rollout replay</td>
+<td><code>schema_version</code> in replay dict</td>
+<td>Canonical R</td>
+</tr>
+<tr>
+<td>Pareto front</td>
+<td><code>pareto-front-v1</code></td>
+<td>Non-dominated (S, c) archive</td>
+</tr>
+<tr>
+<td>Attribution merge</td>
+<td><code>attribution-merge-v1</code></td>
+<td>Star merge of Δ⁻ bundles sharing baseline</td>
+</tr>
+<tr>
+<td>Explanation DAG</td>
+<td><code>explanation-dag-v1</code></td>
+<td>Minimization / dependency graph</td>
+</tr>
+<tr>
+<td>Explanation trace</td>
+<td><code>explanation-trace-v1</code></td>
+<td>Linear typed trace</td>
+</tr>
+<tr>
+<td>Mutation chain path</td>
+<td><code>explanation-mutation-chain-path-v1</code></td>
+<td>Prefix rollouts + Δ⁺ edges</td>
+</tr>
+<tr>
+<td>Fragility certificate</td>
+<td><code>fragility-certificate-v1</code></td>
+<td>Witness replay + front + environment fingerprint</td>
+</tr>
+<tr>
+<td>Institutional composite</td>
+<td><code>fragility-institutional-composite-v4</code></td>
+<td>Same G on multiple W_i</td>
+</tr>
+<tr>
+<td>Benchmark manifest</td>
+<td><code>benchmark-manifest-v2</code></td>
+<td>Pinned benchmark inventory digest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Star merge.</strong> Given baseline node B and variants V₁…V_k, edges (B → V_j) carry Δ⁻ metrics and intervention labels; baseline equality is validated strictly before merge.</p>
+<p><strong>Certificate.</strong> Existential witness (W, G, σ) with documented thresholds; bundles citeable as paper-appendix artifacts [8].</p>
+<p><strong>Composite law (Independence).</strong> Institutional composite evaluates {eval(W_i, G, σ)} in parallel; kernels do not exchange state within a timestep unless a single coupled world W explicitly models coupling.</p>
+<hr />
+<h2 id="8-worked-example-flagship-pipeline">8. Worked example (flagship pipeline)</h2>
+<p>The following chain is reproducible via <code>python scripts/run_flagship_demo.py</code> [8]:</p>
+<ol>
+<li><strong>Search</strong> — GA under aggregate world W_agg produces schedule G<em> and rollout R</em> = eval(W_agg, G*, σ).</li>
+<li><strong>Front</strong> — Archive <code>{R_j}</code> yields Pareto set F with schema <code>pareto-front-v1</code>; hypervolume uses (-S, c).</li>
+<li><strong>Counterfactual</strong> — Intervention I = remove shock at index k gives R₀, R₁; bundle stores Δ⁻ integrals and costs.</li>
+<li><strong>Path</strong> — Mutation chain prefixes R₀…R_m with Δ⁺ on edges (<code>explanation-mutation-chain-path-v1</code>).</li>
+<li><strong>Certificate</strong> — <code>fragility-certificate-v1</code> bundles replay, front, and environment digest for citation.</li>
+</ol>
+<p>A reader comparing step 3 and step 4 must apply Δ⁻ and Δ⁺ readings respectively—a distinction FEL makes explicit in schema documentation and tests.</p>
+<hr />
+<h2 id="9-implementation-and-validation">9. Implementation and validation</h2>
+<p><strong>Reference module:</strong> <code>src/fragility_engine/fel/conventions.py</code> exports:</p>
+<ul>
+<li><code>FEL_VERSION</code>, <code>SCHEMA_REGISTRY</code></li>
+<li><code>metrics_from_rollout</code>, <code>severity_functional</code>, <code>to_min_objectives</code></li>
+<li><code>attack_pareto_dominates</code>, <code>delta_counterfactual</code>, <code>delta_path_forward</code></li>
+<li><code>fel_laws_summary()</code> for machine-readable axioms</li>
+</ul>
+<p><strong>Tests:</strong> <code>tests/test_fel_conventions.py</code> verifies sign conventions, dominance logic, and the opposite signs of Δ⁻ vs Δ⁺ on the same rollout pair.</p>
+<p><strong>Frozen benchmarks:</strong> Phase H suite validates golden metrics including corrected attack-Pareto hypervolume semantics; manifest digest SHA-256 prevents silent drift [1].</p>
+<p>FEL v0.1 does <strong>not</strong> include a <code>.fel</code> parser; Python APIs and JSON schemas are normative.</p>
+<hr />
+<h2 id="10-limitations-and-future-work">10. Limitations and future work</h2>
+<ol>
+<li><strong>No causal identifiability</strong> — Schedule-mask counterfactuals are engineering interventions, not identified causal effects in observational data.</li>
+<li><strong>Toy worlds</strong> — Reference domains are structural analogies, not calibrated institution models.</li>
+<li><strong>Path order sensitivity</strong> — Δ⁺ mutation chains depend on mutation order; FEL documents but does not resolve order ambiguity.</li>
+<li><strong>No Shapley axioms</strong> — Branch sums lack fairness guarantees of cooperative game attributions.</li>
+<li><strong>Surface syntax</strong> — Future fel-v0.2 may add parsers; semantics remain primary.</li>
+<li><strong>Coupled research fork</strong> — Stochastic Gaussian steps in coupled fork worlds require explicit seed pinning outside charter determinism unless documented.</li>
+</ol>
+<p>Future work: empirical study of misread rates before/after FEL labeling; PROV export mapping; alignment with emerging simulation audit standards.</p>
+<hr />
+<h2 id="11-conclusion">11. Conclusion</h2>
+<p>Fragility Evidence Language (FEL) provides a small, honest semantic contract for simulation-based fragility discovery: name the evaluation entry point, separate counterfactual and path attributions, and version evidence constructors. It formalizes existing engine behavior rather than inventing new physics, making multi-artifact review and CI-backed reproducibility easier. We release FEL v0.1 with open-source reference code and invite simulation and software-engineering communities to adopt or extend the registry.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>[1] D. Peterson, Agentic Ops, <em>Fragility Discovery Engine</em> — repository, charter (<code>BOUNDARIES.md</code>), v0.5.0 release. <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">https://github.com/AgenticOp-io/fragility-discovery-engine</a> · <a href="https://agenticop.io">https://agenticop.io</a></p>
+<p>[2] R. D. Peng, “Reproducible Research in Computational Science,” <em>Science</em>, vol. 334, no. 6060, pp. 1226–1227, 2011.</p>
+<p>[3] J. Pearl, <em>Causality: Models, Reasoning, and Inference</em>, 2nd ed. Cambridge University Press, 2009.</p>
+<p>[4] W3C PROV-DM: The PROV Data Model. <a href="https://www.w3.org/TR/prov-dm/">https://www.w3.org/TR/prov-dm/</a></p>
+<p>[5] A. Zeller and R. Hildebrandt, “Simplifying and Isolating Failure-Inducing Input,” <em>IEEE Transactions on Software Engineering</em>, vol. 28, no. 2, pp. 183–200, 2002.</p>
+<p>[6] E. Zitzler, M. Laumanns, and L. Thiele, “SPEA2: Improving the Strength Pareto Evolutionary Algorithm,” TI-K Report 103, ETH Zurich, 2001. (Hypervolume indicators in multi-objective optimization.)</p>
+<p>[7] S. M. Lundberg and S.-I. Lee, “A Unified Approach to Interpreting Model Predictions,” in <em>Proc. NeurIPS</em>, 2017. (Path attribution methods in ML — contrast with FEL Δ⁺ on simulators.)</p>
+<p>[8] Fragility Discovery Engine, <code>docs/PAPER_APPENDIX_WORKFLOW.md</code> — flagship demo and citation JSON pipeline.</p>
+<hr />
+<h2 id="appendix-a-fel-laws-machine-readable-summary">Appendix A — FEL laws (machine-readable summary)</h2>
+<table>
+<thead>
+<tr>
+<th>Law</th>
+<th>Statement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Determinism</td>
+<td>Same (W, G, σ) ⇒ same R on charter worlds</td>
+</tr>
+<tr>
+<td>Schedule domain</td>
+<td>G ∈ [0,1]^{H×2}; decode fixed per W</td>
+</tr>
+<tr>
+<td>Attack Pareto</td>
+<td>Dominate iff S ≥ and c ≤ with strict on one axis</td>
+</tr>
+<tr>
+<td>Hypervolume</td>
+<td>Use (-S, attack_cost) minimization coordinates</td>
+</tr>
+<tr>
+<td>Δ⁻</td>
+<td>baseline − variant on bundle exports</td>
+</tr>
+<tr>
+<td>Δ⁺</td>
+<td>successor − predecessor on path/sweep edges</td>
+</tr>
+<tr>
+<td>Composite independence</td>
+<td>Same G on multiple W_i; parallel eval unless coupled W</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="appendix-b-example-surface-syntax-informative">Appendix B — Example surface syntax (informative)</h2>
+<pre><code class="language-fel">world network_charter_v1
+seed 42
+
+schedule G { horizon 64 }
+
+rollout R0 = eval(W, G, seed)
+
+intervention remove_shock { index 3 }
+rollout R1 = eval(W, G', seed)
+
+delta_minus instability = R0.integral_instability - R1.integral_instability
+delta_minus cost        = R0.attack_cost - R1.attack_cost
+
+evidence merge {
+  baseline R0
+  variant  R1
+  intervention remove_shock
+}
+</code></pre>
+<p>Not parsed in v0.1; illustrates alignment between notation and Δ⁻ semantics.</p>
+<hr />
+<h2 id="acknowledgments">Acknowledgments</h2>
+<p>Prose drafting and structural editing used AI-assisted tools (Cursor, Composer language model). The author verified all definitions, operator signs, schema IDs, and implementation claims against the open-source reference code (<code>src/fragility_engine/fel/</code>, frozen benchmark suite, and <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code>).</p>
+<hr />
+<p><em>End of preprint fel-v0.1 · David Peterson, Founder, Agentic Ops (agenticop.io)</em></p>
+</body>
+</html>

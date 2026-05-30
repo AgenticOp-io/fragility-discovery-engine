@@ -298,6 +298,6 @@
       15.0,
       15.0
     ],
-    "hypervolume_policy": "Both objectives minimized (severity, attack_cost). Reference strictly worse than archive maxima; pinned in tests/test_flagship_bundled.py."
+    "hypervolume_policy": "Attack Pareto: maximize severity, minimize attack_cost. Hypervolume uses minimization coordinates (-severity, attack_cost) with reference (15, 15); pinned in tests/test_flagship_bundled.py."
   }
 }

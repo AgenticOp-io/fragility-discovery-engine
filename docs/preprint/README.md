@@ -1,6 +1,6 @@
 # FEL preprint
 
-**Paper:** [`FEL_preprint_v0.1.md`](FEL_preprint_v0.1.md)  
+**Paper:** [`FEL_preprint_v0.1.md`](FEL_preprint_v0.1.md) · **PDF:** [`FEL_preprint_v0.1.pdf`](FEL_preprint_v0.1.pdf)  
 **Publishing guide:** [`PUBLISHING.md`](PUBLISHING.md)  
 **Normative spec (implementation):** [`../FRAGILITY_EVIDENCE_LANGUAGE.md`](../FRAGILITY_EVIDENCE_LANGUAGE.md)
 
@@ -17,17 +17,19 @@
 }
 ```
 
-## Building a PDF (optional)
+## Building a PDF
 
-The source is Markdown. Common paths:
+Checked-in PDF: **`FEL_preprint_v0.1.pdf`** (regenerate after editing the Markdown).
 
-1. **Pandoc** (fastest if installed):
-   ```bash
-   pandoc docs/preprint/FEL_preprint_v0.1.md -o FEL_preprint_v0.1.pdf \
-     --pdf-engine=xelatex -V geometry:margin=1in -V fontsize=11pt
-   ```
-2. **arXiv:** upload `.tex` converted from Pandoc (`pandoc -t latex`) or write LaTeX from the Markdown sections.
-3. **GitHub:** render Markdown in the browser for informal sharing; link the raw file in arXiv `comments` field.
+```powershell
+pip install markdown playwright
+python -m playwright install chromium
+python scripts/build_fel_preprint_pdf.py
+```
+
+The script writes `docs/preprint/FEL_preprint_v0.1.html` (intermediate) and `docs/preprint/FEL_preprint_v0.1.pdf`.
+
+**Alternatives:** Pandoc + LaTeX (`pandoc … -o FEL_preprint_v0.1.pdf --pdf-engine=xelatex`) or `npx md-to-pdf docs/preprint/FEL_preprint_v0.1.md` if Node is available.
 
 ## Relationship to other docs
 

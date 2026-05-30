@@ -1,4 +1,5 @@
 {
+  "schema": "counterfactual-bundle-v1",
   "baseline": {
     "collapsed": true,
     "collapse_timestep": 1,
