@@ -24,6 +24,7 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 |----------|----------------|
 | [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | What the engine is, what problem it solves, the six domains, who it fits |
 | [`HOW_TO_USE.md`](HOW_TO_USE.md) | Install, tutorials, all CLI scripts, viewers, troubleshooting |
+| [`BRING_YOUR_OWN_WORLD.md`](BRING_YOUR_OWN_WORLD.md) | Wire a custom world into the search loop; falsification-harness pattern; when it is (not) worth it |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Package layout, rollout pipeline, simulation modes, determinism |
 | [`REFERENCE.md`](REFERENCE.md) | CLI flag matrix by mode, environment variables, JSON schema names |
 | [`INSTALLATION.md`](INSTALLATION.md) | OS packages, Python version, Git credentials, CI parity scripts |

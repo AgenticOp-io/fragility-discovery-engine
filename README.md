@@ -41,6 +41,8 @@ The **numerical core** is **deterministic** (fixed NumPy RNG seeds). LLM policie
 
 **Toy-model scope:** all six reference worlds are deliberately simplified stress kernels — not calibrated to any real institution. See [`BOUNDARIES.md`](BOUNDARIES.md) non-goals and [`docs/AUDIT_RESOLUTION.md`](docs/AUDIT_RESOLUTION.md).
 
+**Your system, not our toys:** the engine's value on a real problem comes from a world *you* write — a ~100-line adapter (`reset` / `step` / `state_vector` / `instability_score` / `is_collapsed`), after which search, minimization, attribution, and replay work unchanged. Tutorial + runnable example: [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md), [`examples/bring_your_own_world.py`](examples/bring_your_own_world.py). Honest bar before you invest: the engine earns its keep only when the worst-case shock *ordering* is non-obvious — if the search merely rediscovers "everything at once is bad," it added nothing. The doc includes a one-day falsification test for exactly that.
+
 **Reproducible benchmarks:** [`benchmarks/README.md`](benchmarks/README.md) — `python scripts/run_benchmark_suite.py --validate`. **Validation (Windows or GCE):** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — `pwsh -File scripts/ci_local.ps1` or `bash scripts/gce_pull_and_test.sh` on the VM.
 
 **Paper-style walkthrough (one path):** [`docs/PAPER_APPENDIX_WORKFLOW.md`](docs/PAPER_APPENDIX_WORKFLOW.md) · **Scale / limits (honest):** [`docs/SCALE_AND_LIMITS.md`](docs/SCALE_AND_LIMITS.md) · **Citation JSON:** `fragility-certificate-v1` via `scripts/export_fragility_certificate.py` / `scripts/run_flagship_demo.py` · **Research frontiers (third domain, coupling):** [`docs/RESEARCH_FRONTIERS.md`](docs/RESEARCH_FRONTIERS.md).
