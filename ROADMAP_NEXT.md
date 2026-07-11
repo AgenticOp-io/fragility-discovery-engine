@@ -1,8 +1,24 @@
-# Next roadmap — after the H–M spine
+# Next roadmap — after the H–P spine
 
-This document is **aspirational and directional**: what to do **after** certificates, frozen benchmarks, network explanations, two extra reference worlds, acceleration hooks, narration, and the third domain are **shipped**—without turning wish lists into scope creep.
+This document is **aspirational and directional**: what to do **after** certificates, frozen benchmarks, six reference worlds, narration, visibility, and the public workbench are **shipped**—without turning wish lists into scope creep.
 
 **Normative law still lives in [`BOUNDARIES.md`](BOUNDARIES.md):** hard gates, exit criteria, and non-goals override enthusiasm. Treat this file as **prioritized intent**; promote sections into `BOUNDARIES.md` only when you are ready to commit engineering + tests.
+
+---
+
+## Active sequence: Phases Q → R → S
+
+Charter domains are **closed** at six. The next work is toolkit and evidence positioning, not more toys.
+
+| Phase | Status | Memo | One-line intent |
+|-------|--------|------|-----------------|
+| **Q** Research artifact polish | proposed | [`docs/phase_q_research_artifact.md`](docs/phase_q_research_artifact.md) | Citeable harness; honest copy; version hygiene |
+| **R** BYOW toolkit surface | proposed | [`docs/phase_r_byow_toolkit.md`](docs/phase_r_byow_toolkit.md) | CLI + adapter SDK; BYOW is the product |
+| **S** Falsification harness | proposed | [`docs/phase_s_falsification_harness.md`](docs/phase_s_falsification_harness.md) | Predicate damage + snapshot reset (after R) |
+
+**Build order:** Q can run in parallel with early R. **S does not start** until R’s public `rollout_fn` / CLI path works. Seed for R already on `main`: [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md).
+
+**Operator checklist:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md).
 
 ---
 
@@ -13,7 +29,8 @@ For this codebase, progress is **not** measured by a bigger dashboard or more gr
 1. **Reproducible fragility claims** — any reported collapse or frontier comes with a **frozen artifact trail** (seeds, configs, replay JSON, hashes) that a third party can rerun and reconcile.
 2. **Explanations tied to explicit changes** — results link to **named interventions** (schedules, topology, defenses), not free-form story alone.
 3. **Honest scale** — performance and realism bounds are **stated and tested**; sparse/list topology and optional backends are admitted tradeoffs, not marketing.
-4. **Transfer without chaos** — **second and third** reference domains prove the *engine pattern* generalizes while **aggregate + network + cascade + backlog** bundles stay frozen **regression oracles** unless the charter explicitly revises them.
+4. **Transfer without chaos** — reference domains prove the *engine pattern* generalizes while frozen bundles stay **regression oracles** unless the charter explicitly revises them.
+5. **Adopter path** — a third party can wire a custom world in about a day and falsify whether search finds a non-obvious ordering ([`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md)).
 
 If a feature weakens determinism, blurs world/adversary separation, or ships without tests, it is **outside the project rules**—however impressive it sounds.
 
@@ -31,6 +48,7 @@ If a feature weakens determinism, blurs world/adversary separation, or ships wit
 | **Two-objective discipline** | New objectives enter as **paired** axes + archive, not a twelve-axis scorecard (see `BOUNDARIES.md` fitness discipline). |
 | **Modular worlds** | Physics stays in `world/`; search stays in `adversary/`; attribution in `explain/`. |
 | **Co-evolution as stress test** | Attacker–defender loops remain the **hardest integration test** for determinism and explanation quality. |
+| **BYOW over toys** | In-tree domains are oracles; real adoption is a custom `WorldProtocol` + `rollout_fn`. |
 
 ---
 

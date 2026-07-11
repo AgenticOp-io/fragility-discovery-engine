@@ -354,9 +354,65 @@ Work **does not start** on a phase until **all exit criteria** for the prior pha
 
 Normative memo: [`docs/phase_o_stretch.md`](docs/phase_o_stretch.md). Domain narrative: [`docs/WHY_INVENTORY_BUFFER.md`](docs/WHY_INVENTORY_BUFFER.md).
 
-## Future charter slots (not adopted)
+## Future charter slots
 
 No seventh reference-domain slot is open under current charter rules.
+
+The next adopted work is **not** more toy domains. It is the **Q → R → S** sequence below (full memos under `docs/phase_q_*.md`, `docs/phase_r_*.md`, `docs/phase_s_*.md`). Promote exit-criterion checkboxes into this file as each phase ships.
+
+### Phase Q — Research artifact polish (**proposed**)
+
+**Purpose:** Align external positioning with the harness that exists — citable paper + Zenodo + certificates + BYOW pointer; six domains labeled toy regression oracles; no causal overclaim.
+
+**Normative memo:** [`docs/phase_q_research_artifact.md`](docs/phase_q_research_artifact.md).
+
+**In scope:** README/whitepaper honesty pass; citation block; version consistency (`pyproject` / `__init__` / tags); docs index links.
+
+**Out of scope:** New worlds; CLI entry points (R); falsification predicates (S); coupled physics on `main`.
+
+**Exit criteria (adopt as shipped when all checked):**
+
+- [ ] README what-is / is-not matches these non-goals; domains labeled toy oracles.
+- [ ] Whitepaper intro uses counterfactual / attribution language, not “exactly why” causality.
+- [ ] Cite section: Zenodo DOI, BibTeX, certificate command, BYOW link.
+- [ ] Version fields consistent; `RELEASING.md` states the policy.
+- [ ] Phase Q memo linked from docs index + roadmap.
+
+### Phase R — BYOW toolkit surface (**proposed**)
+
+**Purpose:** Make bring-your-own-world the primary product surface — installable CLI, typed adapter SDK, second generic `examples/` world; toys stay oracles.
+
+**Normative memo:** [`docs/phase_r_byow_toolkit.md`](docs/phase_r_byow_toolkit.md).  
+**Seed already on `main`:** [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md), [`examples/bring_your_own_world.py`](examples/bring_your_own_world.py).
+
+**In scope:** `console_scripts` (`fragility search|minimize|replay|…`); public BYOW API module; optional custom shock-vocab extension behind tests; second generic example; CI path contributors can trust.
+
+**Out of scope:** Seventh charter domain + frozen suite row; snapshot/predicate harness (S); SaaS; calibrating toys; NSGA-II unless added as explicit two-objective stretch after R.1–R.4.
+
+**Exit criteria:**
+
+- [ ] Documented CLI entry points work on the capacity-pool example without private script imports.
+- [ ] BYOW surface listed in `docs/REFERENCE.md`; pytest for CLI + determinism helper.
+- [ ] Second generic `examples/` world + cookbook section.
+- [ ] README leads with BYOW → one-day worth-it test → toys as oracles.
+- [ ] Seven frozen bundles still validate.
+
+### Phase S — Falsification harness (**proposed**)
+
+**Purpose:** Adversarial search where damage is an **invariant predicate** and reset is a **snapshot restore** — red-team / property-falsification pattern for resettable systems. Depends on Phase R adapter + CLI.
+
+**Normative memo:** [`docs/phase_s_falsification_harness.md`](docs/phase_s_falsification_harness.md).
+
+**In scope:** Predicate collapse contract; snapshot reset adapter + in-memory/filesystem example; minimized failing sequence as replay “bug report”; generic `examples/falsification_*`; scale/honesty notes.
+
+**Out of scope:** Proprietary customer systems in-tree; claiming absence of bugs; causal ID; coupled mega-models; LLM step policies; SaaS red-team product.
+
+**Exit criteria:**
+
+- [ ] Falsification contract documented; reference adapter + determinism tests.
+- [ ] One pinned-seed example: search → predicate collapse → minimize → replay JSON.
+- [ ] Replay meta marks falsification mode; charter goldens unchanged.
+- [ ] `SCALE_AND_LIMITS.md` states reset cost + presence-not-absence.
 
 ## Fitness function discipline
 

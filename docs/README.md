@@ -24,7 +24,7 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 |----------|----------------|
 | [`WHITEPAPER_INTRODUCTION.md`](WHITEPAPER_INTRODUCTION.md) | What the engine is, what problem it solves, the six domains, who it fits |
 | [`HOW_TO_USE.md`](HOW_TO_USE.md) | Install, tutorials, all CLI scripts, viewers, troubleshooting |
-| [`BRING_YOUR_OWN_WORLD.md`](BRING_YOUR_OWN_WORLD.md) | Wire a custom world into the search loop; falsification-harness pattern; when it is (not) worth it |
+| [`BRING_YOUR_OWN_WORLD.md`](BRING_YOUR_OWN_WORLD.md) | Wire a custom world into the search loop; falsification pattern; when it is (not) worth it |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Package layout, rollout pipeline, simulation modes, determinism |
 | [`REFERENCE.md`](REFERENCE.md) | CLI flag matrix by mode, environment variables, JSON schema names |
 | [`INSTALLATION.md`](INSTALLATION.md) | OS packages, Python version, Git credentials, CI parity scripts |
@@ -35,10 +35,13 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 | [`BUNDLED_ARTIFACTS.md`](BUNDLED_ARTIFACTS.md) | Checked-in JSON for viewers and CI pins |
 | [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | Charter + Phase O completion snapshot |
 | [`AUDIT_RESOLUTION.md`](AUDIT_RESOLUTION.md) | Project + math audit findings and fix status |
+| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Phases Q→R→S build order + ops leftovers |
 | [`phase_o_stretch.md`](phase_o_stretch.md) | Post-charter stretch (robustness, hexa composite, fork, PyPI) |
 | [`phase_p_visibility.md`](phase_p_visibility.md) | Branded public site (GCE + Pages), feedback template, coupled fork v0.1 |
+| [`phase_q_research_artifact.md`](phase_q_research_artifact.md) | **Next** — research artifact polish |
+| [`phase_r_byow_toolkit.md`](phase_r_byow_toolkit.md) | **Next** — BYOW toolkit surface |
+| [`phase_s_falsification_harness.md`](phase_s_falsification_harness.md) | **Next** — falsification harness (after R) |
 | [`GCE_VALIDATION.md`](GCE_VALIDATION.md) | Run full CI parity on a GCE VM (`gce_sync_vm.ps1`) |
-| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Release v0.5.0, visibility, fork, maintenance |
 
 ---
 
