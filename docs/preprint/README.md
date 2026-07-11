@@ -1,7 +1,7 @@
 # FEL preprint
 
 **Paper:** [`FEL_preprint_v0.1.md`](FEL_preprint_v0.1.md) · **PDF:** [`FEL_preprint_v0.1.pdf`](FEL_preprint_v0.1.pdf) · **Zenodo:** [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (`fel-v0.1.1`)  
-**Publishing guide:** [`PUBLISHING.md`](PUBLISHING.md)  
+**engrXiv submit:** [`ENGRxIV_SUBMISSION.md`](ENGRxIV_SUBMISSION.md) · **Publishing guide:** [`PUBLISHING.md`](PUBLISHING.md) · **arXiv endorsement:** [`ARXIV_ENDORSEMENT.md`](ARXIV_ENDORSEMENT.md)  
 **Normative spec (implementation):** [`../FRAGILITY_EVIDENCE_LANGUAGE.md`](../FRAGILITY_EVIDENCE_LANGUAGE.md)
 
 ## Citation (preprint)
@@ -14,7 +14,7 @@
   howpublished = {Zenodo, Agentic Ops / Fragility Discovery Engine},
   doi          = {10.5281/zenodo.20455689},
   url          = {https://doi.org/10.5281/zenodo.20455689},
-  note         = {Founder, Agentic Ops (agenticop.io). Release tag fel-v0.1.1. Prose drafting used AI-assisted tools (Cursor/Composer); technical claims verified by the author against the reference implementation.}
+  note         = {Founder, Agentic Ops (agenticop.io). FEL semantics fel-v0.1; software pointers as of fragility-engine 0.6.5 (July 2026). Release tag fel-v0.1.1. Prose drafting used AI-assisted tools (Cursor/Composer); technical claims verified by the author against the reference implementation.}
 }
 ```
 

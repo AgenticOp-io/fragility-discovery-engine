@@ -6,11 +6,15 @@ This note ranks venues for **Fragility Evidence Language (FEL) v0.1** — a *sem
 
 ## Recommended path (practical)
 
-### 1. arXiv first (do this regardless)
+### 1. Preprint first (do this regardless)
 
-**Category:** `cs.SE` (Software Engineering) primary; cross-list `cs.AI` or `cs.CE` if you emphasize attribution / simulation methodology.
+**Preferred discovery stamp:** [engrXiv](https://engrxiv.org/) (Engineering Archive) — no arXiv-style endorsement. Paste kit: [`ENGRxIV_SUBMISSION.md`](ENGRxIV_SUBMISSION.md).
 
-**Why:** Establishes priority, is citable immediately, aligns with open-source release, and costs nothing. Link the GitHub repo, frozen benchmark digest, and `fel-v0.1` tag in the abstract.
+**Also keep:** Zenodo DOI [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (`fel-v0.1.1`) as the archival record.
+
+**arXiv (optional):** `cs.SE` primary — blocked on endorsement until someone vouchsafes a first-time poster; pack in [`ARXIV_ENDORSEMENT.md`](ARXIV_ENDORSEMENT.md).
+
+**Why:** Establishes priority, is citable immediately, aligns with open-source release. Link the GitHub repo, frozen benchmark digest, and `fel-v0.1.1` tag in the abstract / notes.
 
 **Timeline:** Same week as (or day before) any conference submission.
 

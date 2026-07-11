@@ -336,6 +336,18 @@ fragility shorthand resolve byow-capacity-pool
 fragility shorthand export --out artifacts/operator_shorthand/fde-shorthands.v1.json
 ```
 
+### 4.20 Research extensions (QD · differential · evidence · plausibility · STL)
+
+See [`RESEARCH_EXTENSIONS.md`](RESEARCH_EXTENSIONS.md).
+
+```bash
+fragility illuminate --example capacity-pool --export-archive artifacts/scenario_archive/sample.json
+fragility differential --example-a capacity-pool --example-b token-bucket --export-json artifacts/differential/sample.json
+fragility evidence-pack --out artifacts/evidence_packs/sample.json --artifact artifacts/scenario_archive/sample.json --no-manifest
+fragility plausible-search --example capacity-pool --export-json artifacts/plausibility/sample.json
+fragility falsify stl --formula "G[0,10] x[0] < 0.9" --byow-example capacity-pool --export-json artifacts/stl/sample.json
+```
+
 ---
 
 ## 5. Static viewers (replay, Pareto, attribution)

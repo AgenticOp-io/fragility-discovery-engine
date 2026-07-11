@@ -1,0 +1,35 @@
+{
+  "schema": "evidence-pack-v1",
+  "fel_version": "fel-v0.1",
+  "prov_profile": "prov-lite-v1",
+  "entities": [
+    {
+      "id": "entity-certificate",
+      "prov:type": "Entity",
+      "schema": "fragility-certificate-v1",
+      "sha256": "d482dc0bdbb192e6d89b741137a4011603af7a923757f3bd75309b51f3df03d9"
+    }
+  ],
+  "activities": [
+    {
+      "id": "activity-1",
+      "prov:type": "Activity",
+      "label": "fragility_evidence_assembly",
+      "generated": [
+        "entity-certificate"
+      ],
+      "used": []
+    }
+  ],
+  "certificate": {
+    "schema": "fragility-certificate-v1",
+    "fragility_engine_version": "0.6.6",
+    "python_version": "3.12.10",
+    "numpy_version": "2.4.6",
+    "git_commit": "7791019780538665cef4e7d089b58e06f200b037",
+    "artifact_sha256": [],
+    "notes": "Evidence pack auto-built certificate.",
+    "certificate_content_sha256": "d482dc0bdbb192e6d89b741137a4011603af7a923757f3bd75309b51f3df03d9"
+  },
+  "pack_content_sha256": "3a898499afe5c07e7789d5542b136bbe3d7486454cc397fc2e29137b89785935"
+}

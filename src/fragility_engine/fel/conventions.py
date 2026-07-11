@@ -31,6 +31,11 @@ SCHEMA_REGISTRY: dict[str, str] = {
     "institutional_composite": "fragility-institutional-composite-v4",
     "benchmark_manifest": "benchmark-manifest-v2",
     "falsification_replay": "falsification-replay-v1 (meta.harness_kind=falsification_v1)",
+    "scenario_archive": "scenario-archive-v1",
+    "differential_stress": "differential-stress-v1",
+    "evidence_pack": "evidence-pack-v1",
+    "plausibility_search": "plausibility-search-v1",
+    "stl_robustness": "stl-robustness-v1",
 }
 
 

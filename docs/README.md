@@ -99,6 +99,7 @@ Serve the repo root over HTTP (`python -m http.server 8765`) to use the static v
 | [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Ideas explicitly out of charter scope |
 | [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md) | Coupled mega-institution fork policy + v0.2 flight |
 | [`INTELLIGENCE_SHORTHAND.md`](INTELLIGENCE_SHORTHAND.md) | Operator IS tiers (`fragility shorthand`) — Chrysalis-inspired |
+| [`RESEARCH_EXTENSIONS.md`](RESEARCH_EXTENSIONS.md) | QD archive, differential, evidence packs, plausibility, STL |
 | [`../ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) | Aspirational backlog (not binding until in `BOUNDARIES.md`) |
 
 ---

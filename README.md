@@ -4,18 +4,21 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.5](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.5) (tetra certificate digests + workbench callouts; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.6](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.6) (research flights 1–2: QD archive, differential, evidence packs, plausibility search, STL falsify; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations — or **your own world** via [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md). Export replay JSON, minimized failing schedules, and counterfactual attribution bundles.
 
-**Install + BYOW CLI (v0.6.5):**
+**Install + BYOW CLI (v0.6.6):**
 
 ```powershell
 pip install fragility-engine
 # or: pip install -e ".[dev]"
 fragility search --example capacity-pool
-fragility minimize --example capacity-pool
-fragility falsify search --example ranked-store
+fragility illuminate --example capacity-pool
+fragility differential --example-a capacity-pool --example-b token-bucket
+fragility evidence-pack --out pack.json --no-manifest
+fragility plausible-search --example capacity-pool
+fragility falsify stl --formula "G[0,10] x[0] < 0.9" --byow-example capacity-pool
 fragility shorthand list
 fragility certify
 ```
@@ -33,6 +36,7 @@ fragility certify
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
 - **Concept DOI (latest):** [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688)
+- **v0.6.6 version:** *(pending Zenodo sync after GitHub Release)*
 - **v0.6.5 version:** [10.5281/zenodo.21313024](https://doi.org/10.5281/zenodo.21313024)
 - **v0.6.4 version:** [10.5281/zenodo.21312735](https://doi.org/10.5281/zenodo.21312735)
 - **v0.6.3 version:** [10.5281/zenodo.21312495](https://doi.org/10.5281/zenodo.21312495)
@@ -43,7 +47,7 @@ fragility certify
 - **Machine-readable:** [`CITATION.cff`](CITATION.cff)
 - **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
 - **Repro bundle:** `fragility certify` or `python scripts/run_flagship_demo.py`
-- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.5)
+- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.6)
 
 ```bibtex
 @software{peterson2026fde,

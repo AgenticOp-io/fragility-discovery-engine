@@ -1,4 +1,4 @@
-"""``fragility`` CLI — search, minimize, replay, certify, check-world, falsify, shorthand."""
+"""``fragility`` CLI — search, illuminate, differential, evidence-pack, certify, falsify, shorthand."""
 
 from __future__ import annotations
 
@@ -218,6 +218,187 @@ def cmd_shorthand(args: argparse.Namespace) -> int:
     return 1
 
 
+def cmd_illuminate(args: argparse.Namespace) -> int:
+    from fragility_engine.adversary.scenario_archive import quality_diversity_search, scenario_archive_payload
+
+    spec, evaluator = _build_byow_evaluator(args.example)
+    horizon = int(args.horizon or spec.default_horizon)
+    qd = quality_diversity_search(
+        evaluator,
+        horizon=horizon,
+        generations=int(args.generations),
+        population_size=int(args.population_size),
+        seed=int(args.seed),
+    )
+    print(summarize_findings(qd.search.best_rollout))
+    print(f"niches illuminated: {len(qd.niches)}")
+    if args.export_archive:
+        out = Path(args.export_archive)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(scenario_archive_payload(qd), indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {out}")
+    if args.export_replay:
+        _write_replay(
+            qd.search.best_rollout,
+            Path(args.export_replay),
+            meta={"cli": "fragility illuminate", "example": spec.name, "harness_kind": "dynamics_v1"},
+        )
+        print(f"wrote {args.export_replay}")
+    return 0
+
+
+def cmd_differential(args: argparse.Namespace) -> int:
+    from fragility_engine.adversary.differential import differential_search, differential_stress_payload
+
+    spec_a, eval_a = _build_byow_evaluator(args.example_a)
+    spec_b, eval_b = _build_byow_evaluator(args.example_b)
+    horizon = int(args.horizon or max(spec_a.default_horizon, spec_b.default_horizon))
+    _result, diff = differential_search(
+        eval_a,
+        eval_b,
+        horizon=horizon,
+        seed=int(args.seed),
+        method=str(args.method),
+        generations=int(args.generations),
+        population_size=int(args.population_size),
+        samples=int(args.samples),
+    )
+    payload = differential_stress_payload(diff, world_a=spec_a.name, world_b=spec_b.name)
+    print(json.dumps({k: v for k, v in payload.items() if k != "genome"}, indent=2))
+    if args.export_json:
+        out = Path(args.export_json)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {out}")
+    if args.export_replay:
+        _write_replay(
+            diff.rollout_a,
+            Path(args.export_replay),
+            meta={
+                "cli": "fragility differential",
+                "example_a": spec_a.name,
+                "example_b": spec_b.name,
+                "harness_kind": "differential_stress_v1",
+            },
+        )
+        print(f"wrote {args.export_replay}")
+    return 0
+
+
+def cmd_plausible(args: argparse.Namespace) -> int:
+    from fragility_engine.adversary.plausibility import plausibility_search_payload, plausible_search
+
+    spec, evaluator = _build_byow_evaluator(args.example)
+    horizon = int(args.horizon or spec.default_horizon)
+    psr = plausible_search(
+        evaluator,
+        horizon=horizon,
+        seed=int(args.seed),
+        plausibility_weight=float(args.plausibility_weight),
+        method=str(args.method),
+        generations=int(args.generations),
+        population_size=int(args.population_size),
+        samples=int(args.samples),
+    )
+    payload = plausibility_search_payload(psr)
+    print(summarize_findings(psr.search.best_rollout))
+    print(
+        json.dumps(
+            {
+                "insanity_budget": payload["insanity_budget"],
+                "log_likelihood": payload["log_likelihood"],
+                "plausibility_weight": payload["plausibility_weight"],
+                "active_shock_events": payload["active_shock_events"],
+            },
+            indent=2,
+        )
+    )
+    if args.export_json:
+        out = Path(args.export_json)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {out}")
+    if args.export_replay:
+        _write_replay(
+            psr.search.best_rollout,
+            Path(args.export_replay),
+            meta={
+                "cli": "fragility plausible-search",
+                "example": spec.name,
+                "harness_kind": "plausibility_search_v1",
+            },
+        )
+        print(f"wrote {args.export_replay}")
+    return 0
+
+
+def cmd_falsify_stl(args: argparse.Namespace) -> int:
+    from fragility_engine.falsify.stl import stl_falsify_search, stl_robustness_payload
+
+    if args.example:
+        spec, evaluator = _build_falsify_evaluator(args.example)
+        horizon = int(args.horizon or spec.default_horizon)
+        example_name = spec.name
+        harness = "falsification_v1"
+    else:
+        spec, evaluator = _build_byow_evaluator(args.byow_example)
+        horizon = int(args.horizon or spec.default_horizon)
+        example_name = spec.name
+        harness = "dynamics_v1"
+
+    res = stl_falsify_search(
+        evaluator,
+        str(args.formula),
+        horizon=horizon,
+        seed=int(args.seed),
+        generations=int(args.generations),
+        population_size=int(args.population_size),
+    )
+    payload = stl_robustness_payload(res)
+    print(json.dumps({k: v for k, v in payload.items() if k != "genome"}, indent=2))
+    if args.export_json:
+        out = Path(args.export_json)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {out}")
+    if args.export_replay and res.search.best_rollout.trajectory:
+        _write_replay(
+            res.search.best_rollout,
+            Path(args.export_replay),
+            meta={
+                "cli": "fragility falsify stl",
+                "example": example_name,
+                "formula": args.formula,
+                "harness_kind": harness,
+            },
+        )
+        print(f"wrote {args.export_replay}")
+    return 0 if res.violated else 1
+
+
+def cmd_evidence_pack(args: argparse.Namespace) -> int:
+    from fragility_engine.benchmarks.evidence_pack import build_evidence_pack
+
+    paths = [Path(p) for p in (args.artifact or [])]
+    pack = build_evidence_pack(
+        artifact_paths=paths or None,
+        include_benchmark_manifest=not args.no_manifest,
+        activity_label=str(args.activity),
+        notes=str(args.notes or ""),
+        repo_root=Path.cwd(),
+    )
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(pack, indent=2) + "\n", encoding="utf-8")
+    summary = {
+        "out": str(out),
+        "pack_content_sha256": pack["pack_content_sha256"],
+        "entities": len(pack["entities"]),
+    }
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="fragility", description="Fragility Discovery Engine CLI")
     p.add_argument("--version", action="version", version=f"fragility-engine {__version__}")
@@ -277,6 +458,77 @@ def build_parser() -> argparse.ArgumentParser:
     fsearch.add_argument("--base-seed", type=int, default=515151)
     fsearch.add_argument("--export-replay", type=Path, default=None)
     fsearch.set_defaults(func=cmd_falsify_search)
+    fstl = fs_sub.add_parser("stl", help="Falsify a discrete-time STL formula (robustness search)")
+    fstl.add_argument(
+        "--formula",
+        required=True,
+        help='e.g. "G[0,10] x[0] < 0.9" or "F[0,8] x[1] > 0.5"',
+    )
+    fstl.add_argument("--example", default=None, help="Falsification example (ranked-store)")
+    fstl.add_argument("--byow-example", default="capacity-pool", help="BYOW example if --example omitted")
+    fstl.add_argument("--generations", type=int, default=10)
+    fstl.add_argument("--population-size", type=int, default=20)
+    fstl.add_argument("--horizon", type=int, default=None)
+    fstl.add_argument("--seed", type=int, default=808)
+    fstl.add_argument("--export-json", type=Path, default=None)
+    fstl.add_argument("--export-replay", type=Path, default=None)
+    fstl.set_defaults(func=cmd_falsify_stl)
+
+    ill = sub.add_parser(
+        "illuminate",
+        help="Quality-diversity search → scenario-archive-v1 (MAP-Elites niches)",
+    )
+    ill.add_argument("--example", default="capacity-pool")
+    ill.add_argument("--generations", type=int, default=6)
+    ill.add_argument("--population-size", type=int, default=16)
+    ill.add_argument("--horizon", type=int, default=None)
+    ill.add_argument("--seed", type=int, default=511)
+    ill.add_argument("--export-archive", type=Path, default=None)
+    ill.add_argument("--export-replay", type=Path, default=None)
+    ill.set_defaults(func=cmd_illuminate)
+
+    diff = sub.add_parser(
+        "differential",
+        help="Find schedules that break example A but not B (differential-stress-v1)",
+    )
+    diff.add_argument("--example-a", default="capacity-pool")
+    diff.add_argument("--example-b", default="token-bucket")
+    diff.add_argument("--method", choices=("ga", "mc"), default="ga")
+    diff.add_argument("--generations", type=int, default=8)
+    diff.add_argument("--population-size", type=int, default=16)
+    diff.add_argument("--samples", type=int, default=40)
+    diff.add_argument("--horizon", type=int, default=None)
+    diff.add_argument("--seed", type=int, default=909)
+    diff.add_argument("--export-json", type=Path, default=None)
+    diff.add_argument("--export-replay", type=Path, default=None)
+    diff.set_defaults(func=cmd_differential)
+
+    pl = sub.add_parser(
+        "plausible-search",
+        help="Severity vs insanity-budget search (plausibility-search-v1)",
+    )
+    pl.add_argument("--example", default="capacity-pool")
+    pl.add_argument("--method", choices=("ga", "mc"), default="ga")
+    pl.add_argument("--plausibility-weight", type=float, default=0.35)
+    pl.add_argument("--generations", type=int, default=8)
+    pl.add_argument("--population-size", type=int, default=16)
+    pl.add_argument("--samples", type=int, default=40)
+    pl.add_argument("--horizon", type=int, default=None)
+    pl.add_argument("--seed", type=int, default=616)
+    pl.add_argument("--export-json", type=Path, default=None)
+    pl.add_argument("--export-replay", type=Path, default=None)
+    pl.set_defaults(func=cmd_plausible)
+
+    ep = sub.add_parser(
+        "evidence-pack",
+        help="Build evidence-pack-v1 (PROV-lite) around digests + certificate",
+    )
+    ep.add_argument("--out", type=Path, required=True)
+    ep.add_argument("--artifact", action="append", default=[], help="JSON artifact path (repeatable)")
+    ep.add_argument("--activity", default="fragility_evidence_assembly")
+    ep.add_argument("--notes", default="")
+    ep.add_argument("--no-manifest", action="store_true")
+    ep.set_defaults(func=cmd_evidence_pack)
 
     sh = sub.add_parser(
         "shorthand",

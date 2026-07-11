@@ -36,8 +36,9 @@ blockquote { margin: 0.8em 0; padding-left: 1em; border-left: 3px solid #ccc; co
 <h1 id="fragility-evidence-language-fel-a-semantic-contract-for-reproducible-stress-search-and-attribution-in-discrete-time-simulations">Fragility Evidence Language (FEL): A Semantic Contract for Reproducible Stress-Search and Attribution in Discrete-Time Simulations</h1>
 <p><strong>David Peterson</strong><br />
 Founder, Agentic Ops · <a href="https://agenticop.io">https://agenticop.io</a><br />
-Preprint fel-v0.1 — May 2026<br />
-Software: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">https://github.com/AgenticOp-io/fragility-discovery-engine</a><br />
+Preprint <strong>fel-v0.1</strong> (semantics) · software snapshot <strong>July 2026</strong> (<code>fragility-engine</code> <strong>0.6.5</strong>)<br />
+Software: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">https://github.com/AgenticOp-io/fragility-discovery-engine</a> · Demo: <a href="https://fragility.agenticop.io/">https://fragility.agenticop.io/</a><br />
+PyPI: <a href="https://pypi.org/project/fragility-engine/"><code>fragility-engine</code></a> · Zenodo (FEL snapshot): <a href="https://doi.org/10.5281/zenodo.20455689">10.5281/zenodo.20455689</a> · Concept DOI: <a href="https://doi.org/10.5281/zenodo.20455688">10.5281/zenodo.20455688</a><br />
 Spec: <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code> · Reference module: <code>src/fragility_engine/fel/</code></p>
 <hr />
 <h2 id="abstract">Abstract</h2>
@@ -340,6 +341,43 @@ Spec: <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code> · Reference module: <cod
 <p><strong>Tests:</strong> <code>tests/test_fel_conventions.py</code> verifies sign conventions, dominance logic, and the opposite signs of Δ⁻ vs Δ⁺ on the same rollout pair.</p>
 <p><strong>Frozen benchmarks:</strong> Phase H suite validates golden metrics including corrected attack-Pareto hypervolume semantics; manifest digest SHA-256 prevents silent drift [1].</p>
 <p>FEL v0.1 does <strong>not</strong> include a <code>.fel</code> parser; Python APIs and JSON schemas are normative.</p>
+<h3 id="91-implementation-status-july-2026">9.1 Implementation status (July 2026)</h3>
+<p>FEL semantics remain <strong>v0.1</strong>. The accompanying open-source engine has continued to ship operators that <em>consume</em> those semantics:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Status (software 0.6.5)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Six charter reference worlds</td>
+<td>Unchanged role: regression oracles, not calibrated institutions</td>
+</tr>
+<tr>
+<td>BYOW + falsification CLI</td>
+<td><code>fragility search</code> / <code>falsify</code> / <code>certify</code> on PyPI</td>
+</tr>
+<tr>
+<td>Fragility certificates</td>
+<td><code>fragility-certificate-v1</code> embeds benchmark + optional research-fork digests</td>
+</tr>
+<tr>
+<td>Coupled mega-institution</td>
+<td>Research fork only (<code>forks/coupled_institution/</code>): panic/overload/liquidity/backlog tetra under search; not on the main charter</td>
+</tr>
+<tr>
+<td>Operator Intelligence Shorthand</td>
+<td>Post-hoc CLI capsules (<code>fragility shorthand</code>); never feeds <code>World.step</code></td>
+</tr>
+<tr>
+<td>Public demo</td>
+<td>https://fragility.agenticop.io/ (browse-first; live runs API-key gated)</td>
+</tr>
+</tbody>
+</table>
+<p>Paper-appendix workflow: <code>docs/PAPER_APPENDIX_WORKFLOW.md</code> (including tetra digests on research-fork certificate fields) [8].</p>
 <hr />
 <h2 id="10-limitations-and-future-work">10. Limitations and future work</h2>
 <ol>
@@ -348,7 +386,7 @@ Spec: <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code> · Reference module: <cod
 <li><strong>Path order sensitivity</strong> — Δ⁺ mutation chains depend on mutation order; FEL documents but does not resolve order ambiguity.</li>
 <li><strong>No Shapley axioms</strong> — Branch sums lack fairness guarantees of cooperative game attributions.</li>
 <li><strong>Surface syntax</strong> — Future fel-v0.2 may add parsers; semantics remain primary.</li>
-<li><strong>Coupled research fork</strong> — Stochastic Gaussian steps in coupled fork worlds require explicit seed pinning outside charter determinism unless documented.</li>
+<li><strong>Coupled research fork</strong> — Optional in-step coupling (through a backlog tetra) lives under <code>forks/coupled_institution/</code> with its own goldens and schema (<code>coupled-fork-0.4.0</code>). Stochastic channels still require explicit seed pinning; coupling is <strong>not</strong> part of the six-domain charter composite independence law.</li>
 </ol>
 <p>Future work: empirical study of misread rates before/after FEL labeling; PROV export mapping; alignment with emerging simulation audit standards.</p>
 <hr />
@@ -356,14 +394,14 @@ Spec: <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code> · Reference module: <cod
 <p>Fragility Evidence Language (FEL) provides a small, honest semantic contract for simulation-based fragility discovery: name the evaluation entry point, separate counterfactual and path attributions, and version evidence constructors. It formalizes existing engine behavior rather than inventing new physics, making multi-artifact review and CI-backed reproducibility easier. We release FEL v0.1 with open-source reference code and invite simulation and software-engineering communities to adopt or extend the registry.</p>
 <hr />
 <h2 id="references">References</h2>
-<p>[1] D. Peterson, Agentic Ops, <em>Fragility Discovery Engine</em> — repository, charter (<code>BOUNDARIES.md</code>), v0.5.0 release. <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">https://github.com/AgenticOp-io/fragility-discovery-engine</a> · <a href="https://agenticop.io">https://agenticop.io</a></p>
+<p>[1] D. Peterson, Agentic Ops, <em>Fragility Discovery Engine</em> — repository, charter (<code>BOUNDARIES.md</code>), software release <strong>v0.6.5</strong> (July 2026). <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">https://github.com/AgenticOp-io/fragility-discovery-engine</a> · <a href="https://pypi.org/project/fragility-engine/">https://pypi.org/project/fragility-engine/</a> · demo <a href="https://fragility.agenticop.io/">https://fragility.agenticop.io/</a> · Zenodo concept DOI <a href="https://doi.org/10.5281/zenodo.20455688">10.5281/zenodo.20455688</a>; FEL snapshot <a href="https://doi.org/10.5281/zenodo.20455689">10.5281/zenodo.20455689</a> (<code>fel-v0.1.1</code>).</p>
 <p>[2] R. D. Peng, “Reproducible Research in Computational Science,” <em>Science</em>, vol. 334, no. 6060, pp. 1226–1227, 2011.</p>
 <p>[3] J. Pearl, <em>Causality: Models, Reasoning, and Inference</em>, 2nd ed. Cambridge University Press, 2009.</p>
 <p>[4] W3C PROV-DM: The PROV Data Model. <a href="https://www.w3.org/TR/prov-dm/">https://www.w3.org/TR/prov-dm/</a></p>
 <p>[5] A. Zeller and R. Hildebrandt, “Simplifying and Isolating Failure-Inducing Input,” <em>IEEE Transactions on Software Engineering</em>, vol. 28, no. 2, pp. 183–200, 2002.</p>
 <p>[6] E. Zitzler, M. Laumanns, and L. Thiele, “SPEA2: Improving the Strength Pareto Evolutionary Algorithm,” TI-K Report 103, ETH Zurich, 2001. (Hypervolume indicators in multi-objective optimization.)</p>
 <p>[7] S. M. Lundberg and S.-I. Lee, “A Unified Approach to Interpreting Model Predictions,” in <em>Proc. NeurIPS</em>, 2017. (Path attribution methods in ML — contrast with FEL Δ⁺ on simulators.)</p>
-<p>[8] Fragility Discovery Engine, <code>docs/PAPER_APPENDIX_WORKFLOW.md</code> — flagship demo and citation JSON pipeline.</p>
+<p>[8] Fragility Discovery Engine, <code>docs/PAPER_APPENDIX_WORKFLOW.md</code> — flagship demo, citation JSON pipeline, and research-fork tetra digests on <code>fragility-certificate-v1</code>.</p>
 <hr />
 <h2 id="appendix-a-fel-laws-machine-readable-summary">Appendix A — FEL laws (machine-readable summary)</h2>
 <table>
@@ -430,6 +468,6 @@ evidence merge {
 <h2 id="acknowledgments">Acknowledgments</h2>
 <p>Prose drafting and structural editing used AI-assisted tools (Cursor, Composer language model). The author verified all definitions, operator signs, schema IDs, and implementation claims against the open-source reference code (<code>src/fragility_engine/fel/</code>, frozen benchmark suite, and <code>docs/FRAGILITY_EVIDENCE_LANGUAGE.md</code>).</p>
 <hr />
-<p><em>End of preprint fel-v0.1 · David Peterson, Founder, Agentic Ops (agenticop.io)</em></p>
+<p><em>End of preprint fel-v0.1 (semantics) · software pointers current as of fragility-engine 0.6.5 (July 2026) · David Peterson, Founder, Agentic Ops (agenticop.io)</em></p>
 </body>
 </html>

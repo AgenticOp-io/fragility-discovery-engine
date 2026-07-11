@@ -126,6 +126,60 @@ CAPSULES: dict[str, Capsule] = {
         tools=("scripts/run_coupled_fork_demo.py",),
         artifact_refs=("forks/coupled_institution/CHARTER.md",),
     ),
+    "illuminate-archive": Capsule(
+        task_id="illuminate-archive",
+        tier="IS-T4",
+        summary="QD niche illumination → scenario-archive-v1 on a BYOW example.",
+        verify_command=(
+            "fragility illuminate --example capacity-pool --generations 2 "
+            "--population-size 8 --export-archive artifacts/scenario_archive/sample.json"
+        ),
+        tools=("fragility illuminate",),
+        artifact_refs=("src/fragility_engine/adversary/scenario_archive.py",),
+    ),
+    "differential-stress": Capsule(
+        task_id="differential-stress",
+        tier="IS-T4",
+        summary="Find schedules that break example A but not B.",
+        verify_command=(
+            "fragility differential --example-a capacity-pool --example-b token-bucket "
+            "--generations 2 --population-size 8"
+        ),
+        tools=("fragility differential",),
+        artifact_refs=("src/fragility_engine/adversary/differential.py",),
+    ),
+    "evidence-pack": Capsule(
+        task_id="evidence-pack",
+        tier="IS-T3",
+        summary="Build PROV-lite evidence-pack-v1 around digests + certificate.",
+        verify_command=(
+            "fragility evidence-pack --out artifacts/evidence_packs/sample.json --no-manifest"
+        ),
+        tools=("fragility evidence-pack",),
+        artifact_refs=("src/fragility_engine/benchmarks/evidence_pack.py",),
+    ),
+    "plausible-search": Capsule(
+        task_id="plausible-search",
+        tier="IS-T4",
+        summary="Severity vs insanity-budget search → plausibility-search-v1.",
+        verify_command=(
+            "fragility plausible-search --example capacity-pool --generations 2 "
+            "--population-size 8 --export-json artifacts/plausibility/sample.json"
+        ),
+        tools=("fragility plausible-search",),
+        artifact_refs=("src/fragility_engine/adversary/plausibility.py",),
+    ),
+    "falsify-stl": Capsule(
+        task_id="falsify-stl",
+        tier="IS-T4",
+        summary="Discrete-time STL robustness falsification → stl-robustness-v1.",
+        verify_command=(
+            'fragility falsify stl --formula "G[0,8] x[0] < 0.95" --byow-example capacity-pool '
+            "--generations 2 --population-size 8"
+        ),
+        tools=("fragility falsify stl",),
+        artifact_refs=("src/fragility_engine/falsify/stl.py",),
+    ),
     "ci-local": Capsule(
         task_id="ci-local",
         tier="IS-T4",
