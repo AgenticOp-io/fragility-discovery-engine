@@ -2,6 +2,8 @@
 
 The demo is at **http://34.61.255.147/**. Everything is server-hosted — you open samples in the browser; nothing is uploaded from your computer.
 
+**Guardrails:** the public site is **browse-first**. Bundled samples and viewers are open. Live **Run a scenario** requires an operator API key (or install locally: `pip install fragility-engine`). See [Demo guardrails](/docs/gce-https-and-auth.html).
+
 ---
 
 ## Pages at a glance
@@ -9,7 +11,7 @@ The demo is at **http://34.61.255.147/**. Everything is server-hosted — you op
 | Page | URL | What to do here |
 |------|-----|-----------------|
 | **Workbench** | `/` | Browse server-hosted samples and open them in viewers |
-| **Run a scenario** | `/run.html` | Start a new fragility search on the server |
+| **Run a scenario** | `/run.html` | Operator-gated live search (API key) — or use local CLI |
 | **Past runs** | `/runs.html` | See completed server runs and open their results |
 | **Guided tour** | `/?tour=1` | Step-by-step walkthrough with written explanations |
 | **Documentation** | `/docs/` | Full manual |
@@ -36,14 +38,23 @@ Local file pickers and drag-and-drop are **disabled on this demo**. Use the Pres
 
 ## Running a new scenario
 
-1. Go to [Run a scenario](/run.html).
+Live runs on the **public** demo need an operator **run API key**. Without it, use bundled samples or install locally:
+
+```powershell
+pip install fragility-engine
+fragility search --example capacity-pool
+```
+
+If you have a key:
+
+1. Go to [Run a scenario](/run.html) (or `?run_key=…` once).
 2. Choose a **domain and search type** from the dropdown.
 3. Set the seed, horizon, generations, and population (within server limits).
 4. Click **Run scenario**. When the job finishes, links appear to the replay or Pareto viewer.
 
 Results are saved on the server under `/runs/<id>/`. Nothing on your computer is read or modified.
 
-**Server limits:** maximum 150 second run · 1 concurrent run · 8 runs per hour per IP address.
+**Server limits:** max 150s · 1 concurrent run · 3 runs/hour/IP · anonymous runs off by default.
 
 ---
 
@@ -58,9 +69,9 @@ Results are saved on the server under `/runs/<id>/`. Nothing on your computer is
 ## Suggested first visit
 
 1. Workbench → click **Flagship benchmark** replay to see a collapse timeline.
-2. [Run a scenario](/run.html) → leave defaults → wait for it to finish → open in Replay viewer.
-3. Come back to the workbench and open any **Attribution** sample to see a counterfactual chain.
-4. Optional: work through the [Guided tour](/?tour=1) — read each step, then press Next.
+2. Open any **Attribution** sample to see a counterfactual chain (no live run needed).
+3. Optional: work through the [Guided tour](/?tour=1) — read each step, then press Next.
+4. For a fresh search: install locally or ask an operator for a run key.
 
 ---
 

@@ -70,8 +70,8 @@ def _workbench_index_main() -> str:
 
     <article class="fde-prose fde-demo-intro">
       <h2>How this demo works</h2>
-      <p>Every sample below is <strong>JSON on this server</strong>. Click a row to open the right viewer with that file already loaded. To run a new search (also saved on the server), use <a href="/run.html">Run a scenario</a> — nothing is uploaded from your computer.</p>
-      <p>Full map of pages and viewers: <a href="/docs/demo-guide.html">Demo guide</a> · CLI tutorials: <a href="/docs/how-to-use.html">How to Use</a></p>
+      <p>Every sample below is <strong>JSON on this server</strong>. Click a row to open the right viewer with that file already loaded. The public demo is <strong>browse-first</strong>: live <a href="/run.html">Run a scenario</a> needs an operator API key (or run locally with <code>pip install fragility-engine</code>).</p>
+      <p>Full map of pages and viewers: <a href="/docs/demo-guide.html">Demo guide</a> · CLI tutorials: <a href="/docs/how-to-use.html">How to Use</a> · Policy: <a href="/docs/gce-https-and-auth.html">Demo guardrails</a></p>
     </article>
 
     <div class="fde-hero fde-hero-compact">
@@ -427,9 +427,17 @@ def _run_page_main() -> str:
             if (!r.ok) return;
             const h = await r.json();
             runAuthRequired = !!h.run_auth_required;
+            const liveEnabled = h.live_runs_enabled !== false;
             if (runAuthRequired && apiKeyLabel) {
               apiKeyLabel.hidden = false;
-              apiKeyHelp.textContent = 'This server requires a run API key. Use ?run_key=... once per browser session.';
+              if (!liveEnabled) {
+                apiKeyHelp.textContent =
+                  'Live runs are disabled on this public demo (browse bundled samples). ' +
+                  'Operators set FRAGILITY_RUN_API_KEY on the VM, or install locally: pip install fragility-engine';
+              } else {
+                apiKeyHelp.textContent =
+                  'This server requires a run API key. Use ?run_key=... once per browser session.';
+              }
             }
           } catch (e) { /* runner offline */ }
         }
@@ -871,6 +879,13 @@ def build(out: Path) -> dict[str, str]:
         md_filename="DEMO_GUIDE.md",
     )
     _doc(
+        filename="gce-https-and-auth.html",
+        doc_id="docs-guardrails",
+        title="Demo guardrails — Fragility Discovery Engine",
+        description="Public demo policy: browse-first, live runs require an API key.",
+        md_filename="GCE_HTTPS_AND_AUTH.md",
+    )
+    _doc(
         filename="overview.html",
         doc_id="docs-overview",
         title="Overview — Fragility Discovery Engine",
@@ -1096,7 +1111,7 @@ def build(out: Path) -> dict[str, str]:
       <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
 
       <h3>Demo access</h3>
-      <p>This installation is meant for browser demos at the VM IP address. Custom hostnames and TLS are optional — see <a href="/docs/fork-coupling.html">coupled fork notes</a> and <code>docs/GCE_HTTPS_AND_AUTH.md</code> in the repo if you need them later.</p>
+      <p>This installation is meant for browser demos at the VM IP address. Live scenario runs are <strong>key-gated</strong> by default — see <a href="/docs/gce-https-and-auth.html">Demo guardrails</a>. Custom hostnames and TLS are optional.</p>
 
       <h3>Updating this server</h3>
       <pre class="fde-code-block">cd ~/fragility-discovery-engine

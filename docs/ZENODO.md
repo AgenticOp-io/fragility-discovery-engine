@@ -1,35 +1,44 @@
 # Zenodo archive
 
-Zenodo gives a **citable DOI** for GitHub releases. Integration is enabled for **AgenticOp-io/fragility-discovery-engine**.
+Zenodo gives a **citable DOI** for this project. Prefer the **concept DOI** so citations resolve to the latest version.
 
-## Published archive
+## DOIs
 
-| Tag | DOI | Record |
-|-----|-----|--------|
-| `fel-v0.1.1` | [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) | https://zenodo.org/records/20455689 |
+| Kind | DOI | Notes |
+|------|-----|-------|
+| **Concept** (cite this) | [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) | Always points at latest published version |
+| Version `fel-v0.1.1` | [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) | FEL preprint + citation snapshot |
+| Version `0.6.0` | minted when published via `scripts/publish_zenodo_version.py` | Software release (BYOW CLI + falsify) |
 
-Badge (also in README):
+Badge (concept DOI preferred going forward):
 
 ```markdown
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455689.svg)](https://doi.org/10.5281/zenodo.20455689)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 ```
+
+The older badge `10.5281/zenodo.20455689` still resolves to the FEL snapshot version.
 
 ## Enable (once — done)
 
 1. Sign in at [zenodo.org](https://zenodo.org) (GitHub OAuth).
-2. **Account → GitHub** → enable **AgenticOp-io/fragility-discovery-engine** (org OAuth grant required).
-3. **Sync now** after each new release if the deposit does not appear automatically.
+2. **Account → GitHub** → enable **AgenticOp-io/fragility-discovery-engine**.
+3. GitHub releases may create **draft** deposits; publish them, or use the script below.
 
-## New releases
+## Publish a software version (recommended)
 
-1. Create a GitHub release tag (e.g. `v0.6.0`, `fel-v0.2`).
-2. Zenodo ingests the release tarball (+ attached assets) within minutes.
-3. Open the draft deposit → **Publish** to mint the DOI.
-4. Add the new DOI to `CITATION.cff` if it supersedes the FEL snapshot.
+```powershell
+$env:ZENODO_TOKEN = "<token with deposit:write + deposit:actions>"
+python -m build
+python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish
+```
+
+Omit `--publish` to leave a draft for manual review at zenodo.org.
+
+After publish, update [`CITATION.cff`](../CITATION.cff) `identifiers` / notes if you want the version DOI listed explicitly (concept DOI is enough for most cites).
 
 ## What gets archived
 
-- Release tarball (full repo at tag)
-- Attached release assets (e.g. `FEL_preprint_v0.1.pdf` on `fel-v0.1.1`)
+- Release tarball / uploaded wheel + sdist
+- Metadata: version, Apache 2.0, link to GitHub tag
 
-Code is **Apache 2.0**; preprint PDF is **CC BY 4.0** — mention both in deposit descriptions when editing metadata.
+Code is **Apache 2.0**; FEL preprint PDF is **CC BY 4.0**.

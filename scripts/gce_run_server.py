@@ -67,10 +67,18 @@ MODE_INITIAL: dict[str, tuple[str, float]] = {
 }
 RUNS_INDEX = RUNS_DIR / "index.json"
 RATE_LIMIT_FILE = RUNS_DIR / "rate_limit.json"
-MAX_RUNS_PER_IP_PER_HOUR = int(os.environ.get("FRAGILITY_MAX_RUNS_PER_IP_HOUR", "8"))
+MAX_RUNS_PER_IP_PER_HOUR = int(os.environ.get("FRAGILITY_MAX_RUNS_PER_IP_HOUR", "3"))
 RATE_LIMIT_WINDOW_S = 3600
 # When set, POST /api/run requires header X-Fragility-Run-Key or Authorization: Bearer <key>.
 RUN_API_KEY = os.environ.get("FRAGILITY_RUN_API_KEY", "").strip()
+# Public demos default to closed: anonymous POST /api/run is off unless explicitly enabled.
+# Set FRAGILITY_ALLOW_ANONYMOUS_RUNS=1 only for trusted/private hosts.
+ALLOW_ANONYMOUS_RUNS = os.environ.get("FRAGILITY_ALLOW_ANONYMOUS_RUNS", "0").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 RUN_API_KEY_HEADER = "X-Fragility-Run-Key"
 MODES = {
     "aggregate",
@@ -199,7 +207,15 @@ def _update_runs_index(entry: dict) -> None:
 
 
 def _run_auth_required() -> bool:
-    return bool(RUN_API_KEY)
+    """True when the run page should show a key field (key configured, or anonymous closed)."""
+
+    return bool(RUN_API_KEY) or not ALLOW_ANONYMOUS_RUNS
+
+
+def _live_runs_enabled() -> bool:
+    """Live POST /api/run is allowed only with a configured key or explicit anonymous opt-in."""
+
+    return bool(RUN_API_KEY) or ALLOW_ANONYMOUS_RUNS
 
 
 def _api_key_from_handler(handler: BaseHTTPRequestHandler) -> str:
@@ -213,14 +229,19 @@ def _api_key_from_handler(handler: BaseHTTPRequestHandler) -> str:
 
 
 def _check_api_key(handler: BaseHTTPRequestHandler) -> str | None:
-    """Return an error message when auth is required and the key is missing or wrong."""
+    """Return an error message when the request is not allowed to enqueue a run."""
 
-    if not RUN_API_KEY:
+    if RUN_API_KEY:
+        if _api_key_from_handler(handler) != RUN_API_KEY:
+            return "unauthorized: valid run API key required"
         return None
-    if _api_key_from_handler(handler) != RUN_API_KEY:
-        return "unauthorized: valid run API key required"
-    return None
-
+    if ALLOW_ANONYMOUS_RUNS:
+        return None
+    return (
+        "live-runs-disabled: public demo is browse-only; "
+        "set FRAGILITY_RUN_API_KEY on the host or run locally "
+        "(pip install fragility-engine)"
+    )
 
 def _client_ip(handler: BaseHTTPRequestHandler) -> str:
     forwarded = handler.headers.get("X-Forwarded-For", "")
@@ -546,6 +567,8 @@ class _Handler(BaseHTTPRequestHandler):
                     "timeout_s": RUN_TIMEOUT_S,
                     "rate_limit_per_ip_per_hour": MAX_RUNS_PER_IP_PER_HOUR,
                     "run_auth_required": _run_auth_required(),
+                    "live_runs_enabled": _live_runs_enabled(),
+                    "allow_anonymous_runs": ALLOW_ANONYMOUS_RUNS,
                 },
             )
             return

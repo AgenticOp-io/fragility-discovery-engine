@@ -10,13 +10,14 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 | **R** | `fragility` CLI, `fragility_engine.byow`, `capacity-pool` + `token-bucket` examples |
 | **S** | `fragility_engine.falsify`, `fragility falsify search`, `ranked-store` example |
 
-## Ops leftovers
+## Distribution / demo
 
-- [x] **GitHub Release v0.6.0** — tag + wheel on GitHub Releases (`RELEASING.md`).
-- [x] **Citation / release docs** — `CITATION.cff` + `RELEASING.md` aligned to 0.6.0.
-- [ ] **Custom hostname + HTTPS** — A record `fragility.agenticop.io` → `34.61.255.147` (`scripts/godaddy_add_fragility_dns.ps1` or manual), then `powershell -File scripts/gce_enable_https.ps1`. See `docs/GCE_HTTPS_AND_AUTH.md`.
-- [ ] **Deploy keys** — see `docs/GCE_DEPLOY_KEY.md`.
-- [ ] **arXiv** — blocked on endorsement; Zenodo DOI already live.
+- [x] **GitHub Release v0.6.0** — tag + wheel.
+- [x] **Demo guardrails** — anonymous live runs off; API key + rate limit; browse-first copy.
+- [ ] **PyPI** — needs repo secret `PYPI_API_TOKEN`, then Actions → Publish to PyPI (or `twine upload`).
+- [ ] **Zenodo v0.6.0** — needs `ZENODO_TOKEN`, then `python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish`.
+- [ ] **Custom hostname + HTTPS** — A record `fragility.agenticop.io` → `34.61.255.147`, then `gce_enable_https.ps1`.
+- [ ] **arXiv** — blocked on endorsement.
 
 ## Out of scope (by design)
 
@@ -24,14 +25,14 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 - LLM-driven policy inside the simulation engine
 - A seventh reference domain (open a new charter phase first)
 - Coupled mega-institution physics on `main` (fork only)
+- Open anonymous compute on the public demo IP
 
 ## Maintenance
 
 | Task | Command |
 |------|---------|
 | Run tests (Windows) | `powershell -File scripts/ci_local.ps1` |
-| Run tests (Linux / GCE) | `bash scripts/gce_pull_and_test.sh` |
 | BYOW smoke | `fragility search --example capacity-pool` |
-| Falsify smoke | `fragility falsify search --example ranked-store` |
 | Deploy public demo | `powershell -File scripts/gce_deploy_public_site.ps1` |
-| Publish GitHub Pages mirror | `powershell -File scripts/deploy_github_pages.ps1` |
+| Publish GitHub Pages | `powershell -File scripts/deploy_github_pages.ps1` |
+| Zenodo version | `python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish` |

@@ -2,7 +2,7 @@
 
 **Agents / automated reviewers:** read [`AI_READ.md`](AI_READ.md) first (what this is, why it exists, how the loop works, common misreads).
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455689.svg)](https://doi.org/10.5281/zenodo.20455689)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
 **Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.0) (BYOW CLI + falsification harness; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
@@ -11,12 +11,15 @@
 **Install + BYOW CLI (v0.6.0):**
 
 ```powershell
-pip install -e ".[dev]"
+pip install fragility-engine
+# or: pip install -e ".[dev]"
 fragility search --example capacity-pool
 fragility minimize --example capacity-pool
 fragility falsify search --example ranked-store
 fragility certify
 ```
+
+**Public demo** (browse-first; live runs are API-key gated): http://34.61.255.147/ · [guardrails](docs/GCE_HTTPS_AND_AUTH.md)
 
 **Documentation hub:** [`docs/README.md`](docs/README.md) — index by role (user, contributor, reviewer). **Hands-on guide:** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Architecture / reference:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/REFERENCE.md`](docs/REFERENCE.md) · **After clone:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) · **Install / Git:** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 
@@ -26,20 +29,22 @@ fragility certify
 
 ## Cite
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455689.svg)](https://doi.org/10.5281/zenodo.20455689)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
-- **Software archive:** [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (tag `fel-v0.1.1`)
+- **Concept DOI (latest):** [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688)
+- **FEL snapshot:** [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (`fel-v0.1.1`)
 - **Machine-readable:** [`CITATION.cff`](CITATION.cff)
 - **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
-- **Repro bundle:** `python scripts/run_flagship_demo.py` or `fragility certify`
+- **Repro bundle:** `fragility certify` or `python scripts/run_flagship_demo.py`
+- **Install:** `pip install fragility-engine` (PyPI) or GitHub Release wheel
 
 ```bibtex
 @software{peterson2026fde,
   author = {David Peterson},
   title  = {Fragility Discovery Engine},
   year   = {2026},
-  doi    = {10.5281/zenodo.20455689},
-  url    = {https://doi.org/10.5281/zenodo.20455689}
+  doi    = {10.5281/zenodo.20455688},
+  url    = {https://doi.org/10.5281/zenodo.20455688}
 }
 ```
 

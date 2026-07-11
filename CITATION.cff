@@ -16,6 +16,8 @@ version: 0.6.0
 date-released: 2026-07-10
 identifiers:
   - type: doi
+    value: 10.5281/zenodo.20455688
+  - type: doi
     value: 10.5281/zenodo.20455689
 keywords:
   - simulation
@@ -33,8 +35,9 @@ preferred-citation:
     - family-names: Peterson
       given-names: David
   year: 2026
-  doi: 10.5281/zenodo.20455689
+  doi: 10.5281/zenodo.20455688
   notes: >-
-    Zenodo archive tag fel-v0.1.1; software release v0.6.0 (BYOW CLI +
+    Concept DOI 10.5281/zenodo.20455688 (latest). FEL snapshot version
+    10.5281/zenodo.20455689 (fel-v0.1.1). Software release v0.6.0 (BYOW CLI +
     falsification harness); preprint PDF CC BY 4.0 in
     docs/preprint/FEL_preprint_v0.1.pdf
