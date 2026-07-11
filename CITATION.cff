@@ -12,8 +12,8 @@ authors:
 repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
 url: https://agenticop-io.github.io/fragility-discovery-engine/
 license: Apache-2.0
-version: fel-v0.1.1
-date-released: 2026-05-30
+version: 0.6.0
+date-released: 2026-07-10
 identifiers:
   - type: doi
     value: 10.5281/zenodo.20455689
@@ -23,6 +23,7 @@ keywords:
   - reproducibility
   - counterfactual attribution
   - discrete-time systems
+  - bring-your-own-world
 preferred-citation:
   type: article
   title: >-
@@ -33,4 +34,7 @@ preferred-citation:
       given-names: David
   year: 2026
   doi: 10.5281/zenodo.20455689
-  notes: Zenodo fel-v0.1.1; preprint PDF CC BY 4.0 in docs/preprint/FEL_preprint_v0.1.pdf
+  notes: >-
+    Zenodo archive tag fel-v0.1.1; software release v0.6.0 (BYOW CLI +
+    falsification harness); preprint PDF CC BY 4.0 in
+    docs/preprint/FEL_preprint_v0.1.pdf

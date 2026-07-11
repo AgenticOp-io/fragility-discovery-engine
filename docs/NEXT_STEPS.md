@@ -10,11 +10,13 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 | **R** | `fragility` CLI, `fragility_engine.byow`, `capacity-pool` + `token-bucket` examples |
 | **S** | `fragility_engine.falsify`, `fragility falsify search`, `ranked-store` example |
 
-## Ops leftovers (optional)
+## Ops leftovers
 
-- [ ] **Custom hostname + HTTPS** — `fragility.agenticop.io` → `34.61.255.147`, then `powershell -File scripts/gce_enable_https.ps1`. See `docs/GCE_HTTPS_AND_AUTH.md`.
-- [ ] **GitHub Release v0.6.0** — tag + wheel upload per `RELEASING.md`.
+- [x] **GitHub Release v0.6.0** — tag + wheel on GitHub Releases (`RELEASING.md`).
+- [x] **Citation / release docs** — `CITATION.cff` + `RELEASING.md` aligned to 0.6.0.
+- [ ] **Custom hostname + HTTPS** — A record `fragility.agenticop.io` → `34.61.255.147` (`scripts/godaddy_add_fragility_dns.ps1` or manual), then `powershell -File scripts/gce_enable_https.ps1`. See `docs/GCE_HTTPS_AND_AUTH.md`.
 - [ ] **Deploy keys** — see `docs/GCE_DEPLOY_KEY.md`.
+- [ ] **arXiv** — blocked on endorsement; Zenodo DOI already live.
 
 ## Out of scope (by design)
 
