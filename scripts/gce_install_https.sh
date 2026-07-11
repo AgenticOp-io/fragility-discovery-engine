@@ -6,18 +6,23 @@
 #   2. Port 443 open (gce_enable_https.ps1 or https-server firewall tag)
 #
 # Usage:
-#   sudo FRAGILITY_PUBLIC_HOST=hub.agenticop.io bash scripts/gce_install_https.sh
-#
+#   sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh
+#   (never hub.agenticop.io — that vhost is Translation Hub)
 set -euo pipefail
 
-HOST="${FRAGILITY_PUBLIC_HOST:-hub.agenticop.io}"
+HOST="${FRAGILITY_PUBLIC_HOST:-}"
 EMAIL="${FRAGILITY_CERTBOT_EMAIL:-admin@agenticop.io}"
 SITE_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
 NGINX_SITE="/etc/nginx/sites-available/fragility-public"
 CERT_DIR="/etc/letsencrypt/live/${HOST}"
 
 if [[ -z "${HOST}" ]]; then
-  echo "Set FRAGILITY_PUBLIC_HOST to your public hostname (e.g. hub.agenticop.io)." >&2
+  echo "Set FRAGILITY_PUBLIC_HOST to an FDE hostname (e.g. fragility.agenticop.io)." >&2
+  echo "Do not use hub.agenticop.io — that name is Translation Hub on this VM." >&2
+  exit 1
+fi
+if [[ "${HOST}" == "hub.agenticop.io" ]]; then
+  echo "error: hub.agenticop.io is reserved for Translation Hub; refuse FDE TLS bind" >&2
   exit 1
 fi
 

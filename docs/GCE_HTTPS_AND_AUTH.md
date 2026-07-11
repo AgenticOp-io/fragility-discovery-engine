@@ -2,11 +2,16 @@
 
 **Public workbench default:** browse bundled samples freely; **live `POST /api/run` is closed** unless an operator sets `FRAGILITY_RUN_API_KEY` (or explicitly opts into anonymous runs on a private host).
 
-| URL | Role |
-|-----|------|
-| **https://hub.agenticop.io/** (preferred) | Public hostname (A → `34.61.255.147`) |
-| http://34.61.255.147/ | Same VM by IP |
-| `/status.json` · `/api/health` | Validation + run-policy flags |
+## Same VM, two products
+
+| Host | Product |
+|------|---------|
+| **https://hub.agenticop.io/** | AgenticOps **Translation Hub** (existing nginx + TLS → `:19090`) |
+| **http://34.61.255.147/** | **Fragility Discovery Engine** workbench (this repo; nginx `default_server`) |
+
+Do **not** point FDE nginx at `server_name hub.agenticop.io` — that name is reserved for the Translation Hub. DNS for `hub.agenticop.io` → `34.61.255.147` is correct for the VM; it does not mean FDE owns that hostname.
+
+FDE status: http://34.61.255.147/status.json · `/api/health` reports `live_runs_enabled` / `run_auth_required`.
 
 ## Guardrails (default)
 
@@ -17,71 +22,30 @@
 | Per-IP hourly cap | **3** | `FRAGILITY_MAX_RUNS_PER_IP_HOUR` |
 | Concurrent runs | 1 | hard-coded |
 | Bind address | `127.0.0.1` (nginx proxy) | `FRAGILITY_RUNNER_HOST` |
-| Public hostname | `hub.agenticop.io` | `FRAGILITY_PUBLIC_HOST` |
 
-`gce_install_run_server.sh` writes a **random** API key into `/etc/fragility/runner.env` when missing, and hardens older open installs the same way.
+`gce_install_run_server.sh` writes a **random** API key into `/etc/fragility/runner.env` when missing.
 
-Clients send `X-Fragility-Run-Key: <key>` or `Authorization: Bearer <key>`. The run page shows a key field when `/api/health` reports `run_auth_required: true`. Operators can open `https://hub.agenticop.io/run.html?run_key=YOUR_KEY` once (session storage).
+Clients send `X-Fragility-Run-Key: <key>` or `Authorization: Bearer <key>`.
 
-**Do not** set `FRAGILITY_ALLOW_ANONYMOUS_RUNS=1` on the public hub.
-
-Edit on the VM:
+**Do not** set `FRAGILITY_ALLOW_ANONYMOUS_RUNS=1` on the public IP demo.
 
 ```bash
 sudo nano /etc/fragility/runner.env
 sudo systemctl restart fragility-runner
 ```
 
-Example file: [`scripts/gce_runner.env.example`](../scripts/gce_runner.env.example).
+## Optional: dedicated FDE hostname
 
----
-
-## HTTPS (Let's Encrypt)
-
-DNS is already in place:
-
-| Record | Type | Value |
-|--------|------|-------|
-| `hub.agenticop.io` | A | `34.61.255.147` |
-
-Enable TLS:
+Only if you want a name other than the raw IP (and **not** `hub.agenticop.io`):
 
 ```powershell
-powershell -File scripts/check_fragility_dns.ps1   # should exit 0 for hub.agenticop.io
-powershell -File scripts/gce_enable_https.ps1      # defaults to hub.agenticop.io
+# e.g. fragility.agenticop.io → 34.61.255.147, then:
+$env:FRAGILITY_PUBLIC_HOST = "fragility.agenticop.io"
+powershell -File scripts/gce_enable_https.ps1 -PublicHost fragility.agenticop.io
 ```
 
-Or on the VM:
+`scripts/gce_install_public_web.sh` refuses to bind `hub.agenticop.io` to the FDE site.
 
-```bash
-sudo FRAGILITY_PUBLIC_HOST=hub.agenticop.io bash scripts/gce_install_https.sh
-```
+## PyPI / Zenodo
 
----
-
-## PyPI publish
-
-GitHub Actions workflow **Publish to PyPI** (`.github/workflows/pypi.yml`) runs manually:
-
-1. Add repository secret `PYPI_API_TOKEN` (PyPI → Account → API tokens).
-2. Actions → **Publish to PyPI** → Run workflow → type `publish` in the confirm field.
-
-Local:
-
-```bash
-python scripts/check_pypi_ready.py --tag v0.6.0
-python -m twine upload dist/*   # TWINE_USERNAME=__token__ TWINE_PASSWORD=<pypi token>
-```
-
----
-
-## Zenodo version (software release)
-
-Concept DOI: [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688).
-
-```powershell
-$env:ZENODO_TOKEN = "<personal access token with deposit:write>"
-python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish
-```
-
-See [`docs/ZENODO.md`](ZENODO.md).
+See [`docs/ZENODO.md`](ZENODO.md) and the PyPI section in [`RELEASING.md`](../RELEASING.md). Tokens required: `ZENODO_TOKEN`, `PYPI_API_TOKEN`.

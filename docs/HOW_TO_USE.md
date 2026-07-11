@@ -319,7 +319,7 @@ python scripts/check_coupled_fork_pareto.py
 | `sample_coupling_comparison.json` | Coupling comparison viewer |
 | `sample_coupled_mutation_chain.json` | Attribution viewer |
 
-Static bundle: [`artifacts/coupled_fork_demo/`](../artifacts/coupled_fork_demo/). On the public workbench, choose **Coupled institution (research fork)** on [Run a scenario](https://hub.agenticop.io/run.html) when the server is running.
+Static bundle: [`artifacts/coupled_fork_demo/`](../artifacts/coupled_fork_demo/). On the public workbench, choose **Coupled institution (research fork)** on [Run a scenario](http://34.61.255.147/run.html) when the server is running.
 
 ---
 

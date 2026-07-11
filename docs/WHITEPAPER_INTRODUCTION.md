@@ -4,7 +4,7 @@
 
 **Not:** a calibrated institution model, a causal inference tool, or a drop-in production risk product.
 
-**Live demo:** https://hub.agenticop.io/ · **Source:** https://github.com/AgenticOp-io/fragility-discovery-engine · **Release:** v0.6.0
+**Live demo:** http://34.61.255.147/ · **Source:** https://github.com/AgenticOp-io/fragility-discovery-engine · **Release:** v0.6.0
 
 ---
 

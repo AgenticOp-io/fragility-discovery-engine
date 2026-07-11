@@ -1,6 +1,6 @@
 # Public demo guide
 
-The demo is at **https://hub.agenticop.io/** (same host as http://34.61.255.147/). Everything is server-hosted — you open samples in the browser; nothing is uploaded from your computer.
+The demo is at **http://34.61.255.147/** (Fragility workbench on the same VM as https://hub.agenticop.io/). Everything is server-hosted — you open samples in the browser; nothing is uploaded from your computer.
 
 **Guardrails:** the public site is **browse-first**. Bundled samples and viewers are open. Live **Run a scenario** requires an operator API key (or install locally: `pip install fragility-engine`). See [Demo guardrails](/docs/gce-https-and-auth.html).
 

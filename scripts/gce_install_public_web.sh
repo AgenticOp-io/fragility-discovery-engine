@@ -3,9 +3,15 @@
 set -euo pipefail
 
 SITE_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
-PUBLIC_HOST="${FRAGILITY_PUBLIC_HOST:-hub.agenticop.io}"
+# Optional extra server_name (never default to hub.agenticop.io — that vhost is Translation Hub).
+PUBLIC_HOST="${FRAGILITY_PUBLIC_HOST:-}"
 NGINX_SITE="/etc/nginx/sites-available/fragility-public"
-SERVER_NAMES="_ ${PUBLIC_HOST}"
+SERVER_NAMES="_"
+if [[ -n "${PUBLIC_HOST}" && "${PUBLIC_HOST}" != "hub.agenticop.io" ]]; then
+  SERVER_NAMES="_ ${PUBLIC_HOST}"
+elif [[ "${PUBLIC_HOST}" == "hub.agenticop.io" ]]; then
+  echo "warning: refusing FRAGILITY_PUBLIC_HOST=hub.agenticop.io (reserved for Translation Hub); serving as default_server only" >&2
+fi
 
 if ! command -v nginx >/dev/null 2>&1; then
   sudo apt-get update -qq

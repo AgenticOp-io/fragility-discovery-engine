@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
-  Check whether hub.agenticop.io (or another host) resolves to the GCE workbench IP.
+  Check whether a hostname resolves to the GCE workbench IP.
+  Default checks hub.agenticop.io (VM A record). For an FDE-only name, pass -PublicHost fragility.agenticop.io.
 #>
 param(
   [string]$PublicHost = "hub.agenticop.io",

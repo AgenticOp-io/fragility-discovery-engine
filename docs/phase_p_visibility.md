@@ -6,7 +6,7 @@ The public host is the **working product UI** (static viewers + frozen bundled J
 
 | Host | URL |
 |------|-----|
-| **GCE** (`chrysalis-test-vm`, nginx) | https://hub.agenticop.io/ (IP http://34.61.255.147/) |
+| **GCE** (`chrysalis-test-vm`, nginx) | FDE: http://34.61.255.147/ · Hub: https://hub.agenticop.io/ |
 | **GitHub Pages** | https://agenticop-io.github.io/fragility-discovery-engine/ |
 
 **Product entry:** `/` — workbench with embedded flagship replay + links to all viewers with bundled demos.

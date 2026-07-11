@@ -3,7 +3,8 @@
   Open port 443 on GCE and run gce_install_https.sh when DNS points at the VM.
 
 .PARAMETER PublicHost
-  Hostname for Let's Encrypt (default hub.agenticop.io).
+  Hostname for Let's Encrypt. Do **not** use hub.agenticop.io (Translation Hub).
+  Example: fragility.agenticop.io
 
 .PARAMETER VmIp
   Expected A-record target (default 34.61.255.147). Script skips HTTPS if DNS does not match.
@@ -15,7 +16,7 @@ param(
   [string]$Instance = $env:FRAGILITY_GCE_INSTANCE,
   [string]$Zone = $env:FRAGILITY_GCE_ZONE,
   [string]$Project = $env:FRAGILITY_GCE_PROJECT,
-  [string]$PublicHost = "hub.agenticop.io",
+  [string]$PublicHost = "fragility.agenticop.io",
   [string]$VmIp = "34.61.255.147",
   [string]$CertbotEmail = "admin@agenticop.io",
   [switch]$Force

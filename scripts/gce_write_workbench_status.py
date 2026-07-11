@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 STATUS_SCHEMA_V2 = "fragility-workbench-status-v2"
-DEFAULT_PUBLIC_HOST = "hub.agenticop.io"
+DEFAULT_PUBLIC_HOST = "hub.agenticop.io"  # DNS check only — same A record as this VM
 DEFAULT_VM_IP = "34.61.255.147"
 
 

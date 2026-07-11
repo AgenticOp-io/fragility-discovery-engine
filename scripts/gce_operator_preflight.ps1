@@ -8,7 +8,7 @@
 param(
   [string]$PublicHost = "hub.agenticop.io",
   [string]$VmIp = "34.61.255.147",
-  [string]$StatusUrl = "http://hub.agenticop.io/status.json"
+  [string]$StatusUrl = "http://34.61.255.147/status.json"
 )
 
 $ErrorActionPreference = "Continue"
