@@ -15,7 +15,7 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 - [x] **GitHub Release v0.6.0** — tag + wheel.
 - [x] **Demo guardrails** — anonymous live runs off; API key + rate limit; browse-first copy.
 - [x] **VM hostname context** — `hub.agenticop.io` → `34.61.255.147` is Translation Hub; FDE workbench stays on the IP (`default_server`).
-- [x] **Zenodo** — concept [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688); v0.6.1 [10.5281/zenodo.21304131](https://doi.org/10.5281/zenodo.21304131) (GitHub→Zenodo sync on release).
+- [x] **Zenodo** — concept [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688); v0.6.2 [10.5281/zenodo.21304265](https://doi.org/10.5281/zenodo.21304265) (GitHub→Zenodo sync on release).
 - [x] **PyPI** — [`fragility-engine`](https://pypi.org/project/fragility-engine/) (`PYPI_API_TOKEN` secret set).
 - [x] **Gravatar / PyPI avatar** — circle-safe `docs/public/assets/logo.png` linked to the PyPI account email.
 - [ ] **Optional FDE hostname** — only if you want e.g. `fragility.agenticop.io` (must not steal `hub`).

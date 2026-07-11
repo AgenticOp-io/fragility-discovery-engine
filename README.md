@@ -32,6 +32,7 @@ fragility certify
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
 - **Concept DOI (latest):** [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688)
+- **v0.6.2 version:** [10.5281/zenodo.21304265](https://doi.org/10.5281/zenodo.21304265)
 - **v0.6.1 version:** [10.5281/zenodo.21304131](https://doi.org/10.5281/zenodo.21304131)
 - **v0.6.0 version:** [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841)
 - **FEL snapshot:** [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (`fel-v0.1.1`)

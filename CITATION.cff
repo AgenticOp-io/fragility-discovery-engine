@@ -25,6 +25,8 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.20455688
   - type: doi
+    value: 10.5281/zenodo.21304265
+  - type: doi
     value: 10.5281/zenodo.21304131
   - type: doi
     value: 10.5281/zenodo.21303841
