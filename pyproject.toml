@@ -4,16 +4,32 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fragility-engine"
-version = "0.6.0"
-description = "Deterministic search and stress-style exploration over modular simulations, with JSON replay and benchmark checks."
-readme = "README.md"
+version = "0.6.1"
+description = "AgenticOps stress-search harness: deterministic GA/MC over modular simulations, BYOW adapters, replay JSON, and FEL evidence semantics."
+readme = "docs/PYPI_README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
+authors = [
+    { name = "David Peterson", email = "david@agenticop.io" },
+]
+maintainers = [
+    { name = "AgenticOps", email = "david@agenticop.io" },
+]
 dependencies = ["numpy>=1.26", "networkx>=3.2"]
-keywords = ["simulation", "robustness", "stress-testing", "counterfactual", "benchmark"]
+keywords = [
+    "agenticops",
+    "simulation",
+    "robustness",
+    "stress-testing",
+    "counterfactual",
+    "benchmark",
+    "bring-your-own-world",
+    "falsification",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
@@ -22,13 +38,18 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Quality Assurance",
 ]
 
 [project.urls]
-Homepage = "https://github.com/AgenticOp-io/fragility-discovery-engine"
+Homepage = "https://agenticop.io"
+Documentation = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md"
 Repository = "https://github.com/AgenticOp-io/fragility-discovery-engine"
-Documentation = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER_INTRODUCTION.md"
 Issues = "https://github.com/AgenticOp-io/fragility-discovery-engine/issues"
+Changelog = "https://github.com/AgenticOp-io/fragility-discovery-engine/releases"
+Demo = "http://34.61.255.147/"
+DOI = "https://doi.org/10.5281/zenodo.20455688"
+"Translation Hub" = "https://hub.agenticop.io/"
 
 [project.scripts]
 fragility = "fragility_engine.cli.main:main"
@@ -52,4 +73,3 @@ src = ["src", "tests", "scripts", "examples"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
-

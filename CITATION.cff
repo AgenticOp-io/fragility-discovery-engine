@@ -12,8 +12,8 @@ authors:
 repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
 url: https://agenticop-io.github.io/fragility-discovery-engine/
 license: Apache-2.0
-version: 0.6.0
-date-released: 2026-07-10
+version: 0.6.1
+date-released: 2026-07-11
 keywords:
   - simulation
   - stress testing
