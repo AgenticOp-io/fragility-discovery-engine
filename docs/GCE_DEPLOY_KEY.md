@@ -27,7 +27,7 @@ powershell -File scripts/register_gce_deploy_key.ps1 -GenerateIfMissing
 powershell -File scripts/gce_operator_preflight.ps1
 ```
 
-Checks DNS (HTTPS), deploy key, optional `PYPI_API_TOKEN`, and http://34.61.255.147/status.json.
+Checks DNS (HTTPS), deploy key, optional `PYPI_API_TOKEN`, and http://hub.agenticop.io/status.json.
 
 ## Org policy
 

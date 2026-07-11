@@ -2,7 +2,11 @@
 
 **Public workbench default:** browse bundled samples freely; **live `POST /api/run` is closed** unless an operator sets `FRAGILITY_RUN_API_KEY` (or explicitly opts into anonymous runs on a private host).
 
-Live demo: http://34.61.255.147/ · status: http://34.61.255.147/status.json · `/api/health` reports `live_runs_enabled` / `run_auth_required`.
+| URL | Role |
+|-----|------|
+| **https://hub.agenticop.io/** (preferred) | Public hostname (A → `34.61.255.147`) |
+| http://34.61.255.147/ | Same VM by IP |
+| `/status.json` · `/api/health` | Validation + run-policy flags |
 
 ## Guardrails (default)
 
@@ -13,12 +17,13 @@ Live demo: http://34.61.255.147/ · status: http://34.61.255.147/status.json · 
 | Per-IP hourly cap | **3** | `FRAGILITY_MAX_RUNS_PER_IP_HOUR` |
 | Concurrent runs | 1 | hard-coded |
 | Bind address | `127.0.0.1` (nginx proxy) | `FRAGILITY_RUNNER_HOST` |
+| Public hostname | `hub.agenticop.io` | `FRAGILITY_PUBLIC_HOST` |
 
 `gce_install_run_server.sh` writes a **random** API key into `/etc/fragility/runner.env` when missing, and hardens older open installs the same way.
 
-Clients send `X-Fragility-Run-Key: <key>` or `Authorization: Bearer <key>`. The run page shows a key field when `/api/health` reports `run_auth_required: true`. Operators can open `http://…/run.html?run_key=YOUR_KEY` once (session storage).
+Clients send `X-Fragility-Run-Key: <key>` or `Authorization: Bearer <key>`. The run page shows a key field when `/api/health` reports `run_auth_required: true`. Operators can open `https://hub.agenticop.io/run.html?run_key=YOUR_KEY` once (session storage).
 
-**Do not** set `FRAGILITY_ALLOW_ANONYMOUS_RUNS=1` on the public IP demo.
+**Do not** set `FRAGILITY_ALLOW_ANONYMOUS_RUNS=1` on the public hub.
 
 Edit on the VM:
 
@@ -31,25 +36,25 @@ Example file: [`scripts/gce_runner.env.example`](../scripts/gce_runner.env.examp
 
 ---
 
-## HTTPS (Let's Encrypt) — optional
+## HTTPS (Let's Encrypt)
 
-The workbench VM external IP is **34.61.255.147**. A friendly hostname needs a DNS **A record** before certificates can be issued.
+DNS is already in place:
 
 | Record | Type | Value |
 |--------|------|-------|
-| `fragility.agenticop.io` | A | `34.61.255.147` |
+| `hub.agenticop.io` | A | `34.61.255.147` |
 
-After DNS propagates:
+Enable TLS:
 
 ```powershell
-powershell -File scripts/check_fragility_dns.ps1
-powershell -File scripts/gce_enable_https.ps1
+powershell -File scripts/check_fragility_dns.ps1   # should exit 0 for hub.agenticop.io
+powershell -File scripts/gce_enable_https.ps1      # defaults to hub.agenticop.io
 ```
 
 Or on the VM:
 
 ```bash
-sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh
+sudo FRAGILITY_PUBLIC_HOST=hub.agenticop.io bash scripts/gce_install_https.sh
 ```
 
 ---
@@ -72,7 +77,7 @@ python -m twine upload dist/*   # TWINE_USERNAME=__token__ TWINE_PASSWORD=<pypi 
 
 ## Zenodo version (software release)
 
-Concept DOI: [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) (version DOI for `fel-v0.1.1`: [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689)).
+Concept DOI: [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688).
 
 ```powershell
 $env:ZENODO_TOKEN = "<personal access token with deposit:write>"

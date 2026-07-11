@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-  Check whether fragility.agenticop.io (or another host) resolves to the GCE workbench IP.
+  Check whether hub.agenticop.io (or another host) resolves to the GCE workbench IP.
 #>
 param(
-  [string]$PublicHost = "fragility.agenticop.io",
+  [string]$PublicHost = "hub.agenticop.io",
   [string]$ExpectedIp = "34.61.255.147"
 )
 

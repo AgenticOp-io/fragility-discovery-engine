@@ -19,7 +19,7 @@ fragility falsify search --example ranked-store
 fragility certify
 ```
 
-**Public demo** (browse-first; live runs are API-key gated): http://34.61.255.147/ · [guardrails](docs/GCE_HTTPS_AND_AUTH.md)
+**Public demo** (browse-first; live runs are API-key gated): https://hub.agenticop.io/ · [guardrails](docs/GCE_HTTPS_AND_AUTH.md)
 
 **Documentation hub:** [`docs/README.md`](docs/README.md) — index by role (user, contributor, reviewer). **Hands-on guide:** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Architecture / reference:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/REFERENCE.md`](docs/REFERENCE.md) · **After clone:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) · **Install / Git:** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 

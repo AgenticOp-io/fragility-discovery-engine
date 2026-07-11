@@ -3,12 +3,9 @@
 set -euo pipefail
 
 SITE_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
-PUBLIC_HOST="${FRAGILITY_PUBLIC_HOST:-}"
+PUBLIC_HOST="${FRAGILITY_PUBLIC_HOST:-hub.agenticop.io}"
 NGINX_SITE="/etc/nginx/sites-available/fragility-public"
-SERVER_NAMES="_"
-if [[ -n "${PUBLIC_HOST}" ]]; then
-  SERVER_NAMES="_ ${PUBLIC_HOST}"
-fi
+SERVER_NAMES="_ ${PUBLIC_HOST}"
 
 if ! command -v nginx >/dev/null 2>&1; then
   sudo apt-get update -qq

@@ -6,9 +6,9 @@
   powershell -File scripts/gce_operator_preflight.ps1
 #>
 param(
-  [string]$PublicHost = "fragility.agenticop.io",
+  [string]$PublicHost = "hub.agenticop.io",
   [string]$VmIp = "34.61.255.147",
-  [string]$StatusUrl = "http://34.61.255.147/status.json"
+  [string]$StatusUrl = "http://hub.agenticop.io/status.json"
 )
 
 $ErrorActionPreference = "Continue"

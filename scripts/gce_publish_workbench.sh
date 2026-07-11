@@ -4,6 +4,8 @@ set -euo pipefail
 
 REPO="${FRAGILITY_DEPLOY_DIR:-${HOME}/fragility-discovery-engine}"
 PUBLIC_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
+# Public hostname already on this VM IP (Agentic Ops hub).
+export FRAGILITY_PUBLIC_HOST="${FRAGILITY_PUBLIC_HOST:-hub.agenticop.io}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ ! -d "${REPO}/.git" ]]; then

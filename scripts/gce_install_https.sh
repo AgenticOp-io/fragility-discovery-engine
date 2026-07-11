@@ -6,18 +6,18 @@
 #   2. Port 443 open (gce_enable_https.ps1 or https-server firewall tag)
 #
 # Usage:
-#   sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh
+#   sudo FRAGILITY_PUBLIC_HOST=hub.agenticop.io bash scripts/gce_install_https.sh
 #
 set -euo pipefail
 
-HOST="${FRAGILITY_PUBLIC_HOST:-}"
+HOST="${FRAGILITY_PUBLIC_HOST:-hub.agenticop.io}"
 EMAIL="${FRAGILITY_CERTBOT_EMAIL:-admin@agenticop.io}"
 SITE_ROOT="${FRAGILITY_PUBLIC_ROOT:-/var/www/fragility/public}"
 NGINX_SITE="/etc/nginx/sites-available/fragility-public"
 CERT_DIR="/etc/letsencrypt/live/${HOST}"
 
 if [[ -z "${HOST}" ]]; then
-  echo "Set FRAGILITY_PUBLIC_HOST to your public hostname (e.g. fragility.agenticop.io)." >&2
+  echo "Set FRAGILITY_PUBLIC_HOST to your public hostname (e.g. hub.agenticop.io)." >&2
   exit 1
 fi
 

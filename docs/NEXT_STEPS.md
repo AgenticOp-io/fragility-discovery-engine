@@ -14,9 +14,10 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 
 - [x] **GitHub Release v0.6.0** — tag + wheel.
 - [x] **Demo guardrails** — anonymous live runs off; API key + rate limit; browse-first copy.
+- [x] **Custom hostname** — `hub.agenticop.io` → `34.61.255.147` (already set).
+- [ ] **HTTPS on hub** — `powershell -File scripts/gce_enable_https.ps1` (defaults to `hub.agenticop.io`).
 - [ ] **PyPI** — needs repo secret `PYPI_API_TOKEN`, then Actions → Publish to PyPI (or `twine upload`).
 - [ ] **Zenodo v0.6.0** — needs `ZENODO_TOKEN`, then `python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish`.
-- [ ] **Custom hostname + HTTPS** — A record `fragility.agenticop.io` → `34.61.255.147`, then `gce_enable_https.ps1`.
 - [ ] **arXiv** — blocked on endorsement.
 
 ## Out of scope (by design)
