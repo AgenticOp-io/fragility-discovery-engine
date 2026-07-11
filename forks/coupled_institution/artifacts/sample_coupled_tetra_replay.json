@@ -1,0 +1,447 @@
+{
+  "schema_version": "coupled-fork-0.4.0",
+  "simulation_mode": "coupled_institution_v1",
+  "attack_cost": 2.0949999999999998,
+  "integral_instability": 9.16930598124866,
+  "mean_instability": 1.1461632476560826,
+  "steps_recorded": 8,
+  "recovery_latency_steps": null,
+  "recovery_timestep": null,
+  "collapsed": true,
+  "collapse_timestep": 3,
+  "final_instability": 1.8499999999999999,
+  "seed": 8801,
+  "coupling_strength": 0.3,
+  "coupling_contract": {
+    "gain_overload_to_panic": 0.3,
+    "gain_panic_to_overload": 0.3,
+    "lag_steps": 0,
+    "liquidity_channels_active": true,
+    "gain_panic_to_liquidity": 0.15,
+    "gain_overload_to_liquidity": 0.12,
+    "gain_liquidity_scarce_to_panic": 0.22,
+    "gain_liquidity_scarce_to_overload": 0.18,
+    "backlog_channels_active": true,
+    "gain_panic_to_backlog": 0.14,
+    "gain_overload_to_backlog": 0.16,
+    "gain_backlog_to_panic": 0.12,
+    "gain_backlog_to_overload": 0.15
+  },
+  "trajectory": [
+    {
+      "timestep": 0,
+      "state_vector": [
+        0.2111591396291885,
+        0.11981440377270858,
+        0.8604770737285748,
+        0.14518420018847164,
+        0.16548677170094855,
+        1.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.35
+        },
+        {
+          "kind": "rumor",
+          "magnitude": 0.1
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.2111591396291885,
+        "backing_ratio": 0.9400927981136458,
+        "panic": 0.2111591396291885,
+        "overload": 0.11981440377270858,
+        "liquidity": 0.8604770737285748,
+        "backlog": 0.14518420018847164,
+        "liquidity_scarce": 0.13952292627142515,
+        "instability": 0.1585468091596485,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 0.020999999999999998,
+        "coupling_contrib_to_overload": 0.0708,
+        "coupling_contrib_to_liquidity": -0.15284599999999998,
+        "coupling_contrib_to_backlog": 0.10703720000000001,
+        "shock_contrib_to_panic": 0.13999999999999999,
+        "shock_contrib_to_overload": 0.034999999999999996,
+        "shock_contrib_to_liquidity": -0.1025,
+        "shock_contrib_to_backlog": 0.022000000000000002,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 1,
+      "state_vector": [
+        0.2611261926594501,
+        0.3288726913517805,
+        0.733754350173502,
+        0.3560173036008768,
+        0.2949994420056153,
+        2.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.25
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.2611261926594501,
+        "backing_ratio": 0.8355636543241097,
+        "panic": 0.2611261926594501,
+        "overload": 0.3288726913517805,
+        "liquidity": 0.733754350173502,
+        "backlog": 0.3560173036008768,
+        "liquidity_scarce": 0.266245649826498,
+        "instability": 0.2998390524180369,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 0.08406146893414271,
+        "coupling_contrib_to_overload": 0.13545793932612663,
+        "coupling_contrib_to_liquidity": -0.1229157724563599,
+        "coupling_contrib_to_backlog": 0.203662199840237,
+        "shock_contrib_to_panic": 0.0,
+        "shock_contrib_to_overload": 0.0875,
+        "shock_contrib_to_liquidity": -0.0375,
+        "shock_contrib_to_backlog": 0.055,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 2,
+      "state_vector": [
+        0.45410648121577474,
+        0.5737510392655545,
+        0.6054642773508779,
+        0.5941446861662357,
+        0.5139287602406646,
+        3.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.45410648121577474,
+        "backing_ratio": 0.7131244803672228,
+        "panic": 0.45410648121577474,
+        "overload": 0.5737510392655545,
+        "liquidity": 0.6054642773508779,
+        "backlog": 0.5941446861662357,
+        "liquidity_scarce": 0.39453572264912207,
+        "instability": 0.5080521934907688,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 0.19995792679946892,
+        "coupling_contrib_to_overload": 0.23965204834657686,
+        "coupling_contrib_to_liquidity": -0.13738558668264073,
+        "coupling_contrib_to_backlog": 0.2362419823778136,
+        "shock_contrib_to_panic": 0.0,
+        "shock_contrib_to_overload": 0.0,
+        "shock_contrib_to_liquidity": -0.0,
+        "shock_contrib_to_backlog": 0.0,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 3,
+      "state_vector": [
+        0.9843368547751037,
+        1.083512989407807,
+        0.20810217028747333,
+        1.0503846049760386,
+        1.0339249220914555,
+        4.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.5
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 0.9843368547751037,
+        "backing_ratio": 0.4582435052960965,
+        "panic": 0.9843368547751037,
+        "overload": 1.083512989407807,
+        "liquidity": 0.20810217028747333,
+        "backlog": 1.0503846049760386,
+        "liquidity_scarce": 0.7918978297125266,
+        "instability": 1.0000898106673035,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 0.33022053310242144,
+        "coupling_contrib_to_overload": 0.45543623729723615,
+        "coupling_contrib_to_liquidity": -0.3961515253352643,
+        "coupling_contrib_to_backlog": 0.4606131958514712,
+        "shock_contrib_to_panic": 0.2,
+        "shock_contrib_to_overload": 0.0,
+        "shock_contrib_to_liquidity": -0.125,
+        "shock_contrib_to_backlog": 0.0,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 4,
+      "state_vector": [
+        1.5675921763831389,
+        1.9243059891491678,
+        0.0,
+        1.8707583838439708,
+        1.7459490827661535,
+        5.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.15
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 1.5675921763831389,
+        "backing_ratio": 0.03784700542541608,
+        "panic": 1.5675921763831389,
+        "overload": 1.9243059891491678,
+        "liquidity": 0.0,
+        "backlog": 1.8707583838439708,
+        "liquidity_scarce": 1.0,
+        "instability": 1.6527781155129029,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 0.6253175719562226,
+        "coupling_contrib_to_overload": 0.7829956281140584,
+        "coupling_contrib_to_liquidity": -0.4942291981123228,
+        "coupling_contrib_to_backlog": 0.8226184041108541,
+        "shock_contrib_to_panic": 0.0,
+        "shock_contrib_to_overload": 0.0525,
+        "shock_contrib_to_liquidity": -0.0225,
+        "shock_contrib_to_backlog": 0.033,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 5,
+      "state_vector": [
+        2.0,
+        2.0,
+        0.0,
+        2.0,
+        2.0,
+        6.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.2
+        },
+        {
+          "kind": "rumor",
+          "magnitude": 0.2
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 2.0,
+        "backing_ratio": 0.0,
+        "panic": 2.0,
+        "overload": 2.0,
+        "liquidity": 0.0,
+        "backlog": 2.0,
+        "liquidity_scarce": 1.0,
+        "instability": 1.8499999999999999,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 1.0217828028060267,
+        "coupling_contrib_to_overload": 1.2614262513333454,
+        "coupling_contrib_to_liquidity": -0.8710941157362765,
+        "coupling_contrib_to_backlog": 1.3128484787109407,
+        "shock_contrib_to_panic": 0.08000000000000002,
+        "shock_contrib_to_overload": 0.06999999999999999,
+        "shock_contrib_to_liquidity": -0.08,
+        "shock_contrib_to_backlog": 0.044000000000000004,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 6,
+      "state_vector": [
+        2.0,
+        2.0,
+        0.0,
+        2.0,
+        2.0,
+        7.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 2.0,
+        "backing_ratio": 0.0,
+        "panic": 2.0,
+        "overload": 2.0,
+        "liquidity": 0.0,
+        "backlog": 2.0,
+        "liquidity_scarce": 1.0,
+        "instability": 1.8499999999999999,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 1.06,
+        "coupling_contrib_to_overload": 1.398,
+        "coupling_contrib_to_liquidity": -0.86676,
+        "coupling_contrib_to_backlog": 1.3454320000000002,
+        "shock_contrib_to_panic": 0.0,
+        "shock_contrib_to_overload": 0.0,
+        "shock_contrib_to_liquidity": -0.0,
+        "shock_contrib_to_backlog": 0.0,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    },
+    {
+      "timestep": 7,
+      "state_vector": [
+        2.0,
+        2.0,
+        0.0,
+        2.0,
+        2.0,
+        8.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.45
+        }
+      ],
+      "agent_actions_summary": {
+        "redeem_fraction": 0.0
+      },
+      "metrics": {
+        "price": 2.0,
+        "backing_ratio": 0.0,
+        "panic": 2.0,
+        "overload": 2.0,
+        "liquidity": 0.0,
+        "backlog": 2.0,
+        "liquidity_scarce": 1.0,
+        "instability": 1.8499999999999999,
+        "coupling_strength": 0.3,
+        "gain_overload_to_panic": 0.3,
+        "gain_panic_to_overload": 0.3,
+        "gain_panic_to_liquidity": 0.15,
+        "gain_overload_to_liquidity": 0.12,
+        "gain_liquidity_scarce_to_panic": 0.22,
+        "gain_liquidity_scarce_to_overload": 0.18,
+        "gain_panic_to_backlog": 0.14,
+        "gain_overload_to_backlog": 0.16,
+        "gain_backlog_to_panic": 0.12,
+        "gain_backlog_to_overload": 0.15,
+        "coupling_lag_steps": 0.0,
+        "coupling_contrib_to_panic": 1.06,
+        "coupling_contrib_to_overload": 1.452,
+        "coupling_contrib_to_liquidity": -1.01274,
+        "coupling_contrib_to_backlog": 1.408468,
+        "shock_contrib_to_panic": 0.18000000000000002,
+        "shock_contrib_to_overload": 0.0,
+        "shock_contrib_to_liquidity": -0.1125,
+        "shock_contrib_to_backlog": 0.0,
+        "liquidity_channels_active": 1.0,
+        "backlog_channels_active": 1.0
+      }
+    }
+  ],
+  "coupling_profile": "backlog_tetra"
+}

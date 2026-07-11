@@ -28,9 +28,9 @@ def main() -> None:
         raise SystemExit("Install main engine: pip install -e .") from e
 
     try:
+        from coupled_institution.factory import coupling_profile_label, make_coupled_world
         from coupled_institution.rollout import rollout_coupled
         from coupled_institution.types import RolloutResult
-        from coupled_institution.world import CoupledInstitutionWorld
     except ImportError as e:
         raise SystemExit("Install fork: pip install -e forks/coupled_institution") from e
 
@@ -41,12 +41,13 @@ def main() -> None:
     p.add_argument("--generations", type=int, default=2)
     p.add_argument("--population-size", type=int, default=10)
     p.add_argument("--seed", type=int, default=61001)
+    p.add_argument("--contract", choices=("default", "triad", "tetra"), default="default")
     p.add_argument("--also-fork-artifacts", action="store_true", help="Copy to forks/.../artifacts/")
     args = p.parse_args()
 
     coupling = float(args.coupling)
     horizon = int(args.horizon)
-    template = CoupledInstitutionWorld(coupling_strength=coupling, max_steps=48)
+    contract = args.contract
 
     def _schedule_list(genome, h: int):
         events_map = decode_schedule(genome)
@@ -76,10 +77,7 @@ def main() -> None:
         )
 
     def evaluator(genome, seed: int):
-        world = CoupledInstitutionWorld(
-            coupling_strength=template.coupling_strength,
-            max_steps=template.max_steps,
-        )
+        world = make_coupled_world(coupling_strength=coupling, max_steps=48, contract=contract)
         schedule = _schedule_list(genome, horizon)
         return _to_main_rollout(rollout_coupled(world, schedule, seed=seed))
 
@@ -96,6 +94,8 @@ def main() -> None:
         "schema": "pareto-front-v1",
         "domain": "coupled_institution",
         "simulation_mode": search.best_rollout.simulation_mode,
+        "coupling_profile": coupling_profile_label(contract),  # type: ignore[arg-type]
+        "contract": contract,
         "coupling_strength": coupling,
         "best_fitness": float(search.best_fitness),
         "archive": [
@@ -119,10 +119,15 @@ def main() -> None:
         out_rel = out.resolve().relative_to(_repo_root().resolve()).as_posix()
     except ValueError:
         out_rel = str(out.resolve())
-    print(json.dumps({"out": out_rel, "points": len(payload["archive"])}, indent=2))
+    print(json.dumps({"out": out_rel, "points": len(payload["archive"]), "contract": contract}, indent=2))
 
     if args.also_fork_artifacts:
-        fork_out = FORK_ART / "sample_coupled_pareto_front.json"
+        name = (
+            "sample_coupled_pareto_front.json"
+            if contract == "default"
+            else f"sample_coupled_pareto_{contract}.json"
+        )
+        fork_out = FORK_ART / name
         fork_out.parent.mkdir(parents=True, exist_ok=True)
         fork_out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         print(f"also wrote {fork_out.relative_to(_repo_root())}", file=sys.stderr)

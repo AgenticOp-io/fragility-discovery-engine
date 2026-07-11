@@ -306,6 +306,8 @@ pip install -e ".[dev]"
 pip install -e forks/coupled_institution
 python scripts/regenerate_coupled_fork_artifacts.py
 python scripts/run_coupled_worth_it_bar.py
+python scripts/check_coupled_fork_tetra_search.py
+python scripts/run_coupled_fork_demo.py --contract tetra --method ga --export-replay /tmp/coupled_tetra.json --export-pareto /tmp/coupled_tetra_pareto.json --generations 2 --population-size 8 --horizon 10 --seed 62001
 python scripts/run_coupled_fork_demo.py --export-replay /tmp/coupled.json --export-pareto /tmp/coupled_pareto.json
 python scripts/export_coupled_fork_llm_prompts.py --cite-digest
 python scripts/check_coupled_fork_llm_bundles.py

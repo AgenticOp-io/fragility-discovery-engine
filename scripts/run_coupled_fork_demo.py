@@ -40,6 +40,9 @@ def main() -> None:
     p.add_argument("--seed", type=int, default=1201)
     p.add_argument("--coupling", type=float, default=0.3)
     p.add_argument("--horizon", type=int, default=14)
+    p.add_argument("--contract", choices=("default", "triad", "tetra"), default="default")
+    p.add_argument("--method", choices=("ga", "mc"), default="ga")
+    p.add_argument("--samples", type=int, default=40)
     args = p.parse_args()
 
     if not FORK.is_dir():
@@ -48,16 +51,22 @@ def main() -> None:
 
     if args.regenerate:
         subprocess.run([sys.executable, str(REGEN)], cwd=FORK, check=True)
-        print("OK: regenerated sample_coupled_replay.json", file=sys.stderr)
+        print("OK: regenerated sample_coupled_replay.json (+ tetra)", file=sys.stderr)
         return
 
     cmd = [
         sys.executable,
         str(GA),
+        "--method",
+        args.method,
+        "--contract",
+        args.contract,
         "--generations",
         str(args.generations),
         "--population-size",
         str(args.population_size),
+        "--samples",
+        str(args.samples),
         "--seed",
         str(args.seed),
         "--coupling",
@@ -69,6 +78,9 @@ def main() -> None:
         cmd.extend(["--export-replay", str(args.export_replay)])
     subprocess.run(cmd, cwd=ROOT, check=True)
     if args.export_pareto:
+        if args.method != "ga":
+            print("export-pareto requires --method ga", file=sys.stderr)
+            raise SystemExit(2)
         pareto_cmd = [
             sys.executable,
             str(ROOT / "scripts" / "export_coupled_fork_pareto.py"),
@@ -84,6 +96,8 @@ def main() -> None:
             str(args.coupling),
             "--horizon",
             str(args.horizon),
+            "--contract",
+            args.contract,
         ]
         subprocess.run(pareto_cmd, cwd=ROOT, check=True)
 

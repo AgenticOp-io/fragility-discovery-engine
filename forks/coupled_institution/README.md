@@ -14,11 +14,14 @@ pip install -e .
 pip install -e ../..   # GA demo needs main engine adversary
 pytest -q
 python scripts/run_coupled_ga_demo.py --export-replay /tmp/coupled_demo.json
+python scripts/run_coupled_ga_demo.py --contract tetra --method ga --generations 2 --population-size 8
+python scripts/run_coupled_ga_demo.py --contract tetra --method mc --samples 24
 python scripts/regenerate_golden.py
 python scripts/coupling_strength_sweep.py
 python ../../scripts/plot_coupling_sweep.py artifacts/coupling_strength_sweep.json
 python scripts/export_coupling_comparison.py
 python ../../scripts/run_coupled_worth_it_bar.py
+python ../../scripts/check_coupled_fork_tetra_search.py
 python ../../scripts/export_llm_narration_prompt.py artifacts/sample_coupled_replay.json --prompt-pack coupled_institution_replay_v1
 python ../../scripts/export_llm_narration_prompt.py artifacts/coupling_strength_sweep.json --prompt-pack coupled_institution_coupling_sweep_v1
 python ../../scripts/export_llm_narration_prompt.py artifacts/sample_coupled_pareto_front.json --prompt-pack coupled_institution_pareto_v1

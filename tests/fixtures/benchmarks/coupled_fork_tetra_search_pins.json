@@ -1,0 +1,37 @@
+{
+  "bundle_id": "coupled_institution_tetra_search_v1",
+  "searches": {
+    "ga": {
+      "method": "ga",
+      "seed": 62001,
+      "generations": 2,
+      "population_size": 8,
+      "horizon": 10,
+      "coupling_strength": 0.25
+    },
+    "mc": {
+      "method": "mc",
+      "seed": 62002,
+      "samples": 24,
+      "horizon": 10,
+      "coupling_strength": 0.25
+    }
+  },
+  "expected": {
+    "ga": {
+      "best_fitness": 5.183333333333334,
+      "integral_instability": 14.484928529063376,
+      "collapsed": true,
+      "attack_cost": 3.4358105527675113,
+      "coupling_profile": "backlog_tetra"
+    },
+    "mc": {
+      "best_fitness": 5.183333333333334,
+      "integral_instability": 14.699290242205333,
+      "collapsed": true,
+      "attack_cost": 4.032404172035845,
+      "coupling_profile": "backlog_tetra"
+    }
+  },
+  "note": "Re-pin via scripts/check_coupled_fork_tetra_search.py --write-pins after intentional search/physics changes."
+}

@@ -7,7 +7,8 @@ Zenodo is linked to GitHub for **AgenticOp-io/fragility-discovery-engine**. Crea
 | Kind | DOI | Notes |
 |------|-----|-------|
 | **Concept** (cite this) | [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) | Always resolves to the latest version |
-| Version `v0.6.3` (latest software) | *(pending Zenodo sync after GitHub Release)* | Operator shorthand + coupled tetra |
+| Version `v0.6.4` (latest software) | *(pending Zenodo sync after GitHub Release)* | Tetra under search (GA/MC + golden) |
+| Version `v0.6.3` | *(pending Zenodo sync)* | Operator shorthand + coupled tetra |
 | Version `v0.6.2` | [10.5281/zenodo.21304265](https://doi.org/10.5281/zenodo.21304265) | Circle-safe AgenticOps mark |
 | Version `v0.6.1` | [10.5281/zenodo.21304131](https://doi.org/10.5281/zenodo.21304131) | AgenticOps PyPI branding |
 | Version `v0.6.0` | [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841) | BYOW CLI + falsification harness |

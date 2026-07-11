@@ -44,5 +44,16 @@ def test_export_corpus() -> None:
 
 
 def test_coupled_capsules_present() -> None:
-    for tid in ("coupled-validate", "coupled-regenerate", "coupled-worth-it"):
+    for tid in (
+        "coupled-validate",
+        "coupled-regenerate",
+        "coupled-worth-it",
+        "coupled-tetra-search",
+        "coupled-tetra-demo",
+    ):
         assert resolve_task(tid).found
+
+
+def test_shorthand_corpus_includes_tetra() -> None:
+    assert resolve_task("coupled-tetra-search").found
+    assert resolve_task("coupled-tetra-demo").found

@@ -4,11 +4,11 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.3](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.3) (operator shorthand + coupled mega-institution tetra; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.4](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.4) (tetra under search: GA/MC + golden pins; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations — or **your own world** via [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md). Export replay JSON, minimized failing schedules, and counterfactual attribution bundles.
 
-**Install + BYOW CLI (v0.6.3):**
+**Install + BYOW CLI (v0.6.4):**
 
 ```powershell
 pip install fragility-engine
@@ -40,7 +40,7 @@ fragility certify
 - **Machine-readable:** [`CITATION.cff`](CITATION.cff)
 - **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
 - **Repro bundle:** `fragility certify` or `python scripts/run_flagship_demo.py`
-- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.3)
+- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.4)
 
 ```bibtex
 @software{peterson2026fde,

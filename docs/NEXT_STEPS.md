@@ -1,6 +1,6 @@
 # What's left to do
 
-Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.3**.
+Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.4**.
 
 ## Shipped in v0.6.0 (Q → S)
 
@@ -21,7 +21,9 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.3**.
 - [x] **Hostname map** — GoDaddy A records + vhosts: [`docs/HOSTNAME_MAP.md`](HOSTNAME_MAP.md); FDE HTTPS live at https://fragility.agenticop.io/; hub directory updated.
 - [x] **Operator Intelligence Shorthand** — Chrysalis-inspired tier ladder + CLI (`fragility shorthand`); see [`docs/INTELLIGENCE_SHORTHAND.md`](INTELLIGENCE_SHORTHAND.md).
 - [x] **Coupled mega-institution v0.4** — panic/overload/liquidity/backlog tetra, worth-it bar; charter [`forks/coupled_institution/CHARTER.md`](../forks/coupled_institution/CHARTER.md).
+- [x] **Tetra under search** — GA/MC demos + `coupled_institution_tetra_rollout_v1` golden + pinned search (`scripts/check_coupled_fork_tetra_search.py`).
 - [ ] **arXiv** — blocked on endorsement.
+- [ ] **Real BYOW adopter** — needs a domain owner with resettable/steppable physics (tutorials alone are not enough).
 
 ## Out of scope (by design)
 

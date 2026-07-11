@@ -104,6 +104,22 @@ CAPSULES: dict[str, Capsule] = {
         tools=("scripts/run_coupled_worth_it_bar.py",),
         artifact_refs=("forks/coupled_institution/CHARTER.md",),
     ),
+    "coupled-tetra-search": Capsule(
+        task_id="coupled-tetra-search",
+        tier="IS-T5",
+        summary="Pinned GA+MC search under tetra_contract (liquidity+backlog).",
+        verify_command="python scripts/check_coupled_fork_tetra_search.py",
+        tools=("scripts/check_coupled_fork_tetra_search.py", "forks/coupled_institution/scripts/run_coupled_ga_demo.py"),
+        artifact_refs=("tests/fixtures/benchmarks/coupled_fork_tetra_search_pins.json",),
+    ),
+    "coupled-tetra-demo": Capsule(
+        task_id="coupled-tetra-demo",
+        tier="IS-T4",
+        summary="Run a short tetra GA demo from the repo root.",
+        verify_command="python scripts/run_coupled_fork_demo.py --contract tetra --method ga --generations 2 --population-size 8 --horizon 10 --seed 62001",
+        tools=("scripts/run_coupled_fork_demo.py",),
+        artifact_refs=("forks/coupled_institution/CHARTER.md",),
+    ),
     "ci-local": Capsule(
         task_id="ci-local",
         tier="IS-T4",

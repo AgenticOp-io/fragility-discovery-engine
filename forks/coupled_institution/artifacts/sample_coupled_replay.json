@@ -442,5 +442,6 @@
         "backlog_channels_active": 0.0
       }
     }
-  ]
+  ],
+  "coupling_profile": "two_scalar"
 }

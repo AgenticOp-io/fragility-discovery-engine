@@ -14,8 +14,11 @@ if str(FORK_SRC) not in sys.path:
 
 from coupled_institution.golden import (  # noqa: E402
     BUNDLE_ID,
+    BUNDLE_ID_TETRA,
     GOLDEN_METRICS,
+    GOLDEN_METRICS_TETRA,
     run_coupled_institution_rollout_v1,
+    run_coupled_institution_tetra_rollout_v1,
 )
 
 TOL = 1e-9
@@ -26,27 +29,49 @@ def _check_close(name: str, got: float, want: float) -> None:
         raise SystemExit(f"{name}: got {got!r} want {want!r}")
 
 
-def main() -> None:
-    snap = run_coupled_institution_rollout_v1()
-    if snap["bundle_id"] != BUNDLE_ID:
+def _check_bundle(snap: dict, golden: dict, bundle_id: str) -> None:
+    if snap["bundle_id"] != bundle_id:
         raise SystemExit(f"bundle_id mismatch: {snap['bundle_id']!r}")
     _check_close(
         "integral_instability",
         float(snap["integral_instability"]),
-        float(GOLDEN_METRICS["integral_instability"]),
+        float(golden["integral_instability"]),
     )
-    _check_close("attack_cost", float(snap["attack_cost"]), float(GOLDEN_METRICS["attack_cost"]))
-    if bool(snap["collapsed"]) != bool(GOLDEN_METRICS["collapsed"]):
+    _check_close("attack_cost", float(snap["attack_cost"]), float(golden["attack_cost"]))
+    if bool(snap["collapsed"]) != bool(golden["collapsed"]):
         raise SystemExit("collapsed mismatch")
-    if snap["collapse_timestep"] != GOLDEN_METRICS["collapse_timestep"]:
-        raise SystemExit("collapse_timestep mismatch")
+    if snap["collapse_timestep"] != golden["collapse_timestep"]:
+        # golden stores float for collapse_timestep historically
+        if int(snap["collapse_timestep"] or -1) != int(golden["collapse_timestep"]):
+            raise SystemExit("collapse_timestep mismatch")
+    for key in ("final_liquidity", "final_backlog"):
+        if key in golden:
+            _check_close(key, float(snap[key]), float(golden[key]))
+
+
+def main() -> None:
+    snap = run_coupled_institution_rollout_v1()
+    _check_bundle(snap, GOLDEN_METRICS, BUNDLE_ID)
+    tetra = run_coupled_institution_tetra_rollout_v1()
+    _check_bundle(tetra, GOLDEN_METRICS_TETRA, BUNDLE_ID_TETRA)
     sample = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_replay.json"
     if not sample.is_file():
         raise SystemExit(f"missing sample replay: {sample}")
     data = json.loads(sample.read_text(encoding="utf-8"))
     if data.get("schema_version") != "coupled-fork-0.4.0":
         raise SystemExit("sample_coupled_replay.json schema_version mismatch")
-    print(json.dumps({"ok": True, "bundle_id": BUNDLE_ID, "snap": snap}, indent=2))
+    tetra_sample = ROOT / "forks" / "coupled_institution" / "artifacts" / "sample_coupled_tetra_replay.json"
+    if not tetra_sample.is_file():
+        raise SystemExit(f"missing tetra sample replay: {tetra_sample}")
+    tdata = json.loads(tetra_sample.read_text(encoding="utf-8"))
+    if tdata.get("coupling_profile") != "backlog_tetra":
+        raise SystemExit("tetra sample missing coupling_profile=backlog_tetra")
+    print(
+        json.dumps(
+            {"ok": True, "bundle_id": BUNDLE_ID, "tetra_bundle_id": BUNDLE_ID_TETRA, "snap": snap, "tetra": tetra},
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

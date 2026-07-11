@@ -10,7 +10,8 @@ This repository ships **decoupled** reference kernels (aggregate peg, network co
 - Per-step `coupling_contrib_to_*` metrics (panic, overload, liquidity, backlog)
 - Replay schema `coupled-fork-0.4.0`
 - Worth-it bar (two-scalar + triad + tetra): `python scripts/run_coupled_worth_it_bar.py`
-- Operator capsules: `fragility shorthand resolve coupled-worth-it`
+- Tetra under search (GA/MC + pins): `python scripts/check_coupled_fork_tetra_search.py`
+- Operator capsules: `fragility shorthand resolve coupled-worth-it` / `coupled-tetra-search`
 
 Default contract keeps liquidity/backlog channels off so the v0.1 golden bundle (`coupled_institution_rollout_v1`) stays green.
 
@@ -46,6 +47,7 @@ Operator Intelligence Shorthand (Chrysalis-inspired, post-hoc only): [`docs/INTE
 ```bash
 python scripts/regenerate_coupled_fork_artifacts.py
 python scripts/run_coupled_worth_it_bar.py
+python scripts/check_coupled_fork_tetra_search.py
 python scripts/narrate_coupled_fork_bundle.py --cite-digest
-fragility shorthand resolve coupled-validate
+fragility shorthand resolve coupled-tetra-search
 ```

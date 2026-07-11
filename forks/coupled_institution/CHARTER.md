@@ -39,7 +39,17 @@ Requires **all three**: two-scalar, liquidity triad, backlog tetra — each must
 - [x] Schema `coupled-fork-0.4.0`
 - [x] Worth-it bar v3 (two-scalar + triad + tetra)
 - [x] Golden `coupled_institution_rollout_v1` green (extra channels default off)
+- [x] Tetra under search: GA/MC demos + pinned golden `coupled_institution_tetra_rollout_v1` + search pins
 - [ ] Stop here unless a new research question needs another scalar or topology
+
+## Tetra search
+
+```bash
+python scripts/run_coupled_fork_demo.py --contract tetra --method ga --generations 2 --population-size 8
+python scripts/run_coupled_fork_demo.py --contract tetra --method mc --samples 24
+python scripts/check_coupled_fork_tetra_search.py
+python scripts/validate_coupled_fork_bundle.py
+```
 
 ## Operator shorthand
 

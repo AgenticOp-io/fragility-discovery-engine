@@ -1,3 +1,4 @@
+from coupled_institution.factory import make_coupled_world
 from coupled_institution.replay import REPLAY_SCHEMA_VERSION, rollout_to_replay_dict
 from coupled_institution.rollout import rollout_coupled
 from coupled_institution.types import ExogenousEvent, RolloutResult, TrajectoryStep
@@ -20,6 +21,7 @@ __all__ = [
     "WorthItReport",
     "coupled_rollout_snapshot",
     "evaluate_worth_it",
+    "make_coupled_world",
     "rollout_coupled",
     "rollout_to_replay_dict",
     "tetra_contract",

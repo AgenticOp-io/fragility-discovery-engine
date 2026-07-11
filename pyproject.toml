@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fragility-engine"
-version = "0.6.3"
+version = "0.6.4"
 description = "AgenticOps stress-search harness: deterministic GA/MC over modular simulations, BYOW adapters, replay JSON, and FEL evidence semantics."
 readme = "docs/PYPI_README.md"
 requires-python = ">=3.11"

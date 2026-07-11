@@ -17,12 +17,18 @@ DEMO_DIR = ROOT / "artifacts" / "coupled_fork_demo"
 FORK_ART = FORK / "artifacts"
 DEMO_NAMES = (
     "sample_coupled_replay.json",
+    "sample_coupled_tetra_replay.json",
     "coupling_strength_sweep.json",
     "sample_coupling_comparison.json",
     "sample_coupled_mutation_chain.json",
     "sample_coupled_pareto_front.json",
+    "sample_coupled_pareto_tetra.json",
+    "worth_it_bar.json",
 )
 PARETO_VIEWER = ROOT / "artifacts" / "pareto_viewer" / "sample_pareto_coupled_institution.json"
+PARETO_TETRA = ROOT / "artifacts" / "pareto_viewer" / "sample_pareto_coupled_tetra.json"
+TETRA_SAMPLE = FORK / "artifacts" / "sample_coupled_tetra_replay.json"
+TETRA_VIEWER = ROOT / "artifacts" / "replay_viewer" / "sample_coupled_tetra_replay.json"
 
 
 def main() -> None:
@@ -47,6 +53,10 @@ def main() -> None:
         raise SystemExit(f"Expected {SAMPLE} after regenerate")
     VIEWER_COPY.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SAMPLE, VIEWER_COPY)
+    if TETRA_SAMPLE.is_file():
+        TETRA_VIEWER.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(TETRA_SAMPLE, TETRA_VIEWER)
+        print(f"OK: {TETRA_VIEWER.relative_to(ROOT)}")
     chain = FORK / "artifacts" / "sample_coupled_mutation_chain.json"
     if chain.is_file():
         ATTR_COPY.parent.mkdir(parents=True, exist_ok=True)
@@ -65,8 +75,33 @@ def main() -> None:
         cwd=str(ROOT),
         check=True,
     )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "export_coupled_fork_pareto.py"),
+            "--contract",
+            "tetra",
+            "--seed",
+            "62001",
+            "--generations",
+            "2",
+            "--population-size",
+            "8",
+            "--horizon",
+            "10",
+            "--coupling",
+            "0.25",
+            "--out",
+            str(PARETO_TETRA),
+            "--also-fork-artifacts",
+        ],
+        cwd=str(ROOT),
+        check=True,
+    )
     if PARETO_VIEWER.is_file():
         print(f"OK: {PARETO_VIEWER.relative_to(ROOT)}")
+    if PARETO_TETRA.is_file():
+        print(f"OK: {PARETO_TETRA.relative_to(ROOT)}")
 
     DEMO_DIR.mkdir(parents=True, exist_ok=True)
     for name in DEMO_NAMES:
