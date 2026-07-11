@@ -1,11 +1,4 @@
-# Publish to PyPI via Trusted Publishing (OIDC) — no long-lived API token.
-# One-time PyPI setup (while logged in): https://pypi.org/manage/account/publishing/
-# Pending publisher fields:
-#   PyPI Project Name: fragility-engine
-#   Owner: AgenticOp-io
-#   Repository name: fragility-discovery-engine
-#   Workflow name: pypi.yml
-#   Environment name: (leave blank)
+# Manual PyPI publish via repository secret PYPI_API_TOKEN.
 name: Publish to PyPI
 
 on:
@@ -14,10 +7,6 @@ on:
       confirm:
         description: 'Type "publish" to upload dist/ to PyPI'
         required: true
-
-permissions:
-  contents: read
-  id-token: write
 
 jobs:
   publish:
@@ -30,10 +19,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Require PyPI API token
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -z "$PYPI_API_TOKEN" ]; then
+            echo "::error::Missing repository secret PYPI_API_TOKEN"
+            exit 1
+          fi
+
       - name: Build and verify (twine check)
         run: python scripts/check_pypi_ready.py
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
+      - name: Upload to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: python -m twine upload dist/*
