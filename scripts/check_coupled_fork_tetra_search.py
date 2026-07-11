@@ -86,7 +86,10 @@ def main() -> int:
                 },
             },
             "expected": {},
-            "note": "Re-pin via scripts/check_coupled_fork_tetra_search.py --write-pins after intentional search/physics changes.",
+            "note": (
+                "Re-pin via scripts/check_coupled_fork_tetra_search.py --write-pins "
+                "after intentional search/physics changes."
+            ),
         }
         PINS.parent.mkdir(parents=True, exist_ok=True)
         PINS.write_text(json.dumps(skeleton, indent=2) + "\n", encoding="utf-8")

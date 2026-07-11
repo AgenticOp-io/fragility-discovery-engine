@@ -1,4 +1,4 @@
-"""Ordered cumulative mutations on an :class:`~fragility_engine.world.inventory_buffer.InventoryBufferWorld` template."""
+"""Ordered cumulative mutations on InventoryBufferWorld templates."""
 
 from __future__ import annotations
 

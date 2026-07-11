@@ -1,9 +1,9 @@
 {
   "schema": "fragility-certificate-v1",
-  "fragility_engine_version": "0.6.2",
+  "fragility_engine_version": "0.6.5",
   "python_version": "3.12.10",
   "numpy_version": "2.4.6",
-  "git_commit": "e9d9b147e8dd03e84abcfb9693b628296485b64c",
+  "git_commit": "57f42fd3006df722d46857e0eaba306fb83e05a6",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -152,10 +152,10 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "e9d9b147e8dd03e84abcfb9693b628296485b64c",
+      "git_commit": "57f42fd3006df722d46857e0eaba306fb83e05a6",
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
-      "fragility_engine_version": "0.6.2",
+      "fragility_engine_version": "0.6.5",
       "replay_schema_version": "0.4.0"
     },
     "resource_cascade_backend": {
@@ -165,8 +165,8 @@
     "provenance": {
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
-      "fragility_engine_version": "0.6.2",
-      "git_commit": "e9d9b147e8dd03e84abcfb9693b628296485b64c"
+      "fragility_engine_version": "0.6.5",
+      "git_commit": "57f42fd3006df722d46857e0eaba306fb83e05a6"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -398,5 +398,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "7f1daba891c471584c51151997927b74cc92e3d0f803ce0754922a0fa4df7281"
+  "certificate_content_sha256": "9f9cc0fee87eb129bf17a6e2e2d3e0a4f97d62a7c44195c45ebc44daaae631b0"
 }

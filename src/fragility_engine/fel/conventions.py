@@ -8,8 +8,6 @@ so Python exports, tests, and documentation stay aligned.
 
 from __future__ import annotations
 
-from typing import Any, Mapping
-
 from fragility_engine.adversary.fitness import severity_score
 from fragility_engine.adversary.pareto import pareto_indices
 from fragility_engine.types import RolloutResult

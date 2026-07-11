@@ -1,9 +1,9 @@
 """Fragility Evidence Language (FEL) — canonical conventions."""
 
 from fragility_engine.fel.conventions import (
-    FEL_VERSION,
     DELTA_COUNTERFACTUAL,
     DELTA_PATH_FORWARD,
+    FEL_VERSION,
     SCHEMA_REGISTRY,
     attack_pareto_dominates,
     delta_counterfactual,

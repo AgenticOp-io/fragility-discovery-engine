@@ -12,6 +12,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from export_llm_narration_prompt import build_prompt_bundle  # noqa: E402
+
 FORK_ART = ROOT / "forks" / "coupled_institution" / "artifacts"
 DEFAULT_OUT = ROOT / "artifacts" / "llm_prompts" / "coupled_fork_exports"
 MANIFEST_SCHEMA = "coupled-fork-llm-exports-v1"

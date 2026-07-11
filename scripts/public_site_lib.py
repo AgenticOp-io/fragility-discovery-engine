@@ -233,8 +233,10 @@ def viewer_strip_html(active: str) -> str:
     return (
         '<nav class="fde-viewer-strip" aria-label="Artifact viewers">\n'
         + "\n".join(parts)
-        + '\n<p class="fde-viewer-banner">Server-hosted JSON only — choose a <strong>Preset</strong> or open a sample from the '
-        '<a href="/">workbench</a>. Local upload is off on this demo. <a href="/docs/demo-guide.html">Demo guide</a></p>\n'
+        + '\n<p class="fde-viewer-banner">Server-hosted JSON only — choose a '
+        "<strong>Preset</strong> or open a sample from the "
+        '<a href="/">workbench</a>. Local upload is off on this demo. '
+        '<a href="/docs/demo-guide.html">Demo guide</a></p>\n'
         "</nav>"
     )
 
@@ -271,13 +273,18 @@ def site_chrome_header(page_id: str, *, release: str = "v0.5.0") -> str:
     """Site-wide top bar — identical on workbench, run, docs, and all viewers."""
 
     nav = _nav_html(page_id)
+    brand_sub = (
+        f'{html.escape(release)} · '
+        f'<a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a> · '
+        f'<a href="https://hub.agenticop.io/" class="fde-agenticop-link">Hub</a>'
+    )
     return f"""<!-- fdeSiteChrome -->
   <header class="fde-top" id="fdeSiteTop">
     <a class="fde-brand" href="/">
       <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
       <span>
         <span class="fde-brand-title">Fragility Discovery Engine</span>
-        <span class="fde-brand-sub">{html.escape(release)} · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a> · <a href="https://hub.agenticop.io/" class="fde-agenticop-link">Hub</a></span>
+        <span class="fde-brand-sub">{brand_sub}</span>
       </span>
     </a>
     <nav class="fde-nav" aria-label="Product">

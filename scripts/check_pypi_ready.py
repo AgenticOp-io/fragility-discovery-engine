@@ -30,7 +30,12 @@ def _tag_version(tag: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--tag", type=str, default=None, help="Optional git tag (e.g. v0.5.0) must match pyproject version.")
+    ap.add_argument(
+        "--tag",
+        type=str,
+        default=None,
+        help="Optional git tag (e.g. v0.5.0) must match pyproject version.",
+    )
     ap.add_argument("--skip-build", action="store_true", help="Only twine-check existing dist/ (must exist).")
     args = ap.parse_args()
 

@@ -12,10 +12,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from coupled_institution.factory import coupling_profile_label  # noqa: E402
 from coupled_institution.golden import (  # noqa: E402
-    run_coupled_institution_rollout_v1,
-    run_coupled_institution_tetra_rollout_v1,
     _load_fixture,
     _schedule_from_fixture,
+    run_coupled_institution_rollout_v1,
+    run_coupled_institution_tetra_rollout_v1,
 )
 from coupled_institution.rollout import rollout_coupled  # noqa: E402
 from coupled_institution.world import CoupledInstitutionWorld, tetra_contract  # noqa: E402

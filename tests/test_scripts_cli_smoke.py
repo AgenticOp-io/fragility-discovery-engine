@@ -4969,12 +4969,13 @@ def test_export_coupled_fork_llm_prompts_batch_cli(py_exe: str, tmp_path: Path) 
     )
     manifest = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["schema"] == "coupled-fork-llm-exports-v1"
-    assert manifest["bundle_count"] == 4
+    assert manifest["bundle_count"] == 5
     for stem in (
         "sample_coupled_replay",
         "coupling_strength_sweep",
         "sample_coupling_comparison",
         "sample_coupled_mutation_chain",
+        "sample_coupled_pareto_front",
     ):
         bundle = json.loads((out_dir / f"{stem}.llm_bundle.json").read_text(encoding="utf-8"))
         assert bundle["schema"] == "llm-prompt-bundle-v1"

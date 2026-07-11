@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from coupled_institution.golden import (
     BUNDLE_ID,
     BUNDLE_ID_TETRA,
