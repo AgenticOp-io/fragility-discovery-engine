@@ -8,7 +8,7 @@ Official mark: **https://agenticop.io/logo.svg** (source: [AgenticOp-io/agentico
 PyPI user avatars come from [Gravatar](https://gravatar.com), keyed to the email on your PyPI account — PyPI does not host a custom upload for personal accounts.
 
 1. Log in at https://gravatar.com with the **same email** as your PyPI account.
-2. Upload `docs/public/assets/logo.png` (or https://agenticop.io/logo.svg exported to PNG).
+2. Upload `docs/public/assets/logo.png` (rasterized from `logo-circle.svg` — full circular field, mark scaled/centered for Gravatar crop). Do not use a browser screenshot of `logo.svg`; that clips the rounded-square mark and looks offset.
 3. Refresh https://pypi.org/user/&lt;your-username&gt;/ — the AgenticOps mark should appear.
 
 ## Organization account (optional)

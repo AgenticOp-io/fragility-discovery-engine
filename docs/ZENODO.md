@@ -7,7 +7,8 @@ Zenodo is linked to GitHub for **AgenticOp-io/fragility-discovery-engine**. Crea
 | Kind | DOI | Notes |
 |------|-----|-------|
 | **Concept** (cite this) | [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) | Always resolves to the latest version |
-| Version `v0.6.0` (latest) | [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841) | BYOW CLI + falsification harness |
+| Version `v0.6.1` | [10.5281/zenodo.21304131](https://doi.org/10.5281/zenodo.21304131) | AgenticOps PyPI branding |
+| Version `v0.6.0` | [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841) | BYOW CLI + falsification harness |
 | Version `fel-v0.1.1` | [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) | FEL preprint snapshot |
 
 ```markdown
@@ -16,7 +17,7 @@ Zenodo is linked to GitHub for **AgenticOp-io/fragility-discovery-engine**. Crea
 
 ## How new versions appear
 
-1. Tag + GitHub Release (e.g. `v0.6.0`) — already how `fel-v0.1.1` and `v0.6.0` were archived.
+1. Tag + GitHub Release (e.g. `v0.6.2`) — already how `fel-v0.1.1`, `v0.6.0`, and `v0.6.1` were archived.
 2. Zenodo GitHub integration publishes the deposit (usually within minutes).
 3. Update [`CITATION.cff`](../CITATION.cff) version DOI list if you want the new version id explicit (concept DOI is enough for most cites).
 

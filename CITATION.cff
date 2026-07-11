@@ -12,7 +12,7 @@ authors:
 repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
 url: https://agenticop-io.github.io/fragility-discovery-engine/
 license: Apache-2.0
-version: 0.6.1
+version: 0.6.2
 date-released: 2026-07-11
 keywords:
   - simulation
@@ -24,6 +24,8 @@ keywords:
 identifiers:
   - type: doi
     value: 10.5281/zenodo.20455688
+  - type: doi
+    value: 10.5281/zenodo.21304131
   - type: doi
     value: 10.5281/zenodo.21303841
   - type: doi

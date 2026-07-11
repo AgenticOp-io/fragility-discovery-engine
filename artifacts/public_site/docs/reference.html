@@ -61,6 +61,20 @@
 <article class="fde-prose"><h2>Reference: modes, CLIs, environment, schemas</h2>
 <p>Quick lookup for all command-line flags, output formats, and script names. Step-by-step tutorials are in <a href="/docs/how-to-use.html">How to Use</a>.</p>
 <hr>
+<h3>BYOW CLI (`fragility`, v0.6.0+)</h3>
+<table><thead>
+<tr><th>Command</th><th>Purpose</th></tr>
+</thead><tbody>
+<tr><td><code>fragility search --example capacity-pool\|token-bucket</code></td><td>GA/MC on installable tutorial world</td></tr>
+<tr><td><code>fragility minimize --example …</code></td><td>Greedy minimal failing schedule</td></tr>
+<tr><td><code>fragility replay PATH</code></td><td>Validate replay JSON schema keys</td></tr>
+<tr><td><code>fragility check-world --example …</code></td><td>Determinism smoke on example world</td></tr>
+<tr><td><code>fragility certify</code></td><td>Flagship certificate bundle</td></tr>
+<tr><td><code>fragility falsify search --example ranked-store</code></td><td>Predicate-violation search (Phase S)</td></tr>
+<tr><td><code>fragility examples</code></td><td>List tutorial example ids</td></tr>
+</tbody></table>
+<p>Module surface: <code>fragility_engine.byow</code>, <code>fragility_engine.falsify</code>. Tutorial worlds: <code>fragility_engine.byow.examples.*</code>.</p>
+<hr>
 <h3>Simulation modes</h3>
 <table><thead>
 <tr><th><code>--mode</code></th><th>GA demo script</th><th>Primary counterfactual interventions</th><th>ε-sweep axes</th><th>Fixed horizon</th></tr>

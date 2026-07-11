@@ -1,6 +1,6 @@
 # Releasing `fragility-engine`
 
-Version is defined in [`pyproject.toml`](pyproject.toml) as **`[project].version`** (currently **0.6.1**). **`fragility_engine.__version__` must match** before tagging.
+Version is defined in [`pyproject.toml`](pyproject.toml) as **`[project].version`** (currently **0.6.2**). **`fragility_engine.__version__` must match** before tagging.
 
 **Version policy:** software tags are `vMAJOR.MINOR.PATCH` (e.g. `v0.6.0`). The FEL / Zenodo archive tag (`fel-v0.1.1`) is a separate scholarly snapshot and may lag the software version.
 

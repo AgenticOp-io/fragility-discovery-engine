@@ -59,54 +59,62 @@
 <a href="/docs/fork-coupling.html">Research fork</a>
 </nav>
 <article class="fde-prose"><h2>Fragility Discovery Engine — Overview</h2>
-<p><strong>What it is:</strong> An open-source Python tool for finding the conditions that break a simulated system, then explaining exactly why it broke.</p>
-<p><strong>Live demo:</strong> http://34.61.255.147/ · <strong>Source:</strong> https://github.com/AgenticOp-io/fragility-discovery-engine · <strong>Release:</strong> v0.5.0</p>
+<p><strong>What it is:</strong> An open-source Python <strong>stress-search harness</strong> — wire a resettable discrete-time model, search shock schedules for worst-case failure, export reproducible replay JSON and counterfactual attribution bundles.</p>
+<p><strong>Not:</strong> a calibrated institution model, a causal inference tool, or a drop-in production risk product.</p>
+<p><strong>Live demo:</strong> http://34.61.255.147/ · <strong>Source:</strong> https://github.com/AgenticOp-io/fragility-discovery-engine · <strong>Release:</strong> v0.6.0</p>
 <hr>
 <h3>The core idea</h3>
-<p>You describe a system as a simulation world — something that resets to known starting conditions and advances one step at a time. The engine searches across thousands of possible stress sequences to find the ones that cause the most damage, then saves a step-by-step record of how the system failed.</p>
-<p>That record is a JSON file you can replay in the browser, compare against counterfactuals, and reproduce exactly by re-running with the same seed.</p>
+<p>You describe a system as a simulation world — something that <strong>resets</strong> to known starting conditions and <strong>advances one step at a time</strong>. The engine searches across possible stress sequences to find ones that maximize damage under your metric, then saves a step-by-step record of the run.</p>
+<p>That record is JSON you can replay in the browser, compare with counterfactual re-runs, and reproduce with the same seed.</p>
+<p><strong>Attribution</strong> means counterfactual and path deltas on re-rollouts (FEL Δ⁻ / Δ⁺ conventions) — not Pearl-grade causal identification.</p>
 <hr>
-<h3>Six simulation domains</h3>
-<p>The engine ships six ready-to-use worlds. Pick the one that matches what you want to study:</p>
+<h3>Bring your own world (primary path)</h3>
+<p>Real value is a <strong>~100-line adapter</strong> you write (<code>reset</code>, <code>step</code>, <code>state_vector</code>, <code>instability_score</code>, <code>is_collapsed</code>). Tutorial: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BRING_YOUR_OWN_WORLD.md"><code>BRING_YOUR_OWN_WORLD.md</code></a>.</p>
+<p>```powershell</p>
+<p>pip install -e &quot;.[dev]&quot;</p>
+<p>fragility search --example capacity-pool</p>
+<p>fragility check-world --example capacity-pool</p>
+<p>```</p>
+<hr>
+<h3>Six reference domains (toy regression oracles)</h3>
+<p>The in-tree worlds are <strong>deliberately simplified</strong> — structural analogies for frozen CI, not models of real institutions:</p>
 <table><thead>
-<tr><th>Domain</th><th>What it models</th></tr>
+<tr><th>Domain</th><th>Structural analogy</th></tr>
 </thead><tbody>
-<tr><td><strong>Aggregate peg</strong></td><td>A stablecoin reserve and panic level under redemption pressure</td></tr>
-<tr><td><strong>Network contagion</strong></td><td>Panic spreading across a graph of interconnected nodes</td></tr>
-<tr><td><strong>Resource cascade</strong></td><td>Overload propagating through two coupled capacity layers</td></tr>
-<tr><td><strong>Service backlog</strong></td><td>A work queue where processing rate fights rising demand</td></tr>
-<tr><td><strong>Liquidity ladder</strong></td><td>Financial margin eroding toward a forced sell-off</td></tr>
-<tr><td><strong>Inventory buffer</strong></td><td>Stock level declining under demand surges</td></tr>
+<tr><td>Aggregate peg</td><td>Reserve + panic under pressure</td></tr>
+<tr><td>Network contagion</td><td>Panic on a graph</td></tr>
+<tr><td>Resource cascade</td><td>Coupled capacity layers</td></tr>
+<tr><td>Service backlog</td><td>Queue vs processing rate</td></tr>
+<tr><td>Liquidity ladder</td><td>Margin erosion</td></tr>
+<tr><td>Inventory buffer</td><td>Stock under demand</td></tr>
 </tbody></table>
-<p>These are deliberately simple models — not calibrated to any real institution. Their purpose is to let the search and explanation methods work across several different failure patterns.</p>
+<p>Use them to validate the harness; use <strong>BYOW</strong> for your own physics.</p>
 <hr>
 <h3>What a run produces</h3>
-<p>1. <strong>Replay file</strong> — every timestep recorded: what happened, how bad it got, when it collapsed. Load in the browser to scrub the timeline.</p>
-<p>2. <strong>Trade-off chart</strong> (attacker vs defender runs) — the full range between cheap-but-mild and expensive-but-devastating attacks.</p>
-<p>3. <strong>Attribution trace</strong> — counterfactual comparisons showing which specific shocks caused the collapse.</p>
-<p>4. <strong>Composite audit</strong> — same attack genome evaluated across multiple domains side by side.</p>
-<p>All outputs are plain JSON with stable schemas. Every result is reproducible from the seed.</p>
+<p>1. <strong>Replay file</strong> — timestep trajectory, collapse bit, shock lane.</p>
+<p>2. <strong>Pareto archive</strong> (optional) — severity vs attack-cost trade-offs.</p>
+<p>3. <strong>Attribution bundles</strong> — counterfactual re-runs and mutation chains.</p>
+<p>4. <strong>Certificate / manifest</strong> — reproducibility metadata for papers.</p>
+<p>All outputs are schema-versioned JSON with deterministic seeds.</p>
 <hr>
 <h3>What it is not</h3>
 <ul>
 <li>Not a live trading system or market data feed</li>
-<li>Not a regulatory compliance tool</li>
-<li>Not a calibrated model of any specific institution</li>
+<li>Not regulatory compliance or calibrated institutional risk</li>
+<li>Not proof that your production system is safe</li>
 </ul>
 <hr>
 <h3>Quick start</h3>
 <p>```bash</p>
-<h2>Install</h2>
 <p>git clone https://github.com/AgenticOp-io/fragility-discovery-engine</p>
 <p>cd fragility-discovery-engine</p>
-<p>python3 -m venv .venv &amp;&amp; source .venv/bin/activate  # or .venv\Scripts\Activate.ps1 on Windows</p>
+<p>python3 -m venv .venv &amp;&amp; source .venv/bin/activate</p>
 <p>pip install -e &quot;.[dev]&quot;</p>
-<h2>Run a search</h2>
-<p>python scripts/run_ga_demo.py --mode aggregate --generations 4 --export-replay out.json</p>
-<h2>Open the replay in your browser</h2>
-<p>open artifacts/replay_viewer/index.html  # then load out.json</p>
+<p>fragility search --example capacity-pool --export-replay out.json</p>
+<p>fragility falsify search --example ranked-store   # invariant predicate demo</p>
+<p>python scripts/run_ga_demo.py --mode aggregate --generations 4 --export-replay toy.json</p>
 <p>```</p>
-<p>Full install and usage: <a href="/docs/how-to-use.html">How to Use</a></p></article>
+<p>Full guide: <a href="/docs/how-to-use.html">How to Use</a> · <strong>Cite:</strong> Zenodo <a href="https://doi.org/10.5281/zenodo.20455689">10.5281/zenodo.20455689</a></p></article>
   </main>
   <footer class="fde-footer" id="fdeSiteFooter">
     <span>

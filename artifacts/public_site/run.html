@@ -202,9 +202,17 @@
             if (!r.ok) return;
             const h = await r.json();
             runAuthRequired = !!h.run_auth_required;
+            const liveEnabled = h.live_runs_enabled !== false;
             if (runAuthRequired && apiKeyLabel) {
               apiKeyLabel.hidden = false;
-              apiKeyHelp.textContent = 'This server requires a run API key. Use ?run_key=... once per browser session.';
+              if (!liveEnabled) {
+                apiKeyHelp.textContent =
+                  'Live runs are disabled on this public demo (browse bundled samples). ' +
+                  'Operators set FRAGILITY_RUN_API_KEY on the VM, or install locally: pip install fragility-engine';
+              } else {
+                apiKeyHelp.textContent =
+                  'This server requires a run API key. Use ?run_key=... once per browser session.';
+              }
             }
           } catch (e) { /* runner offline */ }
         }

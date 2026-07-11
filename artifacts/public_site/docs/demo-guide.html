@@ -60,13 +60,14 @@
 </nav>
 <article class="fde-prose"><h2>Public demo guide</h2>
 <p>The demo is at <strong>http://34.61.255.147/</strong>. Everything is server-hosted — you open samples in the browser; nothing is uploaded from your computer.</p>
+<p><strong>Guardrails:</strong> the public site is <strong>browse-first</strong>. Bundled samples and viewers are open. Live <strong>Run a scenario</strong> requires an operator API key (or install locally: <code>pip install fragility-engine</code>). See <a href="/docs/gce-https-and-auth.html">Demo guardrails</a>.</p>
 <hr>
 <h3>Pages at a glance</h3>
 <table><thead>
 <tr><th>Page</th><th>URL</th><th>What to do here</th></tr>
 </thead><tbody>
 <tr><td><strong>Workbench</strong></td><td><code>/</code></td><td>Browse server-hosted samples and open them in viewers</td></tr>
-<tr><td><strong>Run a scenario</strong></td><td><code>/run.html</code></td><td>Start a new fragility search on the server</td></tr>
+<tr><td><strong>Run a scenario</strong></td><td><code>/run.html</code></td><td>Operator-gated live search (API key) — or use local CLI</td></tr>
 <tr><td><strong>Past runs</strong></td><td><code>/runs.html</code></td><td>See completed server runs and open their results</td></tr>
 <tr><td><strong>Guided tour</strong></td><td><code>/?tour=1</code></td><td>Step-by-step walkthrough with written explanations</td></tr>
 <tr><td><strong>Documentation</strong></td><td><code>/docs/</code></td><td>Full manual</td></tr>
@@ -88,12 +89,18 @@
 <p>Local file pickers and drag-and-drop are <strong>disabled on this demo</strong>. Use the Presets menu or the workbench links. To load your own files, clone the repo and open the viewers from <code>artifacts/</code> on a local server.</p>
 <hr>
 <h3>Running a new scenario</h3>
-<p>1. Go to <a href="/run.html">Run a scenario</a>.</p>
+<p>Live runs on the <strong>public</strong> demo need an operator <strong>run API key</strong>. Without it, use bundled samples or install locally:</p>
+<p>```powershell</p>
+<p>pip install fragility-engine</p>
+<p>fragility search --example capacity-pool</p>
+<p>```</p>
+<p>If you have a key:</p>
+<p>1. Go to <a href="/run.html">Run a scenario</a> (or <code>?run_key=…</code> once).</p>
 <p>2. Choose a <strong>domain and search type</strong> from the dropdown.</p>
 <p>3. Set the seed, horizon, generations, and population (within server limits).</p>
 <p>4. Click <strong>Run scenario</strong>. When the job finishes, links appear to the replay or Pareto viewer.</p>
 <p>Results are saved on the server under <code>/runs/&lt;id&gt;/</code>. Nothing on your computer is read or modified.</p>
-<p><strong>Server limits:</strong> maximum 150 second run · 1 concurrent run · 8 runs per hour per IP address.</p>
+<p><strong>Server limits:</strong> max 150s · 1 concurrent run · 3 runs/hour/IP · anonymous runs off by default.</p>
 <hr>
 <h3>Six charter domains vs the research fork</h3>
 <p><strong>Charter domains</strong> (aggregate peg, network contagion, resource cascade, service backlog, liquidity ladder, inventory buffer) are the stable reference workbench.</p>
@@ -101,9 +108,9 @@
 <hr>
 <h3>Suggested first visit</h3>
 <p>1. Workbench → click <strong>Flagship benchmark</strong> replay to see a collapse timeline.</p>
-<p>2. <a href="/run.html">Run a scenario</a> → leave defaults → wait for it to finish → open in Replay viewer.</p>
-<p>3. Come back to the workbench and open any <strong>Attribution</strong> sample to see a counterfactual chain.</p>
-<p>4. Optional: work through the <a href="/?tour=1">Guided tour</a> — read each step, then press Next.</p>
+<p>2. Open any <strong>Attribution</strong> sample to see a counterfactual chain (no live run needed).</p>
+<p>3. Optional: work through the <a href="/?tour=1">Guided tour</a> — read each step, then press Next.</p>
+<p>4. For a fresh search: install locally or ask an operator for a run key.</p>
 <hr>
 <h3>For operators</h3>
 <ul>

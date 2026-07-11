@@ -88,6 +88,13 @@
 <li>Golden bundles are <strong>small</strong> and intended for <strong>regression</strong>, not production-scale stress.</li>
 <li><code>benchmark_rollout.py</code> measures wall-clock; numbers are <strong>machine-dependent</strong>. Compare <strong>relative</strong> speedups under identical flags.</li>
 </ul>
+<h3>BYOW and falsification harness (Phases R/S)</h3>
+<ul>
+<li><strong>Tutorial worlds</strong> live in <code>fragility_engine.byow.examples</code> and <code>fragility_engine.falsify.examples</code> — not charter domains.</li>
+<li>GA/MC cost scales as <strong>population × horizon × steps</strong> per search; falsification with snapshot restore adds reset overhead if you implement it.</li>
+<li>Falsification search demonstrates <strong>presence</strong> of invariant violations only — not safety proofs.</li>
+<li>Keep custom worlds deterministic (use only the <code>rng</code> passed to <code>step()</code>).</li>
+</ul>
 <h3>Robustness sweeps and composite artifacts</h3>
 <ul>
 <li><code><strong>fragility_robustness_sweep.py --topology dense|neighbor_lists</code></strong> — same ER/WS draws; <code><strong>neighbor_lists</strong></code> keeps <strong>O(edges)</strong> topology RAM while matching dense rollouts bit-for-bit for the same adjacency (see tests).</li>
