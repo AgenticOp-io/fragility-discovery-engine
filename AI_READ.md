@@ -84,10 +84,12 @@ src/fragility_engine/
   coevolution/    # alternating attacker/defender search
   byow/           # Bring-your-own-world SDK + tutorial examples
   falsify/        # predicate / snapshot falsification harness
-  cli/            # `fragility` console entry (search, minimize, falsify, certify, …)
+  shorthand/      # operator Intelligence Shorthand (IS tiers; no LLM in-sim)
+  cli/            # `fragility` console entry (search, minimize, falsify, shorthand, …)
   benchmarks/     # frozen suite + certificate helpers
   fel/            # Fragility Evidence Language conventions
 scripts/          # one-task CLIs (demos, exports, GCE, viewers)
+forks/coupled_institution/  # mega-institution research fork (not main charter)
 examples/         # thin wrappers around byow/falsify tutorials
 tests/            # determinism, contracts, CLI smoke
 benchmarks/       # golden bundles — `run_benchmark_suite.py --validate`
@@ -96,6 +98,8 @@ docs/             # human docs; start at docs/README.md
 
 Install: `pip install -e ".[dev]"` then `fragility --help` or `python -m fragility_engine.cli.main --help`.
 
+Operator recipes: `fragility shorthand list` — see [`docs/INTELLIGENCE_SHORTHAND.md`](docs/INTELLIGENCE_SHORTHAND.md).
+Coupled fork: [`forks/coupled_institution/CHARTER.md`](forks/coupled_institution/CHARTER.md).
 ---
 
 ## Evidence and claims (do not overclaim)

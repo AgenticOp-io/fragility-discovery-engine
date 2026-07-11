@@ -10,9 +10,9 @@ authors:
     affiliation: Agentic Ops
     website: https://agenticop.io
 repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
-url: https://agenticop-io.github.io/fragility-discovery-engine/
+url: https://fragility.agenticop.io/
 license: Apache-2.0
-version: 0.6.2
+version: 0.6.3
 date-released: 2026-07-11
 keywords:
   - simulation

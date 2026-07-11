@@ -1,16 +1,16 @@
 {
   "schema": "fragility-certificate-v1",
-  "fragility_engine_version": "0.5.0",
+  "fragility_engine_version": "0.6.2",
   "python_version": "3.12.10",
   "numpy_version": "2.4.6",
-  "git_commit": "e1448022411b5a463c850baec742b26be96e1652",
+  "git_commit": "79b4027d39c13d79370a66f7374f4d5090974727",
   "artifact_sha256": [
     {
-      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
+      "path": "C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
       "sha256": "64ce3e89c8f19c2603d7e3eae9b04c0d0ce0ddfb879b879a329e19e8743ee46c"
     },
     {
-      "path": "C:\\Users\\david\\projects\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\pareto_front.json",
+      "path": "C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\pareto_front.json",
       "sha256": "ad38611a92eb9f3b52ebb48166b2c164b214ef7aff1843638f26ce34685dbe90"
     }
   ],
@@ -152,10 +152,10 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "e1448022411b5a463c850baec742b26be96e1652",
+      "git_commit": "79b4027d39c13d79370a66f7374f4d5090974727",
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
-      "fragility_engine_version": "0.5.0",
+      "fragility_engine_version": "0.6.2",
       "replay_schema_version": "0.4.0"
     },
     "resource_cascade_backend": {
@@ -165,8 +165,8 @@
     "provenance": {
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
-      "fragility_engine_version": "0.5.0",
-      "git_commit": "e1448022411b5a463c850baec742b26be96e1652"
+      "fragility_engine_version": "0.6.2",
+      "git_commit": "79b4027d39c13d79370a66f7374f4d5090974727"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -296,7 +296,7 @@
         "package_path": "forks/coupled_institution",
         "fixture": "forks/coupled_institution/tests/fixtures/pinned_rollout_schedule.json",
         "validate_cli": "scripts/validate_coupled_fork_bundle.py",
-        "replay_schema_version": "coupled-fork-0.1.0",
+        "replay_schema_version": "coupled-fork-0.4.0",
         "sample_replay": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
         "coupling_sweep_schema": "coupled-institution-coupling-sweep-v1",
         "coupling_sweep_artifact": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",
@@ -350,6 +350,28 @@
     "resource_cascade_rollout_v1",
     "service_backlog_rollout_v1"
   ],
+  "research_fork_validation": {
+    "status": "passed",
+    "bundle_id": "coupled_institution_rollout_v1"
+  },
+  "research_fork_artifact_sha256": [
+    {
+      "path": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
+      "sha256": "be16c372183449e28cf1c1c6cd055efd17bb0da1e32a5a68cb38f2ae4950dbc3"
+    },
+    {
+      "path": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",
+      "sha256": "b18296782d00268ae562c6b08c13f8cb50420f7b2a0db8e6e255924ae9b6ac83"
+    },
+    {
+      "path": "forks/coupled_institution/artifacts/sample_coupling_comparison.json",
+      "sha256": "f0edd0f2403526076eee705713334cd54417dcc59a8f774597fb1406b337dacb"
+    },
+    {
+      "path": "forks/coupled_institution/artifacts/sample_coupled_mutation_chain.json",
+      "sha256": "7d4bc04e87810aff4336e98b1165cbea3b7d4709c0f21ea0d5e07f8bfb10bb43"
+    }
+  ],
   "flagship_run": {
     "mode": "aggregate_stablecoin_peg",
     "horizon": 10,
@@ -363,5 +385,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "5d4c83eac86b4904f8f18f7b416b281eb810db2b67c9d7d309934ede930d33c4"
+  "certificate_content_sha256": "93487ee8955e05973e4c9d81243b9bb15ab8860c9e297aa4f5b26bad5aee32c4"
 }

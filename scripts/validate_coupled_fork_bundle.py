@@ -44,7 +44,7 @@ def main() -> None:
     if not sample.is_file():
         raise SystemExit(f"missing sample replay: {sample}")
     data = json.loads(sample.read_text(encoding="utf-8"))
-    if data.get("schema_version") != "coupled-fork-0.1.0":
+    if data.get("schema_version") != "coupled-fork-0.4.0":
         raise SystemExit("sample_coupled_replay.json schema_version mismatch")
     print(json.dumps({"ok": True, "bundle_id": BUNDLE_ID, "snap": snap}, indent=2))
 

@@ -1,6 +1,6 @@
 {
   "schema": "narration-summary-v1",
-  "input": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_pareto_front.json",
-  "text": "citation_sha256: 2dd83a86b1ac200235ce3b3550f594dc050cf70f1a19a04fb4f2ee703938594b\ncitation_path: C:/Users/david/projects/fragility-discovery-engine/forks/coupled_institution/artifacts/sample_coupled_pareto_front.json\n---\nsource: C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_pareto_front.json\n---\nkind: Pareto archive dump\nbest_fitness: 5.333333333333334\narchive_points: 4\ndomain: coupled_institution\nsimulation_mode: coupled_institution_v1\ncoupling_strength: 0.3\ncost_range: [2.5312, 4.0641]  severity_range: [3.6667, 5.3333]",
+  "input": "C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_pareto_front.json",
+  "text": "citation_sha256: 2dd83a86b1ac200235ce3b3550f594dc050cf70f1a19a04fb4f2ee703938594b\ncitation_path: C:/Users/david/AgenticOps/engines/fragility-discovery-engine/forks/coupled_institution/artifacts/sample_coupled_pareto_front.json\n---\nsource: C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_pareto_front.json\n---\nkind: Pareto archive dump\nbest_fitness: 5.333333333333334\narchive_points: 4\ndomain: coupled_institution\nsimulation_mode: coupled_institution_v1\ncoupling_strength: 0.3\ncost_range: [2.5312, 4.0641]  severity_range: [3.6667, 5.3333]",
   "input_sha256": "2dd83a86b1ac200235ce3b3550f594dc050cf70f1a19a04fb4f2ee703938594b"
 }

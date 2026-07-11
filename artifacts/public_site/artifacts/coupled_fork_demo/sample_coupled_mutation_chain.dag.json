@@ -22,7 +22,7 @@
       "id": "chain_2",
       "label": "mutations_applied=2",
       "collapsed": true,
-      "integral_instability": 7.781787619436342,
+      "integral_instability": 7.781787619436343,
       "attack_cost": 2.0949999999999998,
       "reset_coupling": 0.3
     },
@@ -57,7 +57,7 @@
         "kind": "coupling_strength",
         "value": 0.35
       },
-      "delta_integral_instability": 3.2660056146233494,
+      "delta_integral_instability": 3.2660056146233503,
       "delta_attack_cost": 0.0
     },
     {
@@ -69,10 +69,10 @@
         "kind": "coupling_strength",
         "value": 0.5
       },
-      "delta_integral_instability": 2.0352051986856114,
+      "delta_integral_instability": 2.0352051986856106,
       "delta_attack_cost": 0.0
     }
   ],
   "intervention": "coupled_institution_mutation_chain",
-  "source": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json"
+  "source": "C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\forks\\coupled_institution\\artifacts\\sample_coupled_mutation_chain.json"
 }

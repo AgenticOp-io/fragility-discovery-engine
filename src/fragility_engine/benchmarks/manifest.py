@@ -228,7 +228,7 @@ def build_benchmark_manifest() -> dict[str, Any]:
                 "package_path": "forks/coupled_institution",
                 "fixture": "forks/coupled_institution/tests/fixtures/pinned_rollout_schedule.json",
                 "validate_cli": "scripts/validate_coupled_fork_bundle.py",
-                "replay_schema_version": "coupled-fork-0.1.0",
+                "replay_schema_version": "coupled-fork-0.4.0",
                 "sample_replay": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
                 "coupling_sweep_schema": "coupled-institution-coupling-sweep-v1",
                 "coupling_sweep_artifact": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",

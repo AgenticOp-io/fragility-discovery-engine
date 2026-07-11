@@ -34,4 +34,4 @@ fragility certify
 
 **License:** Apache-2.0  
 **Cite:** [DOI 10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688)  
-**Docs:** [How to use](https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md) · [Demo](http://34.61.255.147/) · [Source](https://github.com/AgenticOp-io/fragility-discovery-engine)
+**Docs:** [How to use](https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/HOW_TO_USE.md) · [Demo](https://fragility.agenticop.io/) · [Hub](https://hub.agenticop.io/) · [Source](https://github.com/AgenticOp-io/fragility-discovery-engine)

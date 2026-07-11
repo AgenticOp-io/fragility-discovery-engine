@@ -3,5 +3,5 @@
   "bundle_id": "coupled_institution_rollout_v1",
   "manifest_schema": "coupled-fork-llm-exports-v1",
   "export_count": 5,
-  "narration": "manifest_schema: coupled-fork-llm-exports-v1\nbundle_count: 5\n\nexports:\n  - sample_coupled_replay.json: pack=coupled_institution_replay_v1 sha256=973275ee5647003b\u2026\n  - coupling_strength_sweep.json: pack=coupled_institution_coupling_sweep_v1 sha256=d7f785e58d077b93\u2026\n  - sample_coupling_comparison.json: pack=coupled_institution_comparison_v1 sha256=f0edd0f240352607\u2026\n  - sample_coupled_mutation_chain.json: pack=coupled_institution_mutation_chain_v1 sha256=173b68c116b5875f\u2026\n  - sample_coupled_pareto_front.json: pack=coupled_institution_pareto_v1 sha256=2dd83a86b1ac2002\u2026"
+  "narration": "manifest_schema: coupled-fork-llm-exports-v1\nbundle_count: 5\n\nexports:\n  - sample_coupled_replay.json: pack=coupled_institution_replay_v1 sha256=be16c372183449e2\u2026\n  - coupling_strength_sweep.json: pack=coupled_institution_coupling_sweep_v1 sha256=b18296782d00268a\u2026\n  - sample_coupling_comparison.json: pack=coupled_institution_comparison_v1 sha256=f0edd0f240352607\u2026\n  - sample_coupled_mutation_chain.json: pack=coupled_institution_mutation_chain_v1 sha256=7d4bc04e87810aff\u2026\n  - sample_coupled_pareto_front.json: pack=coupled_institution_pareto_v1 sha256=2dd83a86b1ac2002\u2026"
 }

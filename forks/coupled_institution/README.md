@@ -4,9 +4,7 @@ Sibling package for **coupled multi-kernel physics** — state exchange inside o
 
 ## Status
 
-**v0.1** — `CoupledInstitutionWorld` with `step(events, rng)`, fork replay schema `coupled_institution_v1` (`coupled-fork-0.1.0`), rollout + GA demo using main-engine schedule encoding.
-
-**Golden bundle** `coupled_institution_rollout_v1` — pinned schedule in `tests/fixtures/pinned_rollout_schedule.json`, metrics checked by `tests/test_golden_bundle.py`, demo replay at `artifacts/sample_coupled_replay.json` (copied into the main workbench replay viewer on site build).
+**v0.4** — four scalars (`P` panic, `O` overload, `L` liquidity, `B` backlog) with `CouplingContract` / `triad_contract()` / `tetra_contract()`, per-step channel metrics, replay schema `coupled-fork-0.4.0`, worth-it bar (two-scalar + triad + tetra), charter in [`CHARTER.md`](CHARTER.md). Extra channels default **off** so golden v1 metrics stay pinned.
 
 ## Install (editable)
 
@@ -20,6 +18,7 @@ python scripts/regenerate_golden.py
 python scripts/coupling_strength_sweep.py
 python ../../scripts/plot_coupling_sweep.py artifacts/coupling_strength_sweep.json
 python scripts/export_coupling_comparison.py
+python ../../scripts/run_coupled_worth_it_bar.py
 python ../../scripts/export_llm_narration_prompt.py artifacts/sample_coupled_replay.json --prompt-pack coupled_institution_replay_v1
 python ../../scripts/export_llm_narration_prompt.py artifacts/coupling_strength_sweep.json --prompt-pack coupled_institution_coupling_sweep_v1
 python ../../scripts/export_llm_narration_prompt.py artifacts/sample_coupled_pareto_front.json --prompt-pack coupled_institution_pareto_v1

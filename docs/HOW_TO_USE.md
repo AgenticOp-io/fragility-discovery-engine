@@ -299,27 +299,40 @@ python scripts/narrate_frozen_json.py dag.json
 
 ### 4.18 Coupled institution research fork
 
-Coupled peg–overload physics lives in **`forks/coupled_institution/`** (not a charter domain on `main`). Policy: [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
+Coupled peg–overload physics lives in **`forks/coupled_institution/`** (not a charter domain on `main`). Charter: [`forks/coupled_institution/CHARTER.md`](../forks/coupled_institution/CHARTER.md). Policy: [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md).
 
 ```bash
 pip install -e ".[dev]"
 pip install -e forks/coupled_institution
 python scripts/regenerate_coupled_fork_artifacts.py
+python scripts/run_coupled_worth_it_bar.py
 python scripts/run_coupled_fork_demo.py --export-replay /tmp/coupled.json --export-pareto /tmp/coupled_pareto.json
 python scripts/export_coupled_fork_llm_prompts.py --cite-digest
 python scripts/check_coupled_fork_llm_bundles.py
 python scripts/check_coupled_fork_pareto.py
+fragility shorthand resolve coupled-validate
 ```
 
 | Artifact | Viewer / tool |
 |----------|----------------|
-| `sample_coupled_replay.json` | Replay (`coupled_institution_v1`, peg + overload series) |
+| `sample_coupled_replay.json` | Replay (`coupled-fork-0.4.0`, peg + overload + liquidity + backlog metrics) |
+| `worth_it_bar.json` | Worth-it bar (coupled vs zero-coupling / order-swap) |
 | `sample_coupled_pareto_front.json` | Pareto (`pareto-front-v1`, `domain: coupled_institution`) |
 | `coupling_strength_sweep.json` | [`artifacts/coupling_sweep_viewer/`](../artifacts/coupling_sweep_viewer/index.html) |
 | `sample_coupling_comparison.json` | Coupling comparison viewer |
 | `sample_coupled_mutation_chain.json` | Attribution viewer |
 
 Static bundle: [`artifacts/coupled_fork_demo/`](../artifacts/coupled_fork_demo/). On the public workbench, choose **Coupled institution (research fork)** on [Run a scenario](http://34.61.255.147/run.html) when the server is running.
+
+### 4.19 Operator Intelligence Shorthand
+
+Chrysalis-inspired tier ladder for verified recipes (no LLM in simulation). See [`INTELLIGENCE_SHORTHAND.md`](INTELLIGENCE_SHORTHAND.md).
+
+```bash
+fragility shorthand list
+fragility shorthand resolve byow-capacity-pool
+fragility shorthand export --out artifacts/operator_shorthand/fde-shorthands.v1.json
+```
 
 ---
 

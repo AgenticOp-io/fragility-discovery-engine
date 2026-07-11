@@ -1,0 +1,43 @@
+{
+  "kind": "coupled-worth-it-bar-bundle-v2",
+  "pinned_golden_schedule": {
+    "kind": "coupled-worth-it-bar-v3",
+    "coupled_integral": 6.80391937052433,
+    "zero_coupling_integral": 2.1442640097642895,
+    "reversed_schedule_integral": 6.738529890826928,
+    "asymmetric_integral": 4.318998030294063,
+    "lag1_integral": 5.281607384411424,
+    "triad_integral": 8.143339667558179,
+    "triad_vs_twoscalar": 1.3394202970338487,
+    "triad_reversed_integral": 8.144746855260081,
+    "tetra_integral": 9.16930598124866,
+    "tetra_vs_triad": 1.025966313690482,
+    "tetra_reversed_integral": 9.064099049986245,
+    "delta_vs_zero": 4.65965536076004,
+    "delta_vs_reversed": 0.0653894796974015,
+    "worth_it": true,
+    "triad_worth_it": true,
+    "tetra_worth_it": true,
+    "rationale": "two-scalar ok; liquidity triad ok; backlog tetra ok."
+  },
+  "demo_frontloaded_schedule": {
+    "kind": "coupled-worth-it-bar-v3",
+    "coupled_integral": 10.349268531343885,
+    "zero_coupling_integral": 3.0352364441783557,
+    "reversed_schedule_integral": 8.64182882837587,
+    "asymmetric_integral": 7.357140277224289,
+    "lag1_integral": 8.560362310900468,
+    "triad_integral": 12.314800971254016,
+    "triad_vs_twoscalar": 1.965532439910131,
+    "triad_reversed_integral": 10.72918476911749,
+    "tetra_integral": 13.179013648310798,
+    "tetra_vs_triad": 0.8642126770567824,
+    "tetra_reversed_integral": 12.305882449931872,
+    "delta_vs_zero": 7.314032087165529,
+    "delta_vs_reversed": 1.7074397029680153,
+    "worth_it": true,
+    "triad_worth_it": true,
+    "tetra_worth_it": true,
+    "rationale": "two-scalar ok; liquidity triad ok; backlog tetra ok."
+  }
+}

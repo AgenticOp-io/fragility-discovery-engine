@@ -2,26 +2,37 @@
 
 This repository ships **decoupled** reference kernels (aggregate peg, network contagion, resource cascade, service backlog) and **audit composites** that evaluate the **same shock schedule** on multiple kernels **without** shared mutable state across `World.step()`.
 
-## Why not here
+## Active flight
 
-A **single coupled state graph** (liquidity, overload, backlog, and network panic exchanging mass or signals inside one `step()`) is a **different research product**: new physics contracts, replay schema decisions, benchmark oracles, and attribution semantics. Shipping it inside this repo would blur the charter in [`BOUNDARIES.md`](../BOUNDARIES.md) and the non-goals in [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md).
+**v0.4** lives in [`forks/coupled_institution/`](../forks/coupled_institution/) with charter [`forks/coupled_institution/CHARTER.md`](../forks/coupled_institution/CHARTER.md):
 
-## If you pursue it
+- Explicit `CouplingContract` + opt-in **liquidity** triad and **backlog** tetra
+- Per-step `coupling_contrib_to_*` metrics (panic, overload, liquidity, backlog)
+- Replay schema `coupled-fork-0.4.0`
+- Worth-it bar (two-scalar + triad + tetra): `python scripts/run_coupled_worth_it_bar.py`
+- Operator capsules: `fragility shorthand resolve coupled-worth-it`
 
-Treat as a **fork** (or a clearly named sibling package):
+Default contract keeps liquidity/backlog channels off so the v0.1 golden bundle (`coupled_institution_rollout_v1`) stays green.
 
-1. New `World` (or orchestrator) module with an explicit coupling contract.
-2. **Schema bump** for replay JSON (or a new top-level artifact) with migration notes and viewer guidance.
-3. New **golden benchmark bundles** (same style as `*_rollout_v1` in `fragility_engine.benchmarks.suite`); do **not** overload `fragility-institutional-composite-v*` JSON as if it were coupled physics.
-4. Link back to this engine for **schedule encoding**, **search**, and **counterfactual** patterns where reuse is honest.
+## Why not on main charter
+
+A **single coupled state graph** is a **different research product**: new physics contracts, replay schema decisions, benchmark oracles, and attribution semantics. Shipping it inside `fragility_engine.world` would blur [`BOUNDARIES.md`](../BOUNDARIES.md).
+
+## If you extend it
+
+1. Keep work under `forks/coupled_institution/` (or a sibling package).
+2. **Schema bump** for replay JSON with migration notes.
+3. New **golden** metrics when physics change; do **not** overload `fragility-institutional-composite-v*`.
+4. Pass the **worth-it bar** before promoting complexity (third scalar, etc.).
+5. Reuse main-engine schedule encoding / search / counterfactual patterns where honest.
 
 ## Related shipped tooling
 
-Use **institutional composite v1–v3** only for **side-by-side** metrics under identical schedules (`scripts/institutional_composite_demo.py`).
+Use **institutional composite v1–v5** only for **side-by-side** metrics under identical schedules (`scripts/institutional_composite_demo.py`).
 
-## Public demo (when built)
+Operator Intelligence Shorthand (Chrysalis-inspired, post-hoc only): [`docs/INTELLIGENCE_SHORTHAND.md`](INTELLIGENCE_SHORTHAND.md).
 
-On the GCE workbench (or after `python scripts/build_public_site.py`):
+## Public demo
 
 | Demo | URL |
 |------|-----|
@@ -32,9 +43,9 @@ On the GCE workbench (or after `python scripts/build_public_site.py`):
 | Fork JSON bundle (download) | `/artifacts/coupled_fork_demo/` |
 | Policy (this page) | `/docs/fork-coupling.html` |
 
-Regenerate fork artifacts and refresh the flagship certificate digests:
-
 ```bash
 python scripts/regenerate_coupled_fork_artifacts.py
+python scripts/run_coupled_worth_it_bar.py
 python scripts/narrate_coupled_fork_bundle.py --cite-digest
+fragility shorthand resolve coupled-validate
 ```

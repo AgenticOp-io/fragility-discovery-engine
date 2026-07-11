@@ -240,8 +240,27 @@ def narrate_frozen_artifact(data: dict[str, Any], *, source: str, citation_prefi
             lines.append(f"coupling_strength: {data.get('coupling_strength')}")
         traj = data.get("trajectory") or []
         lines.append(f"trajectory_steps: {len(traj)}")
-        if schema_ver == "coupled-fork-0.1.0":
-            lines.append("note: coupled peg panic and overload in one step (research fork)")
+        if schema_ver.startswith("coupled-fork-"):
+            lines.append(
+                "note: coupled peg panic, overload, optional liquidity/backlog in one step (research fork)"
+            )
+            contract = data.get("coupling_contract")
+            if isinstance(contract, dict):
+                lines.append(
+                    "coupling_contract: "
+                    f"O->P={contract.get('gain_overload_to_panic')} "
+                    f"P->O={contract.get('gain_panic_to_overload')} "
+                    f"lag={contract.get('lag_steps')} "
+                    f"liquidity_active={contract.get('liquidity_channels_active')} "
+                    f"backlog_active={contract.get('backlog_channels_active')}"
+                )
+            if traj and isinstance(traj[-1], dict):
+                m = traj[-1].get("metrics") or {}
+                if "liquidity" in m:
+                    lines.append(f"final_liquidity: {m.get('liquidity')}")
+                if "backlog" in m:
+                    lines.append(f"final_backlog: {m.get('backlog')}")
+
         meta = data.get("meta")
         if isinstance(meta, dict) and meta.get("cli"):
             lines.append(f"meta.cli: {meta.get('cli')}")

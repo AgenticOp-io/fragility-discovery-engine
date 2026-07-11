@@ -43,6 +43,8 @@ This folder is the user and operator guide for the Fragility Discovery Engine. T
 | [`phase_s_falsification_harness.md`](phase_s_falsification_harness.md) | **Shipped** — falsification harness (after R) |
 | [`FALSIFICATION_HARNESS.md`](FALSIFICATION_HARNESS.md) | Predicate damage + `fragility falsify search` |
 | [`GCE_VALIDATION.md`](GCE_VALIDATION.md) | Run full CI parity on a GCE VM (`gce_sync_vm.ps1`) |
+| [`HOSTNAME_MAP.md`](HOSTNAME_MAP.md) | DNS + nginx vhosts: hub, fragility, chrysalis on one VM |
+| [`GCE_HTTPS_AND_AUTH.md`](GCE_HTTPS_AND_AUTH.md) | Demo guardrails, runner API key, HTTPS pointers |
 
 ---
 
@@ -95,7 +97,8 @@ Serve the repo root over HTTP (`python -m http.server 8765`) to use the static v
 | Document | What it covers |
 |----------|----------------|
 | [`RESEARCH_FRONTIERS.md`](RESEARCH_FRONTIERS.md) | Ideas explicitly out of charter scope |
-| [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md) | Coupled multi-kernel work belonging in a sibling repo |
+| [`FORK_COUPLING_RESEARCH.md`](FORK_COUPLING_RESEARCH.md) | Coupled mega-institution fork policy + v0.2 flight |
+| [`INTELLIGENCE_SHORTHAND.md`](INTELLIGENCE_SHORTHAND.md) | Operator IS tiers (`fragility shorthand`) — Chrysalis-inspired |
 | [`../ROADMAP_NEXT.md`](../ROADMAP_NEXT.md) | Aspirational backlog (not binding until in `BOUNDARIES.md`) |
 
 ---

@@ -1,0 +1,44 @@
+# Fragility Discovery Engine — nginx vhosts (maintained by fragility-discovery-engine scripts)
+#
+# Two files on the VM:
+#   /etc/nginx/sites-available/fragility-default-ip   — default_server for raw IP (:80)
+#   /etc/nginx/sites-available/fragility-public       — named host (fragility.agenticop.io)
+#
+# Installed by:
+#   bash scripts/gce_install_public_web.sh
+#   sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh
+#
+# Reserved names (do NOT bind FDE): hub.agenticop.io, chrysalis.agenticop.io
+
+# --- fragility-default-ip (always) ---
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    root /var/www/fragility/public;
+    index index.html;
+    # ... see scripts/gce_nginx_fde.inc.sh for /runs/ and /api/ blocks ...
+    add_header X-Fragility-Product "fde-workbench" always;
+}
+
+# --- fragility-public (after DNS + HTTPS) ---
+server {
+    listen 80;
+    listen [::]:80;
+    server_name fragility.agenticop.io;
+    location /.well-known/acme-challenge/ { root /var/www/fragility/public; }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name fragility.agenticop.io;
+    ssl_certificate     /etc/letsencrypt/live/fragility.agenticop.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/fragility.agenticop.io/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    root /var/www/fragility/public;
+    # ... same /runs/ and /api/ blocks as default-ip ...
+    add_header X-Fragility-Product "fde-workbench" always;
+}

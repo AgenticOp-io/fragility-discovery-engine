@@ -5012,3 +5012,17 @@ def test_plot_coupling_sweep_cli(py_exe: str, tmp_path: Path) -> None:
     )
     raw = png.read_bytes()
     assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_fragility_shorthand_resolve_smoke(py_exe: str) -> None:
+    proc = subprocess.run(
+        [py_exe, "-m", "fragility_engine.cli.main", "shorthand", "resolve", "validate-benchmarks"],
+        check=True,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    data = json.loads(proc.stdout)
+    assert data["found"] is True
+    assert data["tier"] == "IS-T5"
+    assert data["skip_llm"] is True

@@ -4,11 +4,11 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.2](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.2) (circle-safe AgenticOps mark; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.3](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.3) (operator shorthand + coupled mega-institution tetra; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
 **Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations — or **your own world** via [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md). Export replay JSON, minimized failing schedules, and counterfactual attribution bundles.
 
-**Install + BYOW CLI (v0.6.2):**
+**Install + BYOW CLI (v0.6.3):**
 
 ```powershell
 pip install fragility-engine
@@ -16,10 +16,11 @@ pip install fragility-engine
 fragility search --example capacity-pool
 fragility minimize --example capacity-pool
 fragility falsify search --example ranked-store
+fragility shorthand list
 fragility certify
 ```
 
-**Public demo** (browse-first; live runs are API-key gated): http://34.61.255.147/ · same VM as [hub.agenticop.io](https://hub.agenticop.io/) (Translation Hub) · [guardrails](docs/GCE_HTTPS_AND_AUTH.md)
+**Public demo** (browse-first; live runs are API-key gated): https://fragility.agenticop.io/ (IP fallback: http://34.61.255.147/) · Chrysalis hub: https://hub.agenticop.io/ · [vhost plan](docs/HOSTNAME_MAP.md) · [guardrails](docs/GCE_HTTPS_AND_AUTH.md)
 
 **Documentation hub:** [`docs/README.md`](docs/README.md) — index by role (user, contributor, reviewer). **Hands-on guide:** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Architecture / reference:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/REFERENCE.md`](docs/REFERENCE.md) · **After clone:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) · **Install / Git:** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 
@@ -39,7 +40,7 @@ fragility certify
 - **Machine-readable:** [`CITATION.cff`](CITATION.cff)
 - **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
 - **Repro bundle:** `fragility certify` or `python scripts/run_flagship_demo.py`
-- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.2)
+- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.3)
 
 ```bibtex
 @software{peterson2026fde,

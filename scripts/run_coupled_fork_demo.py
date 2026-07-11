@@ -27,7 +27,7 @@ def main() -> None:
         "--export-replay",
         type=Path,
         default=None,
-        help="Path for fork replay JSON after GA (coupled-fork-0.1.0 schema).",
+        help="Path for fork replay JSON after GA (coupled-fork-0.4.0 schema).",
     )
     p.add_argument(
         "--export-pareto",

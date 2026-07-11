@@ -1,4 +1,4 @@
-"""``fragility`` CLI — search, minimize, replay, certify, check-world, falsify (Phases R/S)."""
+"""``fragility`` CLI — search, minimize, replay, certify, check-world, falsify, shorthand."""
 
 from __future__ import annotations
 
@@ -194,6 +194,30 @@ def cmd_examples(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_shorthand(args: argparse.Namespace) -> int:
+    from fragility_engine.shorthand import list_capsules, resolve_task
+    from fragility_engine.shorthand.resolve import export_corpus
+
+    if args.shorthand_cmd == "list":
+        for tid in list_capsules():
+            r = resolve_task(tid)
+            assert r.capsule is not None
+            print(f"{tid}\t{r.tier}\t{r.capsule.summary}")
+        return 0
+    if args.shorthand_cmd == "resolve":
+        r = resolve_task(args.task, needs_prose=bool(args.needs_prose))
+        print(json.dumps(r.to_dict(), indent=2))
+        return 0 if r.found else 1
+    if args.shorthand_cmd == "export":
+        out = Path(args.out)
+        corpus = export_corpus()
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(corpus, indent=2), encoding="utf-8")
+        print(f"wrote {out}")
+        return 0
+    return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="fragility", description="Fragility Discovery Engine CLI")
     p.add_argument("--version", action="version", version=f"fragility-engine {__version__}")
@@ -253,6 +277,29 @@ def build_parser() -> argparse.ArgumentParser:
     fsearch.add_argument("--base-seed", type=int, default=515151)
     fsearch.add_argument("--export-replay", type=Path, default=None)
     fsearch.set_defaults(func=cmd_falsify_search)
+
+    sh = sub.add_parser(
+        "shorthand",
+        help="Operator Intelligence Shorthand (resolve verified recipes; no LLM in-sim)",
+    )
+    sh_sub = sh.add_subparsers(dest="shorthand_cmd", required=True)
+    sh_list = sh_sub.add_parser("list", help="List curated operator capsules")
+    sh_list.set_defaults(func=cmd_shorthand)
+    sh_res = sh_sub.add_parser("resolve", help="Resolve a task_id to tier + verify command")
+    sh_res.add_argument("task", help="Capsule task id (e.g. validate-benchmarks)")
+    sh_res.add_argument(
+        "--needs-prose",
+        action="store_true",
+        help="Force IS-T1+ path (post-hoc narration only)",
+    )
+    sh_res.set_defaults(func=cmd_shorthand)
+    sh_exp = sh_sub.add_parser("export", help="Export shorthand corpus JSON")
+    sh_exp.add_argument(
+        "--out",
+        type=Path,
+        default=Path("artifacts/operator_shorthand/fde-shorthands.v1.json"),
+    )
+    sh_exp.set_defaults(func=cmd_shorthand)
 
     return p
 

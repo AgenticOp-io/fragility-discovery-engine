@@ -2,16 +2,20 @@
 
 **Public workbench default:** browse bundled samples freely; **live `POST /api/run` is closed** unless an operator sets `FRAGILITY_RUN_API_KEY` (or explicitly opts into anonymous runs on a private host).
 
+**Full vhost + DNS plan:** [`HOSTNAME_MAP.md`](HOSTNAME_MAP.md)
+
 ## Same VM, two products
 
 | Host | Product |
 |------|---------|
-| **https://hub.agenticop.io/** | AgenticOps **Translation Hub** (existing nginx + TLS → `:19090`) |
-| **http://34.61.255.147/** | **Fragility Discovery Engine** workbench (this repo; nginx `default_server`) |
+| **https://hub.agenticop.io/** | **Chrysalis / Translation Hub** (nginx `:443` → `127.0.0.1:19090`) |
+| **http://34.61.255.147:19090/** | Chrysalis direct (HTTP, bypasses nginx TLS) |
+| **https://fragility.agenticop.io/** | **FDE workbench** (target URL after DNS + TLS) |
+| **http://34.61.255.147/** | FDE IP fallback (`default_server` on `:80`) |
 
-Do **not** point FDE nginx at `server_name hub.agenticop.io` — that name is reserved for the Translation Hub. DNS for `hub.agenticop.io` → `34.61.255.147` is correct for the VM; it does not mean FDE owns that hostname.
+Do **not** point FDE nginx at `server_name hub.agenticop.io` or `chrysalis.agenticop.io` — those names are reserved for Chrysalis. DNS A records for all names can point at the same IP; nginx routes by hostname.
 
-FDE status: http://34.61.255.147/status.json · `/api/health` reports `live_runs_enabled` / `run_auth_required`.
+FDE status: https://fragility.agenticop.io/status.json (or http://34.61.255.147/status.json) · `/api/health` reports `live_runs_enabled` / `run_auth_required`.
 
 ## Guardrails (default)
 
@@ -34,17 +38,22 @@ sudo nano /etc/fragility/runner.env
 sudo systemctl restart fragility-runner
 ```
 
-## Optional: dedicated FDE hostname
+## FDE hostname + HTTPS
 
-Only if you want a name other than the raw IP (and **not** `hub.agenticop.io`):
+After GoDaddy A record `fragility` → `34.61.255.147`:
 
 ```powershell
-# e.g. fragility.agenticop.io → 34.61.255.147, then:
-$env:FRAGILITY_PUBLIC_HOST = "fragility.agenticop.io"
+powershell -File scripts/check_all_dns.ps1
 powershell -File scripts/gce_enable_https.ps1 -PublicHost fragility.agenticop.io
 ```
 
-`scripts/gce_install_public_web.sh` refuses to bind `hub.agenticop.io` to the FDE site.
+On the VM:
+
+```bash
+FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_public_web.sh
+```
+
+`scripts/gce_install_public_web.sh` refuses Chrysalis hostnames. Raw IP access stays on `fragility-default-ip`.
 
 ## PyPI / Zenodo
 

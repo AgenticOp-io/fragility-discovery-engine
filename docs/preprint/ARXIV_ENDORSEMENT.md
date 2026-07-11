@@ -88,5 +88,5 @@ David Peterson
 
 1. Upload `FEL_preprint_v0.1.pdf` at https://arxiv.org/submit
 2. Abstract: use the one in `FEL_preprint_v0.1.md`
-3. Comments: link GitHub repo + `fel-v0.1` tag + live demo https://agenticop-io.github.io/fragility-discovery-engine/
+3. Comments: link GitHub repo + `fel-v0.1` tag + live demo https://fragility.agenticop.io/
 4. Add arXiv badge to README once you have an ID (see `PUBLISHING.md`)

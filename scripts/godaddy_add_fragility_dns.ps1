@@ -3,8 +3,8 @@
   Add GoDaddy DNS A record for the workbench hostname (default hub.agenticop.io).
 
 .DESCRIPTION
-  hub.agenticop.io is already expected to point at the GCE workbench IP.
-  This script is only needed if the A record is missing or wrong.
+  hub.agenticop.io is already expected to point at the GCE VM IP.
+  Prefer scripts/godaddy_setup_agenticop_dns.ps1 for hub + fragility + chrysalis together.
 
   Requires GoDaddy API credentials:
     $env:GODADDY_API_KEY

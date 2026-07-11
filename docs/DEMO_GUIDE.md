@@ -1,6 +1,6 @@
 # Public demo guide
 
-The demo is at **http://34.61.255.147/** (Fragility workbench on the same VM as https://hub.agenticop.io/). Everything is server-hosted — you open samples in the browser; nothing is uploaded from your computer.
+The demo is at **https://fragility.agenticop.io/** (IP fallback: http://34.61.255.147/). Chrysalis hub: **https://hub.agenticop.io/** (direct: http://34.61.255.147:19090/). DNS + nginx plan: [`HOSTNAME_MAP.md`](HOSTNAME_MAP.md).
 
 **Guardrails:** the public site is **browse-first**. Bundled samples and viewers are open. Live **Run a scenario** requires an operator API key (or install locally: `pip install fragility-engine`). See [Demo guardrails](/docs/gce-https-and-auth.html).
 
@@ -79,4 +79,3 @@ Results are saved on the server under `/runs/<id>/`. Nothing on your computer is
 
 - Check validation: `/status.json` and `/host.html`
 - Deploy updated site from local machine: `powershell -File scripts/gce_deploy_public_site.ps1`
-- Optional static mirror: `powershell -File scripts/deploy_github_pages.ps1`

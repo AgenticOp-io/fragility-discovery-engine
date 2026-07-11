@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fragility-engine"
-version = "0.6.2"
+version = "0.6.3"
 description = "AgenticOps stress-search harness: deterministic GA/MC over modular simulations, BYOW adapters, replay JSON, and FEL evidence semantics."
 readme = "docs/PYPI_README.md"
 requires-python = ">=3.11"
@@ -47,7 +47,7 @@ Documentation = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob
 Repository = "https://github.com/AgenticOp-io/fragility-discovery-engine"
 Issues = "https://github.com/AgenticOp-io/fragility-discovery-engine/issues"
 Changelog = "https://github.com/AgenticOp-io/fragility-discovery-engine/releases"
-Demo = "http://34.61.255.147/"
+Demo = "https://fragility.agenticop.io/"
 DOI = "https://doi.org/10.5281/zenodo.20455688"
 "Translation Hub" = "https://hub.agenticop.io/"
 
