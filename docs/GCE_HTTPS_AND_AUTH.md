@@ -48,4 +48,18 @@ powershell -File scripts/gce_enable_https.ps1 -PublicHost fragility.agenticop.io
 
 ## PyPI / Zenodo
 
-See [`docs/ZENODO.md`](ZENODO.md) and the PyPI section in [`RELEASING.md`](../RELEASING.md). Tokens required: `ZENODO_TOKEN`, `PYPI_API_TOKEN`.
+**Zenodo:** already synced from GitHub Releases (concept [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688)).
+
+**PyPI:** Trusted Publishing (no API token). Log in at [pypi.org](https://pypi.org/account/login/), then [Add pending publisher](https://pypi.org/manage/account/publishing/):
+
+| Field | Value |
+|-------|--------|
+| Project name | `fragility-engine` |
+| Owner | `AgenticOp-io` |
+| Repository | `fragility-discovery-engine` |
+| Workflow | `pypi.yml` |
+| Environment | *(blank)* |
+
+Then: Actions → **Publish to PyPI** → confirm `publish`.
+
+API-token fallback: create at [account/token](https://pypi.org/manage/account/token/) and `gh secret set PYPI_API_TOKEN`.
