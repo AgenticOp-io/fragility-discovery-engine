@@ -2,7 +2,7 @@
 
 This folder is the user and operator guide for the Fragility Discovery Engine. The root [`README.md`](../README.md) is a short project overview. Start here if you are installing, running CLIs, or reviewing artifacts.
 
-Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BOUNDARIES.md).
+**Coding agents:** start with [`../AI_READ.md`](../AI_READ.md) (product vs toys, core loop, failure modes). Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BOUNDARIES.md).
 
 ---
 
@@ -38,9 +38,10 @@ Normative scope, phase gates, and hard non-goals live in [`BOUNDARIES.md`](../BO
 | [`NEXT_STEPS.md`](NEXT_STEPS.md) | Phases Q→R→S build order + ops leftovers |
 | [`phase_o_stretch.md`](phase_o_stretch.md) | Post-charter stretch (robustness, hexa composite, fork, PyPI) |
 | [`phase_p_visibility.md`](phase_p_visibility.md) | Branded public site (GCE + Pages), feedback template, coupled fork v0.1 |
-| [`phase_q_research_artifact.md`](phase_q_research_artifact.md) | **Next** — research artifact polish |
-| [`phase_r_byow_toolkit.md`](phase_r_byow_toolkit.md) | **Next** — BYOW toolkit surface |
-| [`phase_s_falsification_harness.md`](phase_s_falsification_harness.md) | **Next** — falsification harness (after R) |
+| [`phase_q_research_artifact.md`](phase_q_research_artifact.md) | **Shipped** — research artifact polish |
+| [`phase_r_byow_toolkit.md`](phase_r_byow_toolkit.md) | **Shipped** — BYOW toolkit surface |
+| [`phase_s_falsification_harness.md`](phase_s_falsification_harness.md) | **Shipped** — falsification harness (after R) |
+| [`FALSIFICATION_HARNESS.md`](FALSIFICATION_HARNESS.md) | Predicate damage + `fragility falsify search` |
 | [`GCE_VALIDATION.md`](GCE_VALIDATION.md) | Run full CI parity on a GCE VM (`gce_sync_vm.ps1`) |
 
 ---

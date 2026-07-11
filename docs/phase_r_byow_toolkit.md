@@ -1,6 +1,6 @@
 # Phase R — BYOW toolkit surface
 
-**Status:** proposed (not yet shipped)  
+**Status:** **shipped** (v0.6.0)  
 **Normative gates:** [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase R)  
 **Depends on:** Phase Q admission optional but recommended (positioning); `docs/BRING_YOUR_OWN_WORLD.md` + `examples/bring_your_own_world.py` already exist as tutorial seed
 
@@ -57,13 +57,13 @@ Make **bring-your-own-world** the primary product surface: installable package, 
 
 ## Exit criteria
 
-- [ ] Package exposes `console_scripts` (or equivalent) documented in README + `docs/HOW_TO_USE.md`.
-- [ ] `fragility search` / `minimize` / `replay` (names may vary) work on `examples/bring_your_own_world.py` without importing private script helpers.
-- [ ] Public BYOW module or frozen API surface listed in `docs/REFERENCE.md`.
-- [ ] Second generic `examples/` world + short cookbook section in `BRING_YOUR_OWN_WORLD.md`.
-- [ ] Pytest coverage for CLI entry points + determinism helper.
-- [ ] README leads with BYOW install → one-day worth-it test → toy domains as oracles.
-- [ ] Existing seven frozen bundles still pass `run_benchmark_suite.py --validate`.
+- [x] Package exposes `console_scripts` (or equivalent) documented in README + `docs/HOW_TO_USE.md`.
+- [x] `fragility search` / `minimize` / `replay` (names may vary) work on `examples/bring_your_own_world.py` without importing private script helpers.
+- [x] Public BYOW module or frozen API surface listed in `docs/REFERENCE.md`.
+- [x] Second generic `examples/` world + short cookbook section in `BRING_YOUR_OWN_WORLD.md`.
+- [x] Pytest coverage for CLI entry points + determinism helper.
+- [x] README leads with BYOW install → one-day worth-it test → toy domains as oracles.
+- [x] Existing seven frozen bundles still pass `run_benchmark_suite.py --validate`.
 
 ## Definition of done for PRs under Phase R
 

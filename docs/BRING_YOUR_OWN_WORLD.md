@@ -2,9 +2,17 @@
 
 The six reference domains are deliberately toy models — they demonstrate the engine, they do not model your system. **All of the engine's value on a real problem comes from a world *you* write.** This page shows that the world is a small adapter, not a research project: four methods and a rollout function, and every search, minimization, attribution, and replay tool works unchanged.
 
-Runnable companion: [`../examples/bring_your_own_world.py`](../examples/bring_your_own_world.py) (~120 lines including the CLI).
+Runnable companions:
 
-**Charter note:** custom worlds like this example live *outside* `src/fragility_engine` and the frozen benchmark suite. They are tutorial artifacts, not reference domains — adding a seventh charter domain is gated by [`BOUNDARIES.md`](../BOUNDARIES.md).
+| Example | Module | CLI |
+|---------|--------|-----|
+| Capacity pool | `fragility_engine.byow.examples.capacity_pool` | `fragility search --example capacity-pool` |
+| Token bucket | `fragility_engine.byow.examples.token_bucket` | `fragility search --example token-bucket` |
+| Ranked store (falsify) | `fragility_engine.falsify.examples.ranked_store` | `fragility falsify search --example ranked-store` |
+
+Scripts: [`../examples/bring_your_own_world.py`](../examples/bring_your_own_world.py), [`../examples/token_bucket_demo.py`](../examples/token_bucket_demo.py), [`../examples/falsification_ranked_store.py`](../examples/falsification_ranked_store.py).
+
+Installable tutorial worlds live in **`fragility_engine.byow.examples`** — not charter reference domains.
 
 ---
 
@@ -114,10 +122,15 @@ Once the rollout function exists, the engine side is done:
 Run the whole pipeline:
 
 ```powershell
-python examples/bring_your_own_world.py
-python examples/bring_your_own_world.py --export-replay artifacts/byow_replay.json
-# then open artifacts/replay_viewer/ over http to inspect the trace
+pip install -e ".[dev]"
+fragility search --example capacity-pool --export-replay artifacts/byow_replay.json
+fragility minimize --example capacity-pool --export-replay artifacts/byow_min.json
+fragility check-world --example token-bucket
+# Falsification (predicate damage): docs/FALSIFICATION_HARNESS.md
+fragility falsify search --example ranked-store --export-replay artifacts/falsify_replay.json
 ```
+
+Legacy script: `python examples/bring_your_own_world.py`
 
 ---
 
@@ -136,8 +149,4 @@ The mapping:
 
 Damage as a predicate is the key move. Instead of "reserves hit zero," collapse can be *"the retrieval layer failed to return a record that should be findable,"* *"a stale entry outranked a fresh one that contradicts it,"* or *"an access-control check passed that should have failed."* If you currently defend such claims with a handful of manual spot checks, a schedule search is a machine for finding the cheapest input sequence that breaks one — and the replay JSON is a reproducible bug report when it does.
 
-Caveats, in the spirit of [`BOUNDARIES.md`](../BOUNDARIES.md):
-
-- You still write the adapter; snapshot-restore per rollout can be slow, and the search does thousands of rollouts. Measure reset cost first.
-- A predicate that never fires proves nothing by itself — searches are evidence of *presence* of failures, never of their absence.
-- This stays a harness pattern, not a charter domain. Keep such adapters in your own repo or under `examples/`.
+See [`FALSIFICATION_HARNESS.md`](FALSIFICATION_HARNESS.md) for the full predicate-harness pattern and CLI.

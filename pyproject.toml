@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fragility-engine"
-version = "0.5.0"
+version = "0.6.0"
 description = "Deterministic search and stress-style exploration over modular simulations, with JSON replay and benchmark checks."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -30,6 +30,9 @@ Repository = "https://github.com/AgenticOp-io/fragility-discovery-engine"
 Documentation = "https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/docs/WHITEPAPER_INTRODUCTION.md"
 Issues = "https://github.com/AgenticOp-io/fragility-discovery-engine/issues"
 
+[project.scripts]
+fragility = "fragility_engine.cli.main:main"
+
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8.0", "matplotlib>=3.8.0"]
 viz = ["matplotlib>=3.8.0"]
@@ -45,7 +48,7 @@ pythonpath = ["src", "."]
 [tool.ruff]
 target-version = "py311"
 line-length = 120
-src = ["src", "tests", "scripts"]
+src = ["src", "tests", "scripts", "examples"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]

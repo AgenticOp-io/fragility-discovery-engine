@@ -1,6 +1,6 @@
 # Releasing `fragility-engine`
 
-Version is defined in [`pyproject.toml`](pyproject.toml) as **`[project].version`** (currently **0.5.0**). GitHub Releases remain the primary install path; **optional PyPI** publish uses `.github/workflows/pypi.yml` (`workflow_dispatch`, confirm `publish`, secret `PYPI_API_TOKEN`). Step-by-step: [`docs/GCE_HTTPS_AND_AUTH.md`](docs/GCE_HTTPS_AND_AUTH.md#pypi-publish).
+Version is defined in [`pyproject.toml`](pyproject.toml) as **`[project].version`** (currently **0.6.0**). **`fragility_engine.__version__` must match** before tagging.
 
 ## When to tag
 

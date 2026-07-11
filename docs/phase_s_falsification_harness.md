@@ -1,6 +1,6 @@
 # Phase S — Falsification harness
 
-**Status:** proposed (not yet shipped)  
+**Status:** **shipped** (v0.6.0)  
 **Normative gates:** [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase S)  
 **Depends on:** Phase R.1–R.2 (CLI + adapter surface) — do not start S until a custom world can be searched via the public toolkit path
 
@@ -52,12 +52,12 @@ This is chaos-engineering / property-based testing for resettable systems — no
 
 ## Exit criteria
 
-- [ ] Documented falsification contract in `docs/BRING_YOUR_OWN_WORLD.md` (or `docs/FALSIFICATION_HARNESS.md`) with reset/step/predicate table.
-- [ ] Reference adapter module (e.g. `fragility_engine.falsify` or `examples/`-only helpers) + tests for determinism under snapshot restore.
-- [ ] At least one `examples/falsification_*.py` that: searches → collapses on predicate → minimizes → writes replay JSON.
-- [ ] Replay `meta` marks falsification mode; viewer still loads trajectory (even if physics-specific panels are empty).
-- [ ] `SCALE_AND_LIMITS.md` states reset-cost and “presence not absence” limits.
-- [ ] Frozen charter bundles unaffected (no golden metric drift).
+- [x] Documented falsification contract in `docs/BRING_YOUR_OWN_WORLD.md` (or `docs/FALSIFICATION_HARNESS.md`) with reset/step/predicate table.
+- [x] Reference adapter module (e.g. `fragility_engine.falsify` or `examples/`-only helpers) + tests for determinism under snapshot restore.
+- [x] At least one `examples/falsification_*.py` that: searches → collapses on predicate → minimizes → writes replay JSON.
+- [x] Replay `meta` marks falsification mode; viewer still loads trajectory (even if physics-specific panels are empty).
+- [x] `SCALE_AND_LIMITS.md` states reset-cost and “presence not absence” limits.
+- [x] Frozen charter bundles unaffected (no golden metric drift).
 
 ## Definition of done for PRs under Phase S
 

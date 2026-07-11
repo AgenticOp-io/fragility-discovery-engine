@@ -358,61 +358,48 @@ Normative memo: [`docs/phase_o_stretch.md`](docs/phase_o_stretch.md). Domain nar
 
 No seventh reference-domain slot is open under current charter rules.
 
-The next adopted work is **not** more toy domains. It is the **Q → R → S** sequence below (full memos under `docs/phase_q_*.md`, `docs/phase_r_*.md`, `docs/phase_s_*.md`). Promote exit-criterion checkboxes into this file as each phase ships.
+The next adopted work is **not** more toy domains. Phases **Q → R → S** shipped on `main` at **v0.6.0** (memos under `docs/phase_q_*.md`, etc.).
 
-### Phase Q — Research artifact polish (**proposed**)
+### Phase Q — Research artifact polish (**shipped**)
 
-**Purpose:** Align external positioning with the harness that exists — citable paper + Zenodo + certificates + BYOW pointer; six domains labeled toy regression oracles; no causal overclaim.
+**Status:** shipped — v0.6.0 README cite block, whitepaper honesty pass, `__version__` aligned with `pyproject.toml`.
 
 **Normative memo:** [`docs/phase_q_research_artifact.md`](docs/phase_q_research_artifact.md).
 
-**In scope:** README/whitepaper honesty pass; citation block; version consistency (`pyproject` / `__init__` / tags); docs index links.
+**Exit criteria:**
 
-**Out of scope:** New worlds; CLI entry points (R); falsification predicates (S); coupled physics on `main`.
+- [x] README what-is / is-not matches these non-goals; domains labeled toy oracles.
+- [x] Whitepaper intro uses counterfactual / attribution language, not “exactly why” causality.
+- [x] Cite section: Zenodo DOI, BibTeX, certificate command, BYOW link.
+- [x] Version fields consistent; `RELEASING.md` states the policy.
+- [x] Phase Q memo linked from docs index + roadmap.
 
-**Exit criteria (adopt as shipped when all checked):**
+### Phase R — BYOW toolkit surface (**shipped**)
 
-- [ ] README what-is / is-not matches these non-goals; domains labeled toy oracles.
-- [ ] Whitepaper intro uses counterfactual / attribution language, not “exactly why” causality.
-- [ ] Cite section: Zenodo DOI, BibTeX, certificate command, BYOW link.
-- [ ] Version fields consistent; `RELEASING.md` states the policy.
-- [ ] Phase Q memo linked from docs index + roadmap.
+**Status:** shipped — `fragility` CLI (`console_scripts`), `fragility_engine.byow`, tutorial worlds `capacity-pool` + `token-bucket`, CI on push/PR.
 
-### Phase R — BYOW toolkit surface (**proposed**)
-
-**Purpose:** Make bring-your-own-world the primary product surface — installable CLI, typed adapter SDK, second generic `examples/` world; toys stay oracles.
-
-**Normative memo:** [`docs/phase_r_byow_toolkit.md`](docs/phase_r_byow_toolkit.md).  
-**Seed already on `main`:** [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md), [`examples/bring_your_own_world.py`](examples/bring_your_own_world.py).
-
-**In scope:** `console_scripts` (`fragility search|minimize|replay|…`); public BYOW API module; optional custom shock-vocab extension behind tests; second generic example; CI path contributors can trust.
-
-**Out of scope:** Seventh charter domain + frozen suite row; snapshot/predicate harness (S); SaaS; calibrating toys; NSGA-II unless added as explicit two-objective stretch after R.1–R.4.
+**Normative memo:** [`docs/phase_r_byow_toolkit.md`](docs/phase_r_byow_toolkit.md).
 
 **Exit criteria:**
 
-- [ ] Documented CLI entry points work on the capacity-pool example without private script imports.
-- [ ] BYOW surface listed in `docs/REFERENCE.md`; pytest for CLI + determinism helper.
-- [ ] Second generic `examples/` world + cookbook section.
-- [ ] README leads with BYOW → one-day worth-it test → toys as oracles.
-- [ ] Seven frozen bundles still validate.
+- [x] Documented CLI entry points work on the capacity-pool example without private script imports.
+- [x] BYOW surface listed in `docs/REFERENCE.md`; pytest for CLI + determinism helper.
+- [x] Second generic `examples/` world + cookbook section.
+- [x] README leads with BYOW → one-day worth-it test → toys as oracles.
+- [x] Seven frozen bundles still validate.
 
-### Phase S — Falsification harness (**proposed**)
+### Phase S — Falsification harness (**shipped**)
 
-**Purpose:** Adversarial search where damage is an **invariant predicate** and reset is a **snapshot restore** — red-team / property-falsification pattern for resettable systems. Depends on Phase R adapter + CLI.
+**Status:** shipped — `fragility_engine.falsify`, `fragility falsify search`, `ranked-store` example, [`docs/FALSIFICATION_HARNESS.md`](docs/FALSIFICATION_HARNESS.md).
 
 **Normative memo:** [`docs/phase_s_falsification_harness.md`](docs/phase_s_falsification_harness.md).
 
-**In scope:** Predicate collapse contract; snapshot reset adapter + in-memory/filesystem example; minimized failing sequence as replay “bug report”; generic `examples/falsification_*`; scale/honesty notes.
-
-**Out of scope:** Proprietary customer systems in-tree; claiming absence of bugs; causal ID; coupled mega-models; LLM step policies; SaaS red-team product.
-
 **Exit criteria:**
 
-- [ ] Falsification contract documented; reference adapter + determinism tests.
-- [ ] One pinned-seed example: search → predicate collapse → minimize → replay JSON.
-- [ ] Replay meta marks falsification mode; charter goldens unchanged.
-- [ ] `SCALE_AND_LIMITS.md` states reset cost + presence-not-absence.
+- [x] Falsification contract documented; reference adapter + determinism tests.
+- [x] One pinned-seed example: search → predicate collapse → minimize → replay JSON.
+- [x] Replay meta marks falsification mode; charter goldens unchanged.
+- [x] `SCALE_AND_LIMITS.md` states reset cost + presence-not-absence.
 
 ## Fitness function discipline
 

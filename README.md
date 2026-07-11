@@ -1,16 +1,58 @@
 # Fragility Discovery Engine
 
+**Agents / automated reviewers:** read [`AI_READ.md`](AI_READ.md) first (what this is, why it exists, how the loop works, common misreads).
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455689.svg)](https://doi.org/10.5281/zenodo.20455689)
 
-**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0) (wheel on GitHub Releases; no PyPI) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
+**Releases / git tags:** [`RELEASING.md`](RELEASING.md) · **Latest:** [v0.6.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.0) (BYOW CLI + falsification harness; wheel on GitHub Releases) · **FEL / Zenodo:** [fel-v0.1.1](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/fel-v0.1.1) · **Citation:** [`CITATION.cff`](CITATION.cff) · **Coupled multi-kernel work (fork policy):** [`docs/FORK_COUPLING_RESEARCH.md`](docs/FORK_COUPLING_RESEARCH.md) · **New minimal GCE VM:** [`docs/GCE_BOOTSTRAP.md`](docs/GCE_BOOTSTRAP.md)
 
-**Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations: vary **shock schedules** (stress scenarios), maximize stated **fragility metrics**, then export **small failing schedules**, **replay JSON** (traces you can re-run), and **counterfactual** / **sensitivity** outputs where applicable.
+**Directed search** (Monte Carlo and **genetic algorithms**) over modular discrete-time simulations — or **your own world** via [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md). Export replay JSON, minimized failing schedules, and counterfactual attribution bundles.
+
+**Install + BYOW CLI (v0.6.0):**
+
+```powershell
+pip install -e ".[dev]"
+fragility search --example capacity-pool
+fragility minimize --example capacity-pool
+fragility falsify search --example ranked-store
+fragility certify
+```
 
 **Documentation hub:** [`docs/README.md`](docs/README.md) — index by role (user, contributor, reviewer). **Hands-on guide:** [`docs/HOW_TO_USE.md`](docs/HOW_TO_USE.md) · **Architecture / reference:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/REFERENCE.md`](docs/REFERENCE.md) · **After clone:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) · **Install / Git:** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) · **Whitepaper:** [`docs/WHITEPAPER.md`](docs/WHITEPAPER.md)
 
 ## Supported platforms
 
-**Validation:** run tests on **Windows** (`powershell -File scripts/ci_local.ps1`) or **GCE** (`bash scripts/gce_pull_and_test.sh` on the VM). GitHub Actions CI is manual-only (`workflow_dispatch`); it does not run on push.
+**Validation:** run tests on **Windows** (`powershell -File scripts/ci_local.ps1`) or **GCE** (`bash scripts/gce_pull_and_test.sh` on the VM). GitHub Actions CI runs on **push/PR to `main`** and via `workflow_dispatch`.
+
+## Cite
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455689.svg)](https://doi.org/10.5281/zenodo.20455689)
+
+- **Software archive:** [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (tag `fel-v0.1.1`)
+- **Machine-readable:** [`CITATION.cff`](CITATION.cff)
+- **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
+- **Repro bundle:** `python scripts/run_flagship_demo.py` or `fragility certify`
+
+```bibtex
+@software{peterson2026fde,
+  author = {David Peterson},
+  title  = {Fragility Discovery Engine},
+  year   = {2026},
+  doi    = {10.5281/zenodo.20455689},
+  url    = {https://doi.org/10.5281/zenodo.20455689}
+}
+```
+
+## What this is / is not
+
+| Is | Is not |
+|----|--------|
+| Deterministic stress-search **harness** + JSON evidence contracts | Calibrated model of any real institution |
+| BYOW adapter for your steppable simulation | Drop-in prod risk engine |
+| Counterfactual **re-run** attribution (FEL Δ conventions) | Causal identification / compliance sign-off |
+| Six **toy oracles** for frozen regression CI | Seventh charter domain (closed) |
+
+See [`BOUNDARIES.md`](BOUNDARIES.md) non-goals.
 
 Build **sdist + wheel** locally with `python -m build` (or set `FRAGILITY_CI_LOCAL_BUILD=1` in `ci_local`). Core package code is pure Python; dependencies resolve via PyPI wheels (`numpy`, `networkx`, optional `numba`). Requires **CPython ≥ 3.11** ([`pyproject.toml`](pyproject.toml)).
 
@@ -29,7 +71,7 @@ The **numerical core** is **deterministic** (fixed NumPy RNG seeds). LLM policie
 
 **Scope creep guardrail:** read [`BOUNDARIES.md`](BOUNDARIES.md) before adding agents, graph models, multi-objective fitness, UI, or defender loops.
 
-**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md) — active sequence **Q → R → S**. **Normative gates:** [`BOUNDARIES.md`](BOUNDARIES.md). **Operator checklist:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md). **Phase L** (narration + publication CLI): [`docs/phase_l_publication.md`](docs/phase_l_publication.md).
+**Where we go next (aspirational):** [`ROADMAP_NEXT.md`](ROADMAP_NEXT.md). Phases **Q → R → S** shipped at **v0.6.0**. **Normative gates:** [`BOUNDARIES.md`](BOUNDARIES.md). **Operator checklist:** [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md). **Agents:** [`AI_READ.md`](AI_READ.md).
 
 **Phase J (second domain narrative):** [`docs/WHY_RESOURCE_CASCADE.md`](docs/WHY_RESOURCE_CASCADE.md) — why `ResourceCascadeWorld` exists and what we do *not* claim. Worked counterfactual commands: [`docs/resource_cascade_counterfactual_example.md`](docs/resource_cascade_counterfactual_example.md).
 

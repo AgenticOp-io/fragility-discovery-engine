@@ -1,6 +1,6 @@
 # Phase Q — Research artifact polish
 
-**Status:** proposed (not yet shipped)  
+**Status:** **shipped** (v0.6.0)  
 **Normative gates:** [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase Q)  
 **Depends on:** Phases H–P shipped (artifact trail, FEL preprint, Zenodo, public workbench already exist)
 
@@ -35,12 +35,12 @@ This phase does **not** invent new physics or search algorithms. It aligns posit
 
 ## Exit criteria
 
-- [ ] Root README “what this is / is not” paragraph matches `BOUNDARIES.md` non-goals; six domains labeled **toy regression oracles**.
-- [ ] `docs/WHITEPAPER_INTRODUCTION.md` (or successor) no longer claims causal “exactly why”; points to counterfactual re-runs + FEL Δ conventions.
-- [ ] Single **Cite** section: Zenodo DOI badge, BibTeX, certificate command, link to `docs/BRING_YOUR_OWN_WORLD.md`.
-- [ ] `__init__.__version__` == `pyproject.toml` version == latest intended release tag policy documented in `RELEASING.md`.
-- [ ] `docs/phase_q_research_artifact.md` (this file) linked from `docs/README.md` and `ROADMAP_NEXT.md`.
-- [ ] Smoke: `python scripts/run_flagship_demo.py` still produces a certificate; Zenodo DOI resolves.
+- [x] Root README “what this is / is not” paragraph matches `BOUNDARIES.md` non-goals; six domains labeled **toy regression oracles**.
+- [x] `docs/WHITEPAPER_INTRODUCTION.md` (or successor) no longer claims causal “exactly why”; points to counterfactual re-runs + FEL Δ conventions.
+- [x] Single **Cite** section: Zenodo DOI badge, BibTeX, certificate command, link to `docs/BRING_YOUR_OWN_WORLD.md`.
+- [x] `__init__.__version__` == `pyproject.toml` version == latest intended release tag policy documented in `RELEASING.md`.
+- [x] `docs/phase_q_research_artifact.md` (this file) linked from `docs/README.md` and `ROADMAP_NEXT.md`.
+- [x] Smoke: `fragility certify` / `run_flagship_demo.py` produces a certificate; Zenodo DOI resolves.
 
 ## Definition of done for PRs under Phase Q
 

@@ -32,6 +32,13 @@ This document states **what scales how** and **what breaks reproducibility** if 
 - Golden bundles are **small** and intended for **regression**, not production-scale stress.
 - `benchmark_rollout.py` measures wall-clock; numbers are **machine-dependent**. Compare **relative** speedups under identical flags.
 
+## BYOW and falsification harness (Phases R/S)
+
+- **Tutorial worlds** live in `fragility_engine.byow.examples` and `fragility_engine.falsify.examples` — not charter domains.
+- GA/MC cost scales as **population × horizon × steps** per search; falsification with snapshot restore adds reset overhead if you implement it.
+- Falsification search demonstrates **presence** of invariant violations only — not safety proofs.
+- Keep custom worlds deterministic (use only the `rng` passed to `step()`).
+
 ## Robustness sweeps and composite artifacts
 
 - `**fragility_robustness_sweep.py --topology dense|neighbor_lists`** — same ER/WS draws; `**neighbor_lists**` keeps **O(edges)** topology RAM while matching dense rollouts bit-for-bit for the same adjacency (see tests).

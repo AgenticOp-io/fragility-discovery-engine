@@ -12,9 +12,9 @@ Charter domains are **closed** at six. The next work is toolkit and evidence pos
 
 | Phase | Status | Memo | One-line intent |
 |-------|--------|------|-----------------|
-| **Q** Research artifact polish | proposed | [`docs/phase_q_research_artifact.md`](docs/phase_q_research_artifact.md) | Citeable harness; honest copy; version hygiene |
-| **R** BYOW toolkit surface | proposed | [`docs/phase_r_byow_toolkit.md`](docs/phase_r_byow_toolkit.md) | CLI + adapter SDK; BYOW is the product |
-| **S** Falsification harness | proposed | [`docs/phase_s_falsification_harness.md`](docs/phase_s_falsification_harness.md) | Predicate damage + snapshot reset (after R) |
+| **Q** Research artifact polish | **shipped** (v0.6.0) | [`docs/phase_q_research_artifact.md`](docs/phase_q_research_artifact.md) | Citeable harness; honest copy; version hygiene |
+| **R** BYOW toolkit surface | **shipped** (v0.6.0) | [`docs/phase_r_byow_toolkit.md`](docs/phase_r_byow_toolkit.md) | CLI + adapter SDK; BYOW is the product |
+| **S** Falsification harness | **shipped** (v0.6.0) | [`docs/phase_s_falsification_harness.md`](docs/phase_s_falsification_harness.md) | Predicate damage + snapshot reset |
 
 **Build order:** Q can run in parallel with early R. **S does not start** until R’s public `rollout_fn` / CLI path works. Seed for R already on `main`: [`docs/BRING_YOUR_OWN_WORLD.md`](docs/BRING_YOUR_OWN_WORLD.md).
 

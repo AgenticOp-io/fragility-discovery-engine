@@ -1,9 +1,12 @@
-# Validation runs on Windows (ci_local.ps1) or GCE (gce_pull_and_test.sh) — not on push/PR.
-# Re-enable manually via Actions → CI → Run workflow if needed.
+# Validation runs on Windows (ci_local.ps1) or GCE (gce_pull_and_test.sh).
+# Also runs on push/PR to main.
 
 name: CI
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:

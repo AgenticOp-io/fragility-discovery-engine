@@ -4,6 +4,22 @@ Quick lookup for all command-line flags, output formats, and script names. Step-
 
 ---
 
+## BYOW CLI (`fragility`, v0.6.0+)
+
+| Command | Purpose |
+|---------|---------|
+| `fragility search --example capacity-pool\|token-bucket` | GA/MC on installable tutorial world |
+| `fragility minimize --example …` | Greedy minimal failing schedule |
+| `fragility replay PATH` | Validate replay JSON schema keys |
+| `fragility check-world --example …` | Determinism smoke on example world |
+| `fragility certify` | Flagship certificate bundle |
+| `fragility falsify search --example ranked-store` | Predicate-violation search (Phase S) |
+| `fragility examples` | List tutorial example ids |
+
+Module surface: `fragility_engine.byow`, `fragility_engine.falsify`. Tutorial worlds: `fragility_engine.byow.examples.*`.
+
+---
+
 ## Simulation modes
 
 | `--mode` | GA demo script | Primary counterfactual interventions | ε-sweep axes | Fixed horizon |

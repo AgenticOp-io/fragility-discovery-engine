@@ -1,23 +1,20 @@
 # What's left to do
 
-Charter Phases H–P are shipped on `main`. The next build sequence is **Q → R → S** (research artifact → BYOW toolkit → falsification harness). No seventh reference domain is open.
+Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 
-## Next phases (build in order)
+## Shipped in v0.6.0 (Q → S)
 
-| Phase | Memo | Intent |
-|-------|------|--------|
-| **Q** — Research artifact polish | [`phase_q_research_artifact.md`](phase_q_research_artifact.md) | Honest positioning, citation path, version hygiene |
-| **R** — BYOW toolkit surface | [`phase_r_byow_toolkit.md`](phase_r_byow_toolkit.md) | CLI + adapter SDK + second generic example |
-| **S** — Falsification harness | [`phase_s_falsification_harness.md`](phase_s_falsification_harness.md) | Predicate damage + snapshot reset (after R) |
-
-Normative gates live in [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase Q/R/S). Roadmap narrative: [`ROADMAP_NEXT.md`](../ROADMAP_NEXT.md).
-
-**Recommended start:** Phase Q (docs/version) in parallel with Phase R.1 (CLI entry points). Do not start Phase S until R’s public adapter path works.
+| Phase | Deliverable |
+|-------|-------------|
+| **Q** | Honest README/whitepaper, cite block, version hygiene |
+| **R** | `fragility` CLI, `fragility_engine.byow`, `capacity-pool` + `token-bucket` examples |
+| **S** | `fragility_engine.falsify`, `fragility falsify search`, `ranked-store` example |
 
 ## Ops leftovers (optional)
 
 - [ ] **Custom hostname + HTTPS** — `fragility.agenticop.io` → `34.61.255.147`, then `powershell -File scripts/gce_enable_https.ps1`. See `docs/GCE_HTTPS_AND_AUTH.md`.
-- [ ] **Deploy keys** — org policy may block; token sync works. See `docs/GCE_DEPLOY_KEY.md`.
+- [ ] **GitHub Release v0.6.0** — tag + wheel upload per `RELEASING.md`.
+- [ ] **Deploy keys** — see `docs/GCE_DEPLOY_KEY.md`.
 
 ## Out of scope (by design)
 
@@ -32,6 +29,7 @@ Normative gates live in [`BOUNDARIES.md`](../BOUNDARIES.md) (Phase Q/R/S). Roadm
 |------|---------|
 | Run tests (Windows) | `powershell -File scripts/ci_local.ps1` |
 | Run tests (Linux / GCE) | `bash scripts/gce_pull_and_test.sh` |
+| BYOW smoke | `fragility search --example capacity-pool` |
+| Falsify smoke | `fragility falsify search --example ranked-store` |
 | Deploy public demo | `powershell -File scripts/gce_deploy_public_site.ps1` |
 | Publish GitHub Pages mirror | `powershell -File scripts/deploy_github_pages.ps1` |
-| GitHub Actions | Manual only — not triggered on push (until Phase R CI hygiene) |

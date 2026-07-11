@@ -32,6 +32,7 @@ SCHEMA_REGISTRY: dict[str, str] = {
     "fragility_certificate": "fragility-certificate-v1",
     "institutional_composite": "fragility-institutional-composite-v4",
     "benchmark_manifest": "benchmark-manifest-v2",
+    "falsification_replay": "falsification-replay-v1 (meta.harness_kind=falsification_v1)",
 }
 
 
