@@ -15,7 +15,7 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.5**.
 - [x] **GitHub Release v0.6.0** — tag + wheel.
 - [x] **Demo guardrails** — anonymous live runs off; API key + rate limit; browse-first copy.
 - [x] **VM hostname context** — `hub.agenticop.io` → `34.61.255.147` is Translation Hub; FDE workbench stays on the IP (`default_server`).
-- [x] **Zenodo** — concept [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688); v0.6.5 *(sync after GitHub Release)*; v0.6.4 [10.5281/zenodo.21312735](https://doi.org/10.5281/zenodo.21312735); v0.6.3 [10.5281/zenodo.21312495](https://doi.org/10.5281/zenodo.21312495).
+- [x] **Zenodo** — concept [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688); v0.6.5 [10.5281/zenodo.21313024](https://doi.org/10.5281/zenodo.21313024); v0.6.4 [10.5281/zenodo.21312735](https://doi.org/10.5281/zenodo.21312735); v0.6.3 [10.5281/zenodo.21312495](https://doi.org/10.5281/zenodo.21312495).
 - [x] **PyPI** — [`fragility-engine`](https://pypi.org/project/fragility-engine/) (`PYPI_API_TOKEN` secret set).
 - [x] **Gravatar / PyPI avatar** — circle-safe `docs/public/assets/logo.png` linked to the PyPI account email.
 - [x] **Hostname map** — GoDaddy A records + vhosts: [`docs/HOSTNAME_MAP.md`](HOSTNAME_MAP.md); FDE HTTPS live at https://fragility.agenticop.io/; hub directory updated.
