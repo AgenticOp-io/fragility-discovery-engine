@@ -25,6 +25,10 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.20455688
   - type: doi
+    value: 10.5281/zenodo.21312735
+  - type: doi
+    value: 10.5281/zenodo.21312495
+  - type: doi
     value: 10.5281/zenodo.21304265
   - type: doi
     value: 10.5281/zenodo.21304131
@@ -43,6 +47,6 @@ preferred-citation:
   year: 2026
   doi: 10.5281/zenodo.20455688
   notes: >-
-    Concept DOI 10.5281/zenodo.20455688 (latest = v0.6.0 at
-    10.5281/zenodo.21303841). FEL snapshot 10.5281/zenodo.20455689
+    Concept DOI 10.5281/zenodo.20455688 (latest = v0.6.4 at
+    10.5281/zenodo.21312735). FEL snapshot 10.5281/zenodo.20455689
     (fel-v0.1.1). Preprint PDF CC BY 4.0 in docs/preprint/FEL_preprint_v0.1.pdf

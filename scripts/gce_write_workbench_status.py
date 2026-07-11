@@ -18,6 +18,16 @@ DEFAULT_PUBLIC_HOST = "hub.agenticop.io"  # DNS check only — same A record as 
 DEFAULT_VM_IP = "34.61.255.147"
 
 
+def _release_tag() -> str:
+    try:
+        import tomllib
+    except ImportError:  # pragma: no cover
+        import tomli as tomllib  # type: ignore
+
+    data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    return f"v{data['project']['version']}"
+
+
 def _git_head(repo: Path) -> str:
     try:
         return (
@@ -69,7 +79,7 @@ def main() -> None:
         type=Path,
         default=ROOT / "artifacts" / "public_site" / "status.json",
     )
-    ap.add_argument("--release", default="v0.6.0")
+    ap.add_argument("--release", default=None, help="Defaults to v{pyproject version}")
     ap.add_argument(
         "--skip-validate",
         action="store_true",
@@ -79,10 +89,11 @@ def main() -> None:
     ap.add_argument("--vm-ip", default=DEFAULT_VM_IP)
     args = ap.parse_args()
 
+    release = args.release or _release_tag()
     status: dict[str, object] = {
         "schema": STATUS_SCHEMA_V2,
         "host": "gce",
-        "release": args.release,
+        "release": release,
         "git_head": _git_head(ROOT),
         "checked_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "benchmark_validate": "skipped",
