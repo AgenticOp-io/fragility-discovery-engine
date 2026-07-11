@@ -1,4 +1,4 @@
-"""``fragility`` CLI — search, illuminate, differential, evidence-pack, certify, falsify, shorthand."""
+"""``fragility`` CLI - search, illuminate, differential, evidence-pack, certify, falsify, shorthand."""
 
 from __future__ import annotations
 
@@ -476,7 +476,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     ill = sub.add_parser(
         "illuminate",
-        help="Quality-diversity search → scenario-archive-v1 (MAP-Elites niches)",
+        help="Quality-diversity search -> scenario-archive-v1 (MAP-Elites niches)",
     )
     ill.add_argument("--example", default="capacity-pool")
     ill.add_argument("--generations", type=int, default=6)

@@ -12,7 +12,7 @@ authors:
 repository-code: https://github.com/AgenticOp-io/fragility-discovery-engine
 url: https://fragility.agenticop.io/
 license: Apache-2.0
-version: 0.6.6
+version: 0.6.7
 date-released: 2026-07-11
 keywords:
   - simulation
@@ -49,6 +49,6 @@ preferred-citation:
   year: 2026
   doi: 10.5281/zenodo.20455688
   notes: >-
-    Concept DOI 10.5281/zenodo.20455688 (latest = v0.6.6; prior v0.6.5 at
+    Concept DOI 10.5281/zenodo.20455688 (latest = v0.6.7; prior v0.6.5 at
     10.5281/zenodo.21313024). FEL snapshot 10.5281/zenodo.20455689
     (fel-v0.1.1). Preprint PDF CC BY 4.0 in docs/preprint/FEL_preprint_v0.1.pdf

@@ -12,8 +12,8 @@ from fragility_engine.benchmarks.hypervolume import hypervolume_2d_attack_pareto
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLED = ROOT / "artifacts" / "flagship" / "bundled"
 
-# Pinned after attack-Pareto hypervolume fix (ref 15,15 on (-severity, attack_cost)).
-_FLAGSHIP_PARETO_HV = 367.7198452205493
+# Pinned after v0.6.6 flagship re-bundle (ref 15,15 on (-severity, attack_cost)).
+_FLAGSHIP_PARETO_HV = 335.70643229564445
 _FLAGSHIP_PARETO_REF = (15.0, 15.0)
 
 

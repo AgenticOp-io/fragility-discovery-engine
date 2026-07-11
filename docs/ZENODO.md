@@ -7,7 +7,8 @@ Zenodo is linked to GitHub for **AgenticOp-io/fragility-discovery-engine**. Crea
 | Kind | DOI | Notes |
 |------|-----|-------|
 | **Concept** (cite this) | [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) | Always resolves to the latest version |
-| Version `v0.6.6` (latest) | *(pending Zenodo sync after GitHub Release)* | QD archive + differential stress + evidence packs |
+| Version `v0.6.7` (latest) | *(pending Zenodo sync after GitHub Release)* | Windows CLI help ASCII + flagship HV pin |
+| Version `v0.6.6` | *(pending Zenodo sync)* | Research flights 1–2 (QD, differential, evidence, plausibility, STL) |
 | Version `v0.6.5` | [10.5281/zenodo.21313024](https://doi.org/10.5281/zenodo.21313024) | Tetra certificate digests + workbench callouts |
 | Version `v0.6.4` | [10.5281/zenodo.21312735](https://doi.org/10.5281/zenodo.21312735) | Tetra under search (GA/MC + golden) |
 | Version `v0.6.3` | [10.5281/zenodo.21312495](https://doi.org/10.5281/zenodo.21312495) | Operator shorthand + coupled tetra |
