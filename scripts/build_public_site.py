@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import argparse
-import html
 import json
 import shutil
 import sys
@@ -13,6 +12,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import re
+
 from public_site_lib import (
     docs_strip_html,
     md_to_html,
@@ -22,8 +23,6 @@ from public_site_lib import (
     site_chrome_header,
     viewer_strip_html,
 )
-
-import re
 
 VIEWER_PAGE_IDS = {
     "replay_viewer": "replay",
