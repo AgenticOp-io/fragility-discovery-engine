@@ -1,24 +1,24 @@
 # Project status (charter scope)
 
-**Last updated:** 2026-05-20 · **`main`** · release **[v0.5.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.5.0)** (Phase O stretch; GCE green)
+**Last updated:** 2026-07-10 · **`main`** · release **[v0.6.0](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.0)** (BYOW CLI + falsification harness)
 
-## Charter + Phase O
+## Charter + Phase O + Q–S
 
-Phases **H–N**, **L**, and **O** (post-charter stretch) described in [`BOUNDARIES.md`](../BOUNDARIES.md) are **shipped** on `main`:
+Phases **H–P** and **Q–S** described in [`BOUNDARIES.md`](../BOUNDARIES.md) are **shipped** on `main`:
 
 | Area | Status |
 |------|--------|
 | **Frozen benchmark harness** (7 bundles, golden metrics, manifest v2, validate CLI) | Shipped |
 | **Metric regression floors** (integral, attack_cost, collapsed expect) | Shipped |
-| **Six reference domains** (+ inventory_buffer, Phase O) | Shipped |
+| **Six reference domains** (+ inventory_buffer, Phase O) | Shipped (charter closed at six) |
 | **Explanation grammar** (counterfactuals, ε-sweeps, merges, chains, path traces) | Shipped per domain |
 | **Search parity** (MC, GA, Pareto, co-evolution, bench-search, eval_workers / eval_pool on bundles) | Shipped |
-| **Institutional composite** (twin → penta, schema **v4**) | Shipped |
+| **Institutional composite** (twin → penta, schema **v4**/hexa) | Shipped |
 | **Narration + LLM prompt packs + plot CLIs** | Shipped (deterministic narration; LLM export only) |
+| **BYOW + falsification** (`fragility` CLI, `byow` / `falsify` packages) | Shipped (v0.6.0) |
 | **Bundled viewer samples + preset validation** | Shipped |
 | **Local / scheduled CI parity** | Shipped (`ci_local.*`, `.github/workflows/schedule.yml`) |
-| **CLI subprocess smokes** | 110+ slices; full suite **481** tests (3 skipped) |
-| **Release artifacts** | GitHub Release **v0.5.0** wheel + sdist; [`scripts/install_release.sh`](../scripts/install_release.sh) / [`.ps1`](../scripts/install_release.ps1) |
+| **Release artifacts** | GitHub Release **v0.6.0** wheel + sdist; [`scripts/install_release.sh`](../scripts/install_release.sh) / [`.ps1`](../scripts/install_release.ps1) |
 
 **Verification** (venv activated):
 
@@ -30,7 +30,7 @@ powershell -NoProfile -File scripts/ci_local.ps1   # Windows
 
 Optional wheel smoke: `FRAGILITY_CI_LOCAL_BUILD=1` before `ci_local`.
 
-**Install a tagged release** (no PyPI): see [`RELEASING.md`](../RELEASING.md) or `bash scripts/install_release.sh v0.5.0`.
+**Install a tagged release** (no PyPI): see [`RELEASING.md`](../RELEASING.md) or `bash scripts/install_release.sh v0.6.0`.
 
 ## Explicitly out of scope (by design)
 

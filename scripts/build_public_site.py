@@ -37,7 +37,20 @@ VIEWER_PAGE_IDS = {
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ASSETS = ROOT / "docs" / "public" / "assets"
 DEFAULT_OUT = ROOT / "artifacts" / "public_site"
-RELEASE = "v0.5.0"
+
+
+def _release_tag() -> str:
+    """Prefer pyproject version so the public site tracks the software release."""
+    try:
+        import tomllib
+    except ImportError:  # pragma: no cover
+        import tomli as tomllib  # type: ignore
+
+    data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    return f"v{data['project']['version']}"
+
+
+RELEASE = _release_tag()
 
 ARTIFACT_DIRS = [
     "replay_viewer",

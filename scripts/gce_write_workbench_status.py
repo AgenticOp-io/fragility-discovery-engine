@@ -69,7 +69,7 @@ def main() -> None:
         type=Path,
         default=ROOT / "artifacts" / "public_site" / "status.json",
     )
-    ap.add_argument("--release", default="v0.5.0")
+    ap.add_argument("--release", default="v0.6.0")
     ap.add_argument(
         "--skip-validate",
         action="store_true",
