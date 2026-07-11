@@ -37,7 +37,7 @@ fragility certify
 - **Machine-readable:** [`CITATION.cff`](CITATION.cff)
 - **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
 - **Repro bundle:** `fragility certify` or `python scripts/run_flagship_demo.py`
-- **Install:** `pip install fragility-engine` (PyPI, when published) or [GitHub Release wheel](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.0)
+- **Install:** `pip install fragility-engine` · [PyPI](https://pypi.org/project/fragility-engine/) · [GitHub Release](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.0)
 
 ```bibtex
 @software{peterson2026fde,
