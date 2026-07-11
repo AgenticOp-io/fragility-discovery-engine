@@ -15,9 +15,9 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 - [x] **GitHub Release v0.6.0** — tag + wheel.
 - [x] **Demo guardrails** — anonymous live runs off; API key + rate limit; browse-first copy.
 - [x] **VM hostname context** — `hub.agenticop.io` → `34.61.255.147` is Translation Hub; FDE workbench stays on the IP (`default_server`).
+- [x] **Zenodo v0.6.0** — [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841) (GitHub→Zenodo sync on release).
+- [ ] **PyPI** — needs repo secret `PYPI_API_TOKEN` (never set; not part of Zenodo sync).
 - [ ] **Optional FDE hostname** — only if you want e.g. `fragility.agenticop.io` (must not steal `hub`).
-- [ ] **PyPI** — needs repo secret `PYPI_API_TOKEN`.
-- [ ] **Zenodo v0.6.0** — needs `ZENODO_TOKEN`.
 - [ ] **arXiv** — blocked on endorsement.
 
 ## Out of scope (by design)
@@ -36,4 +36,4 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.0**.
 | BYOW smoke | `fragility search --example capacity-pool` |
 | Deploy public demo | `powershell -File scripts/gce_deploy_public_site.ps1` |
 | Publish GitHub Pages | `powershell -File scripts/deploy_github_pages.ps1` |
-| Zenodo version | `python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish` |
+| Zenodo (auto on GitHub Release) | — |

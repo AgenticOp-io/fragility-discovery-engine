@@ -32,11 +32,12 @@ fragility certify
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 
 - **Concept DOI (latest):** [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688)
+- **v0.6.0 version:** [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841)
 - **FEL snapshot:** [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) (`fel-v0.1.1`)
 - **Machine-readable:** [`CITATION.cff`](CITATION.cff)
 - **Preprint:** [`docs/preprint/FEL_preprint_v0.1.md`](docs/preprint/FEL_preprint_v0.1.md)
 - **Repro bundle:** `fragility certify` or `python scripts/run_flagship_demo.py`
-- **Install:** `pip install fragility-engine` (PyPI) or GitHub Release wheel
+- **Install:** `pip install fragility-engine` (PyPI, when published) or [GitHub Release wheel](https://github.com/AgenticOp-io/fragility-discovery-engine/releases/tag/v0.6.0)
 
 ```bibtex
 @software{peterson2026fde,

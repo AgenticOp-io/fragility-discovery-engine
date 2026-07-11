@@ -1,44 +1,30 @@
 # Zenodo archive
 
-Zenodo gives a **citable DOI** for this project. Prefer the **concept DOI** so citations resolve to the latest version.
+Zenodo is linked to GitHub for **AgenticOp-io/fragility-discovery-engine**. Creating a GitHub Release auto-deposits a new version under the concept DOI.
 
 ## DOIs
 
 | Kind | DOI | Notes |
 |------|-----|-------|
-| **Concept** (cite this) | [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) | Always points at latest published version |
-| Version `fel-v0.1.1` | [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) | FEL preprint + citation snapshot |
-| Version `0.6.0` | minted when published via `scripts/publish_zenodo_version.py` | Software release (BYOW CLI + falsify) |
-
-Badge (concept DOI preferred going forward):
+| **Concept** (cite this) | [10.5281/zenodo.20455688](https://doi.org/10.5281/zenodo.20455688) | Always resolves to the latest version |
+| Version `v0.6.0` (latest) | [10.5281/zenodo.21303841](https://doi.org/10.5281/zenodo.21303841) | BYOW CLI + falsification harness |
+| Version `fel-v0.1.1` | [10.5281/zenodo.20455689](https://doi.org/10.5281/zenodo.20455689) | FEL preprint snapshot |
 
 ```markdown
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20455688.svg)](https://doi.org/10.5281/zenodo.20455688)
 ```
 
-The older badge `10.5281/zenodo.20455689` still resolves to the FEL snapshot version.
+## How new versions appear
 
-## Enable (once — done)
+1. Tag + GitHub Release (e.g. `v0.6.0`) — already how `fel-v0.1.1` and `v0.6.0` were archived.
+2. Zenodo GitHub integration publishes the deposit (usually within minutes).
+3. Update [`CITATION.cff`](../CITATION.cff) version DOI list if you want the new version id explicit (concept DOI is enough for most cites).
 
-1. Sign in at [zenodo.org](https://zenodo.org) (GitHub OAuth).
-2. **Account → GitHub** → enable **AgenticOp-io/fragility-discovery-engine**.
-3. GitHub releases may create **draft** deposits; publish them, or use the script below.
-
-## Publish a software version (recommended)
-
-```powershell
-$env:ZENODO_TOKEN = "<token with deposit:write + deposit:actions>"
-python -m build
-python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish
-```
-
-Omit `--publish` to leave a draft for manual review at zenodo.org.
-
-After publish, update [`CITATION.cff`](../CITATION.cff) `identifiers` / notes if you want the version DOI listed explicitly (concept DOI is enough for most cites).
+Optional API path (only if GitHub sync fails): `scripts/publish_zenodo_version.py` with `ZENODO_TOKEN`.
 
 ## What gets archived
 
-- Release tarball / uploaded wheel + sdist
-- Metadata: version, Apache 2.0, link to GitHub tag
+- GitHub release zip for the tag
+- Attached release assets when present
 
 Code is **Apache 2.0**; FEL preprint PDF is **CC BY 4.0**.
