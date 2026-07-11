@@ -1,0 +1,158 @@
+{
+  "schema": "counterfactual-bundle-v1",
+  "baseline": {
+    "collapsed": true,
+    "collapse_timestep": 5,
+    "peak_instability": 2.0,
+    "integral_instability": 6.80391937052433,
+    "attack_cost": 2.0949999999999998,
+    "mode": "coupled_institution_v1",
+    "horizon_steps": 8,
+    "seed": 8801
+  },
+  "counterfactual": {
+    "collapsed": true,
+    "collapse_timestep": 3,
+    "peak_instability": 2.0,
+    "integral_instability": 9.816992818121953,
+    "attack_cost": 2.0949999999999998,
+    "mode": "coupled_institution_v1",
+    "horizon_steps": 8,
+    "seed": 8801
+  },
+  "intervention": "coupled_institution_mutation_chain",
+  "mutation_steps": [
+    {
+      "kind": "coupling_strength",
+      "value": 0.2
+    },
+    {
+      "kind": "coupling_strength",
+      "value": 0.35
+    },
+    {
+      "kind": "coupling_strength",
+      "value": 0.5
+    }
+  ],
+  "baseline_coupling": 0.3,
+  "variant_coupling": 0.3,
+  "delta_attack_cost": 0.0,
+  "delta_integral_instability": -3.0130734475976233,
+  "interpretation_hint": "Pinned schedule; each step raises coupling_strength on the coupled peg and overload world.",
+  "path_trace": {
+    "schema": "explanation-mutation-chain-path-coupled-institution-v1",
+    "source_chain_schema": "coupled-institution-mutation-chain-spec-v1",
+    "rollout_seed": 8801,
+    "baseline_coupling": 0.3,
+    "variant_coupling": 0.3,
+    "nodes": [
+      {
+        "id": "chain_0",
+        "index": 0,
+        "mutations_applied": 0,
+        "reset_coupling": 0.3,
+        "collapsed": true,
+        "collapse_timestep": 5,
+        "peak_instability": 2.0,
+        "integral_instability": 6.80391937052433,
+        "attack_cost": 2.0949999999999998,
+        "mode": "coupled_institution_v1",
+        "horizon_steps": 8,
+        "seed": 8801
+      },
+      {
+        "id": "chain_1",
+        "index": 1,
+        "mutations_applied": 1,
+        "reset_coupling": 0.3,
+        "collapsed": true,
+        "collapse_timestep": 7,
+        "peak_instability": 1.253143305805248,
+        "integral_instability": 4.515782004812992,
+        "attack_cost": 2.0949999999999998,
+        "mode": "coupled_institution_v1",
+        "horizon_steps": 8,
+        "seed": 8801
+      },
+      {
+        "id": "chain_2",
+        "index": 2,
+        "mutations_applied": 2,
+        "reset_coupling": 0.3,
+        "collapsed": true,
+        "collapse_timestep": 4,
+        "peak_instability": 2.0,
+        "integral_instability": 7.781787619436342,
+        "attack_cost": 2.0949999999999998,
+        "mode": "coupled_institution_v1",
+        "horizon_steps": 8,
+        "seed": 8801
+      },
+      {
+        "id": "chain_3",
+        "index": 3,
+        "mutations_applied": 3,
+        "reset_coupling": 0.3,
+        "collapsed": true,
+        "collapse_timestep": 3,
+        "peak_instability": 2.0,
+        "integral_instability": 9.816992818121953,
+        "attack_cost": 2.0949999999999998,
+        "mode": "coupled_institution_v1",
+        "horizon_steps": 8,
+        "seed": 8801
+      }
+    ],
+    "edges": [
+      {
+        "from": "chain_0",
+        "to": "chain_1",
+        "kind": "mutation_chain_step",
+        "step_index": 0,
+        "step": {
+          "kind": "coupling_strength",
+          "value": 0.2
+        },
+        "delta_integral_instability": -2.2881373657113375,
+        "delta_attack_cost": 0.0,
+        "reset_coupling_from": 0.3,
+        "reset_coupling_to": 0.3
+      },
+      {
+        "from": "chain_1",
+        "to": "chain_2",
+        "kind": "mutation_chain_step",
+        "step_index": 1,
+        "step": {
+          "kind": "coupling_strength",
+          "value": 0.35
+        },
+        "delta_integral_instability": 3.2660056146233494,
+        "delta_attack_cost": 0.0,
+        "reset_coupling_from": 0.3,
+        "reset_coupling_to": 0.3
+      },
+      {
+        "from": "chain_2",
+        "to": "chain_3",
+        "kind": "mutation_chain_step",
+        "step_index": 2,
+        "step": {
+          "kind": "coupling_strength",
+          "value": 0.5
+        },
+        "delta_integral_instability": 2.0352051986856114,
+        "delta_attack_cost": 0.0,
+        "reset_coupling_from": 0.3,
+        "reset_coupling_to": 0.3
+      }
+    ]
+  },
+  "meta": {
+    "cli": "export_coupled_mutation_chain",
+    "chain_schema": "coupled-institution-mutation-chain-spec-v1",
+    "chain_json": "C:\\Users\\david\\projects\\fragility-discovery-engine\\forks\\coupled_institution\\tests\\fixtures\\coupling_chain.json",
+    "fixture": "tests/fixtures/pinned_rollout_schedule.json"
+  }
+}

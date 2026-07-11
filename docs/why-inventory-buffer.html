@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Why inventory buffer — Fragility Discovery Engine</title>
+  <meta name="description" content="What the inventory buffer domain models and why it exists as the sixth reference world." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Why inventory buffer / stockout stress?</h2>
+<p>Phase <strong>O</strong> adds a <strong>sixth</strong> thin reference domain: stock depletion and fulfillment erosion under the same shock-schedule encoding — not peg panic, network contagion, queue backlog, resource overload, or margin ladder alone.</p>
+<h3>Physics in one paragraph</h3>
+<p><strong>Stock level</strong> and <strong>fulfillment capacity</strong> fall under <code>reserve_loss</code> (demand spikes) and <code>rumor</code> (logistics trust). Collapse is <strong>stockout</strong> or <strong>fulfillment floor</strong> breach — a supply-chain buffer narrative distinct from the other five domains.</p>
+<h3>Typical CLI</h3>
+<p>```bash</p>
+<p>python scripts/run_inventory_buffer_ga_demo.py --export-replay out.json --initial-stock 0.85</p>
+<p>python scripts/export_replay.py --mode inventory_buffer --initial-stock 0.88 --out replay.json</p>
+<p>python scripts/institutional_composite_demo.py --hexa --out hexa.json</p>
+<p>```</p>
+<h3>What we do not claim</h3>
+<p>No calibrated supply-chain data, ERP integration, or cross-world coupling inside one <code>step()</code>.</p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Run a scenario — Fragility Discovery Engine</title>
+  <meta name="description" content="Choose a domain, set a few parameters, and this server runs the search and opens the results." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a class="fde-active" href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+    <article class="fde-prose">
+      <h2>Run a scenario</h2>
+      <p>Pick a domain and search type. The engine runs on <strong>this server</strong> and saves results under <code>/runs/&lt;id&gt;/</code> — you do not upload files. When the job finishes, links open the replay or Pareto viewer against those server paths.</p>
+      <p><a href="/docs/demo-guide.html">Demo guide</a> · <a href="/docs/how-to-use.html">How to Use</a> (CLI) · <a href="/docs/algorithms.html">Algorithms</a></p>
+    </article>
+
+    <form id="runForm" class="fde-run-form" autocomplete="off">
+
+      <div class="fde-run-row">
+        <label for="mode">Domain &amp; search type</label>
+        <select id="mode" name="mode">
+          <optgroup label="Find worst-case scenarios — saves a step-by-step replay">
+            <option value="aggregate" selected>Aggregate peg — stablecoin reserves under panic</option>
+            <option value="network">Network contagion — panic spreading across 32 connected nodes</option>
+            <option value="resource_cascade">Resource cascade — two capacity layers under overload</option>
+            <option value="service_backlog">Service backlog — work queue vs processing rate</option>
+            <option value="liquidity_ladder">Liquidity ladder — margin eroding toward a forced sell-off</option>
+            <option value="inventory_buffer">Inventory buffer — stock level under demand spikes</option>
+            <option value="coupled_institution">Coupled institution (research fork) — peg + overload coupling</option>
+          </optgroup>
+          <optgroup label="Attacker vs. defender simulation — saves a trade-off chart">
+            <option value="coevolution_aggregate">Attacker vs. defender · Aggregate peg</option>
+            <option value="coevolution_network">Attacker vs. defender · Network contagion</option>
+            <option value="coevolution_resource_cascade">Attacker vs. defender · Resource cascade</option>
+            <option value="coevolution_service_backlog">Attacker vs. defender · Service backlog</option>
+            <option value="coevolution_liquidity_ladder">Attacker vs. defender · Liquidity ladder</option>
+            <option value="coevolution_inventory_buffer">Attacker vs. defender · Inventory buffer</option>
+            <option value="coevolution_coupled_institution">Attacker vs. defender · Coupled institution (research fork)</option>
+          </optgroup>
+        </select>
+        <p class="fde-run-help" id="modeHelp"></p>
+      </div>
+
+      <div class="fde-run-grid">
+        <label>Random seed
+          <input type="number" id="seed" name="seed" value="999" min="0" max="2147483647" required>
+          <span class="fde-run-help">The same seed always produces the same run.</span>
+        </label>
+        <label id="horizonLabel">Simulation length (steps)
+          <input type="number" id="horizon" name="horizon" value="20" min="4" max="32" required>
+          <span class="fde-run-help" id="horizonHelp">How many steps the search can use. Max 32.</span>
+        </label>
+        <label id="gensLabel">Generations
+          <input type="number" id="generations" name="generations" value="4" min="1" max="8" required>
+          <span class="fde-run-help" id="gensHelp">Search rounds. More = better results, slower.</span>
+        </label>
+        <label>Population size
+          <input type="number" id="population" name="population" value="12" min="4" max="20" required>
+          <span class="fde-run-help">Candidate solutions per round. Max 20 on this server.</span>
+        </label>
+        <label id="initialLevelLabel" hidden>Starting level
+          <input type="number" id="initialLevel" name="initialLevel" value="0.88" min="0" max="1" step="0.01">
+          <span class="fde-run-help" id="initialLevelHelp">Domain-specific starting condition (0 = empty, 1 = full).</span>
+        </label>
+        <label id="apiKeyLabel" hidden>Run API key
+          <input type="password" id="apiKey" name="apiKey" autocomplete="off" placeholder="Required on this server">
+          <span class="fde-run-help" id="apiKeyHelp">Stored in this browser only (session). Set once via <code>?run_key=…</code> in the URL.</span>
+        </label>
+      </div>
+
+      <div class="fde-run-actions">
+        <button type="submit" class="fde-run-submit" id="runBtn">Run scenario</button>
+        <span id="runStatus" class="fde-run-status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <div id="runLog" class="fde-run-log" hidden></div>
+    <div id="runLinks" hidden style="margin:1rem 0"></div>
+
+    <article class="fde-prose" style="margin-top:2rem">
+      <h3>What you get</h3>
+      <table>
+        <thead><tr><th>Search type</th><th>Main output</th><th>Also saved</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Find worst-case scenarios</td>
+            <td>Replay file → opens in the <a href="/artifacts/replay_viewer/index.html">Replay viewer</a></td>
+            <td>Stripped-down replay (if the system collapsed), run logs</td>
+          </tr>
+          <tr>
+            <td>Coupled institution (research fork)</td>
+            <td>Replay + <a href="/artifacts/pareto_viewer/index.html">Pareto chart</a> for the same GA budget</td>
+            <td>Run logs</td>
+          </tr>
+          <tr>
+            <td>Attacker vs. defender</td>
+            <td>Trade-off chart → opens in the <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a></td>
+            <td>Best-round replay, run logs</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>All files are saved under <code>/runs/&lt;id&gt;/</code>. A run index survives server restarts; individual run folders may be removed during maintenance.</p>
+      <h3>Limits on this server</h3>
+      <ul>
+        <li>Maximum run time: <strong>150 seconds</strong> — the run is stopped after that.</li>
+        <li>Maximum concurrent runs: <strong>1</strong>. Extra submissions get a "busy" error.</li>
+        <li>Maximum <strong>8 runs per hour</strong> per client address (rate limit).</li>
+        <li>Operators may require an <strong>API key</strong> for submissions (<code>X-Fragility-Run-Key</code> header).</li>
+        <li>All inputs are validated; no direct server access is possible.</li>
+        <li>For longer searches, larger populations, or local use: <code>pip install fragility-engine</code> — see <a href="/docs/how-to-use.html">How to Use</a>.</li>
+      </ul>
+    </article>
+
+    <script>
+      (function () {
+        const form   = document.getElementById('runForm');
+        const statusEl = document.getElementById('runStatus');
+        const logEl  = document.getElementById('runLog');
+        const linksEl = document.getElementById('runLinks');
+        const modeHelp = document.getElementById('modeHelp');
+        const horizonHelp = document.getElementById('horizonHelp');
+        const gensHelp  = document.getElementById('gensHelp');
+        const horizonInput = document.getElementById('horizon');
+        const initialLevelLabel = document.getElementById('initialLevelLabel');
+        const initialLevelInput = document.getElementById('initialLevel');
+        const initialLevelHelp = document.getElementById('initialLevelHelp');
+        const apiKeyLabel = document.getElementById('apiKeyLabel');
+        const apiKeyInput = document.getElementById('apiKey');
+        const apiKeyHelp = document.getElementById('apiKeyHelp');
+        const RUN_KEY_STORAGE = 'fde_run_api_key';
+        let polling = null;
+        let runAuthRequired = false;
+
+        function loadRunApiKey() {
+          const params = new URLSearchParams(window.location.search);
+          const fromUrl = params.get('run_key');
+          if (fromUrl) {
+            sessionStorage.setItem(RUN_KEY_STORAGE, fromUrl);
+            params.delete('run_key');
+            const qs = params.toString();
+            history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+          }
+          const stored = sessionStorage.getItem(RUN_KEY_STORAGE) || '';
+          if (apiKeyInput) apiKeyInput.value = stored;
+          return stored;
+        }
+
+        function saveRunApiKey() {
+          if (!apiKeyInput) return;
+          const v = apiKeyInput.value.trim();
+          if (v) sessionStorage.setItem(RUN_KEY_STORAGE, v);
+          else sessionStorage.removeItem(RUN_KEY_STORAGE);
+        }
+
+        function runApiHeaders() {
+          const h = { 'Content-Type': 'application/json' };
+          const k = (apiKeyInput && apiKeyInput.value.trim()) || sessionStorage.getItem(RUN_KEY_STORAGE) || '';
+          if (k) h['X-Fragility-Run-Key'] = k;
+          return h;
+        }
+
+        async function loadRunnerHealth() {
+          try {
+            const r = await fetch('/api/health', { cache: 'no-store' });
+            if (!r.ok) return;
+            const h = await r.json();
+            runAuthRequired = !!h.run_auth_required;
+            const liveEnabled = h.live_runs_enabled !== false;
+            if (runAuthRequired && apiKeyLabel) {
+              apiKeyLabel.hidden = false;
+              if (!liveEnabled) {
+                apiKeyHelp.textContent =
+                  'Live runs are disabled on this public demo (browse bundled samples). ' +
+                  'Operators set FRAGILITY_RUN_API_KEY on the VM, or install locally: pip install fragility-engine';
+              } else {
+                apiKeyHelp.textContent =
+                  'This server requires a run API key. Use ?run_key=... once per browser session.';
+              }
+            }
+          } catch (e) { /* runner offline */ }
+        }
+        loadRunApiKey();
+        loadRunnerHealth();
+        if (apiKeyInput) apiKeyInput.addEventListener('change', saveRunApiKey);
+
+        const INITIAL_MODES = {
+          aggregate: { default: 0.05, label: 'Starting panic level (0 = calm, 1 = high panic)' },
+          network: { default: 0.05, label: 'Starting panic on all nodes' },
+          resource_cascade: { default: 0.06, label: 'Starting overload (0 = none, 1 = max)' },
+          service_backlog: { default: 0.06, label: 'Starting backlog level' },
+          liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
+          inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coupled_institution: { default: 0.3, label: 'In-step coupling strength (0 = decoupled, 1 = tight)' },
+          coevolution_aggregate: { default: 0.05, label: 'Starting panic level' },
+          coevolution_network: { default: 0.05, label: 'Starting panic on all nodes' },
+          coevolution_resource_cascade: { default: 0.05, label: 'Starting overload' },
+          coevolution_service_backlog: { default: 0.05, label: 'Starting backlog level' },
+          coevolution_liquidity_ladder: { default: 0.06, label: 'Starting margin utilization' },
+          coevolution_inventory_buffer: { default: 0.88, label: 'Starting stock level' },
+          coevolution_coupled_institution: { default: 0.3, label: 'In-step coupling strength (research fork)' },
+        };
+
+        const MODE_TEXT = {
+          aggregate:               'The simplest domain: a stablecoin reserve and panic level. Good starting point — fast and easy to read.',
+          network:                 'Panic spreading across a randomly connected 32-node network. The replay shows which nodes triggered each other.',
+          resource_cascade:        'Two capacity layers that both fail when overload overwhelms the safety margin. Fixed at 18 steps.',
+          service_backlog:         'A work queue that fills up faster than it gets processed. Fails when the backlog stays too high for too long. Fixed at 18 steps.',
+          liquidity_ladder:        'Financial margin that erodes under reserve losses and rumors until a forced sell-off spiral begins. Fixed at 18 steps.',
+          inventory_buffer:        'A stock level that drops under demand surges and fulfillment problems until a stockout occurs. Fixed at 18 steps.',
+          coupled_institution:     'Research fork: peg panic and overload exchange signals each simulation step. Saves a replay and a small Pareto trade-off chart.',
+          coevolution_aggregate:   'An attacker and a defender each evolve on the aggregate peg domain. Outputs a chart showing the full range of trade-offs between attack damage and cost.',
+          coevolution_network:     'Attacker and defender both evolve on the network contagion domain. Outputs a trade-off chart.',
+          coevolution_resource_cascade: 'Attacker and defender both evolve on the resource cascade domain. Outputs a trade-off chart. Fixed at 18 steps.',
+          coevolution_service_backlog:  'Attacker and defender both evolve on the service backlog domain. Outputs a trade-off chart. Fixed at 18 steps.',
+          coevolution_liquidity_ladder:  'Attacker and defender both evolve on the liquidity ladder domain. Outputs a trade-off chart. Fixed at 18 steps.',
+          coevolution_inventory_buffer:  'Attacker and defender both evolve on the inventory buffer domain. Outputs a trade-off chart. Fixed at 18 steps.',
+        };
+        const FIXED_HORIZON = {
+          resource_cascade: 18, service_backlog: 18, liquidity_ladder: 18,
+          inventory_buffer: 18,
+          coevolution_resource_cascade: 18, coevolution_service_backlog: 18,
+          coevolution_liquidity_ladder: 18, coevolution_inventory_buffer: 18,
+        };
+        const PARETO_MODES = new Set([
+          'coevolution_aggregate','coevolution_network','coevolution_resource_cascade',
+          'coevolution_service_backlog','coevolution_liquidity_ladder','coevolution_inventory_buffer',
+          'coevolution_coupled_institution','coupled_institution'
+        ]);
+
+        function updateMode() {
+          const m = form.mode.value;
+          modeHelp.textContent = MODE_TEXT[m] || '';
+          if (m in FIXED_HORIZON) {
+            horizonInput.disabled = true;
+            horizonInput.value = FIXED_HORIZON[m];
+            horizonHelp.textContent = 'Fixed at ' + FIXED_HORIZON[m] + ' steps for this domain.';
+          } else {
+            horizonInput.disabled = false;
+            horizonHelp.textContent = 'How many steps the search can use. Max 32.';
+          }
+          if (PARETO_MODES.has(m)) {
+            gensHelp.textContent = 'Attacker and defender each run this many rounds of search.';
+          } else {
+            gensHelp.textContent = 'Search rounds. More = better results, slower.';
+          }
+          const init = INITIAL_MODES[m];
+          if (init) {
+            initialLevelLabel.hidden = false;
+            initialLevelInput.value = init.default;
+            initialLevelHelp.textContent = init.label + ' (0 to 1).';
+          } else {
+            initialLevelLabel.hidden = true;
+          }
+        }
+        form.mode.addEventListener('change', updateMode);
+        updateMode();
+
+        function fmt(s) { try { return JSON.stringify(s, null, 2); } catch (e) { return String(s); } }
+
+        function showLinks(s) {
+          const links = [];
+          if (s.viewer_url) links.push('<a href="' + s.viewer_url + '" class="fde-run-submit" style="text-decoration:none">Open Replay viewer →</a>');
+          if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '" class="fde-run-submit" style="text-decoration:none">Open Pareto viewer →</a>');
+          if (links.length) {
+            linksEl.innerHTML = links.join(' &nbsp; ');
+            linksEl.hidden = false;
+          }
+        }
+
+        async function poll(id, deadline) {
+          try {
+            const r = await fetch('/api/run/' + id, { cache: 'no-store' });
+            const s = await r.json();
+            logEl.hidden = false;
+            logEl.textContent = fmt(s);
+            if (s.state === 'done') {
+              statusEl.textContent = 'Finished.';
+              showLinks(s);
+              const dest = s.pareto_url || s.viewer_url;
+              if (dest) setTimeout(function () { window.location.href = dest; }, 800);
+              return;
+            }
+            if (s.state === 'failed') {
+              statusEl.textContent = 'Run failed — see log below.';
+              return;
+            }
+            if (Date.now() > deadline) {
+              statusEl.textContent = 'Timed out. You can check the run files at /runs/' + id + '/ directly.';
+              return;
+            }
+            statusEl.textContent = 'Running\u2026';
+            polling = setTimeout(function () { poll(id, deadline); }, 1500);
+          } catch (e) {
+            statusEl.textContent = 'Status check failed: ' + e;
+          }
+        }
+
+        form.addEventListener('submit', async function (ev) {
+          ev.preventDefault();
+          if (polling) clearTimeout(polling);
+          statusEl.textContent = 'Submitting\u2026';
+          logEl.hidden = true;
+          linksEl.hidden = true;
+          const body = {
+            mode:        form.mode.value,
+            seed:        Number(form.seed.value),
+            horizon:     Number(form.horizon.value),
+            generations: Number(form.generations.value),
+            population:  Number(form.population.value),
+          };
+          if (INITIAL_MODES[body.mode]) {
+            body.initial_level = Number(initialLevelInput.value);
+          }
+          saveRunApiKey();
+          if (runAuthRequired && !runApiHeaders()['X-Fragility-Run-Key']) {
+            statusEl.textContent = 'This server requires a run API key (see field above).';
+            if (apiKeyLabel) apiKeyLabel.hidden = false;
+            return;
+          }
+          try {
+            const r = await fetch('/api/run', {
+              method: 'POST',
+              headers: runApiHeaders(),
+              body: JSON.stringify(body),
+            });
+            const s = await r.json();
+            if (!r.ok) {
+              statusEl.textContent = (r.status === 401 ? 'Unauthorized: ' : 'Rejected: ') + (s.error || r.statusText);
+              return;
+            }
+            statusEl.textContent = 'Accepted (id=' + s.id + '). Polling\u2026';
+            logEl.hidden = false;
+            logEl.textContent = fmt(s);
+            poll(s.id, Date.now() + 210000);
+          } catch (e) {
+            statusEl.textContent = 'Network error: ' + e;
+          }
+        });
+
+        // Recent runs history
+        async function loadRecentRuns() {
+          const el = document.getElementById('recentRuns');
+          if (!el) return;
+          try {
+            const r = await fetch('/api/runs', { cache: 'no-store' });
+            if (!r.ok) {             el.innerHTML = '<p class="fde-run-help">Run history not available.</p>'; return; }
+            const runs = await r.json();
+            if (!runs.length) { el.innerHTML = '<p class="fde-run-help">No runs yet on this server.</p>'; return; }
+            const rows = runs.slice(0, 10).map(function(s) {
+              const id    = s.id || '?';
+              const mode  = (s.request && s.request.mode) || '?';
+              const state = s.state || '?';
+              const ts    = s.started_utc ? s.started_utc.replace('T',' ').replace('Z','') : '';
+              const links = [];
+              if (s.viewer_url) links.push('<a href="' + s.viewer_url + '">Replay</a>');
+              if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '">Pareto</a>');
+              links.push('<a href="/runs/' + id + '/">/runs/' + id + '/</a>');
+              return '<tr><td><code>' + id + '</code></td><td>' + mode + '</td><td>' + state + '</td><td>' + ts + '</td><td>' + links.join(' · ') + '</td></tr>';
+            });
+            el.innerHTML = '<table><thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Started</th><th>Results</th></tr></thead><tbody>' + rows.join('') + '</tbody></table><p class="fde-run-help"><a href="/runs.html">View all past runs →</a></p>';
+          } catch (e) {
+            el.innerHTML = '<p class="fde-run-help">Run history not available (engine server not running).</p>';
+          }
+        }
+        loadRecentRuns();
+      })();
+    </script>
+
+    <article class="fde-prose" style="margin-top:2rem">
+      <h3>Recent runs</h3>
+      <div id="recentRuns"><p class="fde-run-help">Loading\u2026</p></div>
+    </article>
+
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

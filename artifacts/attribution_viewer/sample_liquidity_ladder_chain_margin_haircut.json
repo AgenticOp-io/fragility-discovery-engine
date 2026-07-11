@@ -1,0 +1,133 @@
+{
+  "schema": "counterfactual-bundle-v1",
+  "baseline": {
+    "collapsed": false,
+    "collapse_timestep": null,
+    "peak_instability": 0.22795411434772284,
+    "integral_instability": 0.7257024041539824,
+    "recovery_timestep": null,
+    "attack_cost": 7.403877335838973,
+    "mode": "liquidity_ladder",
+    "horizon_steps": 40,
+    "seed": 66801
+  },
+  "counterfactual": {
+    "collapsed": false,
+    "collapse_timestep": null,
+    "peak_instability": 0.2851613453999705,
+    "integral_instability": 1.1323509847296,
+    "recovery_timestep": null,
+    "attack_cost": 7.403877335838973,
+    "mode": "liquidity_ladder",
+    "horizon_steps": 40,
+    "seed": 66801
+  },
+  "interpretation_hint": "Neither collapses under these pinned seeds.",
+  "intervention": "liquidity_ladder_mutation_chain",
+  "mutation_steps": [
+    {
+      "kind": "delever_rate",
+      "value": 0.28
+    },
+    {
+      "kind": "haircut_damage",
+      "value": 0.19
+    }
+  ],
+  "baseline_initial_margin": 0.065,
+  "variant_initial_margin": 0.065,
+  "delta_attack_cost": 0.0,
+  "delta_integral_instability": -0.4066485805756177,
+  "meta": {
+    "cli": "export_liquidity_ladder_counterfactual_chain",
+    "base_seed": 66801,
+    "chain_schema": "liquidity-ladder-mutation-chain-spec-v1",
+    "chain_json": "C:\\Users\\david\\projects\\fragility-discovery-engine\\tests\\fixtures\\chains\\liquidity_ladder_margin_haircut_chain.json",
+    "continue_after_collapse": false,
+    "max_steps": 40
+  },
+  "path_trace": {
+    "schema": "explanation-mutation-chain-path-liquidity-ladder-v1",
+    "source_chain_schema": "liquidity-ladder-mutation-chain-spec-v1",
+    "rollout_seed": 66801,
+    "baseline_initial_margin": 0.065,
+    "variant_initial_margin": 0.065,
+    "nodes": [
+      {
+        "id": "chain_0",
+        "index": 0,
+        "mutations_applied": 0,
+        "reset_initial_margin": 0.065,
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.22795411434772284,
+        "integral_instability": 0.7257024041539824,
+        "recovery_timestep": null,
+        "attack_cost": 7.403877335838973,
+        "mode": "liquidity_ladder",
+        "horizon_steps": 40,
+        "seed": 66801
+      },
+      {
+        "id": "chain_1",
+        "index": 1,
+        "mutations_applied": 1,
+        "reset_initial_margin": 0.065,
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.26372761638241105,
+        "integral_instability": 0.9614984852151652,
+        "recovery_timestep": null,
+        "attack_cost": 7.403877335838973,
+        "mode": "liquidity_ladder",
+        "horizon_steps": 40,
+        "seed": 66801
+      },
+      {
+        "id": "chain_2",
+        "index": 2,
+        "mutations_applied": 2,
+        "reset_initial_margin": 0.065,
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.2851613453999705,
+        "integral_instability": 1.1323509847296,
+        "recovery_timestep": null,
+        "attack_cost": 7.403877335838973,
+        "mode": "liquidity_ladder",
+        "horizon_steps": 40,
+        "seed": 66801
+      }
+    ],
+    "edges": [
+      {
+        "from": "chain_0",
+        "to": "chain_1",
+        "kind": "mutation_chain_step",
+        "step_index": 0,
+        "step": {
+          "kind": "delever_rate",
+          "value": 0.28
+        },
+        "delta_integral_instability": 0.23579608106118288,
+        "delta_attack_cost": 0.0,
+        "reset_initial_margin_from": 0.065,
+        "reset_initial_margin_to": 0.065
+      },
+      {
+        "from": "chain_1",
+        "to": "chain_2",
+        "kind": "mutation_chain_step",
+        "step_index": 1,
+        "step": {
+          "kind": "haircut_damage",
+          "value": 0.19
+        },
+        "delta_integral_instability": 0.17085249951443482,
+        "delta_attack_cost": 0.0,
+        "reset_initial_margin_from": 0.065,
+        "reset_initial_margin_to": 0.065
+      }
+    ]
+  }
+}

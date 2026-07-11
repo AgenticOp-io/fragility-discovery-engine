@@ -1,0 +1,729 @@
+{
+  "schema_version": "0.4.0",
+  "simulation_mode": "liquidity_ladder",
+  "attack_cost": 6.544042877815768,
+  "integral_instability": 0.6351509146369753,
+  "recovery_timestep": null,
+  "collapsed": false,
+  "collapse_timestep": null,
+  "final_instability": 0.24325857448884466,
+  "seed": 4242,
+  "events_lane": [
+    {
+      "timestep": 0,
+      "reserve_loss": 0.8169302707432048,
+      "rumor": 0.0,
+      "event_count": 1
+    },
+    {
+      "timestep": 1,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 2,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 3,
+      "reserve_loss": 0.08886711244030909,
+      "rumor": 0.0,
+      "event_count": 1
+    },
+    {
+      "timestep": 4,
+      "reserve_loss": 0.7436849886972761,
+      "rumor": 0.0,
+      "event_count": 1
+    },
+    {
+      "timestep": 5,
+      "reserve_loss": 0.0,
+      "rumor": 0.9543155972164694,
+      "event_count": 1
+    },
+    {
+      "timestep": 6,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 7,
+      "reserve_loss": 0.0,
+      "rumor": 0.5889739247482785,
+      "event_count": 1
+    },
+    {
+      "timestep": 8,
+      "reserve_loss": 0.0,
+      "rumor": 0.3867318466714703,
+      "event_count": 1
+    },
+    {
+      "timestep": 9,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 10,
+      "reserve_loss": 0.0,
+      "rumor": 0.4903155794775752,
+      "event_count": 1
+    },
+    {
+      "timestep": 11,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 12,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 13,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 14,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 15,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 16,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 17,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 18,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 19,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 20,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 21,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 22,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 23,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 24,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    },
+    {
+      "timestep": 25,
+      "reserve_loss": 0.0,
+      "rumor": 0.0,
+      "event_count": 0
+    }
+  ],
+  "trajectory": [
+    {
+      "timestep": 0,
+      "state_vector": [
+        0.4249832313346872,
+        0.9610275343154158,
+        0.37944931369168494,
+        1.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.8169302707432048
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.7156999999999996
+      },
+      "metrics": {
+        "price": 0.9610275343154158,
+        "backing_ratio": 0.9610275343154158,
+        "redeem_fraction": 0.7156999999999996,
+        "paid_out": 0.0,
+        "instability": 0.24325857448884466
+      }
+    },
+    {
+      "timestep": 1,
+      "state_vector": [
+        0.07176421600297972,
+        1.0,
+        0.06407519285980331,
+        2.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.45005024866433896
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.45005024866433896,
+        "paid_out": 0.0,
+        "instability": 0.03844511571588199
+      }
+    },
+    {
+      "timestep": 2,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        3.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0457174756010429
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0457174756010429,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 3,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        4.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.08886711244030909
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.047971070631615195
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.047971070631615195,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 4,
+      "state_vector": [
+        0.29443926549065474,
+        1.0,
+        0.2628922013309417,
+        5.0
+      ],
+      "events": [
+        {
+          "kind": "reserve_loss",
+          "magnitude": 0.7436849886972761
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.32685497651876105
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.32685497651876105,
+        "paid_out": 0.0,
+        "instability": 0.15773532079856503
+      }
+    },
+    {
+      "timestep": 5,
+      "state_vector": [
+        0.0,
+        0.897309504445365,
+        0.0,
+        6.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.9543155972164694
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.8722537429217292
+      },
+      "metrics": {
+        "price": 0.897309504445365,
+        "backing_ratio": 0.897309504445365,
+        "redeem_fraction": 0.8722537429217292,
+        "paid_out": 0.0,
+        "instability": 0.04107619822185402
+      }
+    },
+    {
+      "timestep": 6,
+      "state_vector": [
+        0.0,
+        0.947309504445365,
+        0.0,
+        7.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.7210486394661583
+      },
+      "metrics": {
+        "price": 0.947309504445365,
+        "backing_ratio": 0.947309504445365,
+        "redeem_fraction": 0.7210486394661583,
+        "paid_out": 0.0,
+        "instability": 0.021076198221854005
+      }
+    },
+    {
+      "timestep": 7,
+      "state_vector": [
+        0.0,
+        0.9080390089598397,
+        0.0,
+        8.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.5889739247482785
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.7692
+      },
+      "metrics": {
+        "price": 0.9080390089598397,
+        "backing_ratio": 0.9080390089598397,
+        "redeem_fraction": 0.7692,
+        "paid_out": 0.0,
+        "instability": 0.036784396416064125
+      }
+    },
+    {
+      "timestep": 8,
+      "state_vector": [
+        0.0,
+        0.9018521925142764,
+        0.0,
+        9.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.3867318466714703
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.7692
+      },
+      "metrics": {
+        "price": 0.9018521925142764,
+        "backing_ratio": 0.9018521925142764,
+        "redeem_fraction": 0.7692,
+        "paid_out": 0.0,
+        "instability": 0.03925912299428944
+      }
+    },
+    {
+      "timestep": 9,
+      "state_vector": [
+        0.0,
+        0.9518521925142764,
+        0.0,
+        10.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.6911236818122041
+      },
+      "metrics": {
+        "price": 0.9518521925142764,
+        "backing_ratio": 0.9518521925142764,
+        "redeem_fraction": 0.6911236818122041,
+        "paid_out": 0.0,
+        "instability": 0.019259122994289425
+      }
+    },
+    {
+      "timestep": 10,
+      "state_vector": [
+        0.0,
+        0.9271789190183344,
+        0.0,
+        11.0
+      ],
+      "events": [
+        {
+          "kind": "rumor",
+          "magnitude": 0.4903155794775752
+        }
+      ],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.7692
+      },
+      "metrics": {
+        "price": 0.9271789190183344,
+        "backing_ratio": 0.9271789190183344,
+        "redeem_fraction": 0.7692,
+        "paid_out": 0.0,
+        "instability": 0.02912843239266625
+      }
+    },
+    {
+      "timestep": 11,
+      "state_vector": [
+        0.0,
+        0.9771789190183344,
+        0.0,
+        12.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.5242838709667221
+      },
+      "metrics": {
+        "price": 0.9771789190183344,
+        "backing_ratio": 0.9771789190183344,
+        "redeem_fraction": 0.5242838709667221,
+        "paid_out": 0.0,
+        "instability": 0.00912843239266623
+      }
+    },
+    {
+      "timestep": 12,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        13.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.16780000000000003
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.16780000000000003,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 13,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        14.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 14,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        15.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 15,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        16.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 16,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        17.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 17,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        18.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 18,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        19.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 19,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        20.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 20,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        21.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 21,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        22.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 22,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        23.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 23,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        24.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 24,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        25.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    },
+    {
+      "timestep": 25,
+      "state_vector": [
+        0.0,
+        1.0,
+        0.0,
+        26.0
+      ],
+      "events": [],
+      "agent_actions_summary": {
+        "aggregate_redeem_fraction": 0.0206
+      },
+      "metrics": {
+        "price": 1.0,
+        "backing_ratio": 1.0,
+        "redeem_fraction": 0.0206,
+        "paid_out": 0.0,
+        "instability": 0.0
+      }
+    }
+  ],
+  "steps_recorded": 26,
+  "mean_instability": 0.024428881332191357,
+  "recovery_latency_steps": null
+}

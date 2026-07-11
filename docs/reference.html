@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reference — Fragility Discovery Engine</title>
+  <meta name="description" content="CLI flags, environment variables, JSON schemas, and script index." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a class="fde-active" href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Reference: modes, CLIs, environment, schemas</h2>
+<p>Quick lookup for all command-line flags, output formats, and script names. Step-by-step tutorials are in <a href="/docs/how-to-use.html">How to Use</a>.</p>
+<hr>
+<h3>BYOW CLI (`fragility`, v0.6.0+)</h3>
+<table><thead>
+<tr><th>Command</th><th>Purpose</th></tr>
+</thead><tbody>
+<tr><td><code>fragility search --example capacity-pool\|token-bucket</code></td><td>GA/MC on installable tutorial world</td></tr>
+<tr><td><code>fragility minimize --example …</code></td><td>Greedy minimal failing schedule</td></tr>
+<tr><td><code>fragility replay PATH</code></td><td>Validate replay JSON schema keys</td></tr>
+<tr><td><code>fragility check-world --example …</code></td><td>Determinism smoke on example world</td></tr>
+<tr><td><code>fragility certify</code></td><td>Flagship certificate bundle</td></tr>
+<tr><td><code>fragility falsify search --example ranked-store</code></td><td>Predicate-violation search (Phase S)</td></tr>
+<tr><td><code>fragility examples</code></td><td>List tutorial example ids</td></tr>
+</tbody></table>
+<p>Module surface: <code>fragility_engine.byow</code>, <code>fragility_engine.falsify</code>. Tutorial worlds: <code>fragility_engine.byow.examples.*</code>.</p>
+<hr>
+<h3>Simulation modes</h3>
+<table><thead>
+<tr><th><code>--mode</code></th><th>GA demo script</th><th>Primary counterfactual interventions</th><th>ε-sweep axes</th><th>Fixed horizon</th></tr>
+</thead><tbody>
+<tr><td><code>aggregate</code></td><td><code>run_ga_demo.py</code></td><td><code>remove_steps</code></td><td><code>initial_panic</code></td><td>No</td></tr>
+<tr><td><code>network</code></td><td><code>run_network_demo.py</code></td><td><code>remove_steps</code>, <code>base_panic_shift</code>, <code>contagion_beta_shift</code>, edge weights</td><td><code>base_panic</code>, <code>contagion_beta</code>, <code>edge_weight</code></td><td>No</td></tr>
+<tr><td><code>resource_cascade</code></td><td><code>run_resource_cascade_ga_demo.py</code></td><td><code>remove_steps</code>, <code>initial_overload_shift</code>, <code>cascade_coupling_shift</code></td><td><code>initial_overload</code></td><td>18</td></tr>
+<tr><td><code>service_backlog</code></td><td><code>run_service_backlog_ga_demo.py</code></td><td><code>remove_steps</code>, <code>initial_backlog_shift</code>, <code>process_rate_shift</code></td><td><code>initial_backlog</code>, <code>process_rate</code></td><td>18</td></tr>
+<tr><td><code>liquidity_ladder</code></td><td><code>run_liquidity_ladder_ga_demo.py</code></td><td><code>remove_steps</code>, <code>initial_margin_shift</code>, <code>delever_rate_shift</code></td><td><code>initial_margin</code>, <code>delever_rate</code></td><td>18</td></tr>
+<tr><td><code>inventory_buffer</code></td><td><code>run_inventory_buffer_ga_demo.py</code></td><td><code>remove_steps</code>, <code>initial_stock_shift</code></td><td><code>initial_stock</code></td><td>18</td></tr>
+</tbody></table>
+<p>Flags shared across most scripts:</p>
+<ul>
+<li><code>--horizon</code> — number of steps in the simulation (schedule length)</li>
+<li><code>--seed</code> / <code>--genome-seed</code> — random seed for the rollout / for generating the initial schedule</li>
+<li><code>--export-replay PATH</code> — save the result as a replay JSON file</li>
+<li><code>--continue-after-collapse</code> — keep stepping after collapse, useful for measuring recovery</li>
+<li><code>--eval-workers N</code> — number of parallel workers for the search (each gets its own world copy)</li>
+</ul>
+<hr>
+<h3>Scripts by task</h3>
+<table><thead>
+<tr><th>Task</th><th>Script</th></tr>
+</thead><tbody>
+<tr><td>Smoke test</td><td><code>week1_smoke.py</code></td></tr>
+<tr><td>Export one replay</td><td><code>export_replay.py --mode …</code></td></tr>
+<tr><td>MC search</td><td><code>run_mc_demo.py --mode …</code></td></tr>
+<tr><td>GA search (aggregate)</td><td><code>run_ga_demo.py</code></td></tr>
+<tr><td>GA search (network)</td><td><code>run_network_demo.py</code></td></tr>
+<tr><td>GA search (resource cascade)</td><td><code>run_resource_cascade_ga_demo.py</code></td></tr>
+<tr><td>GA search (service backlog)</td><td><code>run_service_backlog_ga_demo.py</code></td></tr>
+<tr><td>GA search (liquidity ladder)</td><td><code>run_liquidity_ladder_ga_demo.py</code></td></tr>
+<tr><td>GA search (inventory buffer)</td><td><code>run_inventory_buffer_ga_demo.py</code></td></tr>
+<tr><td>Pareto front</td><td><code>export_pareto_front.py --mode …</code></td></tr>
+<tr><td>Co-evolution (all modes)</td><td><code>run_coevolution.py --mode …</code></td></tr>
+<tr><td>Counterfactual pair</td><td><code>export_counterfactual.py</code></td></tr>
+<tr><td>ε-sweep</td><td><code>counterfactual_epsilon_sweep.py</code></td></tr>
+<tr><td>Mutation chain (aggregate)</td><td><code>export_aggregate_counterfactual_chain.py</code></td></tr>
+<tr><td>Mutation chain (resource cascade)</td><td><code>export_resource_cascade_counterfactual_chain.py</code></td></tr>
+<tr><td>Mutation chain (service backlog)</td><td><code>export_service_backlog_counterfactual_chain.py</code></td></tr>
+<tr><td>Mutation chain (liquidity ladder)</td><td><code>export_liquidity_ladder_counterfactual_chain.py</code></td></tr>
+<tr><td>Generic mutation chain</td><td><code>export_counterfactual_chain.py</code></td></tr>
+<tr><td>Joint attribution (resource cascade)</td><td><code>export_resource_cascade_joint_attribution.py</code></td></tr>
+<tr><td>Joint attribution (service backlog)</td><td><code>export_service_backlog_joint_attribution.py</code></td></tr>
+<tr><td>Joint attribution (liquidity ladder)</td><td><code>export_liquidity_ladder_joint_attribution.py</code></td></tr>
+<tr><td>Triple attribution</td><td><code>export_resource_cascade_triple_attribution.py</code></td></tr>
+<tr><td>Merge branches</td><td><code>merge_counterfactual_attribution.py</code></td></tr>
+<tr><td>Explanation DAG</td><td><code>export_explanation_dag.py</code></td></tr>
+<tr><td>Minimized replay</td><td><code>export_minimized_replay.py</code></td></tr>
+<tr><td>Robustness sweep</td><td><code>fragility_robustness_sweep.py</code></td></tr>
+<tr><td>Robustness stretch presets</td><td><code>fragility_robustness_stretch.py --preset small</code> or <code>medium</code> or <code>large</code></td></tr>
+<tr><td>Fragility surface CSV</td><td><code>fragility_surface.py --mode … --axis1 … --axis2 …</code></td></tr>
+<tr><td>Find cheapest collapse</td><td><code>find_cheap_collapse.py --mode … --samples …</code></td></tr>
+<tr><td>Compare two replays</td><td><code>compare_replays.py baseline.json counterfactual.json</code></td></tr>
+<tr><td>Mechanism design sweep</td><td><code>mechanism_design_policy_sweep.py</code></td></tr>
+<tr><td>Institutional composite</td><td><code>institutional_composite_demo.py --triple</code> or <code>--quad</code></td></tr>
+<tr><td>Coevolution Pareto export</td><td><code>export_coevolution_pareto.py</code></td></tr>
+<tr><td>Frozen benchmarks</td><td><code>run_benchmark_suite.py --validate</code></td></tr>
+<tr><td>Wall-clock timing</td><td><code>benchmark_rollout.py --bundle … --mode …</code></td></tr>
+<tr><td>Certificate</td><td><code>export_fragility_certificate.py</code></td></tr>
+<tr><td>Flagship demo bundle</td><td><code>run_flagship_demo.py</code></td></tr>
+<tr><td>Narration</td><td><code>narrate_frozen_json.py</code></td></tr>
+<tr><td>LLM prompt bundle</td><td><code>export_llm_narration_prompt.py --bundle &lt;name&gt;</code></td></tr>
+<tr><td>Plot replay</td><td><code>plot_replay_timeline.py</code></td></tr>
+<tr><td>Plot Pareto</td><td><code>plot_pareto_front.py</code></td></tr>
+<tr><td>Plot counterfactual bars</td><td><code>plot_counterfactual_bars.py</code></td></tr>
+<tr><td>Plot ε-sweep</td><td><code>plot_epsilon_sweep.py</code></td></tr>
+<tr><td>Plot fragility surface</td><td><code>plot_fragility_surface_csv.py</code></td></tr>
+<tr><td>Plot composite bars</td><td><code>plot_institutional_composite_bars.py</code></td></tr>
+<tr><td>Summarize attribution merge</td><td><code>summarize_attribution_merge.py</code></td></tr>
+<tr><td>Validate viewer presets</td><td><code>validate_viewer_presets.py</code></td></tr>
+<tr><td>Check manifest digest</td><td><code>check_manifest_digest.py</code></td></tr>
+<tr><td>Check manifest inventory</td><td><code>check_manifest_inventory.py</code></td></tr>
+<tr><td>Check manifest summary</td><td><code>check_manifest_summary.py</code></td></tr>
+<tr><td>Check bundled artifacts</td><td><code>check_bundled_artifacts.py</code></td></tr>
+<tr><td>Check bundled Pareto HV</td><td><code>check_bundled_pareto_hypervolume.py</code></td></tr>
+<tr><td>Check flagship bundle</td><td><code>check_flagship_bundled.py</code></td></tr>
+<tr><td>Frozen JSON digest</td><td><code>frozen_json_digest.py</code></td></tr>
+<tr><td>Regenerate viewer samples</td><td><code>regenerate_bundled_viewer_samples.py</code></td></tr>
+<tr><td>GCE workbench publish</td><td><code>gce_publish_workbench.sh</code></td></tr>
+<tr><td>GCE run server</td><td><code>gce_run_server.py</code> (systemd service on GCE)</td></tr>
+<tr><td>GCE write status</td><td><code>gce_write_workbench_status.py</code></td></tr>
+<tr><td>Static dashboard export</td><td><code>export_static_dashboard.py</code></td></tr>
+<tr><td>Inventory buffer counterfactual</td><td><code>export_inventory_buffer_counterfactual_chain.py</code></td></tr>
+<tr><td>Inventory buffer mutation chain</td><td><code>export_inventory_buffer_mutation_chain.py</code></td></tr>
+<tr><td>Local CI parity</td><td><code>ci_local.sh</code> / <code>ci_local.ps1</code></td></tr>
+</tbody></table>
+<p>One-line descriptions for every script: root <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/README.md">README.md</a> scripts table.</p>
+<hr>
+<h3>export_static_dashboard.py — local viewer index</h3>
+<p>Generates a minimal HTML index at <code>artifacts/dashboard/index.html</code> that links all four bundled viewers (Replay, Pareto, Attribution, Composite) using relative paths. Designed for <strong>local use</strong> — serve from the repository root with <code>python -m http.server</code> and open in a browser. Not needed on the GCE workbench (the hosted site already provides the same navigation).</p>
+<p>```bash</p>
+<h2>Generate the dashboard index</h2>
+<p>python scripts/export_static_dashboard.py</p>
+<h2>Serve locally (open http://localhost:8765/artifacts/dashboard/index.html)</h2>
+<p>python -m http.server 8765</p>
+<p>```</p>
+<p><strong>Flags:</strong></p>
+<table><thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead><tbody>
+<tr><td><code>--out PATH</code></td><td><code>artifacts/dashboard/index.html</code></td><td>Output file path</td></tr>
+<tr><td><code>--manifest PATH</code></td><td>none</td><td>Optional <code>benchmark_manifest.json</code> to embed a link in the page</td></tr>
+</tbody></table>
+<p><strong>When to use it:</strong> after running a local batch of scripts that produce artifacts in <code>artifacts/</code>, run <code>export_static_dashboard.py</code> once to get a single clickable entry point to all viewers without needing to remember their paths. The GCE workbench provides the same experience for hosted runs.</p>
+<hr>
+<h3>export_inventory_buffer_counterfactual_chain.py — inventory buffer counterfactual</h3>
+<p>Compares a baseline inventory-buffer rollout against a variant with one of three intervention types: remove shock steps, shift initial stock, or shift demand-spike gain.</p>
+<p>```bash</p>
+<h2>Remove first 3 shock timesteps (default)</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py --out cf.json</p>
+<h2>Shift initial stock from 0.88 to 0.60 (low-stock variant)</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py \</p>
+<p>  --variant-initial-stock 0.60 --out cf_stock.json</p>
+<h2>Shift demand-spike gain (more aggressive demand)</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py \</p>
+<p>  --variant-demand-spike-gain 0.95 --out cf_demand.json</p>
+<h2>Export baseline and counterfactual as replay JSON files</h2>
+<p>python scripts/export_inventory_buffer_counterfactual_chain.py \</p>
+<p>  --variant-initial-stock 0.50 --export-replay-dir ./cf_replays</p>
+<p>```</p>
+<p><strong>Flags:</strong></p>
+<table><thead>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+</thead><tbody>
+<tr><td><code>--out PATH</code></td><td><code>counterfactual_inventory_buffer.json</code></td><td>Output attribution JSON</td></tr>
+<tr><td><code>--seed INT</code></td><td>424244</td><td>Rollout RNG seed</td></tr>
+<tr><td><code>--genome-seed INT</code></td><td>7</td><td>Genome generation seed</td></tr>
+<tr><td><code>--horizon INT</code></td><td>18</td><td>Attacker schedule length</td></tr>
+<tr><td><code>--initial-stock FLOAT</code></td><td>0.88</td><td>Baseline normalized stock at reset</td></tr>
+<tr><td><code>--remove-timesteps LIST</code></td><td>first 3 steps</td><td>Comma-separated 0-based indices to zero out</td></tr>
+<tr><td><code>--variant-initial-stock FLOAT</code></td><td>none</td><td>Counterfactual reset stock (<code>initial_stock_shift</code> intervention)</td></tr>
+<tr><td><code>--variant-demand-spike-gain FLOAT</code></td><td>none</td><td>Counterfactual demand-spike gain (<code>demand_spike_shift</code> intervention)</td></tr>
+<tr><td><code>--continue-after-collapse</code></td><td>off</td><td>Keep stepping after stockout for recovery metrics</td></tr>
+<tr><td><code>--max-steps INT</code></td><td>40</td><td>World horizon cap</td></tr>
+<tr><td><code>--export-replay-dir PATH</code></td><td>none</td><td>Write <code>baseline.json</code> and <code>counterfactual.json</code> replay files here</td></tr>
+</tbody></table>
+<p>Supply at most one of <code>--variant-initial-stock</code> / <code>--variant-demand-spike-gain</code>. If neither is supplied the script uses <code>remove_steps</code>. Output is an <code>attribution-merge-v1</code>-compatible JSON readable by the Attribution viewer.</p>
+<hr>
+<h3>export_inventory_buffer_mutation_chain.py — inventory buffer mutation chain</h3>
+<p>Applies an ordered list of physics mutations cumulatively on an inventory-buffer template, then compares baseline vs final clone. Optional path trace emits one rollout per cumulative prefix (Attribution viewer).</p>
+<p>```bash</p>
+<p>python scripts/export_inventory_buffer_mutation_chain.py \</p>
+<p>  --chain-json tests/fixtures/chains/inventory_buffer_demand_fulfillment_chain.json \</p>
+<p>  --emit-path-trace --out cf_ib_chain.json</p>
+<p>```</p>
+<p>Chain spec schema: <code>inventory-buffer-mutation-chain-spec-v1</code>. Step kinds include <code>demand_spike_gain</code>, <code>fulfillment_erosion</code>, <code>replenish_rate</code>, <code>stock_recovery</code>, <code>stockout_collapse</code>, <code>fulfillment_floor_collapse</code>, <code>recovery_stock</code>, <code>max_steps</code>.</p>
+<hr>
+<h3>Frozen reference bundles</h3>
+<p>Each bundle has pinned seeds and known-good metric values that are checked on every CI run.</p>
+<table><thead>
+<tr><th><code>bundle_id</code></th><th>Domain</th></tr>
+</thead><tbody>
+<tr><td><code>aggregate_rollout_v1</code></td><td>Aggregate peg</td></tr>
+<tr><td><code>network_er_rollout_v1</code></td><td>Network (synthetic ER graph)</td></tr>
+<tr><td><code>network_neighbor_list_rollout_v1</code></td><td>Network (neighbor-list topology)</td></tr>
+<tr><td><code>resource_cascade_rollout_v1</code></td><td>Resource cascade</td></tr>
+<tr><td><code>service_backlog_rollout_v1</code></td><td>Service backlog</td></tr>
+<tr><td><code>liquidity_ladder_rollout_v1</code></td><td>Liquidity ladder</td></tr>
+<tr><td><code>inventory_buffer_rollout_v1</code></td><td>Inventory buffer</td></tr>
+</tbody></table>
+<p>Pinned seeds and golden metrics: <code>src/fragility_engine/benchmarks/suite.py</code>. Validate with:</p>
+<p>```bash</p>
+<p>python scripts/run_benchmark_suite.py --validate</p>
+<p>```</p>
+<hr>
+<h3>Environment variables</h3>
+<table><thead>
+<tr><th>Variable</th><th>Default</th><th>Effect</th></tr>
+</thead><tbody>
+<tr><td><code>FRAGILITY_PERF_GATE</code></td><td>unset (off locally)</td><td>When <code>1</code>, enables slow benchmark perf test in pytest</td></tr>
+<tr><td><code>FRAGILITY_PERF_GATE_MS</code></td><td><code>240000</code> in CI</td><td>Wall-clock ceiling for perf gate (ms)</td></tr>
+<tr><td><code>FRAGILITY_RESOURCE_CASCADE_BACKEND</code></td><td><code>numpy</code></td><td><code>numpy</code> or <code>numba</code> for resource cascade rollouts</td></tr>
+<tr><td><code>FRAGILITY_CI_LOCAL_BUILD</code></td><td>unset</td><td>When <code>1</code>, <code>ci_local</code> also runs <code>python -m build</code></td></tr>
+<tr><td><code>FRAGILITY_GCE_INSTANCE</code></td><td>—</td><td>VM name for <code>gce_sync_vm.ps1</code></td></tr>
+<tr><td><code>FRAGILITY_GCE_ZONE</code></td><td>—</td><td>GCE zone for sync scripts</td></tr>
+<tr><td><code>FRAGILITY_GCE_PROJECT</code></td><td>—</td><td>GCP project id</td></tr>
+<tr><td><code>FRAGILITY_DEPLOY_DIR</code></td><td><code>~/fragility-discovery-engine</code></td><td>GCE clone path</td></tr>
+<tr><td><code>FRAGILITY_REPO_URL</code></td><td>GitHub SSH URL</td><td>GCE git remote when deploy key present</td></tr>
+</tbody></table>
+<hr>
+<h3>Common JSON schemas</h3>
+<table><thead>
+<tr><th>Schema id</th><th>Produced by</th><th>Consumed by</th></tr>
+</thead><tbody>
+<tr><td>Replay (<code>schema_version</code> e.g. <code>0.4.0</code>)</td><td><code>rollout_to_replay_dict</code></td><td>Replay viewer, narration</td></tr>
+<tr><td><code>pareto-front-v1</code></td><td><code>export_pareto_front</code>, coevolution</td><td>Pareto viewer</td></tr>
+<tr><td><code>fragility-certificate-v1</code></td><td><code>export_fragility_certificate</code></td><td>Papers, audit</td></tr>
+<tr><td><code>benchmark-manifest-v2</code></td><td><code>run_benchmark_suite.py --manifest-out</code></td><td>CI artifact, appendix</td></tr>
+<tr><td><code>attribution-merge-v1</code></td><td>merge / joint export scripts</td><td>Attribution viewer</td></tr>
+<tr><td><code>counterfactual-epsilon-sweep-v1</code></td><td><code>counterfactual_epsilon_sweep.py</code></td><td>Plots, narration</td></tr>
+<tr><td><code>explanation-dag-v1</code></td><td><code>export_explanation_dag.py</code></td><td>Narration</td></tr>
+<tr><td><code>narration-summary-v1</code></td><td><code>narrate_frozen_json.py --json-out</code></td><td>External reports</td></tr>
+<tr><td><code>fragility-institutional-composite-v1</code> … <code>v3</code></td><td><code>institutional_composite_demo.py</code></td><td>Composite viewer</td></tr>
+<tr><td><code>llm-prompt-bundle-v1</code></td><td><code>export_llm_narration_prompt.py</code></td><td>External LLM only</td></tr>
+</tbody></table>
+<p><strong>Note:</strong> composite, sweep, and trade-off chart (Pareto) files are <strong>not</strong> replay timelines. The replay viewer only accepts replay files — loading other types will show an error.</p>
+<hr>
+<h3>Repository layout</h3>
+<p>```</p>
+<p>fragility-discovery-engine/</p>
+<p>  src/fragility_engine/     Library code (worlds, search, explanation, benchmarks)</p>
+<p>  scripts/                  Command-line tools</p>
+<p>  tests/                    Test suite (400+ tests)</p>
+<p>  benchmarks/               Benchmark documentation and reference bundle definitions</p>
+<p>  artifacts/                Bundled demo JSON files and browser-based viewers</p>
+<p>  docs/                     This documentation set</p>
+<p>  pyproject.toml            Package definition; extras: dev, viz, accelerate</p>
+<p>```</p>
+<p>Install with <code>pip install -e &quot;.[dev]&quot;</code>. Import name: <code>fragility_engine</code>.</p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

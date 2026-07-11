@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Scale and limits — Fragility Discovery Engine</title>
+  <meta name="description" content="What scales how, parallelism caveats, and honest complexity bounds." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a class="fde-active" href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Scale, complexity, and determinism (honest limits)</h2>
+<p>This document states <strong>what scales how</strong> and <strong>what breaks reproducibility</strong> if misused. It complements <code><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/phase_k_acceleration.md">phase_k_acceleration.md</a></code> (optional backends + threading/process pools).</p>
+<h3>Determinism</h3>
+<ul>
+<li><strong>Same seed, same code path, same NumPy reference rollout</strong> ⇒ same trajectory (modulo documented FP tolerances on some bundles).</li>
+<li><strong>Parallel evaluation</strong> (<code>eval_workers &gt; 1</code>) is deterministic <strong>only</strong> when each task owns isolated mutable state (see <code>coevolution.thread_safe_template</code> and clone helpers). Sharing one <code>AgentPopulation</code> across threads races.</li>
+<li><code><strong>eval_pool=&quot;processes&quot;</code></strong> requires a <strong>picklable</strong> <code>rollout_fn</code> (e.g. <code>functools.partial(rollout_bundle_with_genome, bundle_id, isolate=True)</code>). Arbitrary closures from demo scripts will fail pickle on Windows spawn.</li>
+</ul>
+<h3>Asymptotics (per timestep mental model)</h3>
+<table><thead>
+<tr><th>Piece</th><th>Dominant cost</th><th>Notes</th></tr>
+</thead><tbody>
+<tr><td><code>StablecoinNetworkWorld</code> step (dense adjacency)</td><td>O(n²) mixing in worst case; <strong>neighbor-list</strong> path is <strong>O(edges)</strong> per step</td><td>Prefer list topology for large n.</td></tr>
+<tr><td><code>StablecoinPegWorld</code></td><td>O(archetypes)</td><td>Aggregate reference.</td></tr>
+<tr><td><code>ResourceCascadeWorld</code></td><td>O(archetypes); optional Numba path</td><td>See <code>FRAGILITY_RESOURCE_CASCADE_BACKEND</code>.</td></tr>
+<tr><td><code>ServiceBacklogWorld</code></td><td>O(archetypes); NumPy rollout only</td><td>Same default population as other domains; <code>rollout_service_backlog</code>.</td></tr>
+<tr><td><code>LiquidityLadderWorld</code></td><td>O(archetypes); NumPy rollout only</td><td><code>rollout_liquidity_ladder</code>; frozen bundle <code>liquidity_ladder_rollout_v1</code>.</td></tr>
+<tr><td><code>InventoryBufferWorld</code></td><td>O(archetypes); NumPy rollout only</td><td><code>rollout_inventory_buffer</code>; frozen bundle <code>inventory_buffer_rollout_v1</code>.</td></tr>
+<tr><td>GA / MC inner loop</td><td>O(population × horizon × steps)</td><td>Wall-clock ∝ parallel <code>eval_workers</code> only when work is CPU-parallel <strong>and</strong> isolated.</td></tr>
+</tbody></table>
+<h3>CI vs optional jobs</h3>
+<ul>
+<li>Default CI matrix stays on <strong>NumPy</strong> reference paths.</li>
+<li><strong>Numba parity</strong> is an optional job / local install (<code>[accelerate]</code>); see <code>.github/workflows/ci.yml</code> and <code>tests/test_resource_cascade_numba_parity.py</code>.</li>
+</ul>
+<h3>Benchmarks (frozen suite, Phase H charter)</h3>
+<ul>
+<li>Golden bundles are <strong>small</strong> and intended for <strong>regression</strong>, not production-scale stress.</li>
+<li><code>benchmark_rollout.py</code> measures wall-clock; numbers are <strong>machine-dependent</strong>. Compare <strong>relative</strong> speedups under identical flags.</li>
+</ul>
+<h3>BYOW and falsification harness (Phases R/S)</h3>
+<ul>
+<li><strong>Tutorial worlds</strong> live in <code>fragility_engine.byow.examples</code> and <code>fragility_engine.falsify.examples</code> — not charter domains.</li>
+<li>GA/MC cost scales as <strong>population × horizon × steps</strong> per search; falsification with snapshot restore adds reset overhead if you implement it.</li>
+<li>Falsification search demonstrates <strong>presence</strong> of invariant violations only — not safety proofs.</li>
+<li>Keep custom worlds deterministic (use only the <code>rng</code> passed to <code>step()</code>).</li>
+</ul>
+<h3>Robustness sweeps and composite artifacts</h3>
+<ul>
+<li><code><strong>fragility_robustness_sweep.py --topology dense|neighbor_lists</code></strong> — same ER/WS draws; <code><strong>neighbor_lists</strong></code> keeps <strong>O(edges)</strong> topology RAM while matching dense rollouts bit-for-bit for the same adjacency (see tests).</li>
+<li><strong>2D grids</strong> (<code>fragility-robustness-sensitivity-2d-v1</code>) scale as <strong>|values_x| × |values_y| × |graph_seeds|</strong> rollouts — keep grids tiny for exploration.</li>
+<li><code><strong>neighbor_json_bundle</code></strong>: ensemble size is <strong>number of JSON files</strong>; each path is loaded via <code>load_neighbor_topology</code> (same format as Phase I counterfactual CLIs).</li>
+<li><strong>GA budget sweep</strong> (<code>fragility-robustness-ga-budget-1d-v1</code>): cost scales as <strong>sum over generation budgets</strong> of <strong>(population × generations × rollout cost)</strong> plus one ensemble evaluation per budget point — keep <code><strong>--ga-generations-values</code></strong> tiny for exploration.</li>
+<li><strong>GA budget 2D grid</strong> (<code>fragility-robustness-ga-budget-2d-v1</code>): <strong>|generations| × |populations|</strong> inner GA runs each with its own derived seed; keep both axes small.</li>
+<li><strong>GA population 1D sweep</strong> (<code>fragility-robustness-ga-population-1d-v1</code>): <strong>|population_sizes|</strong> inner GA runs at fixed <code><strong>ga_generations_fixed</code></strong>; supports <code><strong>neighbor_json_bundle</strong></code> (<code>--neighbor-json-list</code> on <code>fragility_robustness_sweep.py</code>).</li>
+<li><strong>Institutional composite</strong> (<code>fragility-institutional-composite-v1</code> / <strong>v2</strong> / <strong>v3</strong>): one schedule, <strong>N</strong> independent kernel rollouts — wall-clock ≈ sum of those rollouts (no cross-kernel state).</li>
+<li><strong>Pareto hypervolume (2-D min):</strong> <code>hypervolume_2d_min</code> is <strong>O(n²)</strong> non-dominated filter + linear sweep in <strong>n</strong>; safe only for modest archive sizes (use sampling for huge fronts).</li>
+</ul>
+<h3>Communicating impact responsibly</h3>
+<p>What moves perception is not bigger graphs by default, but <strong>frozen artifacts + manifest + certificate + one guided workflow</strong> — see <code><a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/PAPER_APPENDIX_WORKFLOW.md">PAPER_APPENDIX_WORKFLOW.md</a></code> and <code>scripts/run_flagship_demo.py</code>.</p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

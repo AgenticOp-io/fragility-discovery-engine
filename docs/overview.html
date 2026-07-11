@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Overview — Fragility Discovery Engine</title>
+  <meta name="description" content="What the engine is, what problems it solves, and who it fits." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a class="fde-active" href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Fragility Discovery Engine — Overview</h2>
+<p><strong>What it is:</strong> An open-source Python <strong>stress-search harness</strong> — wire a resettable discrete-time model, search shock schedules for worst-case failure, export reproducible replay JSON and counterfactual attribution bundles.</p>
+<p><strong>Not:</strong> a calibrated institution model, a causal inference tool, or a drop-in production risk product.</p>
+<p><strong>Live demo:</strong> http://34.61.255.147/ · <strong>Source:</strong> https://github.com/AgenticOp-io/fragility-discovery-engine · <strong>Release:</strong> v0.6.0</p>
+<hr>
+<h3>The core idea</h3>
+<p>You describe a system as a simulation world — something that <strong>resets</strong> to known starting conditions and <strong>advances one step at a time</strong>. The engine searches across possible stress sequences to find ones that maximize damage under your metric, then saves a step-by-step record of the run.</p>
+<p>That record is JSON you can replay in the browser, compare with counterfactual re-runs, and reproduce with the same seed.</p>
+<p><strong>Attribution</strong> means counterfactual and path deltas on re-rollouts (FEL Δ⁻ / Δ⁺ conventions) — not Pearl-grade causal identification.</p>
+<hr>
+<h3>Bring your own world (primary path)</h3>
+<p>Real value is a <strong>~100-line adapter</strong> you write (<code>reset</code>, <code>step</code>, <code>state_vector</code>, <code>instability_score</code>, <code>is_collapsed</code>). Tutorial: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BRING_YOUR_OWN_WORLD.md"><code>BRING_YOUR_OWN_WORLD.md</code></a>.</p>
+<p>```powershell</p>
+<p>pip install -e &quot;.[dev]&quot;</p>
+<p>fragility search --example capacity-pool</p>
+<p>fragility check-world --example capacity-pool</p>
+<p>```</p>
+<hr>
+<h3>Six reference domains (toy regression oracles)</h3>
+<p>The in-tree worlds are <strong>deliberately simplified</strong> — structural analogies for frozen CI, not models of real institutions:</p>
+<table><thead>
+<tr><th>Domain</th><th>Structural analogy</th></tr>
+</thead><tbody>
+<tr><td>Aggregate peg</td><td>Reserve + panic under pressure</td></tr>
+<tr><td>Network contagion</td><td>Panic on a graph</td></tr>
+<tr><td>Resource cascade</td><td>Coupled capacity layers</td></tr>
+<tr><td>Service backlog</td><td>Queue vs processing rate</td></tr>
+<tr><td>Liquidity ladder</td><td>Margin erosion</td></tr>
+<tr><td>Inventory buffer</td><td>Stock under demand</td></tr>
+</tbody></table>
+<p>Use them to validate the harness; use <strong>BYOW</strong> for your own physics.</p>
+<hr>
+<h3>What a run produces</h3>
+<p>1. <strong>Replay file</strong> — timestep trajectory, collapse bit, shock lane.</p>
+<p>2. <strong>Pareto archive</strong> (optional) — severity vs attack-cost trade-offs.</p>
+<p>3. <strong>Attribution bundles</strong> — counterfactual re-runs and mutation chains.</p>
+<p>4. <strong>Certificate / manifest</strong> — reproducibility metadata for papers.</p>
+<p>All outputs are schema-versioned JSON with deterministic seeds.</p>
+<hr>
+<h3>What it is not</h3>
+<ul>
+<li>Not a live trading system or market data feed</li>
+<li>Not regulatory compliance or calibrated institutional risk</li>
+<li>Not proof that your production system is safe</li>
+</ul>
+<hr>
+<h3>Quick start</h3>
+<p>```bash</p>
+<p>git clone https://github.com/AgenticOp-io/fragility-discovery-engine</p>
+<p>cd fragility-discovery-engine</p>
+<p>python3 -m venv .venv &amp;&amp; source .venv/bin/activate</p>
+<p>pip install -e &quot;.[dev]&quot;</p>
+<p>fragility search --example capacity-pool --export-replay out.json</p>
+<p>fragility falsify search --example ranked-store   # invariant predicate demo</p>
+<p>python scripts/run_ga_demo.py --mode aggregate --generations 4 --export-replay toy.json</p>
+<p>```</p>
+<p>Full guide: <a href="/docs/how-to-use.html">How to Use</a> · <strong>Cite:</strong> Zenodo <a href="https://doi.org/10.5281/zenodo.20455689">10.5281/zenodo.20455689</a></p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "note": "Bundled demos on this server \u2014 pick a preset below. No files on your computer are required.",
+  "presets": [
+    {
+      "label": "Bundled: resource_cascade attribution merge (2 branches)",
+      "path": "sample_attribution_merge_resource_cascade.json"
+    },
+    {
+      "label": "Bundled: service_backlog attribution merge (2 branches)",
+      "path": "sample_attribution_merge_service_backlog.json"
+    },
+    {
+      "label": "Bundled: resource_cascade chain (coupling + rumor)",
+      "path": "sample_resource_cascade_chain_coupling_rumor.json"
+    },
+    {
+      "label": "Bundled: resource_cascade triple attribution merge",
+      "path": "sample_attribution_merge_resource_cascade_triple.json"
+    },
+    {
+      "label": "Bundled: network chain (contagion_beta + base_panic)",
+      "path": "sample_network_chain_contagion_base_panic.json"
+    },
+    {
+      "label": "Bundled: aggregate chain (rumor + depeg)",
+      "path": "sample_aggregate_chain_rumor_depeg.json"
+    },
+    {
+      "label": "Bundled: service_backlog chain (process_rate + ingest)",
+      "path": "sample_service_backlog_chain_process_ingest.json"
+    },
+    {
+      "label": "Bundled: liquidity_ladder chain (delever + haircut)",
+      "path": "sample_liquidity_ladder_chain_margin_haircut.json"
+    },
+    {
+      "label": "Bundled: liquidity_ladder attribution merge (2 branches)",
+      "path": "sample_attribution_merge_liquidity_ladder.json"
+    },
+    {
+      "label": "Bundled: inventory buffer attribution merge (2 branches)",
+      "path": "sample_attribution_merge_inventory_buffer.json"
+    },
+    {
+      "label": "Bundled: inventory buffer chain (demand spike + fulfillment erosion)",
+      "path": "sample_inventory_buffer_chain_demand_fulfillment.json"
+    },
+    {
+      "label": "Research fork: coupled institution mutation chain (coupling_strength)",
+      "path": "sample_coupled_mutation_chain.json"
+    }
+  ]
+}

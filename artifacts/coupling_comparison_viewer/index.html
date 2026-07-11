@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coupling comparison — research fork</title>
+    <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+  <meta name="fde-public-demo" content="1"/>
+</head>
+<body class="fde-app fde-public-demo">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.6.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+  <main class="fde-main fde-viewer-main">
+<nav class="fde-viewer-strip" aria-label="Artifact viewers">
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/artifacts/coupling_sweep_viewer/index.html">Coupling sweep</a>
+<a class="fde-active" href="/artifacts/coupling_comparison_viewer/index.html">Coupling compare</a>
+<p class="fde-viewer-banner">Server-hosted JSON only — choose a <strong>Preset</strong> or open a sample from the <a href="/">workbench</a>. Local upload is off on this demo. <a href="/docs/demo-guide.html">Demo guide</a></p>
+</nav>
+
+  <strong>Coupling comparison</strong>
+  <span>research fork</span>
+  <p>
+    Same pinned attack schedule; only <code>coupling_strength</code> differs between baseline and variant.
+  </p>
+  <p>
+    <a href="../coupling_sweep_viewer/index.html">Sweep chart</a> ·
+    <a href="../coupled_fork_demo/">JSON bundle</a> ·
+    <a href="../../docs/fork-coupling.html">Fork policy</a>
+  </p>
+  <div>
+    <button type="button" class="btn" id="btnPick">Choose comparison JSON…</button>
+    <span id="presetRow" hidden>
+      <label for="presetSelect">Presets</label>
+      <select id="presetSelect">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <div id="panel">Load JSON to begin.</div>
+
+  <script>
+    const SCHEMA = 'coupled-institution-coupling-comparison-v1';
+    const panel = document.getElementById('panel');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    const btnPick = document.getElementById('btnPick');
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function branchCard(label, b) {
+      const col = b.collapsed ? 'collapsed-yes' : '';
+      return (
+        '<div class="card"><h3>' + esc(label) + '</h3><dl>' +
+        '<dt>coupling</dt><dd>' + esc(b.coupling_strength) + '</dd>' +
+        '<dt>∫ instability</dt><dd>' + esc(Number(b.integral_instability).toFixed(4)) + '</dd>' +
+        '<dt>attack cost</dt><dd>' + esc(b.attack_cost) + '</dd>' +
+        '<dt>collapsed</dt><dd class="' + col + '">' + esc(b.collapsed) + '</dd>' +
+        '<dt>collapse t</dt><dd>' + esc(b.collapse_timestep == null ? '—' : b.collapse_timestep) + '</dd>' +
+        '<dt>final I</dt><dd>' + esc(Number(b.final_instability).toFixed(4)) + '</dd>' +
+        '</dl></div>'
+      );
+    }
+
+    function render(data) {
+      if (data.schema !== SCHEMA) {
+        panel.textContent = 'Expected ' + SCHEMA + ', got ' + (data.schema || '(missing)');
+        return;
+      }
+      let h = '<p>intervention: <code>' + esc(data.intervention) + '</code>';
+      if (data.rollout_seed != null) h += ' · seed ' + esc(data.rollout_seed);
+      h += '</p>';
+      h += '<div class="grid">' + branchCard('Baseline', data.baseline) + branchCard('Variant', data.variant) + '</div>';
+      h += '<div class="delta"><strong>Δ integral instability</strong> (variant − baseline): ' +
+        esc(Number(data.delta_integral_instability).toFixed(4)) + '<br>' +
+        '<strong>Δ attack cost</strong>: ' + esc(Number(data.delta_attack_cost).toFixed(4));
+      if (data.interpretation_hint) h += '<br><em>' + esc(data.interpretation_hint) + '</em>';
+      h += '</div>';
+      h += '<table><tr><th></th><th>baseline</th><th>variant</th></tr>';
+      const keys = ['coupling_strength', 'integral_instability', 'attack_cost', 'collapsed', 'collapse_timestep', 'final_instability'];
+      for (const k of keys) {
+        h += '<tr><td>' + esc(k) + '</td><td>' + esc(data.baseline[k]) + '</td><td>' + esc(data.variant[k]) + '</td></tr>';
+      }
+      h += '</table>';
+      panel.innerHTML = h;
+    }
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      btnPick.hidden = true;
+      fileInput.hidden = true;
+    }
+
+    function hashParams() {
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    async function loadUrl(path) {
+      const res = await fetch(new URL(path, document.location));
+      if (!res.ok) throw new Error(res.statusText);
+      render(await res.json());
+    }
+
+    btnPick.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try { render(JSON.parse(t)); } catch (e) { panel.textContent = 'Invalid JSON: ' + e; }
+      });
+      fileInput.value = '';
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        await loadUrl(path);
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      hideLocalFileUi();
+      const src = hashParams().get('src');
+      if (src) {
+        try { await loadUrl(src); return; } catch (_) {}
+      }
+      try {
+        const res = await fetch(new URL('local_presets.json', document.location));
+        if (res.ok) {
+          for (const p of (await res.json()).presets || []) {
+            if (!p.path || !p.label) continue;
+            const opt = document.createElement('option');
+            opt.value = p.path;
+            opt.textContent = p.label;
+            presetSelect.appendChild(opt);
+          }
+          presetRow.hidden = false;
+          presetRow.style.display = 'inline-flex';
+        }
+      } catch (_) {}
+      for (const path of [
+        '../coupled_fork_demo/sample_coupling_comparison.json',
+        'sample_coupling_comparison.json',
+      ]) {
+        try {
+          await loadUrl(path);
+          for (let i = 0; i < presetSelect.options.length; i++) {
+            if (presetSelect.options[i].value === path) {
+              presetSelect.selectedIndex = i;
+              break;
+            }
+          }
+          return;
+        } catch (_) {}
+      }
+    }
+    boot();
+  </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

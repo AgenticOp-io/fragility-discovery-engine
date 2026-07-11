@@ -1,0 +1,47 @@
+{
+  "schema": "fragility-institutional-composite-v4",
+  "aggregate": {
+    "integral_instability": 3.1489289286007534,
+    "collapsed": true,
+    "attack_cost": 4.390144342183031,
+    "collapse_timestep": 4,
+    "simulation_mode": "aggregate"
+  },
+  "network": {
+    "integral_instability": 3.088730670199749,
+    "collapsed": true,
+    "attack_cost": 4.390144342183031,
+    "collapse_timestep": 4,
+    "simulation_mode": "network"
+  },
+  "resource_cascade": {
+    "integral_instability": 5.4425286540357565,
+    "collapsed": true,
+    "attack_cost": 4.390144342183031,
+    "collapse_timestep": 6,
+    "simulation_mode": "resource_cascade"
+  },
+  "service_backlog": {
+    "integral_instability": 0.10713793380066469,
+    "collapsed": false,
+    "attack_cost": 4.390144342183031,
+    "collapse_timestep": null,
+    "simulation_mode": "service_backlog"
+  },
+  "liquidity_ladder": {
+    "integral_instability": 0.28000089781031545,
+    "collapsed": false,
+    "attack_cost": 4.390144342183031,
+    "collapse_timestep": null,
+    "simulation_mode": "liquidity_ladder"
+  },
+  "aggregate_seed": 6900,
+  "network_seed": 6901,
+  "resource_cascade_seed": 6902,
+  "service_backlog_seed": 6903,
+  "liquidity_ladder_seed": 6904,
+  "genome_shape": [
+    10,
+    2
+  ]
+}

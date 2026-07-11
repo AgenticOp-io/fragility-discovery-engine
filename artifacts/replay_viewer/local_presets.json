@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "note": "Bundled demos on this server \u2014 pick a preset below. No files on your computer are required.",
+  "presets": [
+    {
+      "label": "Bundled: aggregate sample",
+      "path": "sample_replay.json"
+    },
+    {
+      "label": "Bundled: network sample",
+      "path": "sample_network_replay.json"
+    },
+    {
+      "label": "Bundled: resource_cascade sample",
+      "path": "sample_resource_cascade_replay.json"
+    },
+    {
+      "label": "Bundled: service_backlog sample (frozen bundle replay)",
+      "path": "sample_service_backlog_replay.json"
+    },
+    {
+      "label": "Bundled: liquidity ladder sample",
+      "path": "sample_liquidity_ladder_replay.json"
+    },
+    {
+      "label": "Bundled: inventory buffer sample",
+      "path": "sample_inventory_buffer_replay.json"
+    },
+    {
+      "label": "Research fork: coupled institution (panic \u2194 overload)",
+      "path": "sample_coupled_institution_replay.json"
+    }
+  ]
+}

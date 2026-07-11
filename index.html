@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fragility Discovery Engine — Workbench</title>
+  <meta name="description" content="Find the conditions that break a simulated system, then explore exactly why it broke." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a class="fde-active" href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+    <div id="fde-status" class="fde-status-bar"></div>
+
+    <article class="fde-prose fde-demo-intro">
+      <h2>How this demo works</h2>
+      <p>Every sample below is <strong>JSON on this server</strong>. Click a row to open the right viewer with that file already loaded. The public demo is <strong>browse-first</strong>: live <a href="/run.html">Run a scenario</a> needs an operator API key (or run locally with <code>pip install fragility-engine</code>).</p>
+      <p>Full map of pages and viewers: <a href="/docs/demo-guide.html">Demo guide</a> · CLI tutorials: <a href="/docs/how-to-use.html">How to Use</a> · Policy: <a href="/docs/gce-https-and-auth.html">Demo guardrails</a></p>
+    </article>
+
+    <div class="fde-hero fde-hero-compact">
+      <h1>Fragility Discovery Engine</h1>
+      <p>Search for fragile conditions in toy institutional simulations, then inspect replays, trade-off charts, and attribution paths.</p>
+      <div class="fde-hero-actions">
+        <a class="fde-btn-primary" href="/run.html">Run a scenario</a>
+        <a class="fde-btn-secondary" href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Flagship replay</a>
+        <a class="fde-btn-secondary" href="/?tour=1">Guided tour</a>
+        <a class="fde-btn-secondary" href="/docs/demo-guide.html">Demo guide</a>
+      </div>
+    </div>
+
+    <nav class="fde-quick-nav" aria-label="Viewer tools">
+      <a href="/artifacts/replay_viewer/index.html">Replay viewer</a>
+      <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a>
+      <a href="/artifacts/attribution_viewer/index.html">Attribution viewer</a>
+      <a href="/artifacts/composite_viewer/index.html">Composite viewer</a>
+      <a href="/runs.html">Past server runs</a>
+    </nav>
+
+    <section class="fde-demo-section">
+      <h2>Step-by-step replays</h2>
+      <p class="fde-demo-lead">Scrub timelines of collapse. Opens in the <a href="/artifacts/replay_viewer/index.html">replay viewer</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domain</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Flagship benchmark</td>
+            <td>Aggregate peg</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=../flagship/bundled/best_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Aggregate peg</td>
+            <td>Stablecoin reserves</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Network contagion</td>
+            <td>32-node graph</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_network_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Resource cascade</td>
+            <td>Dual capacity layers</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_resource_cascade_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Service backlog</td>
+            <td>Queue vs processing</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_service_backlog_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Liquidity ladder</td>
+            <td>Margin stress</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_liquidity_ladder_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Inventory buffer</td>
+            <td>Stock level</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_inventory_buffer_replay.json">Replay</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Attack trade-off charts (Pareto)</h2>
+      <p class="fde-demo-lead">Severity vs attack cost. Opens in the <a href="/artifacts/pareto_viewer/index.html">Pareto viewer</a>. Co-evolution runs on <a href="/run.html">Run a scenario</a> produce fresh charts under <code>/runs/&lt;id&gt;/</code>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domain</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Aggregate peg frontier</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_front.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Network contagion</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_network.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Resource cascade</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_resource_cascade.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Service backlog</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_service_backlog.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Liquidity ladder</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_liquidity_ladder.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>Inventory buffer</td>
+            <td>Charter</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_inventory_buffer.json">Chart</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Attribution and mutation chains</h2>
+      <p class="fde-demo-lead">Counterfactuals and stepwise interventions. Opens in the <a href="/artifacts/attribution_viewer/index.html">attribution viewer</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domain</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Rumor → depeg chain</td>
+            <td>Aggregate peg</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_aggregate_chain_rumor_depeg.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Resource cascade merge</td>
+            <td>Two branches</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_resource_cascade.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Inventory buffer merge</td>
+            <td>Lower starting stock</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_attribution_merge_inventory_buffer.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Inventory demand chain</td>
+            <td>Mutation chain</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_inventory_buffer_chain_demand_fulfillment.json">Attribution</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Multi-domain composite</h2>
+      <p class="fde-demo-lead">One attack genome evaluated on several domains. Opens in the <a href="/artifacts/composite_viewer/index.html">composite viewer</a> (use Presets for twin through hexa).</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Domains</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Hexa composite</td>
+            <td>All six charter domains</td>
+            <td><a href="/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json">Composite</a></td>
+          </tr>
+          <tr>
+            <td>Preset gallery</td>
+            <td>Twin · triple · quad · penta · hexa</td>
+            <td><a href="/artifacts/composite_viewer/index.html">Composite viewer</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section fde-demo-section-fork">
+      <h2>Research fork — coupled institution</h2>
+      <p class="fde-demo-lead">Peg panic and overload exchange signals inside one simulation step (not the six-domain charter). Policy: <a href="/docs/fork-coupling.html">Coupled fork notes</a> · raw JSON bundle: <a href="/artifacts/coupled_fork_demo/">coupled_fork_demo</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Sample</th><th>Viewer</th><th>Open</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Coupled replay</td>
+            <td>Replay</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Mutation chain</td>
+            <td>Attribution</td>
+            <td><a href="/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json">Attribution</a></td>
+          </tr>
+          <tr>
+            <td>Coupling sweep</td>
+            <td>Chart</td>
+            <td><a href="/artifacts/coupling_sweep_viewer/index.html">Sweep viewer</a></td>
+          </tr>
+          <tr>
+            <td>Coupling comparison</td>
+            <td>Compare</td>
+            <td><a href="/artifacts/coupling_comparison_viewer/index.html">Comparison viewer</a></td>
+          </tr>
+          <tr>
+            <td>GA Pareto frontier</td>
+            <td>Pareto</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>LLM export bundles</td>
+            <td>Manifest</td>
+            <td><a href="/artifacts/llm_prompts/coupled_fork_exports/">Prompt bundles</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

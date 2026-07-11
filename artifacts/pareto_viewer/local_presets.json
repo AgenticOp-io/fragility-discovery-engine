@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "note": "Bundled demos on this server \u2014 pick a preset below. No files on your computer are required.",
+  "presets": [
+    {
+      "label": "Bundled: sample Pareto front",
+      "path": "sample_pareto_front.json"
+    },
+    {
+      "label": "Bundled: resource_cascade Pareto",
+      "path": "sample_pareto_resource_cascade.json"
+    },
+    {
+      "label": "Bundled: service_backlog Pareto",
+      "path": "sample_pareto_service_backlog.json"
+    },
+    {
+      "label": "Bundled: network Pareto (ER-12)",
+      "path": "sample_pareto_network.json"
+    },
+    {
+      "label": "Bundled: liquidity_ladder Pareto",
+      "path": "sample_pareto_liquidity_ladder.json"
+    },
+    {
+      "label": "Bundled: inventory buffer Pareto",
+      "path": "sample_pareto_inventory_buffer.json"
+    },
+    {
+      "label": "Research fork: coupled institution Pareto",
+      "path": "sample_pareto_coupled_institution.json"
+    }
+  ]
+}

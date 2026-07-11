@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Past runs — Fragility Discovery Engine</title>
+  <meta name="description" content="Browse completed scenario runs and open their results in the viewer." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a class="fde-active" href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<article class="fde-prose">
+      <h2>Past runs</h2>
+      <p>Completed runs on this server. Each row links to the replay or Pareto viewer for that run and its raw files under <code>/runs/&lt;id&gt;/</code>.</p>
+    </article>
+
+    <div id="runsList"><p class="fde-run-help">Loading&hellip;</p></div>
+
+    <script>
+      (function () {
+        var el = document.getElementById('runsList');
+        fetch('/api/runs', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (runs) {
+            if (!runs.length) {
+              el.innerHTML = '<p>No runs yet. <a href="/run.html">Start one now.</a></p>';
+              return;
+            }
+            var rows = runs.map(function (s) {
+              var id    = s.id || '?';
+              var mode  = (s.request && s.request.mode) || '?';
+              var state = s.state || '?';
+              var seed  = (s.request && s.request.seed != null) ? s.request.seed : '';
+              var gens  = (s.request && s.request.generations != null) ? s.request.generations : '';
+              var pop   = (s.request && s.request.population != null) ? s.request.population : '';
+              var ts    = s.started_utc ? s.started_utc.replace('T', ' ').replace('Z', ' UTC') : '';
+              var dur   = (s.elapsed_s != null) ? s.elapsed_s.toFixed(1) + 's' : '';
+              var links = [];
+              if (s.viewer_url) links.push('<a href="' + s.viewer_url + '">Replay</a>');
+              if (s.pareto_url)  links.push('<a href="' + s.pareto_url  + '">Pareto</a>');
+              links.push('<a href="/runs/' + id + '/">files</a>');
+              var stateClass = state === 'done' ? 'color:var(--fde-green,#22c55e)' : state === 'failed' ? 'color:var(--fde-red,#ef4444)' : '';
+              return '<tr><td><code>' + id + '</code></td>' +
+                '<td>' + mode + '</td>' +
+                '<td style="' + stateClass + '">' + state + '</td>' +
+                '<td>' + seed + '</td>' +
+                '<td>' + gens + ' gen / ' + pop + ' pop</td>' +
+                '<td>' + ts + '</td>' +
+                '<td>' + dur + '</td>' +
+                '<td>' + links.join(' &middot; ') + '</td></tr>';
+            });
+            el.innerHTML = '<div style="overflow-x:auto"><table>' +
+              '<thead><tr><th>ID</th><th>Mode</th><th>State</th><th>Seed</th><th>Params</th><th>Started</th><th>Duration</th><th>Results</th></tr></thead>' +
+              '<tbody>' + rows.join('') + '</tbody>' +
+              '</table></div>' +
+              '<p class="fde-run-help">Showing up to 25 most recent runs. Run summaries are indexed on disk; artifact folders may be removed during maintenance.</p>';
+          })
+          .catch(function () {
+            el.innerHTML = '<p class="fde-run-help">Run history not available — the engine server may not be running. <a href="/host.html">Check this host.</a></p>';
+          });
+      })();
+    </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

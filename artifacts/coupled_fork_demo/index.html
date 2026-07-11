@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coupled fork demo bundle</title>
+  <style>
+    :root { color-scheme: dark light; font-family: system-ui, sans-serif; }
+    body { margin: 0; padding: 24px; max-width: 720px; margin-inline: auto; line-height: 1.5; }
+    a { color: #7eb8ff; }
+    code { font-size: 0.92em; }
+  </style>
+</head>
+<body>
+  <h1>Coupled institution — research fork JSON</h1>
+  <p>Frozen artifacts from <code>forks/coupled_institution/</code>. Not part of the six-domain charter on <code>main</code>.</p>
+  <ul>
+    <li><a href="sample_coupled_replay.json">sample_coupled_replay.json</a> — golden rollout</li>
+    <li><a href="coupling_strength_sweep.json">coupling_strength_sweep.json</a> — pinned-schedule sweep</li>
+    <li><a href="sample_coupling_comparison.json">sample_coupling_comparison.json</a> — baseline vs variant</li>
+    <li><a href="sample_coupled_mutation_chain.json">sample_coupled_mutation_chain.json</a> — mutation chain path</li>
+    <li><a href="sample_coupled_pareto_front.json">sample_coupled_pareto_front.json</a> — GA Pareto archive (severity vs cost)</li>
+    <li><a href="sample_coupled_pareto_front.png">sample_coupled_pareto_front.png</a> — static Pareto plot (matplotlib)</li>
+    <li><a href="coupling_strength_sweep.png">coupling_strength_sweep.png</a> — static sweep plot (matplotlib)</li>
+  </ul>
+  <p>
+    <a href="../llm_prompts/coupled_fork_exports/manifest.json">LLM prompt bundles</a> (checked-in exports for all five artifacts)
+  </p>
+  <p>
+    Viewers:
+    <a href="../replay_viewer/index.html#src=../replay_viewer/sample_coupled_institution_replay.json">replay</a> ·
+    <a href="../attribution_viewer/index.html#src=../attribution_viewer/sample_coupled_mutation_chain.json">attribution chain</a> ·
+    <a href="../coupling_sweep_viewer/index.html">coupling sweep chart</a> ·
+    <a href="../coupling_comparison_viewer/index.html">baseline vs variant</a> ·
+    <a href="../pareto_viewer/index.html#src=sample_pareto_coupled_institution.json">coupled Pareto</a> ·
+    <a href="../../docs/fork-coupling.html">fork policy</a>
+  </p>
+</body>
+</html>

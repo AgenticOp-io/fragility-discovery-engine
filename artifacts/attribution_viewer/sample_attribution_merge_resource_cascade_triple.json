@@ -1,0 +1,117 @@
+{
+  "schema": "attribution-merge-v1",
+  "strict_baseline": true,
+  "branch_count": 3,
+  "nodes": [
+    {
+      "id": "baseline",
+      "kind": "root",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.778393331737857,
+        "integral_instability": 7.396988822039046,
+        "recovery_timestep": null,
+        "attack_cost": 6.14355138676674,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66203
+      }
+    },
+    {
+      "id": "branch_0",
+      "kind": "counterfactual",
+      "bundle_index": 0,
+      "intervention": "remove_steps",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.778393331737857,
+        "integral_instability": 7.396988822039046,
+        "recovery_timestep": null,
+        "attack_cost": 6.14355138676674,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66203
+      }
+    },
+    {
+      "id": "branch_1",
+      "kind": "counterfactual",
+      "bundle_index": 1,
+      "intervention": "resource_cascade_initial_overload_shift",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.8024810296605407,
+        "integral_instability": 7.6213573380271455,
+        "recovery_timestep": null,
+        "attack_cost": 6.14355138676674,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66203
+      }
+    },
+    {
+      "id": "branch_2",
+      "kind": "counterfactual",
+      "bundle_index": 2,
+      "intervention": "resource_cascade_cascade_coupling_shift",
+      "rollout": {
+        "collapsed": true,
+        "collapse_timestep": 6,
+        "peak_instability": 1.8144686508297547,
+        "integral_instability": 7.487653357790613,
+        "recovery_timestep": null,
+        "attack_cost": 6.14355138676674,
+        "mode": "resource_cascade",
+        "horizon_steps": 7,
+        "seed": 66203
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "baseline",
+      "to": "branch_0",
+      "intervention": "remove_steps",
+      "delta_integral_instability": 0.0,
+      "delta_attack_cost": 0.0,
+      "removed_timesteps": [
+        0
+      ]
+    },
+    {
+      "from": "baseline",
+      "to": "branch_1",
+      "intervention": "resource_cascade_initial_overload_shift",
+      "delta_integral_instability": -0.22436851598809948,
+      "delta_attack_cost": 0.0,
+      "baseline_initial_overload": 0.07,
+      "variant_initial_overload": 0.11
+    },
+    {
+      "from": "baseline",
+      "to": "branch_2",
+      "intervention": "resource_cascade_cascade_coupling_shift",
+      "delta_integral_instability": -0.09066453575156697,
+      "delta_attack_cost": 0.0,
+      "baseline_cascade_coupling": 0.26,
+      "variant_cascade_coupling": 0.35
+    }
+  ],
+  "meta": {
+    "cli": "export_resource_cascade_triple_attribution",
+    "domain": "resource_cascade",
+    "branch_count": 3,
+    "baseline_initial_overload": 0.07,
+    "removed_timesteps_branch": [
+      0
+    ],
+    "variant_initial_overload_branch": 0.11,
+    "variant_cascade_coupling_branch": 0.35,
+    "baseline_cascade_coupling_template": 0.26,
+    "rollout_seed": 66203,
+    "genome_seed": 66204
+  }
+}

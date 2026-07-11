@@ -1,0 +1,139 @@
+{
+  "schema": "counterfactual-bundle-v1",
+  "baseline": {
+    "collapsed": true,
+    "collapse_timestep": 5,
+    "peak_instability": 2.6695710814957727,
+    "integral_instability": 3.3302443649264752,
+    "recovery_timestep": null,
+    "attack_cost": 2.6740890187775315,
+    "mode": "network",
+    "horizon_steps": 6,
+    "seed": 66501
+  },
+  "counterfactual": {
+    "collapsed": true,
+    "collapse_timestep": 5,
+    "peak_instability": 3.0135197036055685,
+    "integral_instability": 4.005967207191238,
+    "recovery_timestep": null,
+    "attack_cost": 2.6740890187775315,
+    "mode": "network",
+    "horizon_steps": 6,
+    "seed": 66501
+  },
+  "interpretation_hint": "Both collapse \u2014 compare cost/timing for marginal attribution.",
+  "intervention": "network_mutation_chain",
+  "mutation_steps": [
+    {
+      "kind": "contagion_beta",
+      "value": 0.18
+    },
+    {
+      "kind": "base_panic",
+      "value": 0.14
+    }
+  ],
+  "baseline_base_panic": 0.05,
+  "variant_base_panic": 0.14,
+  "delta_attack_cost": 0.0,
+  "delta_integral_instability": -0.6757228422647632,
+  "meta": {
+    "cli": "export_counterfactual_chain",
+    "base_seed": 66501,
+    "chain_schema": "network-mutation-chain-spec-v1",
+    "chain_json": "C:\\Users\\david\\projects\\fragility-discovery-engine\\tests\\fixtures\\chains\\network_contagion_base_panic_chain.json",
+    "continue_after_collapse": false,
+    "topology": {
+      "storage": "neighbor_lists",
+      "n_nodes": 2,
+      "out_edges": 2,
+      "weighted": false,
+      "directed": true
+    }
+  },
+  "path_trace": {
+    "schema": "explanation-mutation-chain-path-v1",
+    "source_chain_schema": "network-mutation-chain-spec-v1",
+    "rollout_seed": 66501,
+    "baseline_base_panic": 0.05,
+    "variant_base_panic": 0.14,
+    "nodes": [
+      {
+        "id": "chain_0",
+        "index": 0,
+        "mutations_applied": 0,
+        "reset_panic": 0.05,
+        "collapsed": true,
+        "collapse_timestep": 5,
+        "peak_instability": 2.6695710814957727,
+        "integral_instability": 3.3302443649264752,
+        "recovery_timestep": null,
+        "attack_cost": 2.6740890187775315,
+        "mode": "network",
+        "horizon_steps": 6,
+        "seed": 66501
+      },
+      {
+        "id": "chain_1",
+        "index": 1,
+        "mutations_applied": 1,
+        "reset_panic": 0.05,
+        "collapsed": true,
+        "collapse_timestep": 5,
+        "peak_instability": 2.6423868207519385,
+        "integral_instability": 3.3511240337126083,
+        "recovery_timestep": null,
+        "attack_cost": 2.6740890187775315,
+        "mode": "network",
+        "horizon_steps": 6,
+        "seed": 66501
+      },
+      {
+        "id": "chain_2",
+        "index": 2,
+        "mutations_applied": 2,
+        "reset_panic": 0.14,
+        "collapsed": true,
+        "collapse_timestep": 5,
+        "peak_instability": 3.0135197036055685,
+        "integral_instability": 4.005967207191238,
+        "recovery_timestep": null,
+        "attack_cost": 2.6740890187775315,
+        "mode": "network",
+        "horizon_steps": 6,
+        "seed": 66501
+      }
+    ],
+    "edges": [
+      {
+        "from": "chain_0",
+        "to": "chain_1",
+        "kind": "mutation_chain_step",
+        "step_index": 0,
+        "step": {
+          "kind": "contagion_beta",
+          "value": 0.18
+        },
+        "delta_integral_instability": 0.02087966878613301,
+        "delta_attack_cost": 0.0,
+        "reset_panic_from": 0.05,
+        "reset_panic_to": 0.05
+      },
+      {
+        "from": "chain_1",
+        "to": "chain_2",
+        "kind": "mutation_chain_step",
+        "step_index": 1,
+        "step": {
+          "kind": "base_panic",
+          "value": 0.14
+        },
+        "delta_integral_instability": 0.6548431734786302,
+        "delta_attack_cost": 0.0,
+        "reset_panic_from": 0.05,
+        "reset_panic_to": 0.14
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "attribution-merge-v1",
+  "strict_baseline": true,
+  "branch_count": 2,
+  "nodes": [
+    {
+      "id": "baseline",
+      "kind": "root",
+      "rollout": {
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.2444013132503275,
+        "integral_instability": 0.5199130237039495,
+        "recovery_timestep": null,
+        "attack_cost": 7.339097604319188,
+        "mode": "liquidity_ladder",
+        "horizon_steps": 28,
+        "seed": 69101
+      }
+    },
+    {
+      "id": "branch_0",
+      "kind": "counterfactual",
+      "bundle_index": 0,
+      "intervention": "remove_steps",
+      "rollout": {
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.2444013132503275,
+        "integral_instability": 0.5199130237039495,
+        "recovery_timestep": null,
+        "attack_cost": 7.339097604319188,
+        "mode": "liquidity_ladder",
+        "horizon_steps": 28,
+        "seed": 69101
+      }
+    },
+    {
+      "id": "branch_1",
+      "kind": "counterfactual",
+      "bundle_index": 1,
+      "intervention": "liquidity_ladder_initial_margin_shift",
+      "rollout": {
+        "collapsed": false,
+        "collapse_timestep": null,
+        "peak_instability": 0.2444013132503275,
+        "integral_instability": 0.5199130237039495,
+        "recovery_timestep": null,
+        "attack_cost": 7.339097604319188,
+        "mode": "liquidity_ladder",
+        "horizon_steps": 28,
+        "seed": 69101
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "baseline",
+      "to": "branch_0",
+      "intervention": "remove_steps",
+      "delta_integral_instability": 0.0,
+      "delta_attack_cost": 0.0,
+      "removed_timesteps": [
+        0
+      ]
+    },
+    {
+      "from": "baseline",
+      "to": "branch_1",
+      "intervention": "liquidity_ladder_initial_margin_shift",
+      "delta_integral_instability": 0.0,
+      "delta_attack_cost": 0.0,
+      "baseline_initial_margin": 0.07,
+      "variant_initial_margin": 0.02
+    }
+  ],
+  "meta": {
+    "cli": "export_liquidity_ladder_joint_attribution",
+    "domain": "liquidity_ladder",
+    "second_branch": "initial_margin_shift",
+    "baseline_initial_margin": 0.07,
+    "removed_timesteps_branch": [
+      0
+    ],
+    "rollout_seed": 69101,
+    "genome_seed": 69102,
+    "variant_initial_margin_branch": 0.02
+  }
+}

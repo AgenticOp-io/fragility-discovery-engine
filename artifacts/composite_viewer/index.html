@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragility institutional composite viewer</title>
+    <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+  <meta name="fde-public-demo" content="1"/>
+</head>
+<body class="fde-app fde-public-demo">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.6.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a class="fde-active" href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+  <main class="fde-main fde-viewer-main">
+<nav class="fde-viewer-strip" aria-label="Artifact viewers">
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a class="fde-active" href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/artifacts/coupling_sweep_viewer/index.html">Coupling sweep</a>
+<a href="/artifacts/coupling_comparison_viewer/index.html">Coupling compare</a>
+<p class="fde-viewer-banner">Server-hosted JSON only — choose a <strong>Preset</strong> or open a sample from the <a href="/">workbench</a>. Local upload is off on this demo. <a href="/docs/demo-guide.html">Demo guide</a></p>
+</nav>
+
+  <strong>Composite viewer</strong>
+  <p>
+    Side-by-side fragility scorecard for one shared scenario, run through several different domain models at once
+    (peg, network contagion, resource cascade, service backlog, liquidity ladder). One row per domain — same shock, different lenses.
+  </p>
+
+  <details>
+    <summary><strong>What the table shows</strong></summary>
+    <ul>
+      <li><strong>kernel</strong> — which domain model was used (aggregate, network, resource_cascade, service_backlog, liquidity_ladder).</li>
+      <li><strong>integral instability</strong> — total accumulated stress over the run; higher means more fragile under this shock.</li>
+      <li><strong>collapsed</strong> — did this domain actually break? Green = no, red = yes.</li>
+      <li><strong>attack cost</strong> — what the attacker had to spend.</li>
+      <li><strong>collapse timestep</strong> — when the break happened, if it did.</li>
+    </ul>
+    <p>
+      This is a metric snapshot, not a timeline — for a step-by-step replay of a single domain, use the
+      <a href="../replay_viewer/index.html">Replay viewer</a>.
+    </p>
+  </details>
+
+  <details>
+    <summary><strong>How to use it</strong></summary>
+    <ul>
+      <li>Pick a preset (twin / triple / quad / penta composite) or load your own <code>fragility-institutional-composite-v1…v4</code> JSON.</li>
+      <li>Compare rows: domains where instability spikes but collapse stays green are the ones with the smallest safety margin.</li>
+    </ul>
+  </details>
+
+  <p>
+    Related views: <a href="../replay_viewer/index.html">Replay viewer</a> ·
+    <a href="../pareto_viewer/index.html">Pareto viewer</a> ·
+    <a href="../attribution_viewer/index.html">Attribution viewer</a>.
+  </p>
+  <div>
+    <button type="button" class="btn" id="btnPick">Choose JSON…</button>
+    <span id="presetRow" hidden>
+      <label for="presetSelect">Presets (HTTP)</label>
+      <select id="presetSelect" aria-label="Load preset composite JSON">
+        <option value="">— select —</option>
+      </select>
+      <span id="presetStatus"></span>
+    </span>
+    <input id="file" type="file" accept="application/json,.json" hidden />
+  </div>
+  <div id="panel">Load JSON to begin.</div>
+
+  <script>
+    const BRANCH_KEYS = ['aggregate', 'network', 'resource_cascade', 'service_backlog', 'liquidity_ladder'];
+    const panel = document.getElementById('panel');
+    const fileInput = document.getElementById('file');
+    const presetRow = document.getElementById('presetRow');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetStatus = document.getElementById('presetStatus');
+    const btnPick = document.getElementById('btnPick');
+
+    function isPublicDemo() {
+      return document.querySelector('meta[name="fde-public-demo"]') !== null;
+    }
+
+    function hashParams() {
+      let raw = (location.hash || '').replace(/^#/, '');
+      raw = raw.replace(/\?tour=1$/, '').replace(/&tour=1/g, '');
+      if (!raw) return new URLSearchParams();
+      return new URLSearchParams(raw);
+    }
+
+    function hideLocalFileUi() {
+      if (!isPublicDemo()) return;
+      btnPick.hidden = true;
+      fileInput.hidden = true;
+    }
+
+    async function loadCompositeUrl(path) {
+      const res = await fetch(new URL(path, document.location));
+      if (!res.ok) return false;
+      renderComposite(await res.json());
+      presetStatus.textContent = 'Loaded';
+      return true;
+    }
+
+    btnPick.addEventListener('click', () => fileInput.click());
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function renderComposite(data) {
+      const sch = data.schema || '';
+      if (!String(sch).startsWith('fragility-institutional-composite-v')) {
+        panel.textContent = 'Expected fragility-institutional-composite-v1–v4, got: ' + sch;
+        return;
+      }
+      const rows = [];
+      for (const k of BRANCH_KEYS) {
+        const b = data[k];
+        if (b && typeof b === 'object') rows.push([k, b]);
+      }
+      if (!rows.length) {
+        panel.textContent = 'No branch objects found in composite JSON.';
+        return;
+      }
+      let h = '<h2>' + esc(sch) + '</h2>';
+      h += '<p>genome_shape=' + esc(JSON.stringify(data.genome_shape)) + '</p>';
+      h += '<h2>Branches</h2><table><tr><th>kernel</th><th>simulation_mode</th><th>integral_instability</th><th>collapsed</th><th>attack_cost</th><th>collapse_timestep</th></tr>';
+      for (const [k, b] of rows) {
+        const col = b.collapsed ? 'collapsed-yes' : 'collapsed-no';
+        h += '<tr><td>' + esc(k) + '</td><td>' + esc(b.simulation_mode) + '</td><td>' + esc(b.integral_instability) +
+          '</td><td class="' + col + '">' + esc(b.collapsed) + '</td><td>' + esc(b.attack_cost) + '</td><td>' +
+          esc(b.collapse_timestep) + '</td></tr>';
+      }
+      h += '</table><h2>Seeds</h2><table><tr><th>field</th><th>value</th></tr>';
+      for (const [key, val] of Object.entries(data)) {
+        if (key.endsWith('_seed')) h += '<tr><td>' + esc(key) + '</td><td>' + esc(val) + '</td></tr>';
+      }
+      h += '</table>';
+      panel.innerHTML = h;
+    }
+
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      f.text().then(t => {
+        try { renderComposite(JSON.parse(t)); }
+        catch (e) { panel.textContent = 'Invalid JSON: ' + e; }
+      });
+      fileInput.value = '';
+    });
+
+    presetSelect.addEventListener('change', async () => {
+      const path = presetSelect.value;
+      if (!path) return;
+      presetStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(new URL(path, document.location));
+        if (!res.ok) throw new Error(res.statusText);
+        renderComposite(await res.json());
+        presetStatus.textContent = 'Loaded';
+      } catch (e) {
+        presetStatus.textContent = 'Failed: ' + e;
+      }
+    });
+
+    async function boot() {
+      hideLocalFileUi();
+      const src = hashParams().get('src');
+      if (src) {
+        try {
+          if (await loadCompositeUrl(src)) {
+            presetRow.hidden = false;
+            presetRow.style.display = 'inline-flex';
+            return;
+          }
+        } catch (_) { /* fall through */ }
+      }
+      try {
+        const res = await fetch('local_presets.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        presetRow.hidden = false;
+        presetRow.style.display = 'inline-flex';
+        for (const p of data.presets || []) {
+          const o = document.createElement('option');
+          o.value = p.path;
+          o.textContent = p.label;
+          presetSelect.appendChild(o);
+        }
+        const defaults = [
+          '../composite_demo/sample_hexa_composite.json',
+          '../composite_demo/sample_quad_composite.json',
+        ];
+        for (const path of defaults) {
+          try {
+            if (await loadCompositeUrl(path)) {
+              for (let i = 0; i < presetSelect.options.length; i++) {
+                if (presetSelect.options[i].value === path) {
+                  presetSelect.selectedIndex = i;
+                  break;
+                }
+              }
+              return;
+            }
+          } catch (_) { /* try next */ }
+        }
+      } catch (_) { /* file:// */ }
+      if (isPublicDemo()) {
+        panel.textContent = 'Loading bundled composite from server…';
+      }
+    }
+    boot();
+  </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

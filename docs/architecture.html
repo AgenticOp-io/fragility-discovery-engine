@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Architecture — Fragility Discovery Engine</title>
+  <meta name="description" content="How the code is organized, how a search run flows through it, and how to add new simulation domains." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a class="fde-active" href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Architecture</h2>
+<p>This document describes how the Fragility Discovery Engine is structured: what runs where, how data flows from a stress schedule to output files, and how the simulation domains relate. For CLI flags and output file formats, see <a href="/docs/reference.html">Reference</a>. For scope and non-goals, see <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/BOUNDARIES.md">BOUNDARIES.md</a>.</p>
+<hr>
+<h3>Design goal</h3>
+<p>The engine answers one question in a <strong>controlled, repeatable</strong> way:</p>
+<p>&gt; Given a fixed simulation world and a search budget, which <strong>stress schedules</strong> (sequences of external events) drive <strong>high instability</strong> or <strong>collapse</strong>, and what <strong>minimal changes</strong> explain the difference between two runs?</p>
+<p>Everything else — trade-off charts, certificates, narration, static HTML viewers — is built on top of that core loop.</p>
+<hr>
+<h3>Code layers</h3>
+<p>```</p>
+<p>  scripts/*.py             Command-line entry points (one script per task, pinned seeds)</p>
+<p>        │</p>
+<p>        ▼</p>
+<p>  fragility_engine.adversary     Monte Carlo / genetic search over stress schedules</p>
+<p>        │</p>
+<p>        ▼</p>
+<p>  fragility_engine.runner        Decode a schedule, apply events, collect the result</p>
+<p>        │</p>
+<p>        ▼</p>
+<p>  fragility_engine.world.*       Physics: reset, step forward, report metrics</p>
+<p>        │</p>
+<p>        ▼</p>
+<p>  fragility_engine.agents        Shared agent population helpers (observe, decide, act)</p>
+<p>```</p>
+<p>Each layer has a strict boundary:</p>
+<table><thead>
+<tr><th>Layer</th><th>Contains</th><th>Does not contain</th></tr>
+</thead><tbody>
+<tr><td><code>world/</code></td><td>State, transitions, collapse rules</td><td>Search algorithms, attacker logic</td></tr>
+<tr><td><code>adversary/</code></td><td>Schedule encoding, fitness, search</td><td>Domain-specific physics</td></tr>
+<tr><td><code>explain/</code></td><td>Counterfactuals, sweeps, narration</td><td>Changes to world physics</td></tr>
+<tr><td><code>network/</code></td><td>Graph topology, contagion update</td><td>Search loops</td></tr>
+</tbody></table>
+<hr>
+<h3>How a single run works</h3>
+<p>1. <strong>Schedule encoding</strong> — a NumPy array of shape <code>(horizon, 2)</code>, values in <code>[0, 1]</code>. Each row encodes the type and intensity of the stress event for that timestep.</p>
+<p>2. <strong>Decode</strong> — the schedule is decoded deterministically: the same input always produces the same event sequence.</p>
+<p>3. <strong>World reset</strong> — the simulation starts from a fixed initial state (panic level, overload, backlog, margin, stock level, etc. depending on the domain).</p>
+<p>4. <strong>Steps</strong> — at each timestep: agents act, the world advances one step, metrics are recorded. Continues until the step limit or collapse.</p>
+<p>5. <strong>Result</strong> — collects total accumulated stress, peak stress, whether the system collapsed, and the full step-by-step trajectory.</p>
+<p>6. <strong>Replay file</strong> (optional) — packages the result as a JSON file you can load in the browser viewer.</p>
+<p>Search (Monte Carlo or genetic algorithm) calls this same run function thousands of times with different schedules and random seeds. The best-scoring results are saved.</p>
+<hr>
+<h3>Simulation modes</h3>
+<p>All modes share the <strong>same stress encoding</strong>. The physics of each world is different.</p>
+<table><thead>
+<tr><th><code>--mode</code></th><th>World class</th><th>Key starting parameters</th><th>What it models</th></tr>
+</thead><tbody>
+<tr><td><code>aggregate</code></td><td><code>StablecoinPegWorld</code></td><td><code>initial_panic</code></td><td>Stablecoin reserve under redemption pressure and panic</td></tr>
+<tr><td><code>network</code></td><td><code>StablecoinNetworkWorld</code></td><td><code>base_panic</code>, graph topology</td><td>Panic spreading across a graph of connected nodes</td></tr>
+<tr><td><code>resource_cascade</code></td><td><code>ResourceCascadeWorld</code></td><td><code>initial_overload</code></td><td>Overload cascading through two coupled capacity layers</td></tr>
+<tr><td><code>service_backlog</code></td><td><code>ServiceBacklogWorld</code></td><td><code>initial_backlog</code>, <code>process_rate</code></td><td>Operations queue where demand fights processing rate</td></tr>
+<tr><td><code>liquidity_ladder</code></td><td><code>LiquidityLadderWorld</code></td><td><code>initial_margin</code>, delever/haircut params</td><td>Financial margin eroding toward a forced sell-off</td></tr>
+<tr><td><code>inventory_buffer</code></td><td><code>InventoryBufferWorld</code></td><td><code>initial_stock</code></td><td>Stock level under demand spikes and fulfillment problems</td></tr>
+</tbody></table>
+<p>All co-evolution and search scripts accept <code>--mode</code> and route to the appropriate simulation and defender logic.</p>
+<hr>
+<h3>Search and the trade-off chart</h3>
+<table><thead>
+<tr><th>Method</th><th>Module</th><th>Output</th></tr>
+</thead><tbody>
+<tr><td>Monte Carlo</td><td><code>adversary.search.monte_carlo_search</code></td><td>Best sample, optional replay</td></tr>
+<tr><td>Genetic algorithm</td><td><code>adversary.search.genetic_search</code></td><td>Best schedule; optional Pareto archive</td></tr>
+<tr><td>Attacker/defender co-evolution</td><td><code>coevolution.alternating_*</code></td><td>Rounds of alternating GA; optional Pareto per round</td></tr>
+</tbody></table>
+<p>The trade-off chart (Pareto front) shows two objectives: <strong>severity</strong> (instability) vs <strong>attack cost</strong>. These are projected from the search history after the run — the search itself optimizes for a single fitness score.</p>
+<p>Parallel evaluation clones the simulation world per worker thread so each evaluation is independent.</p>
+<hr>
+<h3>Explanation layer</h3>
+<p>Explanation code <strong>never</strong> modifies how the simulation steps. It re-runs the simulation with controlled changes and compares the results:</p>
+<table><thead>
+<tr><th>Technique</th><th>Question it answers</th></tr>
+</thead><tbody>
+<tr><td>Remove steps</td><td>What if certain stress events had not happened?</td></tr>
+<tr><td>Scalar shift</td><td>What if the starting conditions had been different?</td></tr>
+<tr><td>Mutation chain</td><td>What if the world&#x27;s physical parameters changed one at a time?</td></tr>
+<tr><td>Parameter sweep</td><td>How does instability change as one parameter moves across a range?</td></tr>
+<tr><td>Attribution merge</td><td>Which of several interventions made the most difference?</td></tr>
+</tbody></table>
+<p>Outputs are JSON files with stable format identifiers (<code>attribution-merge-v1</code>, <code>explanation-dag-v1</code>, etc.) so they can be versioned and cited.</p>
+<p><strong>Multi-domain comparison</strong> runs the same stress schedule through several simulation worlds independently and produces a side-by-side summary. The worlds never share state — it is a comparison, not a coupled simulation.</p>
+<hr>
+<h3>Automated tests and frozen benchmarks</h3>
+<table><thead>
+<tr><th>Component</th><th>What it does</th></tr>
+</thead><tbody>
+<tr><td><code>benchmarks.suite</code></td><td>Six reference runs with pinned seeds and known-good metrics. Every CI run checks these.</td></tr>
+<tr><td><code>benchmarks.manifest</code></td><td>A portable inventory of all bundles and their checksums.</td></tr>
+<tr><td><code>run_benchmark_suite.py --validate</code></td><td>Runs all reference bundles and confirms the results match expectations.</td></tr>
+<tr><td><code>scripts/check_*</code></td><td>Additional checks for manifest digest, bundled file paths, and the flagship demo bundle.</td></tr>
+</tbody></table>
+<p>The full test suite also runs the linter, all unit tests, viewer preset validation, and optional Numba backend parity on the resource cascade domain.</p>
+<hr>
+<h3>Reproducibility</h3>
+<ul>
+<li>Every run uses NumPy&#x27;s random number generator with an explicit seed you supply on the command line.</li>
+<li>The same code version, seeds, and flags always produce the same metrics and trajectory (within the float tolerances documented in the frozen benchmark bundles).</li>
+<li>Parallel evaluation is safe only when each worker gets its own copy of the simulation world — the engine handles this automatically via world cloning.</li>
+<li>The optional Numba-accelerated backend for the resource cascade domain is tested for numeric parity against the default NumPy path before any performance claims are made.</li>
+</ul>
+<hr>
+<h3>Adding new capabilities</h3>
+<table><thead>
+<tr><th>What you want to add</th><th>How to do it</th></tr>
+</thead><tbody>
+<tr><td>A new simulation domain</td><td>Add a <code>world/</code> module with reset, step, and metrics; add a rollout function; write replay contract tests; add a frozen reference bundle.</td></tr>
+<tr><td>A custom attacker/defender loop</td><td>Pass your own deterministic rollout function to <code>alternating_coevolution_rollout</code>.</td></tr>
+<tr><td>A real-world network topology</td><td>Use the <code>--neighbor-json</code> flag with a JSON file of directed out-neighbor lists.</td></tr>
+<tr><td>Faster resource cascade runs</td><td><code>pip install -e &quot;.[accelerate]&quot;</code> enables the optional Numba-accelerated backend.</td></tr>
+</tbody></table>
+<p>Adding physics where multiple worlds share state within a single timestep is out of scope for this repository and belongs in a separate research fork.</p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

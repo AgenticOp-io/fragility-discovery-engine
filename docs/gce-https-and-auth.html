@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Demo guardrails — Fragility Discovery Engine</title>
+  <meta name="description" content="Public demo policy: browse-first, live runs require an API key." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>GCE HTTPS and demo guardrails</h2>
+<p><strong>Public workbench default:</strong> browse bundled samples freely; <strong>live <code>POST /api/run</code> is closed</strong> unless an operator sets <code>FRAGILITY_RUN_API_KEY</code> (or explicitly opts into anonymous runs on a private host).</p>
+<p>Live demo: http://34.61.255.147/ · status: http://34.61.255.147/status.json · <code>/api/health</code> reports <code>live_runs_enabled</code> / <code>run_auth_required</code>.</p>
+<h3>Guardrails (default)</h3>
+<table><thead>
+<tr><th>Control</th><th>Default</th><th>Env</th></tr>
+</thead><tbody>
+<tr><td>Anonymous live runs</td><td><strong>off</strong></td><td><code>FRAGILITY_ALLOW_ANONYMOUS_RUNS=1</code> to open (private hosts only)</td></tr>
+<tr><td>Run API key</td><td>required when anonymous off</td><td><code>FRAGILITY_RUN_API_KEY</code></td></tr>
+<tr><td>Per-IP hourly cap</td><td><strong>3</strong></td><td><code>FRAGILITY_MAX_RUNS_PER_IP_HOUR</code></td></tr>
+<tr><td>Concurrent runs</td><td>1</td><td>hard-coded</td></tr>
+<tr><td>Bind address</td><td><code>127.0.0.1</code> (nginx proxy)</td><td><code>FRAGILITY_RUNNER_HOST</code></td></tr>
+</tbody></table>
+<p><code>gce_install_run_server.sh</code> writes a <strong>random</strong> API key into <code>/etc/fragility/runner.env</code> when missing, and hardens older open installs the same way.</p>
+<p>Clients send <code>X-Fragility-Run-Key: &lt;key&gt;</code> or <code>Authorization: Bearer &lt;key&gt;</code>. The run page shows a key field when <code>/api/health</code> reports <code>run_auth_required: true</code>. Operators can open <code>http://…/run.html?run_key=YOUR_KEY</code> once (session storage).</p>
+<p><strong>Do not</strong> set <code>FRAGILITY_ALLOW_ANONYMOUS_RUNS=1</code> on the public IP demo.</p>
+<p>Edit on the VM:</p>
+<p>```bash</p>
+<p>sudo nano /etc/fragility/runner.env</p>
+<p>sudo systemctl restart fragility-runner</p>
+<p>```</p>
+<p>Example file: <a href="../scripts/gce_runner.env.example"><code>scripts/gce_runner.env.example</code></a>.</p>
+<hr>
+<h3>HTTPS (Let&#x27;s Encrypt) — optional</h3>
+<p>The workbench VM external IP is <strong>34.61.255.147</strong>. A friendly hostname needs a DNS <strong>A record</strong> before certificates can be issued.</p>
+<table><thead>
+<tr><th>Record</th><th>Type</th><th>Value</th></tr>
+</thead><tbody>
+<tr><td><code>fragility.agenticop.io</code></td><td>A</td><td><code>34.61.255.147</code></td></tr>
+</tbody></table>
+<p>After DNS propagates:</p>
+<p>```powershell</p>
+<p>powershell -File scripts/check_fragility_dns.ps1</p>
+<p>powershell -File scripts/gce_enable_https.ps1</p>
+<p>```</p>
+<p>Or on the VM:</p>
+<p>```bash</p>
+<p>sudo FRAGILITY_PUBLIC_HOST=fragility.agenticop.io bash scripts/gce_install_https.sh</p>
+<p>```</p>
+<hr>
+<h3>PyPI publish</h3>
+<p>GitHub Actions workflow <strong>Publish to PyPI</strong> (<code>.github/workflows/pypi.yml</code>) runs manually:</p>
+<p>1. Add repository secret <code>PYPI_API_TOKEN</code> (PyPI → Account → API tokens).</p>
+<p>2. Actions → <strong>Publish to PyPI</strong> → Run workflow → type <code>publish</code> in the confirm field.</p>
+<p>Local:</p>
+<p>```bash</p>
+<p>python scripts/check_pypi_ready.py --tag v0.6.0</p>
+<p>python -m twine upload dist/*   # TWINE_USERNAME=__token__ TWINE_PASSWORD=&lt;pypi token&gt;</p>
+<p>```</p>
+<hr>
+<h3>Zenodo version (software release)</h3>
+<p>Concept DOI: <a href="https://doi.org/10.5281/zenodo.20455688">10.5281/zenodo.20455688</a> (version DOI for <code>fel-v0.1.1</code>: <a href="https://doi.org/10.5281/zenodo.20455689">10.5281/zenodo.20455689</a>).</p>
+<p>```powershell</p>
+<p>$env:ZENODO_TOKEN = &quot;&lt;personal access token with deposit:write&gt;&quot;</p>
+<p>python scripts/publish_zenodo_version.py --tag v0.6.0 --attach-dist --publish</p>
+<p>```</p>
+<p>See <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/ZENODO.md"><code>docs/ZENODO.md</code></a>.</p></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

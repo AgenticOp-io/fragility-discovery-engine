@@ -1,0 +1,806 @@
+/* ═══════════════════════════════════════════════════════════════
+   Fragility Discovery Engine — single global stylesheet
+   All pages share body.fde-app. Typography tokens are defined once
+   here and cascade everywhere — no per-section overrides.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── 1. Design tokens ─── */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --fde-bg:           #0c0e14;
+  --fde-surface:      #141820;
+  --fde-surface-raised: #1a2030;
+  --fde-inset:        #0f1420;
+  --fde-border:       #2a3140;
+  --fde-border-soft:  rgba(136,136,136,0.35);
+
+  /* Text */
+  --fde-text:         #e8ecf4;
+  --fde-muted:        #8b95a8;
+
+  /* Accent */
+  --fde-accent:       #6eb5f7;
+  --fde-accent-dim:   #4a7fb8;
+  --fde-agenticop:    #7c9cff;
+  --fde-ok:           #5ecf8a;
+  --fde-warn:         #f0a060;
+  --fde-danger:       #e88;
+
+  /* Typography */
+  --fde-font-sans:    "DM Sans", system-ui, sans-serif;
+  --fde-font-mono:    "JetBrains Mono", ui-monospace, monospace;
+  --fde-size-base:    0.95rem;   /* body text — 15 px at 16 px root */
+  --fde-size-sm:      0.85rem;
+  --fde-size-xs:      0.78rem;
+  --fde-size-h1:      1.5rem;
+  --fde-size-h2:      1.2rem;
+  --fde-size-h3:      1.05rem;
+  --fde-size-h4:      0.95rem;
+  --fde-line:         1.6;
+
+  /* Spacing */
+  --fde-space-xs:     0.35rem;
+  --fde-space-sm:     0.65rem;
+  --fde-space-md:     1rem;
+  --fde-space-lg:     1.25rem;
+  --fde-radius:       8px;
+  --fde-radius-lg:    12px;
+  --fde-content-max:  1200px;
+  --fde-prose-max:    56rem;
+
+  font-family: var(--fde-font-sans);
+  font-size:   var(--fde-size-base);
+  line-height: var(--fde-line);
+}
+
+/* ─── 2. Reset ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ─── 3. Base layout ─── */
+html, body.fde-app {
+  margin: 0;
+  background: var(--fde-bg);
+  color: var(--fde-text);
+  font-family: var(--fde-font-sans);
+  font-size:   var(--fde-size-base);
+  line-height: var(--fde-line);
+}
+body.fde-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── 4. Universal element typography — the single source of truth ─── */
+/* Every page that uses body.fde-app gets identical heading, text,
+   code, table, and list rendering. Scoped classes (.fde-prose,
+   .fde-viewer-main) only control layout / max-width, not type sizes. */
+
+body.fde-app h1 {
+  font-size: var(--fde-size-h1);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+  color: var(--fde-text);
+}
+body.fde-app h2 {
+  font-size: var(--fde-size-h2);
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.75rem 0 0.55rem;
+  color: var(--fde-text);
+}
+body.fde-app h3 {
+  font-size: var(--fde-size-h3);
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 1.25rem 0 0.4rem;
+  color: var(--fde-text);
+}
+body.fde-app h4 {
+  font-size: var(--fde-size-h4);
+  font-weight: 600;
+  margin: 1rem 0 0.35rem;
+  color: var(--fde-text);
+}
+body.fde-app h5,
+body.fde-app h6 {
+  font-size: var(--fde-size-sm);
+  font-weight: 600;
+  margin: 0.85rem 0 0.3rem;
+  color: var(--fde-text);
+}
+
+body.fde-app p  { margin: 0 0 0.75rem; }
+body.fde-app ul,
+body.fde-app ol { margin: 0.35rem 0 0.75rem 1.3rem; padding: 0; }
+body.fde-app li { margin-bottom: 0.3rem; }
+
+/* ─── Guided tour overlay ─── */
+.fde-tour-float-exit {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10050;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: rgba(40, 12, 12, 0.92);
+  color: #fecaca;
+  padding: 10px 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+.fde-tour-float-exit:hover { background: rgba(60, 16, 16, 0.96); }
+
+#fdeTourRoot { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+#fdeTourRoot .fde-tour-dim {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(1px);
+  pointer-events: auto;
+  cursor: pointer;
+}
+#fdeTourRoot .fde-tour-spot {
+  position: absolute;
+  border-radius: 14px;
+  border: 2px solid rgba(110,181,247,0.85);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.62), 0 10px 32px rgba(0,0,0,0.55);
+  pointer-events: none;
+}
+#fdeTourRoot .fde-tour-card {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: min(720px, calc(100vw - 24px));
+  background: var(--fde-surface);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius-lg);
+  padding: 14px 14px 12px;
+  pointer-events: auto;
+}
+#fdeTourRoot .fde-tour-kicker { font-size: var(--fde-size-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fde-muted); }
+#fdeTourRoot .fde-tour-title { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
+#fdeTourRoot .fde-tour-body  { color: var(--fde-text); opacity: 0.92; margin-top: 6px; }
+#fdeTourRoot .fde-tour-body p { margin: 0.5em 0 0; line-height: 1.55; }
+#fdeTourRoot .fde-tour-body p:first-child { margin-top: 0; }
+#fdeTourRoot .fde-tour-caption {
+  margin-top: 8px;
+  font-size: var(--fde-size-sm);
+  color: var(--fde-muted);
+  border-left: 2px solid rgba(110,181,247,0.5);
+  padding-left: 8px;
+}
+#fdeTourRoot .fde-tour-progress-wrap {
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+#fdeTourRoot .fde-tour-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(110,181,247,0.8), rgba(124,156,255,0.9));
+}
+#fdeTourRoot .fde-tour-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+#fdeTourRoot .fde-tour-btn {
+  font: inherit;
+  border-radius: 10px;
+  border: 1px solid var(--fde-border);
+  background: var(--fde-surface-raised);
+  color: var(--fde-text);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#fdeTourRoot .fde-tour-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#fdeTourRoot .fde-tour-primary { border-color: rgba(110,181,247,0.65); background: rgba(110,181,247,0.14); }
+#fdeTourRoot .fde-tour-ghost { background: transparent; }
+#fdeTourRoot .fde-tour-progress { margin-top: 8px; font-size: var(--fde-size-xs); color: var(--fde-muted); }
+
+body.fde-app strong, body.fde-app b { font-weight: 600; }
+body.fde-app em { font-style: italic; }
+
+body.fde-app a { color: var(--fde-accent); text-decoration: none; }
+body.fde-app a:hover { text-decoration: underline; }
+
+body.fde-app code {
+  font-family: var(--fde-font-mono);
+  font-size: 0.875em;
+  background: var(--fde-inset);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+body.fde-app pre {
+  font-family: var(--fde-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  background: var(--fde-inset);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius);
+  padding: 0.75rem 0.9rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0.65rem 0 1rem;
+}
+body.fde-app pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  border-radius: 0;
+}
+body.fde-app kbd {
+  font-family: var(--fde-font-mono);
+  font-size: 0.82em;
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--fde-border);
+  border-radius: 4px;
+  background: var(--fde-surface);
+}
+
+body.fde-app table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.88rem;
+  margin: 0.65rem 0 1.1rem;
+}
+body.fde-app th {
+  font-weight: 600;
+  color: var(--fde-text);
+  text-align: left;
+  padding: 0.45rem 0.65rem;
+  border-bottom: 2px solid var(--fde-border);
+  vertical-align: top;
+  white-space: nowrap;
+}
+body.fde-app td {
+  text-align: left;
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid var(--fde-border);
+  vertical-align: top;
+}
+
+body.fde-app details { margin-bottom: 0.75rem; }
+body.fde-app details summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--fde-text);
+  user-select: none;
+}
+body.fde-app hr {
+  border: none;
+  border-top: 1px solid var(--fde-border);
+  margin: 1.5rem 0;
+}
+
+/* ─── 5. Header, nav, footer ─── */
+.fde-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--fde-border);
+  background: rgba(20, 24, 32, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 0.6rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.fde-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: inherit;
+}
+.fde-brand:hover { text-decoration: none; }
+.fde-brand-logo { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
+.fde-brand-title { font-weight: 600; font-size: var(--fde-size-base); }
+.fde-brand-sub {
+  font-size: var(--fde-size-xs);
+  color: var(--fde-muted);
+  display: block;
+  line-height: 1.3;
+}
+
+/* Code block shorthand — same as body.fde-app pre, safe for div/pre usage */
+.fde-code-block {
+  font-family: var(--fde-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  background: var(--fde-inset);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius);
+  padding: 0.75rem 0.9rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0.65rem 0 1rem;
+}
+.fde-agenticop-link { color: var(--fde-agenticop); text-decoration: none; }
+.fde-agenticop-link:hover { text-decoration: underline; }
+
+.fde-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  align-items: center;
+}
+.fde-nav a {
+  color: var(--fde-muted);
+  text-decoration: none;
+  font-size: var(--fde-size-sm);
+}
+.fde-nav a:hover,
+.fde-nav a.fde-active { color: var(--fde-text); }
+.fde-nav a.fde-active { font-weight: 600; }
+.fde-pill {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(94, 207, 138, 0.15);
+  color: var(--fde-ok);
+  border: 1px solid rgba(94, 207, 138, 0.35);
+}
+
+.fde-footer {
+  border-top: 1px solid var(--fde-border);
+  padding: 0.9rem 1.25rem;
+  font-size: var(--fde-size-xs);
+  color: var(--fde-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+}
+.fde-footer a { color: var(--fde-accent); text-decoration: none; }
+.fde-footer a:hover { text-decoration: underline; }
+.fde-footer-logo { vertical-align: middle; margin-right: 0.35rem; opacity: 0.9; }
+
+/* ─── 6. Main content area ─── */
+.fde-main {
+  flex: 1;
+  padding: var(--fde-space-lg);
+  max-width: var(--fde-content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+body.fde-embedded .fde-main { padding: var(--fde-space-sm); max-width: none; }
+
+/* ─── 7. Prose width limiter — no typography overrides here ─── */
+/* Typography cascades from body.fde-app rules above. */
+.fde-prose { max-width: var(--fde-prose-max); }
+
+/* ─── 8. Status and notification bars ─── */
+.fde-status-bar {
+  font-size: var(--fde-size-sm);
+  color: var(--fde-muted);
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--fde-radius);
+  border: 1px solid var(--fde-border);
+  background: rgba(110, 181, 247, 0.06);
+}
+.fde-status-ok   { color: var(--fde-ok); }
+.fde-status-warn { color: var(--fde-warn); }
+
+/* Workbench demo index */
+.fde-demo-intro {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--fde-border);
+}
+.fde-demo-intro h2 { margin-top: 0; font-size: var(--fde-size-h2); }
+.fde-demo-section {
+  margin: 2rem 0 0;
+  padding-top: 0.25rem;
+}
+.fde-demo-section h2 {
+  margin: 0 0 0.35rem;
+  font-size: var(--fde-size-h2);
+}
+.fde-demo-section-fork {
+  padding: 1.25rem 1.35rem;
+  border-radius: var(--fde-radius-lg);
+  border: 1px solid var(--fde-border);
+  background: rgba(124, 156, 255, 0.06);
+}
+.fde-demo-lead {
+  color: var(--fde-muted);
+  font-size: var(--fde-size-sm);
+  max-width: 52rem;
+  margin: 0 0 0.75rem;
+}
+.fde-demo-table {
+  font-size: var(--fde-size-sm);
+}
+.fde-demo-table td:last-child {
+  white-space: nowrap;
+  width: 6rem;
+}
+.fde-quick-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--fde-radius);
+  border: 1px solid var(--fde-border);
+  background: var(--fde-surface);
+  font-size: var(--fde-size-sm);
+}
+.fde-quick-nav a { font-weight: 500; }
+
+/* ─── 9. Workbench hero and tool grid ─── */
+.fde-hero-compact { margin-bottom: 1.25rem; }
+.fde-hero-compact h1 { font-size: 1.35rem; }
+.fde-hero-compact p  { color: var(--fde-muted); max-width: 52rem; }
+
+.fde-hero {
+  padding: 2rem 0 1.75rem;
+  border-bottom: 1px solid var(--fde-border);
+  margin-bottom: 1.5rem;
+}
+.fde-hero h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+}
+.fde-hero p {
+  font-size: var(--fde-size-base);
+  color: var(--fde-muted);
+  max-width: 54rem;
+  margin: 0 0 1.25rem;
+}
+.fde-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.fde-btn-primary,
+.fde-btn-secondary {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--fde-radius);
+  font-size: var(--fde-size-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.12s, border-color 0.12s;
+}
+.fde-btn-primary {
+  background: var(--fde-accent);
+  color: #0c0e14;
+  border: 1px solid var(--fde-accent);
+}
+.fde-btn-primary:hover {
+  background: #8ecaff;
+  border-color: #8ecaff;
+  text-decoration: none;
+  color: #0c0e14;
+}
+.fde-btn-secondary {
+  background: transparent;
+  color: var(--fde-text);
+  border: 1px solid var(--fde-border);
+}
+.fde-btn-secondary:hover {
+  border-color: var(--fde-accent);
+  color: var(--fde-accent);
+  text-decoration: none;
+}
+
+.fde-tool-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  margin-bottom: 0.5rem;
+}
+.fde-tool-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--fde-radius-lg);
+  border: 1px solid var(--fde-border);
+  background: var(--fde-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.12s, background 0.12s;
+}
+.fde-tool-card:hover {
+  border-color: var(--fde-accent);
+  background: var(--fde-surface-raised);
+  text-decoration: none;
+}
+.fde-tool-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  opacity: 0.85;
+}
+.fde-tool-card h3 { margin: 0 0 0.3rem; font-size: var(--fde-size-base); }
+.fde-tool-card p  { margin: 0; font-size: var(--fde-size-sm); color: var(--fde-muted); }
+
+/* ─── 10. Card grid ─── */
+.fde-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+}
+.fde-card {
+  display: block;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--fde-border);
+  background: var(--fde-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.12s, background 0.12s;
+}
+.fde-card:hover { border-color: var(--fde-accent); background: var(--fde-surface-raised); text-decoration: none; }
+/* Override universal sizes for compact card context */
+.fde-card h3 { font-size: var(--fde-size-sm); margin: 0 0 0.25rem; }
+.fde-card p  { font-size: 0.82rem; margin: 0; color: var(--fde-muted); }
+.fde-card-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fde-accent);
+  margin-bottom: 0.35rem;
+}
+
+.fde-section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fde-muted);
+  margin: 1.5rem 0 0.65rem;
+}
+
+/* ─── 11. Docs index card grid ─── */
+.fde-docs-index-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  margin: 0 0 var(--fde-space-md);
+}
+
+/* ─── 12. Strip nav (viewer hops and docs section hops) ─── */
+.fde-viewer-banner {
+  flex: 1 1 100%;
+  margin: 0.35rem 0 0;
+  font-size: var(--fde-size-xs);
+  color: var(--fde-muted);
+  line-height: 1.45;
+}
+.fde-viewer-banner strong { color: var(--fde-text); font-weight: 500; }
+
+.fde-viewer-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.65rem;
+  align-items: center;
+  margin: 0 0 1rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--fde-radius);
+  border: 1px solid var(--fde-border);
+  background: var(--fde-inset);
+  font-size: var(--fde-size-sm);
+}
+.fde-viewer-strip a {
+  color: var(--fde-muted);
+  text-decoration: none;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+.fde-viewer-strip a:hover,
+.fde-viewer-strip a.fde-active {
+  color: var(--fde-text);
+  background: rgba(110, 181, 247, 0.12);
+  text-decoration: none;
+}
+.fde-viewer-strip a.fde-active { font-weight: 600; }
+
+/* ─── 13. Run form ─── */
+.fde-run-form {
+  max-width: 52rem;
+  background: var(--fde-surface);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius-lg);
+  padding: 1.1rem 1.25rem;
+  margin: 0.5rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.fde-run-row { display: flex; flex-direction: column; gap: 0.35rem; }
+.fde-run-row label,
+.fde-run-grid label { font-size: var(--fde-size-sm); color: var(--fde-text); }
+.fde-run-row select,
+.fde-run-grid input {
+  font: inherit;
+  background: var(--fde-inset);
+  color: var(--fde-text);
+  border: 1px solid var(--fde-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+}
+.fde-run-row select:focus,
+.fde-run-grid input:focus {
+  outline: none;
+  border-color: var(--fde-accent);
+}
+.fde-run-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.8rem;
+}
+.fde-run-grid label { display: flex; flex-direction: column; gap: 0.3rem; }
+.fde-run-help {
+  font-size: 0.74rem;
+  color: var(--fde-muted);
+  margin: 0;
+}
+.fde-run-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  border-top: 1px dashed var(--fde-border);
+  padding-top: 0.85rem;
+}
+.fde-run-submit {
+  font: inherit;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--fde-radius);
+  border: 1px solid rgba(110, 181, 247, 0.45);
+  background: rgba(110, 181, 247, 0.18);
+  color: var(--fde-text);
+  cursor: pointer;
+}
+.fde-run-submit:hover { background: rgba(110, 181, 247, 0.28); }
+.fde-run-status { font-size: var(--fde-size-sm); color: var(--fde-muted); }
+.fde-run-log {
+  font-family: var(--fde-font-mono);
+  font-size: 0.78rem;
+  background: var(--fde-inset);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius);
+  padding: 0.7rem 0.9rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0 0 1rem;
+}
+
+/* ─── 14. Viewer-specific UI (canvas, drop zone, tool buttons) ─── */
+/* These style viewer-tool affordances only — NOT typography. */
+
+.fde-viewer-main canvas {
+  width: 100%;
+  height: min(58vh, 440px);
+  border: 1px solid var(--fde-border-soft);
+  border-radius: var(--fde-radius);
+  background: #111218;
+  cursor: crosshair;
+  touch-action: none;
+  display: block;
+}
+.fde-viewer-main canvas:focus {
+  outline: 2px solid var(--fde-accent);
+  outline-offset: 2px;
+}
+
+.fde-viewer-main .btn,
+.fde-viewer-main button.btn {
+  font: inherit;
+  font-size: var(--fde-size-sm);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--fde-radius);
+  border: 1px solid var(--fde-border-soft);
+  background: var(--fde-surface-raised);
+  color: var(--fde-text);
+  cursor: pointer;
+  margin-right: var(--fde-space-xs);
+}
+.fde-viewer-main .btn:hover,
+.fde-viewer-main button.btn:hover { background: #323238; border-color: var(--fde-border); }
+.fde-viewer-main .btn.primary {
+  border-color: rgba(110, 181, 247, 0.45);
+  background: rgba(110, 181, 247, 0.15);
+}
+
+.fde-viewer-main #drop {
+  border: 2px dashed var(--fde-border-soft);
+  border-radius: 10px;
+  padding: 1.1rem;
+  text-align: center;
+  margin-bottom: var(--fde-space-sm);
+}
+
+.fde-viewer-main #hint,
+.fde-viewer-main #scrubHelp,
+.fde-viewer-main .path-hint {
+  font-size: var(--fde-size-xs);
+  color: var(--fde-muted);
+  margin-bottom: var(--fde-space-sm);
+}
+
+.fde-viewer-main #meta,
+.fde-viewer-main #panel {
+  font-size: var(--fde-size-sm);
+  color: var(--fde-muted);
+  white-space: pre-wrap;
+  margin-top: var(--fde-space-sm);
+}
+
+.fde-viewer-main select,
+.fde-viewer-main .json-pick {
+  font: inherit;
+  font-size: var(--fde-size-sm);
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--fde-radius);
+  border: 1px solid var(--fde-border);
+  background: var(--fde-inset);
+  color: var(--fde-text);
+}
+
+.fde-viewer-main .folder-list {
+  margin: var(--fde-space-xs) 0 var(--fde-space-sm);
+  padding: var(--fde-space-sm);
+  border: 1px solid var(--fde-border);
+  border-radius: var(--fde-radius);
+  background: var(--fde-surface);
+}
+
+.fde-viewer-main .path-step {
+  display: flex;
+  align-items: center;
+  gap: var(--fde-space-xs);
+  flex-wrap: wrap;
+  margin: var(--fde-space-xs) 0;
+  font-size: var(--fde-size-xs);
+}
+.fde-viewer-main .chip {
+  background: rgba(51, 51, 51, 0.35);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.fde-viewer-main .collapsed-yes { color: var(--fde-danger); }
+.fde-viewer-main .collapsed-no  { color: var(--fde-ok); }
+
+.fde-viewer-main .btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fde-space-sm);
+  margin-bottom: var(--fde-space-sm);
+  align-items: center;
+}
+
+/* Public demo: server presets only — hide local file upload affordances */
+body.fde-public-demo .fde-viewer-main #drop,
+body.fde-public-demo .fde-viewer-main #btnFolder,
+body.fde-public-demo .fde-viewer-main #btnFile,
+body.fde-public-demo .fde-viewer-main #btnCompare,
+body.fde-public-demo .fde-viewer-main #btnClearCompare,
+body.fde-public-demo .fde-viewer-main #btnPick,
+body.fde-public-demo .fde-viewer-main #file,
+body.fde-public-demo .fde-viewer-main #folderPick,
+body.fde-public-demo .fde-viewer-main #compareFile,
+body.fde-public-demo .fde-viewer-main #folderList,
+body.fde-public-demo .fde-local-only {
+  display: none !important;
+}
+body.fde-public-demo .fde-viewer-main #presetRow {
+  display: flex !important;
+}

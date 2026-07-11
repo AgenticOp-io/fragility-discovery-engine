@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>This host — Fragility Discovery Engine</title>
+  <meta name="description" content="Live engine status, server configuration, and deployment notes for this installation." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a href="/docs/">Docs</a>
+<a class="fde-active" href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<article class="fde-prose">
+      <h2>This deployment</h2>
+      <p>The <strong>Fragility Discovery Engine</strong> on this VM serves the workbench, bundled JSON artifacts, and interactive viewers. You only need a web browser pointed at this host.</p>
+      <ul>
+        <li><strong>Engine clone:</strong> <code>~/fragility-discovery-engine</code> (git + venv)</li>
+        <li><strong>Public web root:</strong> <code>/var/www/fragility/public</code></li>
+        <li><strong>Status:</strong> <a href="/status.json">/status.json</a> (benchmark validate snapshot)</li>
+      </ul>
+
+      <h3>Workbench validation</h3>
+      <div id="hostStatus" class="fde-run-log" style="min-height:3rem;margin-bottom:1rem"><p class="fde-run-help">Loading status.json&hellip;</p></div>
+
+      <h3>Live engine status</h3>
+      <div id="hostHealth" class="fde-run-log" style="min-height:4rem"><p class="fde-run-help">Loading&hellip;</p></div>
+
+      <h3>Demo access</h3>
+      <p>This installation is meant for browser demos at the VM IP address. Live scenario runs are <strong>key-gated</strong> by default — see <a href="/docs/gce-https-and-auth.html">Demo guardrails</a>. Custom hostnames and TLS are optional.</p>
+
+      <h3>Updating this server</h3>
+      <pre class="fde-code-block">cd ~/fragility-discovery-engine
+git pull
+bash scripts/gce_publish_workbench.sh</pre>
+      <p>From your local machine you can trigger the same update remotely: <code>powershell -File scripts/gce_deploy_public_site.ps1</code></p>
+      <p>Product by <a href="https://agenticop.io">AgenticOps</a>. Source: <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">GitHub</a>.</p>
+    </article>
+    <script>
+      (function () {
+        var st = document.getElementById('hostStatus');
+        fetch('/status.json', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (s) {
+            var lines = [];
+            lines.push('<strong>Schema:</strong> ' + (s.schema || '?'));
+            lines.push('<strong>Git:</strong> ' + (s.git_head || '?') + ' · checked ' + (s.checked_utc || '?'));
+            lines.push('<strong>Benchmarks:</strong> ' + (s.benchmark_validate || '?'));
+            if (s.research_fork_validate) lines.push('<strong>Coupled fork bundle:</strong> ' + s.research_fork_validate);
+            if (s.coupled_fork_pareto_v1) lines.push('<strong>Pareto pins:</strong> ' + s.coupled_fork_pareto_v1);
+            if (s.bundled_pareto_hypervolume) lines.push('<strong>Hypervolume pins:</strong> ' + s.bundled_pareto_hypervolume);
+            if (s.dns_ready != null) lines.push('<strong>DNS (' + (s.dns_host || 'hostname') + '):</strong> ' + (s.dns_ready ? 'ready' : 'pending'));
+            if (s.pypi_ready) lines.push('<strong>PyPI packaging check:</strong> ' + s.pypi_ready);
+            st.innerHTML = '<ul style="margin:0.5rem 0 0 0">' + lines.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>';
+          })
+          .catch(function () {
+            st.innerHTML = '<p class="fde-run-help">status.json not available (run gce_publish_workbench.sh on the VM).</p>';
+          });
+      })();
+      (function () {
+        var el = document.getElementById('hostHealth');
+        fetch('/api/health', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (h) {
+            var lines = [];
+            lines.push('<strong>Active runs:</strong> ' + h.active + ' of ' + h.max + ' slots in use');
+            lines.push('<strong>Run timeout:</strong> ' + h.timeout_s + ' seconds');
+            if (h.caps) {
+              var caps = h.caps;
+              lines.push('<strong>Parameter limits:</strong> seed up to ' + caps.seed[1] +
+                ', generations 1–' + caps.generations[1] +
+                ', population 1–' + caps.population[1] +
+                ', simulation length ' + caps.horizon[0] + '–' + caps.horizon[1] + ' steps');
+            }
+            if (h.modes) lines.push('<strong>Simulation modes (' + h.modes.length + '):</strong> ' + h.modes.join(', '));
+            if (h.pareto_modes) lines.push('<strong>Attacker/defender modes:</strong> ' + h.pareto_modes.join(', '));
+            el.innerHTML = '<ul style="margin:0.5rem 0 0 0">' + lines.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>';
+          })
+          .catch(function () {
+            el.innerHTML = '<p class="fde-run-help">Engine server not reachable. Run <code>bash scripts/gce_install_run_server.sh</code> on the VM to start it.</p>';
+          });
+      })();
+    </script>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>

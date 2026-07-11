@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Algorithms &amp; provenance — Fragility Discovery Engine</title>
+  <meta name="description" content="Which algorithms are original to this project, which are standard, and where each one is cited." />
+  <meta name="theme-color" content="#0c0e14"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/fde-product.css"/>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+
+</head>
+<body class="fde-app">
+<!-- fdeSiteChrome -->
+  <header class="fde-top" id="fdeSiteTop">
+    <a class="fde-brand" href="/">
+      <img class="fde-brand-logo" src="/assets/logo.svg" alt="" width="32" height="32"/>
+      <span>
+        <span class="fde-brand-title">Fragility Discovery Engine</span>
+        <span class="fde-brand-sub">v0.5.0 · <a href="https://agenticop.io" class="fde-agenticop-link">AgenticOps</a></span>
+      </span>
+    </a>
+    <nav class="fde-nav" aria-label="Product">
+      <a href="/">Workbench</a>
+<a href="/run.html">Run a scenario</a>
+<a href="/runs.html">Past runs</a>
+<a href="/artifacts/replay_viewer/index.html">Replay</a>
+<a href="/artifacts/pareto_viewer/index.html">Pareto</a>
+<a href="/artifacts/attribution_viewer/index.html">Attribution</a>
+<a href="/artifacts/composite_viewer/index.html">Composite</a>
+<a class="fde-active" href="/docs/">Docs</a>
+<a href="/host.html">This host</a>
+    </nav>
+  </header>
+  <script>
+  if (window.top !== window.self) {
+    document.querySelectorAll('#fdeSiteTop, #fdeSiteFooter, .fde-viewer-strip').forEach(function (el) {
+      el.style.display = 'none';
+    });
+    document.body.classList.add('fde-embedded');
+  }
+  </script>
+
+  <main class="fde-main">
+<nav class="fde-viewer-strip fde-docs-strip" aria-label="Documentation sections">
+<a href="/docs/">All docs</a>
+<a href="/docs/overview.html">Overview</a>
+<a href="/docs/demo-guide.html">Demo guide</a>
+<a href="/docs/how-to-use.html">How to Use</a>
+<a href="/docs/installation.html">Installation</a>
+<a href="/docs/architecture.html">Architecture</a>
+<a href="/docs/reference.html">Reference</a>
+<a class="fde-active" href="/docs/algorithms.html">Algorithms</a>
+<a href="/docs/fel.html">FEL</a>
+<a href="/docs/scale-and-limits.html">Scale & limits</a>
+<a href="/docs/fork-coupling.html">Research fork</a>
+</nav>
+<article class="fde-prose"><h2>Algorithms and provenance</h2>
+<p>This document lists every algorithm the Fragility Discovery Engine uses, who invented it, and where you can find the implementation in this repository. The engine has <strong>two runtime dependencies</strong> — <code>numpy</code> and <code>networkx</code> — so everything below is hand-rolled on top of NumPy unless noted.</p>
+<p>For the formal evidence vocabulary (schedules, rollouts, Δ⁻/Δ⁺ attribution, schema IDs), see <a href="/docs/fel.html">Fragility Evidence Language (FEL)</a>.</p>
+<table><thead>
+<tr><th>Notation</th><th>Meaning</th></tr>
+</thead><tbody>
+<tr><td><strong>Original</strong></td><td>First implementation; framing introduced by this project.</td></tr>
+<tr><td><strong>Standard</strong></td><td>Textbook algorithm we re-implemented from first principles (no external library).</td></tr>
+<tr><td><strong>Library</strong></td><td>Provided by a third-party package we depend on.</td></tr>
+</tbody></table>
+<hr>
+<h3>1. What we created (named, in one place)</h3>
+<p>These are the algorithms, frameworks, and physics kernels <strong>originated by this project</strong>. Each is fully documented in the section linked from the table; this is a single index so the contribution is visible at a glance.</p>
+<p><strong>Explanation and attribution methods</strong></p>
+<table><thead>
+<tr><th>Name</th><th>What it does</th><th>Where to read</th><th>Code</th></tr>
+</thead><tbody>
+<tr><td>Schedule-mask counterfactual</td><td>Re-run a simulator with selected shock timesteps deterministically zeroed and diff the rollouts to attribute outcome change to those steps. Builds on Pearl&#x27;s <code>do</code>-calculus framing; the schedule-mask + replay-diff pipeline is ours.</td><td>§3.1</td><td><code>src/fragility_engine/explain/counterfactual.py</code></td></tr>
+<tr><td>Greedy shock-set minimization for collapse</td><td>Position-greedy reduction of an attacker schedule to the smallest subset of shocks that still drives the world to collapse, with pinned rollout seeds throughout. Applies the delta-debugging idea (Zeller &amp; Hildebrandt 2002) to adversarial simulation schedules; the specific algorithm is greedy-by-timestep.</td><td>§3.2</td><td><code>src/fragility_engine/explain/minimal_collapse.py</code></td></tr>
+<tr><td>Mutation-chain path trace</td><td>Apply discrete world-physics mutations one at a time in a chosen order; record <code>Δ integral_instability</code> and <code>Δ attack_cost</code> at every step. Analogous in spirit to integrated gradients / SHAP but defined directly over a discrete simulator.</td><td>§3.3</td><td><code>src/fragility_engine/explain/counterfactual_chain*.py</code></td></tr>
+<tr><td>Star-merge attribution graph</td><td>Merge several single-branch counterfactual bundles that share one baseline into one graph (root = baseline, leaves = branches, edges carry Δ-metrics and intervention labels), with strict baseline-equality checking. Schema <code>attribution-merge-v1</code>.</td><td>§3.4</td><td><code>src/fragility_engine/explain/merge_attribution.py</code></td></tr>
+<tr><td>Fragility Evidence Language (FEL)</td><td>Formal vocabulary for worlds, schedules, rollouts, attack Pareto order, Δ⁻ counterfactual vs Δ⁺ path attribution, and evidence schema IDs — not new physics.</td><td><a href="/docs/fel.html">FEL</a></td><td><code>src/fragility_engine/fel/</code></td></tr>
+<tr><td>Schedule-minimization explanation DAG</td><td>Compact DAG (<code>explanation-dag-v1</code>) over a minimization report: <code>baseline → minimized</code> with the kept events on the edge. Machine-readable &quot;why did it still collapse?&quot; record.</td><td>§3.5</td><td><code>src/fragility_engine/explain/explanation_dag.py</code></td></tr>
+<tr><td>Institutional composite</td><td>Run the same attacker schedule through several decoupled physics kernels and emit a side-by-side scorecard JSON (<code>fragility-institutional-composite-v1…v4</code>). Kernels never exchange state inside a step.</td><td>§4.7</td><td><code>src/fragility_engine/benchmarks/institutional_composite.py</code></td></tr>
+</tbody></table>
+<p><strong>Reproducibility framework</strong></p>
+<table><thead>
+<tr><th>Name</th><th>What it does</th><th>Where to read</th><th>Code</th></tr>
+</thead><tbody>
+<tr><td>Frozen-benchmark golden-metric harness</td><td>Benchmark suite where each bundle pins <code>(genome_seed, rollout_seed)</code> and asserts scalar metrics on every CI run. Conceptually similar to MLPerf, but for adversarial search rather than model training.</td><td>§5.1</td><td><code>src/fragility_engine/benchmarks/suite.py</code>, <code>scripts/run_benchmark_suite.py</code></td></tr>
+<tr><td>Manifest digest pinning</td><td>SHA-256 over the benchmark inventory; CI fails if the digest drifts without an explicit bump. Standard hash, original workflow.</td><td>§5.2</td><td><code>src/fragility_engine/benchmarks/manifest.py</code>, <code>scripts/check_manifest_digest.py</code></td></tr>
+<tr><td>Fragility certificate</td><td>Single JSON that bundles a flagship replay + Pareto front + environment fingerprint into one signed, citeable artifact — paper-appendix or audit attachment. Schema <code>fragility-certificate-v1</code>.</td><td>§5.3</td><td><code>src/fragility_engine/benchmarks/certificate.py</code></td></tr>
+</tbody></table>
+<p><strong>Physics kernels</strong> (deliberately simplified; not calibrated to any real institution)</p>
+<table><thead>
+<tr><th>Name</th><th>What it does</th><th>Where to read</th><th>Code</th></tr>
+</thead><tbody>
+<tr><td>Aggregate peg kernel</td><td>Scalar reserves/supply with panic + redemption coupling.</td><td>§4.1</td><td><code>src/fragility_engine/world/stablecoin_peg.py</code></td></tr>
+<tr><td>Two-layer resource-cascade kernel</td><td>Coupled headrooms <code>(h₀, h₁)</code> with a shared overload state; reduces a Motter–Lai cascade to its smallest still-interesting form.</td><td>§4.3</td><td><code>src/fragility_engine/world/resource_cascade.py</code></td></tr>
+<tr><td>Service-backlog kernel</td><td>Backlog grows with demand, shrinks with process rate; collapse on sustained over-threshold backlog.</td><td>§4.4</td><td><code>src/fragility_engine/world/service_backlog.py</code></td></tr>
+<tr><td>Liquidity-ladder kernel</td><td>Margin utilization vs funding-ladder depth with deleveraging on haircut breach; reproduces the margin-call spiral mechanic in 4 state variables.</td><td>§4.5</td><td><code>src/fragility_engine/world/liquidity_ladder.py</code></td></tr>
+<tr><td>Inventory-buffer kernel</td><td>Stock level under demand spikes and fulfillment erosion; sixth reference domain shipped in v0.5.</td><td>§4.6</td><td><code>src/fragility_engine/world/inventory_buffer.py</code></td></tr>
+</tbody></table>
+<p>All kernels share <strong>one schedule encoding</strong> (<code>src/fragility_engine/adversary/encoding.py</code>), so any attack found by search transfers across kernels unchanged — itself an intentional design choice of this project.</p>
+<p>Everything else listed in §2–§6 is textbook or library; we cite the original sources for those below.</p>
+<hr>
+<h3>2. Adversary search</h3>
+<h4>2.1 Monte Carlo random search — Standard</h4>
+<p>Draws <code>samples</code> random genomes, evaluates fitness, keeps the best.</p>
+<ul>
+<li><strong>Originators:</strong> Common baseline; Metropolis &amp; Ulam coined &quot;Monte Carlo&quot; in 1949 (<a href="https://library.lanl.gov/cgi-bin/getfile?00326866.pdf">von Neumann &amp; Ulam, 1947</a>). The &quot;uniform random search&quot; baseline is canonical (e.g. Bergstra &amp; Bengio 2012, *<a href="https://www.jmlr.org/papers/v13/bergstra12a.html">Random Search for Hyper-Parameter Optimization</a>*).</li>
+<li><strong>Our code:</strong> <code>src/fragility_engine/adversary/search.py::monte_carlo_search</code></li>
+<li><strong>Notes:</strong> Used as the reference baseline against which the GA&#x27;s improvement is measured.</li>
+</ul>
+<h4>2.2 Genetic algorithm (real-valued) — Standard</h4>
+<p>Population of real-valued genomes, elitist selection, single-point crossover, Gaussian mutation with per-gene mask.</p>
+<ul>
+<li><strong>Originators:</strong> Holland (1975), *Adaptation in Natural and Artificial Systems*; Goldberg (1989), *Genetic Algorithms in Search, Optimization and Machine Learning*. Real-valued (&quot;evolution strategies&quot;) variant: Rechenberg (1971), Schwefel (1977). Gaussian mutation: Schwefel (1965).</li>
+<li><strong>Our code:</strong></li>
+</ul>
+<p>  - Genome encoding: <code>adversary/encoding.py</code> (shape <code>(horizon, 2)</code> ∈ <code>[0,1]²</code>, decoded to <code>(shock_kind, magnitude)</code> per timestep).</p>
+<p>  - Operators: <code>mutate_genome</code>, <code>crossover_genome</code> in <code>encoding.py</code>.</p>
+<p>  - Search loop: <code>adversary/search.py::genetic_search</code> (and <code>genetic_vector_search</code> for defender genomes).</p>
+<ul>
+<li><strong>Why we re-implemented:</strong> Avoids a heavyweight dependency (DEAP / pymoo) for a 200-line loop, and keeps determinism under our explicit RNG / seed contract.</li>
+</ul>
+<h4>2.3 Pareto archive (2-objective dominance) — Standard</h4>
+<p>Maintains the non-dominated set across <code>(severity, attack_cost)</code>; <code>severity</code> maximized, <code>attack_cost</code> minimized.</p>
+<ul>
+<li><strong>Originators:</strong> Vilfredo Pareto (1906), *Manuale di economia politica*. Dominance test as used here: standard formulation in any multi-objective optimization text (e.g. Deb 2001, *Multi-Objective Optimization Using Evolutionary Algorithms*).</li>
+<li><strong>Our code:</strong> <code>adversary/pareto.py::pareto_indices</code> (naive O(N²) pairwise — fine for our archive sizes), <code>merge_pareto_points</code>, <code>rollout_cloud_to_pareto</code>.</li>
+<li><strong>Note:</strong> We do <strong>not</strong> use NSGA-II (Deb et al. 2002) — our search isn&#x27;t multi-objective at fitness time; the archive is a post-hoc projection of the search history.</li>
+</ul>
+<h4>2.4 Two-dimensional hypervolume — Standard</h4>
+<p>Closed-form rectangular sweep for two minimized objectives relative to a reference point.</p>
+<ul>
+<li><strong>Originators:</strong> Zitzler &amp; Thiele (1998), *<a href="https://link.springer.com/chapter/10.1007/BFb0056872">Multiobjective optimization using evolutionary algorithms — a comparative case study</a>* (introduced the &quot;size of the dominated space&quot; indicator). The 2-D O(N log N) sweep is folklore.</li>
+<li><strong>Our code:</strong> <code>benchmarks/hypervolume.py::hypervolume_2d_min</code> (generic minimization) and <code>hypervolume_2d_attack_pareto</code> (attack archives via <code>(-severity, attack_cost)</code> transform). See <a href="https://github.com/AgenticOp-io/fragility-discovery-engine/blob/main/MATH.md">Math reference</a> §4.</li>
+<li><strong>Use:</strong> CI regression gate on Pareto-archive quality; never used as a fitness signal.</li>
+</ul>
+<h4>2.5 Alternating attacker / defender co-evolution — Standard</h4>
+<p>Rounds of (a) attacker GA finds worst schedules against frozen defender, then (b) defender GA finds best parameter vector against frozen attacker; repeat.</p>
+<ul>
+<li><strong>Originators:</strong> Competitive co-evolution: Hillis (1990), *<a href="https://www.sciencedirect.com/science/article/abs/pii/0167278990900762">Co-evolving parasites improve simulated evolution as an optimization procedure</a>*. Alternating min-max formulation: classical in adversarial / game-theoretic learning (e.g. Sims 1994 on competitive coevolution; Watson &amp; Pollack 2001 on the &quot;Red Queen&quot; dynamic).</li>
+<li><strong>Our code:</strong> <code>coevolution/alternating.py::alternating_coevolution_rollout</code> plus mode-specific wrappers (<code>alternating_coevolution_network</code>, etc.) and <code>coevolution/thread_safe_template.py</code> for safe parallel rollouts.</li>
+<li><strong>Pareto-per-round:</strong> optional <code>collect_attacker_pareto=True</code>; archives are merged via <code>merge_pareto_points</code>.</li>
+</ul>
+<hr>
+<h3>3. Explanation / attribution</h3>
+<h4>3.1 Counterfactual remove-steps — Original framing</h4>
+<p>Re-run the simulation with selected shock timesteps zeroed; compare metrics.</p>
+<ul>
+<li><strong>Originators:</strong> The general idea — counterfactual evaluation under &quot;do(X = 0)&quot; interventions — comes from Pearl&#x27;s causal framework (<a href="https://bayes.cs.ucla.edu/BOOK-2K/">Pearl 2009</a>, *Causality*). Our specific formulation (mechanical schedule masking + replay diff) is original to this project.</li>
+<li><strong>Our code:</strong> <code>explain/counterfactual.py::counterfactual_remove_steps_with_rollouts</code>, <code>compare_rollouts</code>.</li>
+<li><strong>Domain variants:</strong> Resource-cascade, service-backlog, liquidity-ladder all expose a <code>mode</code> switch on <code>scripts/export_counterfactual.py</code>.</li>
+</ul>
+<h4>3.2 Greedy schedule minimization (delta-debugging-style) — Standard idea, original application</h4>
+<p>Greedy removal of shock timesteps while preserving the <code>collapsed</code> outcome — finds the minimal shock set that still breaks the world.</p>
+<ul>
+<li><strong>Originators:</strong> Algorithmic minimization of inputs while preserving a property: Zeller &amp; Hildebrandt (2002), *<a href="https://www.st.cs.uni-saarland.de/papers/tse2002/">Simplifying and Isolating Failure-Inducing Input</a>* (delta debugging, ddmin). We use the greedy-by-position variant rather than the divide-and-conquer ddmin variant.</li>
+<li><strong>Our code:</strong> <code>explain/minimal_collapse.py::minimize_schedule_with_rollout</code>.</li>
+<li><strong>CLI:</strong> <code>scripts/run_ga_demo.py --export-minimized-replay</code> and the explicit <code>scripts/export_minimized_replay.py</code>.</li>
+</ul>
+<h4>3.3 Mutation-chain path traces — Original</h4>
+<p>Apply discrete world-physics mutations (e.g. raise <code>base_panic</code>, perturb neighbor edges, change capacity) <strong>one at a time</strong> in a chosen order; record <code>Δ integral_instability</code> and <code>Δ attack_cost</code> at every step.</p>
+<ul>
+<li><strong>Originators:</strong> The framing (cumulative discrete interventions on a simulator with stepwise contribution accounting) is original to this project. It is analogous in spirit to integrated-gradients (<a href="https://arxiv.org/abs/1703.01365">Sundararajan, Taly &amp; Yan 2017</a>) and SHAP (<a href="https://arxiv.org/abs/1705.07874">Lundberg &amp; Lee 2017</a>) but operates on a discrete simulator rather than a differentiable model.</li>
+<li><strong>Our code:</strong> <code>explain/counterfactual_chain*.py</code> (one module per domain), <code>explain/trace.py</code>.</li>
+<li><strong>CLIs:</strong> <code>scripts/export_counterfactual_chain.py</code>, <code>scripts/export_*_counterfactual_chain.py</code>.</li>
+</ul>
+<h4>3.4 Star-merge attribution — Original</h4>
+<p>Aggregate several counterfactual bundles that share one baseline into a single graph (baseline → branch₁, baseline → branch₂, …) with Δ-metrics on edges.</p>
+<ul>
+<li><strong>Originators:</strong> Original to this project.</li>
+<li><strong>Our code:</strong> <code>explain/merge_attribution.py::merge_heterogeneous_counterfactuals</code> (schema <code>attribution-merge-v1</code>).</li>
+<li><strong>CLI:</strong> <code>scripts/merge_counterfactual_attribution.py</code>.</li>
+</ul>
+<h4>3.5 Explanation DAG (schedule + minimization) — Original</h4>
+<p>Tiny DAG over a minimization report: baseline → minimized, with the minimal event set on the edge.</p>
+<ul>
+<li><strong>Originators:</strong> Original to this project.</li>
+<li><strong>Our code:</strong> <code>explain/explanation_dag.py</code> (schema <code>explanation-dag-v1</code>).</li>
+</ul>
+<hr>
+<h3>4. Simulation worlds (physics kernels)</h3>
+<p>All six worlds are <strong>deliberately simplified models</strong>. They are <strong>not calibrated</strong> to any real institution, market, or infrastructure system. Each is original to this project; the underlying mechanisms draw on well-known theory.</p>
+<h4>4.1 Aggregate stablecoin peg — Original kernel</h4>
+<p>Scalar pool: reserves drain on redemption shocks; panic decays with a fixed time constant; collapse if price &lt; threshold.</p>
+<ul>
+<li><strong>Mechanism family:</strong> Bank-run models in the Diamond–Dybvig tradition (<a href="https://www.journals.uchicago.edu/doi/10.1086/261155">Diamond &amp; Dybvig 1983</a>) and &quot;death spiral&quot; stablecoin dynamics analyzed post-Terra (e.g. <a href="https://www.nber.org/papers/w31256">Liu, Makarov &amp; Schoar 2023</a>).</li>
+<li><strong>Our code:</strong> <code>world/stablecoin_peg.py::StablecoinPegWorld</code>.</li>
+</ul>
+<h4>4.2 Network contagion — Standard diffusion on `networkx` graphs</h4>
+<p>Per-node panic updates by <code>pᵢ&#x27; ← (1-β) pᵢ + β · mean(pⱼ for j ∈ N(i))</code>.</p>
+<ul>
+<li><strong>Mechanism family:</strong> Linear opinion / consensus dynamics — DeGroot (1974), *<a href="https://www.jstor.org/stable/2285509">Reaching a Consensus</a>*. Threshold contagion: Granovetter (1978), *<a href="https://www.journals.uchicago.edu/doi/abs/10.1086/226707">Threshold Models of Collective Behavior</a>*, Watts (2002), *<a href="https://www.pnas.org/doi/10.1073/pnas.082090499">A simple model of global cascades on random networks</a>*. Financial contagion: Eisenberg &amp; Noe (2001) on payment clearing.</li>
+<li><strong>Topology generators:</strong> Erdős–Rényi (1959) and Watts–Strogatz (1998) — supplied by <strong>networkx</strong> (<code>erdos_renyi_graph</code>, <code>watts_strogatz_graph</code>).</li>
+<li><strong>Our code:</strong> <code>network/contagion.py::contagion_step_lists</code>, <code>network/topology.py</code>, <code>world/stablecoin_network.py</code>.</li>
+</ul>
+<h4>4.3 Resource cascade — Original kernel</h4>
+<p>Two coupled capacity headrooms (<code>h₀</code>, <code>h₁</code>) with a shared overload state. Overload feeds back into headroom; rumor shocks raise overload; reserve hits drop headroom.</p>
+<ul>
+<li><strong>Mechanism family:</strong> Cascading failure in capacity systems — Motter &amp; Lai (2002), *<a href="https://journals.aps.org/pre/abstract/10.1103/PhysRevE.66.065102">Cascade-based attacks on complex networks</a>*. Our two-layer reduction is original.</li>
+<li><strong>Our code:</strong> <code>world/resource_cascade.py::ResourceCascadeWorld</code>. Optional Numba acceleration: <code>runner_resource_cascade_numba.py</code> (well-formed parity tested vs. NumPy reference).</li>
+</ul>
+<h4>4.4 Service backlog — Original kernel</h4>
+<p>Queue length grows with demand, shrinks with process rate; collapse when backlog crosses threshold for too long.</p>
+<ul>
+<li><strong>Mechanism family:</strong> M/M/1-style queue dynamics (<a href="https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-24/issue-3/Stochastic-Processes-Occurring-in-the-Theory-of-Queues-and-their/10.1214/aoms/1177728975.full">Kendall 1953</a>); operational meltdown (&quot;backlog spiral&quot;) informal in ops literature. Specific reduction is original.</li>
+<li><strong>Our code:</strong> <code>world/service_backlog.py::ServiceBacklogWorld</code>.</li>
+</ul>
+<h4>4.5 Liquidity ladder — Original kernel</h4>
+<p>Margin utilization vs funding-ladder depth; reserve losses and rumor shocks erode runway; deleveraging mechanic when margin breaches haircut thresholds.</p>
+<ul>
+<li><strong>Mechanism family:</strong> Margin-call spiral / fire-sale literature — Brunnermeier &amp; Pedersen (2009), *<a href="https://academic.oup.com/rfs/article/22/6/2201/1592184">Market Liquidity and Funding Liquidity</a>*.</li>
+<li><strong>Our code:</strong> <code>world/liquidity_ladder.py::LiquidityLadderWorld</code>.</li>
+</ul>
+<h4>4.6 Inventory buffer — Original kernel</h4>
+<p>Normalized stock level <code>S</code> and fulfillment capacity <code>F</code> (both in <code>[0,1]</code>). <code>reserve_loss</code> shocks drain stock (demand spikes); <code>rumor</code> shocks erode fulfillment (supplier / logistics trust). Collapse when stock falls below <code>stockout_collapse</code> threshold or fulfillment falls below <code>fulfillment_floor_collapse</code>. Distinct from service backlog (queue depth) and peg worlds.</p>
+<ul>
+<li><strong>Originators:</strong> Original to this project (added in v0.5).</li>
+<li><strong>Our code:</strong> <code>src/fragility_engine/world/inventory_buffer.py</code>, <code>scripts/run_inventory_buffer_ga_demo.py</code>.</li>
+<li><strong>Frozen bundle:</strong> <code>inventory_buffer_rollout_v1</code> in <code>scripts/run_benchmark_suite.py --validate</code>.</li>
+</ul>
+<h4>4.7 Institutional composite — Original framing</h4>
+<p>Runs <strong>the same</strong> attacker schedule through several decoupled physics kernels (any subset of aggregate / network / resource_cascade / service_backlog / liquidity_ladder) and emits a side-by-side scorecard JSON. Kernels never exchange state inside a <code>step()</code> — this is a multi-kernel audit, not a multi-physics coupling.</p>
+<ul>
+<li><strong>Originators:</strong> Original to this project. The idea of applying a single stress through multiple decoupled views appears in regulatory stress-testing literature (e.g. EBA / Fed CCAR designs), but as a software primitive over a shared schedule encoding it is ours.</li>
+<li><strong>Our code:</strong> <code>benchmarks/institutional_composite.py</code> (schemas <code>fragility-institutional-composite-v1</code> through <code>v4</code>).</li>
+<li><strong>Viewer:</strong> <code>artifacts/composite_viewer/index.html</code>.</li>
+</ul>
+<hr>
+<h3>5. Benchmark and reproducibility</h3>
+<h4>5.1 Frozen-benchmark golden-metric harness — Original framework</h4>
+<p>Six bundles with pinned <code>(genome_seed, rollout_seed)</code> and asserted scalar metrics (within tolerance bands).</p>
+<ul>
+<li><strong>Originators:</strong> Original to this project (the framework). Conceptually similar to MLPerf-style benchmark suites, but for adversarial search instead of model training.</li>
+<li><strong>Our code:</strong> <code>benchmarks/suite.py</code>, <code>benchmarks/manifest.py</code>, <code>scripts/run_benchmark_suite.py --validate</code>.</li>
+</ul>
+<h4>5.2 Manifest digest pinning — Standard hash, original workflow</h4>
+<p>SHA-256 digest of the benchmark inventory; CI fails if digest drifts without an explicit bump.</p>
+<ul>
+<li><strong>Originators:</strong> SHA-256 — NIST FIPS 180-4. Pinning workflow is original.</li>
+<li><strong>Our code:</strong> <code>scripts/check_manifest_digest.py</code>, <code>benchmarks/manifest.py</code>.</li>
+</ul>
+<h4>5.3 Fragility certificate — Original</h4>
+<p>Bundles a flagship replay + Pareto front + environment fingerprint into a single signed JSON, intended as a paper-appendix or audit attachment.</p>
+<ul>
+<li><strong>Originators:</strong> Original to this project.</li>
+<li><strong>Our code:</strong> <code>benchmarks/certificate.py</code>, <code>scripts/export_fragility_certificate.py</code>.</li>
+</ul>
+<hr>
+<h3>6. Third-party libraries (provenance for transitive algorithms)</h3>
+<table><thead>
+<tr><th>Library</th><th>Algorithms we rely on</th><th>Citation</th></tr>
+</thead><tbody>
+<tr><td><strong>NumPy</strong></td><td>RNG (<code>PCG64</code> default), vector ops, linear algebra</td><td><a href="https://www.nature.com/articles/s41586-020-2649-2">Harris et al., 2020</a>, *Nature*. PCG: <a href="https://www.pcg-random.org/paper.html">O&#x27;Neill 2014</a>.</td></tr>
+<tr><td><strong>networkx</strong></td><td>Erdős–Rényi (<code>gnp_random_graph</code>), Watts–Strogatz (<code>watts_strogatz_graph</code>), graph traversal</td><td><a href="https://conference.scipy.org/proceedings/SciPy2008/paper_2/">Hagberg, Schult, Swart 2008</a>.</td></tr>
+<tr><td><strong>numba</strong> *(optional, accelerate extra)*</td><td>JIT compilation of the resource-cascade hot loop</td><td><a href="https://dl.acm.org/doi/10.1145/2833157.2833162">Lam, Pitrou, Seibert 2015</a>.</td></tr>
+<tr><td><strong>matplotlib</strong> *(optional, viz extra)*</td><td>Static plots in the analysis notebooks</td><td><a href="https://ieeexplore.ieee.org/document/4160265">Hunter 2007</a>.</td></tr>
+</tbody></table>
+<p>We do <strong>not</strong> use <code>scipy</code>, <code>pymoo</code>, <code>DEAP</code>, <code>cma</code>, <code>optuna</code>, or any other optimization library — every search, archive, and explanation algorithm above is implemented in this repository.</p>
+<hr>
+<h3>7. How to cite this work</h3>
+<p>If you build on the engine, please cite the project alongside the underlying algorithms above:</p>
+<p>```bibtex</p>
+<p>@software{fragility_discovery_engine_2026,</p>
+<p>  title  = {Fragility Discovery Engine},</p>
+<p>  author = {AgenticOp},</p>
+<p>  year   = {2026},</p>
+<p>  url    = {https://github.com/AgenticOp-io/fragility-discovery-engine},</p>
+<p>  version = {v0.5.0}</p>
+<p>}</p>
+<p>```</p>
+<hr>
+<h3>8. Where to read the code</h3>
+<table><thead>
+<tr><th>You want…</th><th>Start here</th></tr>
+</thead><tbody>
+<tr><td>The end-to-end rollout loop</td><td><code>src/fragility_engine/runner.py</code></td></tr>
+<tr><td>Search loops (MC / GA / Pareto)</td><td><code>src/fragility_engine/adversary/search.py</code></td></tr>
+<tr><td>Counterfactual primitives</td><td><code>src/fragility_engine/explain/counterfactual.py</code></td></tr>
+<tr><td>Mutation chains</td><td><code>src/fragility_engine/explain/counterfactual_chain*.py</code></td></tr>
+<tr><td>World physics (any domain)</td><td><code>src/fragility_engine/world/{stablecoin_peg, stablecoin_network, resource_cascade, service_backlog, liquidity_ladder, inventory_buffer}.py</code></td></tr>
+<tr><td>Benchmark / certificate / hypervolume</td><td><code>src/fragility_engine/benchmarks/</code></td></tr>
+<tr><td>Frozen JSON schemas (every export)</td><td><code>docs/REFERENCE.md</code> schema index</td></tr>
+</tbody></table></article>
+  </main>
+  <footer class="fde-footer" id="fdeSiteFooter">
+    <span>
+      <img src="/assets/logo.svg" alt="" width="20" height="20" class="fde-footer-logo"/>
+      <a href="https://agenticop.io">AgenticOps</a> · Fragility Discovery Engine · open-source simulation
+    </span>
+    <span>
+      <a href="/">Workbench</a>
+      · <a href="/run.html">Run a scenario</a>
+      · <a href="/docs/algorithms.html">Algorithms</a>
+      · <a href="https://github.com/AgenticOp-io/fragility-discovery-engine">Source</a>
+    </span>
+  </footer>
+
+  <script src="/assets/fde-workbench.js" defer></script>
+</body>
+</html>
