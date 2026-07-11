@@ -198,9 +198,19 @@
       hint: "Scrub the chart and watch peg and overload rise together.",
     },
     {
+      url: "/artifacts/replay_viewer/index.html#src=sample_coupled_tetra_replay.json",
+      selector: "#cv",
+      title: "7) Research fork — tetra replay",
+      body:
+        "The backlog tetra extends coupling with liquidity and backlog channels on top of panic and overload.\n\n" +
+        "This sample uses coupling_profile=backlog_tetra. Collapse arrives earlier than the two-scalar default because liquidity drains and backlog builds under the same pinned schedule.\n\n" +
+        "Cite digests via the flagship certificate research_fork_artifact_sha256 block (includes tetra JSON).",
+      hint: "Compare collapse timing to the two-scalar coupled replay.",
+    },
+    {
       url: "/artifacts/coupling_sweep_viewer/index.html",
       selector: "#cv",
-      title: "7) Coupling strength sweep",
+      title: "8) Coupling strength sweep",
       body:
         "This chart holds the attack schedule fixed and varies only coupling strength — how tightly peg panic and overload exchange signal each step.\n\n" +
         "Points show integral instability at each coupling level. Red markers mean the run collapsed within the horizon. Use it to see how much coupling alone can worsen outcomes.\n\n" +
@@ -210,7 +220,7 @@
     {
       url: "/artifacts/coupling_comparison_viewer/index.html",
       selector: "#panel .grid",
-      title: "8) Coupling comparison (A vs B)",
+      title: "9) Coupling comparison (A vs B)",
       body:
         "Here the same pinned schedule is run twice: a baseline coupling level and a higher-coupling variant.\n\n" +
         "The grid shows side-by-side metrics — collapse step, integral instability, attack cost — plus deltas so you can quantify how much worse the tighter coupling made the run.\n\n" +
@@ -218,14 +228,14 @@
       hint: "Read baseline vs variant columns and the delta row.",
     },
     {
-      url: "/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json",
+      url: "/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_tetra.json",
       selector: "#cv",
-      title: "9) Coupled fork trade-offs (Pareto)",
+      title: "10) Tetra fork trade-offs (Pareto)",
       body:
-        "A Pareto chart plots many attacks at once: severity (how bad the outcome) vs attack cost (how expensive the stress schedule was).\n\n" +
-        "Each dot is a non-dominated solution from a genetic search on coupled peg–overload physics. Cheap-but-mild sits on one end; expensive-but-devastating on the other.\n\n" +
-        "Co-evolution runs on Run a scenario produce fresh Pareto files under /runs/<id>/.",
-      hint: "Each dot is one attack — trace the cost vs severity frontier.",
+        "A Pareto chart plots many attacks at once: severity vs attack cost for the tetra contract under genetic search.\n\n" +
+        "Each dot is a non-dominated solution on panic/overload/liquidity/backlog physics. Compare with the two-scalar coupled Pareto on the workbench if you want the simpler frontier.\n\n" +
+        "Operator capsule: fragility shorthand resolve coupled-tetra-search.",
+      hint: "Each dot is one tetra-contract attack on the frontier.",
     },
     {
       url: "/artifacts/composite_viewer/index.html#src=../composite_demo/sample_hexa_composite.json",

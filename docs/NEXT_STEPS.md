@@ -22,6 +22,8 @@ Charter Phases H–P and **Q–S** are shipped on `main` at **v0.6.4**.
 - [x] **Operator Intelligence Shorthand** — Chrysalis-inspired tier ladder + CLI (`fragility shorthand`); see [`docs/INTELLIGENCE_SHORTHAND.md`](INTELLIGENCE_SHORTHAND.md).
 - [x] **Coupled mega-institution v0.4** — panic/overload/liquidity/backlog tetra, worth-it bar; charter [`forks/coupled_institution/CHARTER.md`](../forks/coupled_institution/CHARTER.md).
 - [x] **Tetra under search** — GA/MC demos + `coupled_institution_tetra_rollout_v1` golden + pinned search (`scripts/check_coupled_fork_tetra_search.py`).
+- [x] **Paper-appendix tetra digests** — flagship / fork certificates include tetra replay, tetra Pareto, and worth-it bar SHA-256s (`research_fork_validation.tetra_bundle_id`).
+- [x] **Workbench tetra + shorthand callouts** — demo table, tour steps, `/docs/intelligence-shorthand.html`.
 - [ ] **arXiv** — blocked on endorsement.
 - [ ] **Real BYOW adopter** — needs a domain owner with resettable/steppable physics (tutorials alone are not enough).
 

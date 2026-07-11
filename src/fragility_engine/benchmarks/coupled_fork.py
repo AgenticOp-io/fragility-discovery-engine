@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 COUPLED_FORK_BUNDLE_ID = "coupled_institution_rollout_v1"
+COUPLED_FORK_TETRA_BUNDLE_ID = "coupled_institution_tetra_rollout_v1"
 COUPLED_FORK_PARETO_SEARCH_BUNDLE_ID = "coupled_institution_pareto_search_v1"
 COUPLED_FORK_PARETO_SEARCH_V2_BUNDLE_ID = "coupled_institution_pareto_search_v2"
 
@@ -16,6 +17,9 @@ COUPLED_FORK_ARTIFACT_NAMES: tuple[str, ...] = (
     "coupling_strength_sweep.json",
     "sample_coupling_comparison.json",
     "sample_coupled_mutation_chain.json",
+    "sample_coupled_tetra_replay.json",
+    "sample_coupled_pareto_tetra.json",
+    "worth_it_bar.json",
 )
 
 
@@ -45,6 +49,11 @@ def run_coupled_fork_bundle_validation(repo_root: Path | None = None) -> dict[st
         return {
             "status": "failed",
             "bundle_id": COUPLED_FORK_BUNDLE_ID,
+            "tetra_bundle_id": COUPLED_FORK_TETRA_BUNDLE_ID,
             "error": err[:2000],
         }
-    return {"status": "passed", "bundle_id": COUPLED_FORK_BUNDLE_ID}
+    return {
+        "status": "passed",
+        "bundle_id": COUPLED_FORK_BUNDLE_ID,
+        "tetra_bundle_id": COUPLED_FORK_TETRA_BUNDLE_ID,
+    }

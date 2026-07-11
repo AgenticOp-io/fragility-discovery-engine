@@ -37,11 +37,15 @@ Operator Intelligence Shorthand (Chrysalis-inspired, post-hoc only): [`docs/INTE
 
 | Demo | URL |
 |------|-----|
-| Coupled replay | `/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json` |
+| Coupled replay (two-scalar) | `/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json` |
+| Tetra replay | `/artifacts/replay_viewer/index.html#src=sample_coupled_tetra_replay.json` |
 | Coupling mutation chain | `/artifacts/attribution_viewer/index.html#src=sample_coupled_mutation_chain.json` |
 | Coupling strength sweep chart | `/artifacts/coupling_sweep_viewer/index.html` |
 | Coupling baseline vs variant | `/artifacts/coupling_comparison_viewer/index.html` |
+| Two-scalar Pareto | `/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json` |
+| Tetra Pareto | `/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_tetra.json` |
 | Fork JSON bundle (download) | `/artifacts/coupled_fork_demo/` |
+| Operator shorthand | `/docs/intelligence-shorthand.html` |
 | Policy (this page) | `/docs/fork-coupling.html` |
 
 ```bash

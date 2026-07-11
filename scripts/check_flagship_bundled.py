@@ -63,8 +63,20 @@ def main() -> None:
             print(f"research_fork_validation not passed: {rf}", file=sys.stderr)
             raise SystemExit(1)
         rows = cert.get("research_fork_artifact_sha256") or []
-        if len(rows) < 3:
-            print("expected research_fork_artifact_sha256 with >= 3 entries", file=sys.stderr)
+        if len(rows) < 6:
+            print("expected research_fork_artifact_sha256 with >= 6 entries (incl. tetra)", file=sys.stderr)
+            raise SystemExit(1)
+        paths = {r.get("path", "") for r in rows}
+        for needle in (
+            "sample_coupled_tetra_replay.json",
+            "sample_coupled_pareto_tetra.json",
+            "worth_it_bar.json",
+        ):
+            if not any(p.endswith(needle) for p in paths):
+                print(f"missing tetra digest for {needle}", file=sys.stderr)
+                raise SystemExit(1)
+        if rf.get("tetra_bundle_id") != "coupled_institution_tetra_rollout_v1":
+            print(f"expected tetra_bundle_id on research_fork_validation: {rf}", file=sys.stderr)
             raise SystemExit(1)
 
     print("OK: flagship bundled certificate, pareto HV, and replay validated")

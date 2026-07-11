@@ -34,4 +34,10 @@ def test_refresh_flagship_bundled_certificate_cli() -> None:
     )
     cert = json.loads((ROOT / "artifacts" / "flagship" / "bundled" / "fragility_certificate.json").read_text())
     assert cert.get("research_fork_validation", {}).get("status") == "passed"
-    assert len(cert.get("research_fork_artifact_sha256") or []) >= 3
+    assert cert.get("research_fork_validation", {}).get("tetra_bundle_id") == (
+        "coupled_institution_tetra_rollout_v1"
+    )
+    rows = cert.get("research_fork_artifact_sha256") or []
+    assert len(rows) >= 6
+    paths = {r.get("path", "") for r in rows}
+    assert any(p.endswith("sample_coupled_tetra_replay.json") for p in paths)

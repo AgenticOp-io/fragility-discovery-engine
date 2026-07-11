@@ -69,6 +69,24 @@ Or reuse the certificate embedded in the flagship folder. Fields that matter for
 - `certificate_content_sha256` (hash of the JSON body **excluding** that field at generation time — stable for “this blob” citations)
 - `benchmark_manifest` (bundle inventory + schema fingerprints)
 
+### 5b. Research fork digests (two-scalar + tetra)
+
+When the coupled fork is present, refresh or export with research-fork blocks:
+
+```powershell
+python scripts/refresh_flagship_bundled_certificate.py
+# or fork-only:
+python scripts/export_coupled_fork_certificate.py --out artifacts/coupled_fork_demo/fork_certificate.json
+```
+
+Cite these fields alongside the main charter certificate:
+
+- `research_fork_validation.bundle_id` → `coupled_institution_rollout_v1`
+- `research_fork_validation.tetra_bundle_id` → `coupled_institution_tetra_rollout_v1`
+- `research_fork_artifact_sha256` → includes two-scalar samples **plus** `sample_coupled_tetra_replay.json`, `sample_coupled_pareto_tetra.json`, and `worth_it_bar.json`
+
+Pinned tetra search (GA/MC): `python scripts/check_coupled_fork_tetra_search.py`.
+
 ## 6. Narration + LLM prompt packs (Phase L)
 
 ```powershell

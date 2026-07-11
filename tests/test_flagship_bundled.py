@@ -61,4 +61,9 @@ def test_flagship_bundled_certificate_includes_research_fork_when_present() -> N
         return
     assert rf["status"] == "passed"
     assert rf["bundle_id"] == "coupled_institution_rollout_v1"
-    assert len(cert.get("research_fork_artifact_sha256") or []) >= 3
+    assert rf.get("tetra_bundle_id") == "coupled_institution_tetra_rollout_v1"
+    rows = cert.get("research_fork_artifact_sha256") or []
+    assert len(rows) >= 6
+    paths = {r.get("path", "") for r in rows}
+    assert any(p.endswith("sample_coupled_tetra_replay.json") for p in paths)
+    assert any(p.endswith("sample_coupled_pareto_tetra.json") for p in paths)

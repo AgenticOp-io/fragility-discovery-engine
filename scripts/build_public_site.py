@@ -230,14 +230,19 @@ def _workbench_index_main() -> str:
 
     <section class="fde-demo-section fde-demo-section-fork">
       <h2>Research fork — coupled institution</h2>
-      <p class="fde-demo-lead">Peg panic and overload exchange signals inside one simulation step (not the six-domain charter). Policy: <a href="/docs/fork-coupling.html">Coupled fork notes</a> · raw JSON bundle: <a href="/artifacts/coupled_fork_demo/">coupled_fork_demo</a>.</p>
+      <p class="fde-demo-lead">Peg panic and overload exchange signals inside one simulation step (not the six-domain charter). Opt-in <strong>backlog tetra</strong> adds liquidity + backlog channels. Policy: <a href="/docs/fork-coupling.html">Coupled fork notes</a> · raw JSON bundle: <a href="/artifacts/coupled_fork_demo/">coupled_fork_demo</a>.</p>
       <table class="fde-demo-table">
         <thead><tr><th>Sample</th><th>Viewer</th><th>Open</th></tr></thead>
         <tbody>
           <tr>
-            <td>Coupled replay</td>
+            <td>Coupled replay (two-scalar)</td>
             <td>Replay</td>
             <td><a href="/artifacts/replay_viewer/index.html#src=sample_coupled_institution_replay.json">Replay</a></td>
+          </tr>
+          <tr>
+            <td>Tetra replay (panic · overload · liquidity · backlog)</td>
+            <td>Replay</td>
+            <td><a href="/artifacts/replay_viewer/index.html#src=sample_coupled_tetra_replay.json">Replay</a></td>
           </tr>
           <tr>
             <td>Mutation chain</td>
@@ -255,14 +260,49 @@ def _workbench_index_main() -> str:
             <td><a href="/artifacts/coupling_comparison_viewer/index.html">Comparison viewer</a></td>
           </tr>
           <tr>
-            <td>GA Pareto frontier</td>
+            <td>GA Pareto frontier (two-scalar)</td>
             <td>Pareto</td>
             <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_institution.json">Chart</a></td>
+          </tr>
+          <tr>
+            <td>GA Pareto frontier (tetra)</td>
+            <td>Pareto</td>
+            <td><a href="/artifacts/pareto_viewer/index.html#src=sample_pareto_coupled_tetra.json">Chart</a></td>
           </tr>
           <tr>
             <td>LLM export bundles</td>
             <td>Manifest</td>
             <td><a href="/artifacts/llm_prompts/coupled_fork_exports/">Prompt bundles</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fde-demo-section">
+      <h2>Operator Intelligence Shorthand</h2>
+      <p class="fde-demo-lead">Verified CLI capsules for operators — goldens and certificates dispose; LLM output never enters <code>World.step</code>. Full map: <a href="/docs/intelligence-shorthand.html">Intelligence Shorthand</a>.</p>
+      <table class="fde-demo-table">
+        <thead><tr><th>Capsule</th><th>What it does</th><th>CLI</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>coupled-tetra-search</code></td>
+            <td>Pinned tetra GA/MC search goldens</td>
+            <td><code>fragility shorthand resolve coupled-tetra-search</code></td>
+          </tr>
+          <tr>
+            <td><code>coupled-worth-it</code></td>
+            <td>Two-scalar / triad / tetra worth-it bar</td>
+            <td><code>fragility shorthand resolve coupled-worth-it</code></td>
+          </tr>
+          <tr>
+            <td><code>certify-flagship</code></td>
+            <td>Flagship certificate with fork digests</td>
+            <td><code>fragility shorthand resolve certify-flagship</code></td>
+          </tr>
+          <tr>
+            <td>List all</td>
+            <td>Operator task ladder</td>
+            <td><code>fragility shorthand list</code></td>
           </tr>
         </tbody>
       </table>
@@ -949,6 +989,13 @@ def build(out: Path) -> dict[str, str]:
         description="Why coupled multi-physics lives in a sibling fork, not in the six-domain workbench charter.",
         md_filename="FORK_COUPLING_RESEARCH.md",
     )
+    _doc(
+        filename="intelligence-shorthand.html",
+        doc_id="docs-shorthand",
+        title="Operator Intelligence Shorthand — Fragility Discovery Engine",
+        description="Verified CLI capsules for operators; goldens dispose; never feeds World.step.",
+        md_filename="INTELLIGENCE_SHORTHAND.md",
+    )
 
     algo_md_path = ROOT / "docs" / "ALGORITHMS.md"
     if algo_md_path.is_file():
@@ -1027,7 +1074,12 @@ def build(out: Path) -> dict[str, str]:
         <a class="fde-card" href="/docs/fork-coupling.html">
           <span class="fde-card-tag">research</span>
           <h3>Coupled fork</h3>
-          <p>In-step peg–overload coupling, mutation-chain attribution, and downloadable fork JSON.</p>
+          <p>In-step peg–overload coupling, tetra channels, mutation-chain attribution, and downloadable fork JSON.</p>
+        </a>
+        <a class="fde-card" href="/docs/intelligence-shorthand.html">
+          <span class="fde-card-tag">operators</span>
+          <h3>Intelligence Shorthand</h3>
+          <p>Verified CLI capsules (<code>fragility shorthand</code>) — goldens dispose; never feeds simulation.</p>
         </a>
       </div>"""
     docs_index_main = f"""\
@@ -1046,7 +1098,8 @@ def build(out: Path) -> dict[str, str]:
         <li><a href="/docs/reference.html#common-json-schemas">Output file formats</a> — all schema IDs and what produces them.</li>
         <li><a href="/docs/scale-and-limits.html">Scale and limits</a> — complexity, parallelism, and sweep cost.</li>
         <li><a href="/docs/why-inventory-buffer.html">Why inventory buffer</a> — the sixth simulation domain explained.</li>
-        <li><a href="/docs/fork-coupling.html">Coupled fork</a> — research physics with in-step coupling (replay, attribution chain, <a href="/artifacts/coupled_fork_demo/">JSON bundle</a>).</li>
+        <li><a href="/docs/fork-coupling.html">Coupled fork</a> — research physics with in-step coupling, tetra samples, and <a href="/artifacts/coupled_fork_demo/">JSON bundle</a>.</li>
+        <li><a href="/docs/intelligence-shorthand.html">Intelligence Shorthand</a> — operator capsules (<code>fragility shorthand</code>).</li>
         <li><a href="/docs/algorithms.html">Algorithms</a> — what we built vs what we borrowed, with citations.</li>
         <li><a href="/run.html">Run a scenario</a> — start a search on this server right now.</li>
       </ul>

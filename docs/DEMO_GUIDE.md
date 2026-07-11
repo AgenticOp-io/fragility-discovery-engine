@@ -62,7 +62,7 @@ Results are saved on the server under `/runs/<id>/`. Nothing on your computer is
 
 **Charter domains** (aggregate peg, network contagion, resource cascade, service backlog, liquidity ladder, inventory buffer) are the stable reference workbench.
 
-**Coupled institution** is a research fork: peg panic and overload exchange signals inside one simulation step. It has its own sample section on the workbench and is documented in [Coupled fork (research)](/docs/fork-coupling.html).
+**Coupled institution** is a research fork: peg panic and overload exchange signals inside one simulation step. Opt-in **backlog tetra** adds liquidity and backlog channels. The workbench lists two-scalar and tetra samples; operator capsules live under [Intelligence Shorthand](/docs/intelligence-shorthand.html). Policy: [Coupled fork (research)](/docs/fork-coupling.html).
 
 ---
 

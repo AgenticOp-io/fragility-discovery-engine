@@ -3,7 +3,7 @@
   "fragility_engine_version": "0.6.2",
   "python_version": "3.12.10",
   "numpy_version": "2.4.6",
-  "git_commit": "79b4027d39c13d79370a66f7374f4d5090974727",
+  "git_commit": "e9d9b147e8dd03e84abcfb9693b628296485b64c",
   "artifact_sha256": [
     {
       "path": "C:\\Users\\david\\AgenticOps\\engines\\fragility-discovery-engine\\artifacts\\flagship\\bundled\\best_replay.json",
@@ -152,7 +152,7 @@
         "service_backlog_rollout_v1"
       ],
       "golden_metrics_sha256": "d2ff3a2c7ca501599daa26b8fdadad8800b8d9944c8312fa8834790e14316fc9",
-      "git_commit": "79b4027d39c13d79370a66f7374f4d5090974727",
+      "git_commit": "e9d9b147e8dd03e84abcfb9693b628296485b64c",
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.6.2",
@@ -166,7 +166,7 @@
       "python_version": "3.12.10",
       "numpy_version": "2.4.6",
       "fragility_engine_version": "0.6.2",
-      "git_commit": "79b4027d39c13d79370a66f7374f4d5090974727"
+      "git_commit": "e9d9b147e8dd03e84abcfb9693b628296485b64c"
     },
     "hypervolume_2d_min": {
       "module": "fragility_engine.benchmarks.hypervolume",
@@ -352,12 +352,13 @@
   ],
   "research_fork_validation": {
     "status": "passed",
-    "bundle_id": "coupled_institution_rollout_v1"
+    "bundle_id": "coupled_institution_rollout_v1",
+    "tetra_bundle_id": "coupled_institution_tetra_rollout_v1"
   },
   "research_fork_artifact_sha256": [
     {
       "path": "forks/coupled_institution/artifacts/sample_coupled_replay.json",
-      "sha256": "be16c372183449e28cf1c1c6cd055efd17bb0da1e32a5a68cb38f2ae4950dbc3"
+      "sha256": "b257aa909a29cbe6ff20357d4fad816c26c11605c56e84bf1417abf3c583e996"
     },
     {
       "path": "forks/coupled_institution/artifacts/coupling_strength_sweep.json",
@@ -370,6 +371,18 @@
     {
       "path": "forks/coupled_institution/artifacts/sample_coupled_mutation_chain.json",
       "sha256": "7d4bc04e87810aff4336e98b1165cbea3b7d4709c0f21ea0d5e07f8bfb10bb43"
+    },
+    {
+      "path": "forks/coupled_institution/artifacts/sample_coupled_tetra_replay.json",
+      "sha256": "1d6ef94a39152f41c4f397f99abd0bda6ad616753e9a961c22568bc904ca55d8"
+    },
+    {
+      "path": "forks/coupled_institution/artifacts/sample_coupled_pareto_tetra.json",
+      "sha256": "db205d3ad0d8e03c9be06aadf0721e08901c75b8ef5b1d267443a16c245a6f80"
+    },
+    {
+      "path": "forks/coupled_institution/artifacts/worth_it_bar.json",
+      "sha256": "5757b8d1906be4f4c3d8f4a3596d68c9840a304f1079363e46075d9d0adf7ae7"
     }
   ],
   "flagship_run": {
@@ -385,5 +398,5 @@
     }
   },
   "notes": "Synthetic flagship bundle for reviewer walkthrough; not a forecast of any real institution.",
-  "certificate_content_sha256": "93487ee8955e05973e4c9d81243b9bb15ab8860c9e297aa4f5b26bad5aee32c4"
+  "certificate_content_sha256": "7f1daba891c471584c51151997927b74cc92e3d0f803ce0754922a0fa4df7281"
 }
